@@ -1,0 +1,2 @@
+# MadBotPublic
+Исходный код MadBot

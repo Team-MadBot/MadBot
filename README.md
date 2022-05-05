@@ -1,11 +1,6 @@
 # MadBotPublic
 Исходный код MadBot. Вы можете помогать созданию бота, используя Pull Requests.
 
-MadBot Support: 
-.. image:: https://discord.com/api/guilds/336642139381301249/embed.png
-   :target: https://discord.gg/r3sSKJJ
-   :alt: Discord server invite
-
 ## Настройка:
 - Скачиваем репозиторий в отдельную папку.
 - Заходим в `config_example.py`.

@@ -1658,7 +1658,7 @@ async def kiss(interaction: discord.Interaction, member: discord.Member):
 
 @bot.tree.command(name="hit", description="[Реакции] Ударить участника")
 @app_commands.describe(member="Участник, которого вы хотите ударить.")
-async def kiss(interaction: discord.Interaction, member: discord.Member):
+async def hit(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:

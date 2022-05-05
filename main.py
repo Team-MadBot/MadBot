@@ -26,7 +26,7 @@ actual_outage = None
 botqueue = []
 owner_id = settings['owner_id']
 lastcommand = 'Ещё ни разу команды не использовались'
-curr_version = "0.5"
+curr_version = "0.6"
 
 btns=[
     {
@@ -190,6 +190,7 @@ bot.remove_command('help')
 @app_commands.describe(ver="Версия бота")
 @app_commands.choices(ver=[
     Choice(name="Актуальная", value="actual"),
+    Choice(name="0.6", value='06'),
     Choice(name="0.5", value="05"),
     Choice(name="0.4", value="04"),
     Choice(name="0.3.9", value="039"),
@@ -207,9 +208,13 @@ async def version(interaction: discord.Interaction, ver: Choice[str] = None):
     embed = None
     if ver != None:
         ver = ver.name
-    if ver == None or ver == '0.5' or ver == "Актуальная":
+    if ver == None or ver == '0.6' or ver == "Актуальная":
+        updated_at = datetime.datetime(2022, 5, 5, 20, 0, 0, 0)
+        embed=discord.Embed(title=f'Версия `{curr_version}`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Исправление обхода проверки иерархии, используя `/banoff`.\n> 2) Добавлены контекстные меню модерации.\n> 3) Добавлены команды `/kiss` и `/hit`.\n> 4) Для поцелуя необходимо получить разрешение от второго участника.\n> 5) Добавлена первая развлекательная команда: `/math`.\n> 6) Улучшение системы мониторинга бота.\n> 7) Поддержка ввода эмодзи в `/getemoji`.\n> 8) Фильтрация гифок в `/slap`. Не хочу случайно получить бана.\n> 9) Коллаборация `/clear` и `/clearfrom`.\n> 10) Добавлен счетчик обработанных команд в `/botinfo`.\n> 11) В заголовке `/serverinfo` отображается количество ботов.\n> 12) Куча исправлений.')
+        embed.set_footer(text="Обновлено:")
+    if ver == '0.5':
         updated_at = datetime.datetime(2022, 4, 18, 19, 0, 0, 0)
-        embed=discord.Embed(title=f'Версия `{curr_version}`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Добавлена команда `/banoff`.\n> 2) Добавлены команды реакций.\n> 3) Добавлены контекстные меню. Со временем их будет больше.\n> 4) Бот оповещает участника о выдаче участнику наказания.\n> 5) Добавлена команда `/getemoji`.\n> 6) Добавлены команды `/dog` и `/cat`.\n> 7) В `/botinfo` появился показ версий Python и discord.py, а так же показ кол-ва обработанных команд.\n> 8) Добавлена команда `/nsfw`. Применение объяснять не надо (так ведь?).\n> 9) В тестовом режиме добавлена команда `/base64`. Шифрует она только латиницу.\n> 10) Теперь в `/clearfrom` можно очищать сообщения любых участников.')
+        embed=discord.Embed(title=f'Версия `0.5`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Добавлена команда `/banoff`.\n> 2) Добавлены команды реакций.\n> 3) Добавлены контекстные меню. Со временем их будет больше.\n> 4) Бот оповещает участника о выдаче участнику наказания.\n> 5) Добавлена команда `/getemoji`.\n> 6) Добавлены команды `/dog` и `/cat`.\n> 7) В `/botinfo` появился показ версий Python и discord.py, а так же показ кол-ва обработанных команд.\n> 8) Добавлена команда `/nsfw`. Применение объяснять не надо (так ведь?).\n> 9) В тестовом режиме добавлена команда `/base64`. Шифрует она только латиницу.\n> 10) Теперь в `/clearfrom` можно очищать сообщения любых участников.')
         embed.set_footer(text="Обновлено:")
     if ver == '0.4':
         updated_at = datetime.datetime(2022, 3, 27, 19, 0, 0, 0)

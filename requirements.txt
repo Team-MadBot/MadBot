@@ -1,0 +1,8 @@
+git+https://github.com/Rapptz/discord.py
+discord-components
+pypresence
+PyNaCl
+aiohttp
+translate
+requests
+hmtai

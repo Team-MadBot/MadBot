@@ -1,2 +1,2 @@
 # MadBotPublic
-Исходный код MadBot
+Исходный код MadBot. Вы можете помогать созданию бота, используя Pull Requests.

@@ -31,7 +31,7 @@ curr_version = "0.6"
 btns=[
     {
         "label": "Добавить бота",
-        "url": f"https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions=1375060978775&scope=bot%20applications.commands"
+        "url": f"https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"
     },
     {
         "label": "Поддержка бота",
@@ -809,7 +809,7 @@ async def botinfo(interaction: discord.Interaction):
     embed.add_field(name="Кол-во участников:", value=members, inline=False)
     owner = await bot.fetch_user(owner_id)
     embed.add_field(name="Разработчик:", value=f"{owner.mention} (ID: 560529834325966858)", inline=False)
-    embed.add_field(name="Ссылки", value=f"[Поддержка](https://discord.gg/uWVTTbb9q6)\n[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions=1375060978775&scope=bot%20applications.commands)")
+    embed.add_field(name="Ссылки", value=f"[Поддержка](https://discord.gg/uWVTTbb9q6)\n[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)")
     embed.add_field(name="Последняя использованная команда:", value=lastcommand, inline=False)
     embed.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(bot.tree.get_commands(type=discord.AppCommandType.chat_input))}/{len(bot.tree.get_commands(type=discord.AppCommandType.user)) + len(bot.tree.get_commands(type=discord.AppCommandType.message))}")
     embed.add_field(name="Обработано команд:", value=used_commands, inline=False)

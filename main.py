@@ -1136,9 +1136,7 @@ async def outages(interaction: discord.Interaction):
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/outages`'
     channel = await bot.fetch_channel(settings['outages'])
-    outage = None
-    async for message in channel.history(limit=1):
-        outage = message
+    outage = channel.last_message
     if message.content.find("<:outage_fixed:958778052136042616>") == -1:
         embed = discord.Embed(title="Обнаружено сообщение о сбое!", color=discord.Color.red(), description=outage.content, timestamp=outage.created_at())
         embed.set_author(name=outage.author, icon_url=outage.author.display_avatar.url)

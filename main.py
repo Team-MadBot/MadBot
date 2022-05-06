@@ -31,7 +31,7 @@ curr_version = "0.6"
 btns=[
     {
         "label": "Добавить бота",
-        "url": "https://discord.com/oauth2/authorize?client_id=880911386916577281&permissions=1375060978775&scope=bot%20applications.commands"
+        "url": f"https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions=1375060978775&scope=bot%20applications.commands"
     },
     {
         "label": "Поддержка бота",
@@ -39,7 +39,7 @@ btns=[
     }
 ]
 try:
-    RPC = Presence("880911386916577281") # Discord Rich Presence. Будет видно при запуске бота.
+    RPC = Presence(f"{settings['client_id']}") # Discord Rich Presence. Будет видно при запуске бота.
 except:
     pass
 else:
@@ -67,9 +67,9 @@ async def on_connect():
 @bot.event
 async def on_ready():
     global started_at
-    server = bot.get_guild(914181806285279232) # Сервер логов.
-    logs = server.get_channel(924241555697594380) # Канал логов.
-    channel = bot.get_channel(967484036127813713) # Канал "общения" мониторинга.
+    server = bot.get_guild(settings['server']) # Сервер логов.
+    logs = server.get_channel(settings['log_channel']) # Канал логов.
+    channel = bot.get_channel(967484036127813713) # Канал "общения" мониторинга. Закомментируйте, если хотите.
     for guild in bot.guilds: # Проверка на нахождение в чёрном списке.
         if guild.id in blacklist:
             await guild.leave()
@@ -79,7 +79,7 @@ async def on_ready():
         started_at -= 10800
     embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(), description=f"Пинг: `{int(round(bot.latency, 3)*1000)}ms`\nВерсия: `{curr_version}`")
     await logs.send(embed=embed)
-    await channel.send("OK")
+    await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.
     while True:
         if actual_outage == None:
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | {int(round(bot.latency, 3)*1000)}ms"))
@@ -176,7 +176,7 @@ async def on_message(message: discord.Message):
         if message.content == "mad.debug status":
             await message.channel.send("OK")
 
-    if message.content.startswith("<@!880911386916577281>") or message.content.startswith("<@880911386916577281>"):
+    if message.content.startswith(f"<@!{bot.user.id}>") or message.content.startswith(f"<@{bot.user.id}>"):
         embed=discord.Embed(title="Привет! Рад, что я тебе чем-то нужен!", color=discord.Color.orange(), description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.")
         await message.reply(embed=embed, mention_author=False)
 
@@ -809,7 +809,7 @@ async def botinfo(interaction: discord.Interaction):
     embed.add_field(name="Кол-во участников:", value=members, inline=False)
     owner = await bot.fetch_user(owner_id)
     embed.add_field(name="Разработчик:", value=f"{owner.mention} (ID: 560529834325966858)", inline=False)
-    embed.add_field(name="Ссылки", value=f"[Поддержка](https://discord.gg/uWVTTbb9q6)\n[Добавить на сервер](https://discord.com/oauth2/authorize?client_id=880911386916577281&permissions=1375060978775&scope=bot%20applications.commands)")
+    embed.add_field(name="Ссылки", value=f"[Поддержка](https://discord.gg/uWVTTbb9q6)\n[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions=1375060978775&scope=bot%20applications.commands)")
     embed.add_field(name="Последняя использованная команда:", value=lastcommand, inline=False)
     embed.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(bot.tree.get_commands(type=discord.AppCommandType.chat_input))}/{len(bot.tree.get_commands(type=discord.AppCommandType.user)) + len(bot.tree.get_commands(type=discord.AppCommandType.message))}")
     embed.add_field(name="Обработано команд:", value=used_commands, inline=False)

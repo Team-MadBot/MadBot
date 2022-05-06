@@ -1619,7 +1619,7 @@ async def kiss(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.context_menu(name="Поцеловать")
-async def kiss(interaction: discord.Interaction, member: discord.Member):
+async def context_kiss(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:

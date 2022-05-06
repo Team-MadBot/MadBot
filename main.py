@@ -5,7 +5,6 @@ requirements.txt (pip install -r requirements.txt). Код закомменти�
 простоты редактирования. Для работысоздайте файл config.py в папке с исходным 
 кодом и заполните его по образцу из репозитория.
 """
-from email import message
 import os, sys, datetime, time, discord, requests, random
 from hmtai import useHM
 from base64 import b64encode, b64decode

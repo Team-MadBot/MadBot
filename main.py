@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Исходный код MadBot'a. Для корректной работы установите все библиотеки из
-requirements.txt. Код закомментирован для простоты редактирования. Для работы
-создайте файл config.py в папке с исходным кодом и заполните его по образцу из
-репозитория.
+requirements.txt (pip install -r requirements.txt). Код закомментирован для 
+простоты редактирования. Для работысоздайте файл config.py в папке с исходным 
+кодом и заполните его по образцу из репозитория.
 """
 import os, sys, datetime, time, discord, requests, random
 from hmtai import useHM

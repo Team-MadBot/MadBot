@@ -5,13 +5,14 @@ requirements.txt (pip install -r requirements.txt). Код закомменти�
 простоты редактирования. Для работысоздайте файл config.py в папке с исходным 
 кодом и заполните его по образцу из репозитория.
 """
+from email import message
 import os, sys, datetime, time, discord, requests, random
 from hmtai import useHM
 from base64 import b64encode, b64decode
 from pypresence import Presence
 from typing import Literal
 from discord.app_commands import Choice
-from discord import Forbidden, NotFound, app_commands
+from discord import ChannelFlags, Forbidden, NotFound, app_commands
 from discord.ext import commands
 from asyncio import sleep, TimeoutError
 from config_example import *
@@ -1125,41 +1126,6 @@ async def badgeinfo(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 
-@bot.tree.command(name="report_outage", description="Сообщить о сбое", guilds=testserver)
-async def report_outage(interaction: discord.Interaction, name: str, description: str, type: Literal['major', 'minor'] = "minor"):
-    if interaction.user.id != owner_id:
-        return await interaction.response.send_message("No permissions!", ephemeral=True)
-    global actual_outage
-    type_outage = None
-    color = None
-    if type == 'major':
-        type_outage = "Мастабный сбой"
-        color = discord.Color.red()
-        await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name="исправление мастабного сбоя"))
-    else:
-        type_outage = "Незначительный сбой"
-        color = discord.Color.yellow()
-    actual_outage = discord.Embed(title=f"{type_outage} - {name}", color=color, description=description, timestamp=discord.utils.utcnow())
-    actual_outage.set_footer(text="Актуально на")
-    outage_channel = bot.get_channel(950427940338958387)
-    await outage_channel.send(embed=actual_outage)
-    await interaction.response.send_message("Reported!")
-
-
-@bot.tree.command(name="fixed", description="Сообщить об исправлении сбоя", guilds=testserver)
-async def fixed(interaction: discord.Interaction):
-    if interaction.user.id != owner_id:
-        return await interaction.response.send_message("No permissions!", ephemeral=True)
-    global actual_outage
-    actual_outage = None
-    outage_channel = bot.get_channel(950427940338958387)
-    embed = discord.Embed(title="Исправлено!", color=discord.Color.green(), description="Недавний сбой был исправен! Бот возвращён в штатный режим! Спасибо за терпение!", timestamp=discord.utils.utcnow())
-    embed.set_footer(text="Актуально на")
-    await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"'/' | {len(bot.guilds)} серверов"))
-    await outage_channel.send(embed=embed)
-    await interaction.response.send_message("Reported!")
-
-
 @bot.tree.command(name='outages', description="[Полезности] Показывает актуальные сбои в работе бота.")
 async def outages(interaction: discord.Interaction):
     global lastcommand, used_commands
@@ -1169,13 +1135,19 @@ async def outages(interaction: discord.Interaction):
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/outages`'
-    actual_at = discord.utils.utcnow()
-    embed = discord.Embed(title = "На данный момент сбоев не обнаружено!", color=discord.Color.green(), description="Приятного использования бота `MadBot`! В случае, если вы нашли сбой в работе, но он здесь не отображается - обратитесь в поддержку (ссылка находится в `/botinfo`)!", timestamp=actual_at)
-    embed.set_footer(text="Актуально на")
-    if actual_outage == None:
+    channel = await bot.fetch_channel(settings['outages'])
+    outage = None
+    async for message in channel.history(limit=1):
+        outage = message
+    if message.content.find("<:outage_fixed:958778052136042616>") == -1:
+        embed = discord.Embed(title="Обнаружено сообщение о сбое!", color=discord.Color.red(), description=outage.content, timestamp=outage.created_at())
+        embed.set_author(name=outage.author, icon_url=outage.author.display_avatar.url)
+        embed.set_footer(text="Актуально на")
         await interaction.response.send_message(embed=embed)
     else:
-        await interaction.response.send_message(embed=actual_outage)
+        embed = discord.Embed(title="Актуальные сбои отсутствуют", color=discord.Color.green(), description="Спасибо, что пользуетесь MadBot!", timestamp=discord.utils.utcnow())
+        embed.set_footer(text="Актуально на")
+        await interaction.response.send_message(embed=embed)
 
 
 @bot.tree.command(name='clone', description="[Модерация] Клонирует чат.")

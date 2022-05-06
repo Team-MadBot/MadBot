@@ -7,7 +7,8 @@ settings = {
     'server': 914181806285279232, # Сервер логов.
     'log_channel': 924241555697594380, # Канал логирования.
     'client_id': 880911386916577281, # Client ID бота.
-    'perm_scope': 1375060978775 # Permission Integer.
+    'perm_scope': 1375060978775, # Permission Integer.
+    'outages': 950427940338958387 # ID канала с оповещениями о сбоях.
 }
 
 

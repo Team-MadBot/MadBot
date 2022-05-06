@@ -12,8 +12,6 @@ MadBotPublic
 - Ставим значения в ``settings`` на свои.
 - Запускаем ``main.py``.
 
-Статус бота не поменяется, но это будет исправлено позже.
-
 Требования:
 ------------
 См. `requirements.txt <https://github.com/MadCat9958/MadBotPublic/blob/main/requirements.txt/>`__.

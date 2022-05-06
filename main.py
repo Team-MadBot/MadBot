@@ -124,8 +124,16 @@ async def on_guild_join(guild: discord.Guild):
         embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}", color=discord.Color.orange(), description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Ваш сервер: `{len(bot.guilds)}-ый`.")
         embed.add_field(name="Поддержка:", value="https://discord.gg/uWVTTbb9q6")
         embed.set_thumbnail(url=bot.user.avatar.url)
+        adder = None
         try:
-            await guild.owner.send(embed=embed)
+            async for entry in guild.audit_logs(limit=5, action=discord.AuditLogAction.bot_add):
+                if entry.target.id == bot.user.id:
+                    adder = entry.user
+        except Forbidden:
+            adder = guild.owner
+            embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.")
+        try:
+            await adder.send(embed=embed)
         except:
             pass
         embed = discord.Embed(title="Новый сервер!", color=discord.Color.green())

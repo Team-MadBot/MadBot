@@ -89,7 +89,7 @@ async def on_ready():
 @bot.tree.error
 async def on_error(interaction: discord.Interaction, error):
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```", timestamp=discord.utils.utcnow())
-    channel = bot.get_channel(924241555697594380)
+    channel = bot.get_channel(settings['log_channel'])
     await channel.send(f"```\nOn command '{interaction.command.name}'\n{error}```")
     try:
         await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -102,7 +102,7 @@ async def on_error(interaction: discord.Interaction, error):
 async def on_command_error(ctx: commands.Context, error: commands.CommandError):
     await ctx.message.add_reaction("❌")
     await ctx.message.reply(f"```\n{error}```", delete_after=30)
-    channel = bot.get_channel(924241555697594380)
+    channel = bot.get_channel(settings['log_channel'])
     await channel.send(f'```\nOn message "{ctx.message.content}"\n\n{error}```')
     print(error)
     await sleep(30)

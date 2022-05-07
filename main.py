@@ -9,7 +9,7 @@ import os, sys, datetime, time, discord, requests, random
 from hmtai import useHM
 from base64 import b64encode, b64decode
 from pypresence import Presence
-from typing import Literal
+from typing import ChainMap, Literal
 from discord.app_commands import Choice
 from discord import Forbidden, Member, NotFound, app_commands
 from discord.ext import commands
@@ -712,7 +712,30 @@ async def clear(interaction: discord.Interaction, radius: app_commands.Range[int
 
 @bot.tree.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
 @app_commands.describe(member='Участник, чью аватарку вы хотите получить', format="Формат изображения", size="Размер изображения", type="Тип аватара")
-async def avatar(interaction: discord.Interaction, member: discord.Member = None, format: Literal['jpg', 'jpeg', 'png', 'webp'] = "png", size: Literal[16, 32, 64, 128, 256, 512, 1024, 2048, 4096] = 2048, type: Literal['standart', 'server'] = 'server'):
+@app_commands.choices(
+    format=[
+        Choice(name="PNG (прозрачный фон)", value="png"),
+        Choice(name="JPEG (черный фон)", value="jpeg"),
+        Choice(name="JPG (как JPEG)", value='jpg'),
+        Choice(name="WEBP (веб-картинка)", value='webp')
+    ],
+    size=[
+        Choice(name="16x16 пикселей", value=16),
+        Choice(name="32x32 пикселей", value=32),
+        Choice(name="64x64 пикселей", value=64),
+        Choice(name="128x128 пикселей", value=128),
+        Choice(name="256x256 пикселей", value=256),
+        Choice(name="512x512 пикселей", value=512),
+        Choice(name="1024x1024 пикселей", value=1024),
+        Choice(name="2048x2048 пикселей", value=2048),
+        Choice(name="4096x4096 пикселей", value=4096)
+    ],
+    type=[
+        Choice(name="Стандартная", value='standart'),
+        Choice(name="Серверная", value='server')
+    ]
+)
+async def avatar(interaction: discord.Interaction, member: discord.Member = None, format: Choice[str] = "png", size: Choice[int] = 2048, type: Choice[str] = 'server'):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
@@ -726,10 +749,14 @@ async def avatar(interaction: discord.Interaction, member: discord.Member = None
     lastcommand = "`/avatar`"
     if member == None:
         member = interaction.user
+    if format != 'png':
+        format = format.value
+    if size != 2048:
+        size = size.value
+    if type != 'server':
+        type = type.value
     user_avatar = member.display_avatar
-    if type == "server":
-        user_avatar = member.display_avatar
-    elif member.avatar != None:
+    if member.avatar != None:
         user_avatar = member.avatar
     embed = discord.Embed(color=member.color, description=f"[Скачать]({user_avatar.replace(static_format=format, size=size)})")
     embed.set_author(name=f"Аватар {member.name}")

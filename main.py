@@ -146,7 +146,7 @@ async def on_guild_join(guild: discord.Guild):
             embed.set_thumbnail(url=guild.icon.url)
         except:
             pass
-        log_channel = await bot.fetch_channel(924241555697594380)
+        log_channel = bot.get_channel(settings['log_channel'])
         await log_channel.send(embed=embed)
         await bot.tree.sync()
 

@@ -759,7 +759,7 @@ async def avatar(interaction: discord.Interaction, member: discord.Member = None
     if member.avatar != None:
         user_avatar = member.avatar
     embed = discord.Embed(color=member.color, description=f"[Скачать]({user_avatar.replace(static_format=format, size=size)})")
-    embed.set_author(name=f"Аватар {member.name}")
+    embed.set_author(name=f"Аватар {member}")
     embed.set_image(url=user_avatar.replace(static_format=format, size=size))
     if type == "server":
         type = "Серверный"

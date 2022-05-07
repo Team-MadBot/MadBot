@@ -170,6 +170,13 @@ async def on_message(message: discord.Message):
     if message.author == bot.user or message.author.id in blacklist:
         return
 
+    if message.channel.id == settings['github_channel']:
+        await sleep(10) # Задержка, чтобы можно было успеть удалить сообщение.
+        try:
+            await message.publish()
+        except:
+            pass
+
     if message.content.startswith('Дарова, ботяра'):
         await message.reply(f' {message.author.mention} бот, не я')
 

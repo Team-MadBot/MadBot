@@ -1,3 +1,7 @@
+"""
+config_example.py. Данные со значениями должны быть обязательно указаны.
+Списки снизу можно дополнять своими данными.
+"""
 import discord
 
 settings = {
@@ -12,22 +16,22 @@ settings = {
 }
 
 
-blacklist = [
+blacklist = [ # ID сервера/участника, который в ЧС бота.
     
 ]
-supports = [
+supports = [ # ID сотрудников поддержки.
     
 ]
-verified = [
+verified = [ # ID верифицированных серверов/участников.
     
 ]
-beta_testers = [
+beta_testers = [ # ID серверов, учавствующих в бета-тесте.
     
 ]
-bug_hunters = [
+bug_hunters = [ # ID баг-хантеров.
     
 ]
-bug_terminators = [
+bug_terminators = [ # ID баг-терминаторов.
     
 ]
 testserver = [ # Тестовые сервера в формате discord.Object(id=ID).
@@ -35,7 +39,7 @@ testserver = [ # Тестовые сервера в формате discord.Objec
 ]
 
 
-slap_gifs = [
+slap_gifs = [ # Гифки шлёпа.
     "https://cdn.discordapp.com/attachments/707201738255368194/847553281852702770/tenor_1.gif",
     "https://cdn.discordapp.com/attachments/707201738255368194/847553382339182642/tenor_2.gif",
     "https://cdn.discordapp.com/attachments/707201738255368194/847553413319098418/tenor_3.gif",
@@ -46,7 +50,7 @@ slap_gifs = [
     "https://cdn.discordapp.com/attachments/707201738255368194/847554139943731250/tenor_23.gif",
     "https://cdn.discordapp.com/attachments/707201738255368194/847554219648352266/tenor_24.gif"
 ]
-kiss_gifs = [
+kiss_gifs = [ # Гифки поцелуя.
     "https://i.imgur.com/a66k9c7.gif",
     "https://cdn.discordapp.com/attachments/956616897363869796/967834319160750111/animesher.com_kiss-anime-love-tender-kiss-766612.gif",
     "https://cdn.discordapp.com/attachments/956616897363869796/967834665568305162/d0cd64030f383d56e7edc54a484d4b8d.gif",
@@ -54,7 +58,7 @@ kiss_gifs = [
     "https://cdn.discordapp.com/attachments/956616897363869796/967834666277175296/kiss-anime.gif",
     "https://cdn.discordapp.com/attachments/956616897363869796/967834666709164123/tumblr_0cd93127b3eee8352ca2a5a66349bcdb_0d2f4ba2_500.gif"
 ]
-hit_gifs = [
+hit_gifs = [ # Гифки удара.
     "https://cdn.discordapp.com/attachments/956616897363869796/967842754828861470/2ce5a017f6556ff103bce87b273b89b7.gif",
     "https://cdn.discordapp.com/attachments/956616897363869796/967842755147624468/anime.gif",
     "https://cdn.discordapp.com/attachments/956616897363869796/967842755697049600/anime-hit.gif",

@@ -16,13 +16,11 @@ from asyncio import sleep, TimeoutError
 from config_example import *
 
 
-intents = discord.Intents.all()
 used_commands = 0 # Счетчик использований команд
 key = settings['key']
-bot = commands.Bot(command_prefix='mad.', intents=intents)
+bot = commands.Bot(command_prefix='mad.', intents=discord.Intents.all())
 started_at = int(time.mktime(discord.utils.utcnow().timetuple()) + 10800)
 actual_outage = None
-botqueue = []
 owner_id = settings['owner_id']
 lastcommand = 'Ещё ни разу команды не использовались'
 curr_version = "0.6"

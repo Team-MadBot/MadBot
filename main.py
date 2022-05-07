@@ -819,6 +819,16 @@ async def botinfo(interaction: discord.Interaction):
     embed.add_field(name="Версия:", value=curr_version)
     embed.add_field(name="Версия discord.py:", value=f"{discord.version_info.major}.{discord.version_info.minor}.{discord.version_info.micro} `{discord.version_info.releaselevel.upper()}`")
     embed.add_field(name="Версия Python:", value=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+    ver_info = sys.platform
+    if ver_info.startswith("win32"):
+        ver_info = "Windows"
+    if ver_info.startswith("linux"):
+        ver_info = "Linux"
+    if ver_info.startswith("aix"):
+        ver_info = "AIX"
+    if ver_info.startswith("darwin"):
+        ver_info = "MacOS"
+    embed.add_field(name="Операционная система:", value=ver_info)
     embed.add_field(name="Пинг:", value=f"{int(round(bot.latency, 3)*1000)}ms")
     embed.add_field(name="Запущен:", value=f"<t:{started_at}:R>")
     embed.add_field(name="Кол-во серверов:", value=len(bot.guilds))

@@ -9,7 +9,6 @@ import os, sys, datetime, time, discord, requests, random
 from hmtai import useHM
 from base64 import b64encode, b64decode
 from pypresence import Presence
-from typing import ChainMap, Literal
 from discord.app_commands import Choice
 from discord import Forbidden, Member, NotFound, app_commands
 from discord.ext import commands

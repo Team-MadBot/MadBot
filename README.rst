@@ -2,7 +2,7 @@ MadBotPublic
 ============
 .. image:: https://discord.com/api/guilds/914181806285279232/embed.png
    :target: https://discord.gg/uWVTTbb9q6
-   :alt: Discord server invite
+   :alt: Приглашение на Discord сервер поддержки.
 Исходный код MadBot. Вы можете помогать созданию бота, используя Pull Requests.
 
 Настройка:

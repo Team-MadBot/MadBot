@@ -1748,25 +1748,18 @@ async def base64(interaction: discord.Interaction, make: Choice[str], text: str)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/base64`'
     if make.value == "encode":
-        try:
-            ans = text.encode("ascii")
-        except:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может зашифровать данный текст. Убедитесь в отсутствии кириллицы и попробуйте снова!")
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        ans = text.encode("utf8")
         ans = b64encode(ans)
-        ans = ans.decode("ascii")
+        ans = ans.decode("utf8")
+        ans = str(ans).removeprefix("b'")
+        ans = str(ans).removesuffix("'")
         embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange())
         embed.add_field(name="Исходный текст:", value=text, inline=False)
         embed.add_field(name="Полученный текст:", value=ans)
         await interaction.response.send_message(embed=embed, ephemeral=True)
     if make.value == "decode":
-        try:
-            ans = text.encode("ascii")
-        except:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может зашифровать данный текст. Убедитесь в отсутствии кириллицы и попробуйте снова!")
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        ans = b64decode(ans)
-        ans = ans.decode("ascii")
+        ans = b64decode(text)
+        ans = ans.decode("utf8")
         embed = discord.Embed(title="Расшифровка:", color=discord.Color.orange())
         embed.add_field(name="Исходный текст:", value=text, inline=False)
         embed.add_field(name="Полученный текст:", value=ans)

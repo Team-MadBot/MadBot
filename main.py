@@ -1322,7 +1322,7 @@ async def idea(interaction: discord.Interaction, title: str, description: str, a
     idea_embed.set_author(name=interaction.user, icon_url=interaction.user.display_avatar)
     if attachment != None:
         idea_embed.set_image(url=attachment.url)
-    channel = bot.get_channel(957688771200053379)
+    channel = bot.get_channel(settings['idea_channel'])
     message = await channel.send(embed=idea_embed)
     await message.add_reaction("✅")
     await message.add_reaction("💤")

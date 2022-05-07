@@ -1712,6 +1712,7 @@ async def base64(interaction: discord.Interaction, make: Choice[str], text: str)
 @app_commands.describe(choice="Тематика NSFW картинки", is_ephemeral="Выберите, будет ли картинка отправлена только вам.")
 @app_commands.choices(choice=[
     Choice(name="Ass", value="ass"),
+    Choice(name="BDSM", value="bdsm"),
     Choice(name="Cum", value="cum"),
     Choice(name="Creampie", value="creampie"),
     Choice(name="Manga", value="manga"),

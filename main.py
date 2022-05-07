@@ -121,6 +121,7 @@ async def on_guild_join(guild: discord.Guild):
         await guild.leave()
         print(f"Бот вышел из {guild.name} ({guild.id})")
     else: 
+        await sleep(1)
         embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}", color=discord.Color.orange(), description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Ваш сервер: `{len(bot.guilds)}-ый`.")
         embed.add_field(name="Поддержка:", value="https://discord.gg/uWVTTbb9q6")
         embed.set_thumbnail(url=bot.user.avatar.url)

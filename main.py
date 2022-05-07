@@ -74,7 +74,7 @@ async def on_ready():
         if guild.id in blacklist:
             await guild.leave()
             print(f"Бот вышел из {guild.name} ({guild.id})")
-    print("Авторизация успешна! Бот готов к работе!")
+    print(f"Авторизация успешна! {bot.user} готов к работе!")
     if round(bot.latency, 3)*1000 < 90:
         started_at -= 10800
     embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(), description=f"Пинг: `{int(round(bot.latency, 3)*1000)}ms`\nВерсия: `{curr_version}`")
@@ -1252,9 +1252,10 @@ async def nick(interaction: discord.Interaction, argument: str = None):
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = "`/nick`"
-    if len(argument) > 32:
-        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
-        return await interaction.response.send_message(embed=embed, ephemeral=True)
+    if argument != None:
+        if len(argument) > 32:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
     if interaction.user.guild_permissions.change_nickname:
         if interaction.user.id == interaction.guild.owner.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может изменять никнейм владельцу сервера!")
@@ -1272,7 +1273,12 @@ async def nick(interaction: discord.Interaction, argument: str = None):
                 embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
             await interaction.response.send_message(embed=embed, ephemeral=True)
     else:
-        embed = discord.Embed(title="Запрос разрешения", color=discord.Color.orange(), description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\nВаш желаемый ник: `{argument}`.")
+        string = None
+        if argument == None:
+            string = "Вы желаете сбросить никнейм."
+        else:
+            string = f"Ваш желаемый ник: `{argument}`."
+        embed = discord.Embed(title="Запрос разрешения", color=discord.Color.orange(), description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\n{string}")
         embed.set_footer(text="Время ожидания: 5 минут.")
         await interaction.response.send_message(embed=embed)
         bot_message = await interaction.original_message()
@@ -1305,6 +1311,7 @@ async def nick(interaction: discord.Interaction, argument: str = None):
                 else:
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
                     embed.set_author(name=user, icon_url=user.display_avatar.url)
+                await bot_message.clear_reactions()
                 await interaction.edit_original_message(embed=embed)
 
 

@@ -1733,7 +1733,7 @@ async def context_hit(interaction: discord.Interaction, member: discord.Member):
     await interaction.response.send_message(embed=embed)
 
 
-@bot.tree.command(name="base64", description="[Полезности | Нестабильность] (Де-)кодирует указанный текст в Base64.")
+@bot.tree.command(name="base64", description="[Полезности] (Де-)кодирует указанный текст в Base64.")
 @app_commands.describe(make="Что нужно сделать с текстом?", text="Текст для (де-)кодировки")
 @app_commands.choices(make=[
     Choice(name="Кодировать", value="encode"),
@@ -1748,7 +1748,11 @@ async def base64(interaction: discord.Interaction, make: Choice[str], text: str)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/base64`'
     if make.value == "encode":
-        ans = text.encode("ascii")
+        try:
+            ans = text.encode("ascii")
+        except:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может зашифровать данный текст. Убедитесь в отсутствии кириллицы и попробуйте снова!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         ans = b64encode(ans)
         ans = ans.decode("ascii")
         embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange())
@@ -1756,7 +1760,11 @@ async def base64(interaction: discord.Interaction, make: Choice[str], text: str)
         embed.add_field(name="Полученный текст:", value=ans)
         await interaction.response.send_message(embed=embed, ephemeral=True)
     if make.value == "decode":
-        ans = text.encode("ascii")
+        try:
+            ans = text.encode("ascii")
+        except:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может зашифровать данный текст. Убедитесь в отсутствии кириллицы и попробуйте снова!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         ans = b64decode(ans)
         ans = ans.decode("ascii")
         embed = discord.Embed(title="Расшифровка:", color=discord.Color.orange())

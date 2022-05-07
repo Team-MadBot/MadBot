@@ -11,7 +11,7 @@ from base64 import b64encode, b64decode
 from pypresence import Presence
 from typing import Literal
 from discord.app_commands import Choice
-from discord import Forbidden, NotFound, app_commands
+from discord import Forbidden, Member, NotFound, app_commands
 from discord.ext import commands
 from asyncio import sleep, TimeoutError
 from config_example import *
@@ -1252,10 +1252,10 @@ async def nick(interaction: discord.Interaction, argument: str = None):
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = "`/nick`"
+    if len(argument) > 32:
+        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
+        return await interaction.response.send_message(embed=embed, ephemeral=True)
     if interaction.user.guild_permissions.change_nickname:
-        if len(argument) > 32:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.user.id == interaction.guild.owner.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может изменять никнейм владельцу сервера!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1272,8 +1272,40 @@ async def nick(interaction: discord.Interaction, argument: str = None):
                 embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
             await interaction.response.send_message(embed=embed, ephemeral=True)
     else:
-        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `изменять никнейм` для использования команды.")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        embed = discord.Embed(title="Запрос разрешения", color=discord.Color.orange(), description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\nВаш желаемый ник: `{argument}`.")
+        embed.set_footer(text="Время ожидания: 5 минут.")
+        await interaction.response.send_message(embed=embed)
+        bot_message = await interaction.original_message()
+        await bot_message.add_reaction("✅")
+        await bot_message.add_reaction("❌")
+        def check(reaction: discord.Reaction, user: discord.Member):
+            return user.guild_permissions.manage_nicknames and (reaction.emoji == "✅" or reaction.emoji == "❌")
+        try:
+            reaction, user = await bot.wait_for('reaction_add', check=check, timeout=300)
+        except TimeoutError:
+            embed = discord.Embed(title="Запрос разрешения", color=discord.Color.red(), description="Время истекло!")
+            await bot_message.clear_reactions()
+            return await interaction.edit_original_message(embed=embed)
+        else:
+            if reaction.emoji == "❌":
+                embed = discord.Embed(title="Отказ", color=discord.Color.red(), description="Вам отказано в смене ника!")
+                embed.set_author(name=user, icon_url=user.display_avatar.url)
+                await bot_message.clear_reactions()
+                return await interaction.edit_original_message(embed=embed)
+            try:
+                await interaction.user.edit(nick=argument, reason=f"Одобрено // {user}")
+            except Forbidden:
+                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`.")
+                return await interaction.edit_original_message(embed=embed)
+            else:
+                embed = None
+                if argument != None:
+                    embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=discord.utils.utcnow())
+                    embed.set_author(name=user, icon_url=user.display_avatar.url)
+                else:
+                    embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
+                    embed.set_author(name=user, icon_url=user.display_avatar.url)
+                await interaction.edit_original_message(embed=embed)
 
 
 @bot.tree.command(name="idea", description="[Полезности] Предложить идею для бота.")

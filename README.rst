@@ -20,3 +20,7 @@ MadBotPublic
 Помощь в разработке:
 ------------
 См. `CONTRIBUTING.rst <https://github.com/MadCat9958/MadBotPublic/blob/main/CONTRIBUTING.rst>`__.
+
+Changelog:
+------------
+См. `changelog.md <https://github.com/MadCat9958/MadBotPublic/blob/main/changelog.md>`__.

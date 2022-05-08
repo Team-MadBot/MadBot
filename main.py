@@ -82,7 +82,7 @@ async def on_ready():
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | {int(round(bot.latency, 3)*1000)}ms"))
         await sleep(60)
 
-"""
+
 @bot.tree.error
 async def on_error(interaction: discord.Interaction, error):
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```", timestamp=discord.utils.utcnow())
@@ -93,7 +93,7 @@ async def on_error(interaction: discord.Interaction, error):
     except discord.errors.InteractionResponded:
         await interaction.edit_original_message(embeds=[embed])
     print(error)
-"""
+
 
 @bot.event
 async def on_command_error(ctx: commands.Context, error: commands.CommandError):

@@ -1774,7 +1774,6 @@ async def base64(interaction: discord.Interaction, make: Choice[str], text: str)
     if make.value == "encode":
         ans = text.encode("utf8")
         ans = b64encode(ans)
-        ans = ans.decode("utf8")
         ans = str(ans).removeprefix("b'")
         ans = str(ans).removesuffix("'")
         embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange())

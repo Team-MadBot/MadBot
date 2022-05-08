@@ -707,6 +707,40 @@ async def clear(interaction: discord.Interaction, radius: app_commands.Range[int
         return await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+@bot.tree.command(name="clearoff", description="[Модерация] Очистка сообщений от вышедших участников")
+@app_commands.describe(radius='Радиус, в котором будут очищаться сообщения.', member="Ник или ID участника, чьи сообщения необходимо удалить.")
+async def clearoff(interaction: discord.Interaction, member: str, radius: app_commands.Range[int, 1, 1000]):
+    global lastcommand, used_commands
+    used_commands += 1
+    if interaction.user.id in blacklist:
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+        embed.set_thumbnail(url=interaction.user.avatar.url)
+        return await interaction.response.send_message(embed=embed, ephemeral=True)
+    if isinstance(interaction.channel, discord.DMChannel):
+        embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
+        embed.set_thumbnail(url=interaction.user.avatar.url)
+        return await interaction.response.send_message(embed=embed, ephemeral=True)
+    lastcommand = "`/clearoff`"
+    if interaction.channel.permissions_for(interaction.user).manage_messages:
+        deleted = None
+        def check(m: discord.Message):
+            return str(m.author) == member or m.author.name == member or m.author.id == member
+        trying = discord.Embed(title="В процессе...", color=discord.Color.gold(), description="Сообщения очищаются, ожидайте...", timestamp=discord.utils.utcnow())
+        trying.set_footer(text=f"{interaction.user.name}#{interaction.user.discriminator}")
+        await interaction.response.send_message(embed=trying, ephemeral=True) 
+        try:
+            deleted = await interaction.channel.purge(limit=radius, check=check)
+        except Forbidden:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f'Не удалось очистить `{radius} сообщений`. Возможно, я не имею право на управление сообщениями.\nТип ошибки: `Forbidden`', timestamp=discord.utils.utcnow())
+            return await interaction.edit_original_message(embeds=[embed])
+        else:
+            embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Мною очищено `{len(deleted)}` сообщений в этом канале.", timestamp=discord.utils.utcnow())
+            return await interaction.edit_original_message(embeds=[embed])
+    else:
+        embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управление сообщениями` на использование команды!")
+        return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 @bot.tree.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
 @app_commands.describe(member='Участник, чью аватарку вы хотите получить', format="Формат изображения", size="Размер изображения", type="Тип аватара")
 @app_commands.choices(

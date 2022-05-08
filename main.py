@@ -824,7 +824,7 @@ async def serverinfo(interaction: discord.Interaction):
     guild_roles = interaction.guild.roles.reverse()
     for role in guild_roles:
         if counter < 14:
-            roles += "{role.mention}, "
+            roles += f"{role.mention}, "
         else:
             roles +- f"и ещё {len(guild_roles) - 15}..."
             break

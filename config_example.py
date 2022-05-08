@@ -7,6 +7,7 @@ import discord
 settings = {
     'token': 'TOKEN',
     'key': 'Ключ some-random-api.ml',
+    'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
     'owner_id': 560529834325966858, # ID владельца.
     'server': 914181806285279232, # Сервер логов.
     'log_channel': 924241555697594380, # Канал логирования.

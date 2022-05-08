@@ -32,7 +32,7 @@ btns=[
     },
     {
         "label": "Поддержка бота",
-        "url": "https://discord.gg/uWVTTbb9q6"
+        "url": settings['support_invite']
     }
 ]
 try:
@@ -109,7 +109,7 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError):
 @bot.event
 async def on_guild_join(guild: discord.Guild):
     if guild.id in blacklist or guild.owner.id in blacklist: # Проверка на чёрный список.
-        embed=discord.Embed(title="Ваш сервер либо вы сами занесён(-ы) в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс ваш сервер либо вас в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Ваш сервер либо вы сами занесён(-ы) в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс ваш сервер либо вас в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=guild.icon_url)
         try:
             await guild.owner.send(embed=embed)
@@ -120,7 +120,7 @@ async def on_guild_join(guild: discord.Guild):
     else: 
         await sleep(1)
         embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}", color=discord.Color.orange(), description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Ваш сервер: `{len(bot.guilds)}-ый`.")
-        embed.add_field(name="Поддержка:", value="https://discord.gg/uWVTTbb9q6")
+        embed.add_field(name="Поддержка:", value=settings['support_invite'])
         embed.set_thumbnail(url=bot.user.avatar.url)
         adder = None
         try:
@@ -214,7 +214,7 @@ bot.remove_command('help')
 async def version(interaction: discord.Interaction, ver: Choice[str] = None):
     global lastcommand
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = "`/version`"
@@ -257,7 +257,7 @@ async def errors(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = "`/errors`"
@@ -274,7 +274,7 @@ async def help(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = "`/help`"
@@ -289,7 +289,7 @@ async def help(ctx):
     global lastcommand, used_commands
     used_commands += 1
     if ctx.author.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=ctx.author.avatar.url)
         return await ctx.send(embed=embed)
     lastcommand = "`mad.help`"
@@ -304,7 +304,7 @@ async def ping(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = "`/ping`"
@@ -318,7 +318,7 @@ async def userinfo(interaction: discord.Interaction, member: discord.Member = No
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -391,7 +391,7 @@ async def kick(interaction: discord.Interaction, member: discord.Member, reason:
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -431,7 +431,7 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -470,7 +470,7 @@ async def context_kick(interaction: discord.Interaction, message: discord.Messag
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -527,7 +527,7 @@ async def context_ban(interaction: discord.Interaction, message: discord.Message
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -599,7 +599,7 @@ async def banoff(interaction: discord.Interaction, member: str, reason: str, del
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/banoff`'
@@ -638,7 +638,7 @@ async def unban(interaction: discord.Interaction, member: str, reason: str):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/unban`'
@@ -673,7 +673,7 @@ async def clear(interaction: discord.Interaction, radius: app_commands.Range[int
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -736,7 +736,7 @@ async def avatar(interaction: discord.Interaction, member: discord.Member = None
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -771,7 +771,7 @@ async def serverinfo(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -831,7 +831,7 @@ async def serverinfo(interaction: discord.Interaction):
 async def botinfo(interaction: discord.Interaction):
     global lastcommand, used_commands
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     members = 0
@@ -859,7 +859,7 @@ async def botinfo(interaction: discord.Interaction):
     embed.add_field(name="Кол-во участников:", value=members)
     owner = await bot.fetch_user(owner_id)
     embed.add_field(name="Разработчик:", value=f"{owner.mention} (ID: 560529834325966858)")
-    embed.add_field(name="Ссылки", value=f"[Поддержка](https://discord.gg/uWVTTbb9q6)\n[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)")
+    embed.add_field(name="Ссылки", value=f"[Поддержка]({settings['support_invite']})\n[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)")
     embed.add_field(name="Последняя использованная команда:", value=lastcommand)
     embed.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(bot.tree.get_commands(type=discord.AppCommandType.chat_input))}/{len(bot.tree.get_commands(type=discord.AppCommandType.user)) + len(bot.tree.get_commands(type=discord.AppCommandType.message))}")
     embed.add_field(name="Обработано команд:", value=used_commands)
@@ -876,7 +876,7 @@ async def slowmode(interaction: discord.Interaction, seconds: app_commands.Range
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -911,7 +911,7 @@ async def timeout(interaction: discord.Interaction, member: discord.Member, minu
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -963,7 +963,7 @@ async def context_timeout(interaction: discord.Interaction, message: discord.Mes
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -1084,7 +1084,7 @@ async def debug(ctx: commands.Context, argument, *, arg1 = None):
             blacklist.append(int(arg1))
             guild = bot.get_guild(int(arg1))
             if guild != None:
-                embed=discord.Embed(title="Ваш сервер занесён в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+                embed=discord.Embed(title="Ваш сервер занесён в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
                 embed.set_thumbnail(url=guild.icon_url)
                 blacklist.append(guild.owner.id)
                 try:
@@ -1165,7 +1165,7 @@ async def badgeinfo(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = "`/badgeinfo`"
@@ -1180,7 +1180,7 @@ async def outages(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/outages`'
@@ -1205,7 +1205,7 @@ async def clone(interaction: discord.Interaction, reason: str, delete_original: 
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -1238,7 +1238,7 @@ async def resetnick(interaction: discord.Interaction, member: discord.Member, re
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -1279,7 +1279,7 @@ async def nick(interaction: discord.Interaction, argument: str = None):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(interaction.channel, discord.DMChannel):
@@ -1356,7 +1356,7 @@ async def idea(interaction: discord.Interaction, title: str, description: str, a
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/idea`'
@@ -1379,7 +1379,7 @@ async def getemoji(interaction: discord.Interaction, emoji_name: str, is_registr
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/getemoji`'
@@ -1417,7 +1417,7 @@ async def cat(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/cat`'
@@ -1437,7 +1437,7 @@ async def dog(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/dog`'
@@ -1458,7 +1458,7 @@ async def hug(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/hug`'
@@ -1484,7 +1484,7 @@ async def context_hug(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/hug`'
@@ -1511,7 +1511,7 @@ async def pat(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/pat`'
@@ -1537,7 +1537,7 @@ async def context_pat(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/pat`'
@@ -1564,7 +1564,7 @@ async def wink(interaction: discord.Interaction, member: discord.Member = None):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/wink`'
@@ -1596,7 +1596,7 @@ async def context_wink(interaction: discord.Interaction, member: discord.Member)
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/wink`'
@@ -1624,7 +1624,7 @@ async def slap(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/slap`'
@@ -1645,7 +1645,7 @@ async def kiss(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/kiss`'
@@ -1683,7 +1683,7 @@ async def context_kiss(interaction: discord.Interaction, member: discord.Member)
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/kiss`'
@@ -1722,7 +1722,7 @@ async def hit(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/hit`'
@@ -1742,7 +1742,7 @@ async def context_hit(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/hit`'
@@ -1767,7 +1767,7 @@ async def base64(interaction: discord.Interaction, make: Choice[str], text: str)
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/base64`'
@@ -1821,7 +1821,7 @@ async def nsfw(interaction: discord.Interaction, choice: Choice[str], is_ephemer
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/nsfw`'
@@ -1840,7 +1840,7 @@ async def send(interaction: discord.Interaction, message: str):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/send`'
@@ -1865,7 +1865,7 @@ async def getaudit(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/getaudit`'
@@ -1885,7 +1885,7 @@ async def math_cmd(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:
-        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description="Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: https://discord.gg/uWVTTbb9q6", timestamp=datetime.datetime.utcnow())
+        embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/math`'

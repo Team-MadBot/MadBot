@@ -819,6 +819,17 @@ async def serverinfo(interaction: discord.Interaction):
         embed.add_field(name="Канал с правилами:", value=interaction.guild.rules_channel.mention)
     else:
         embed.add_field(name="Канал с правилами:", value="Недоступно (сервер не является сервером сообщества)")
+    roles = ""
+    counter = 0
+    guild_roles = interaction.guild.roles.reverse()
+    for role in guild_roles:
+        if counter < 14:
+            roles += "{role.mention}, "
+        else:
+            roles +- f"и ещё {len(guild_roles) - 15}..."
+            break
+        counter += 1
+    embed.add_field(name="Роли:", value=roles)
     if interaction.guild.icon != None:
         embed.set_thumbnail(url=interaction.guild.icon.replace(static_format="png", size=1024))
     if interaction.guild.banner != None:

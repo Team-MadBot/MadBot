@@ -1925,15 +1925,19 @@ async def getaudit(interaction: discord.Interaction, member: discord.Member):
         embed.set_thumbnail(url=interaction.user.avatar.url)
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     lastcommand = '`/getaudit`'
-    member_bot = await interaction.guild.fetch_member(bot.user.id)
-    if member_bot.guild_permissions.view_audit_log == False:
-        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет доступа к журналу аудита!\nТип ошибки: `Forbidden`.")
-        return await interaction.response.send_message(embed=embed, ephemeral=True)
-    embed = discord.Embed(title="В процессе...", color=discord.Color.yellow(), description=f"Собираем действия участника {member.mention}...")
-    await interaction.response.send_message(embed=embed)
-    entries = [entry async for entry in interaction.guild.audit_logs(limit=None, user=member)]
-    embed = discord.Embed(title="Готово!", color=discord.Color.green(), description=f"Бот смог насчитать `{len(entries)}` действий от участника {member.mention}.")
-    await interaction.edit_original_message(embed=embed)
+    if interaction.user.guild_permissions.view_audit_log:
+        member_bot = await interaction.guild.fetch_member(bot.user.id)
+        if member_bot.guild_permissions.view_audit_log == False:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет доступа к журналу аудита!\nТип ошибки: `Forbidden`.")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        embed = discord.Embed(title="В процессе...", color=discord.Color.yellow(), description=f"Собираем действия участника {member.mention}...")
+        await interaction.response.send_message(embed=embed)
+        entries = [entry async for entry in interaction.guild.audit_logs(limit=None, user=member)]
+        embed = discord.Embed(title="Готово!", color=discord.Color.green(), description=f"Бот смог насчитать `{len(entries)}` действий от участника {member.mention}.")
+        await interaction.edit_original_message(embed=embed)
+    else:
+        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `просмотр журнала аудита` для выполнения этой команды!")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.tree.command(name="math", description="[Развлечения] Реши несложный пример на сложение/вычитание")

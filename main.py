@@ -85,6 +85,9 @@ async def on_ready():
 
 @bot.tree.error
 async def on_error(interaction: discord.Interaction, error):
+    if isinstance(error, app_commands.CheckFailure):
+        embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")
+        return await interaction.response.send_message(embed=embed, ephemeral=True) 
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```", timestamp=discord.utils.utcnow())
     channel = bot.get_channel(settings['log_channel'])
     await channel.send(f"```\nOn command '{interaction.command.name}'\n{error}```")
@@ -198,8 +201,11 @@ async def on_message(message: discord.Message):
 
 bot.remove_command('help')
 
+def is_shutted_down(interaction: discord.Interaction):
+    return interaction.command.name not in shutted_down
 
 @bot.tree.command(description="[Полезности] Показывает изменения в текущей версии.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(ver="Версия бота")
 @app_commands.choices(ver=[
     Choice(name="Актуальная", value="actual"),
@@ -258,6 +264,7 @@ async def version(interaction: discord.Interaction, ver: Choice[str] = None):
 
 
 @bot.tree.command(name="errors", description="[Полезности] Список ошибок и решения их")
+@app_commands.check(is_shutted_down)
 async def errors(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -275,6 +282,7 @@ async def errors(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="help", description="[Полезности] Показывает основную информацию о боте.")
+@app_commands.check(is_shutted_down)
 async def help(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -305,6 +313,7 @@ async def help(ctx):
 
 
 @bot.tree.command(name="ping", description="[Полезности] Проверка бота на работоспособность")
+@app_commands.check(is_shutted_down)
 async def ping(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -318,6 +327,7 @@ async def ping(interaction: discord.Interaction):
     
 
 @bot.tree.command(name="userinfo", description="[Полезности] Показывает информацию о пользователе")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member='Участник')
 async def userinfo(interaction: discord.Interaction, member: discord.Member = None):
     global lastcommand, used_commands
@@ -391,6 +401,7 @@ async def userinfo(interaction: discord.Interaction, member: discord.Member = No
 
 
 @bot.tree.command(name="kick", description="[Модерация] Выгнать участника с сервера")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member='Участник, который будет исключен', reason="Причина кика")
 async def kick(interaction: discord.Interaction, member: discord.Member, reason: str):
     global lastcommand, used_commands
@@ -431,6 +442,7 @@ async def kick(interaction: discord.Interaction, member: discord.Member, reason:
 
 
 @bot.tree.command(name="ban", description="[Модерация] Забанить участника на сервере")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member='Участник, который будет забанен', reason="Причина бана", delete_message_days="За какой период дней удалить сообщения.")
 async def ban(interaction: discord.Interaction, member: discord.Member, reason: str, delete_message_days: app_commands.Range[int, 0, 7] = 0):
     global lastcommand, used_commands
@@ -471,6 +483,7 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
 
 
 @bot.tree.context_menu(name="Кикнуть участника")
+@app_commands.check(is_shutted_down)
 async def context_kick(interaction: discord.Interaction, message: discord.Message):
     global lastcommand, used_commands
     used_commands += 1
@@ -528,6 +541,7 @@ async def context_kick(interaction: discord.Interaction, message: discord.Messag
 
 
 @bot.tree.context_menu(name="Забанить участника")
+@app_commands.check(is_shutted_down)
 async def context_ban(interaction: discord.Interaction, message: discord.Message):
     global lastcommand, used_commands
     used_commands += 1
@@ -599,6 +613,7 @@ async def context_ban(interaction: discord.Interaction, message: discord.Message
 
 
 @bot.tree.command(name="banoff", description="[Модерация] Банит участника, используя его ID")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="ID участника, который должен быть забанен", delete_message_days="За какой период удалять сообщения", reason="Причина бана")
 async def banoff(interaction: discord.Interaction, member: str, reason: str, delete_message_days: app_commands.Range[int, 0, 7] = 0):
     global lastcommand, used_commands
@@ -638,6 +653,7 @@ async def banoff(interaction: discord.Interaction, member: str, reason: str, del
 
 
 @bot.tree.command(name="unban", description="[Модерация] Разбанить участника на сервере")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="ID участника, который должен быть разбанен", reason="Причина разбана")
 async def unban(interaction: discord.Interaction, member: str, reason: str):
     global lastcommand, used_commands
@@ -673,6 +689,7 @@ async def unban(interaction: discord.Interaction, member: str, reason: str):
 
 
 @bot.tree.command(name="clear", description="[Модерация] Очистка сообщений")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(radius='Радиус, в котором будут очищаться сообщения.', member="Участник, чьи сообщения будут очищены.")
 async def clear(interaction: discord.Interaction, radius: app_commands.Range[int, 1, 1000], member: discord.Member = None):
     global lastcommand, used_commands
@@ -713,6 +730,7 @@ async def clear(interaction: discord.Interaction, radius: app_commands.Range[int
 
 
 @bot.tree.command(name="clearoff", description="[Модерация] Очистка сообщений от вышедших участников")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(radius='Радиус, в котором будут очищаться сообщения.', member="Ник или ID участника, чьи сообщения необходимо удалить.")
 async def clearoff(interaction: discord.Interaction, member: str, radius: app_commands.Range[int, 1, 1000]):
     global lastcommand, used_commands
@@ -747,6 +765,7 @@ async def clearoff(interaction: discord.Interaction, member: str, radius: app_co
 
 
 @bot.tree.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member='Участник, чью аватарку вы хотите получить', format="Формат изображения", size="Размер изображения", type="Тип аватара")
 @app_commands.choices(
     format=[
@@ -806,6 +825,7 @@ async def avatar(interaction: discord.Interaction, member: discord.Member = None
 
 
 @bot.tree.command(name="serverinfo", description="[Полезности] Информация о сервере")
+@app_commands.check(is_shutted_down)
 async def serverinfo(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -885,6 +905,7 @@ async def serverinfo(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="botinfo", description="[Полезности] Информация о боте")
+@app_commands.check(is_shutted_down)
 async def botinfo(interaction: discord.Interaction):
     global lastcommand, used_commands
     if interaction.user.id in blacklist:
@@ -928,6 +949,7 @@ async def botinfo(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="slowmode", description="[Модерация] Установить медленный режим в данном канале. Введите 0 для отключения.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(seconds="Кол-во секунд. Укажите 0 для снятия.", reason='Причина установки медленного режима')
 async def slowmode(interaction: discord.Interaction, seconds: app_commands.Range[int, 0, 21600], reason: str = "Отсутствует"):
     global lastcommand, used_commands
@@ -963,6 +985,7 @@ async def slowmode(interaction: discord.Interaction, seconds: app_commands.Range
 
 
 @bot.tree.command(name="timeout", description="[Модерация] Отправляет участника подумать о своем поведении")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которому нужно выдать тайм-аут", minutes="Кол-во минут, на которые будет выдан тайм-аут.", reason="Причина выдачи наказания.")
 async def timeout(interaction: discord.Interaction, member: discord.Member, minutes: app_commands.Range[int, 0, 40320], reason: str):
     global lastcommand, used_commands
@@ -1016,6 +1039,7 @@ async def timeout(interaction: discord.Interaction, member: discord.Member, minu
 
 
 @bot.tree.context_menu(name="Выдать тайм-аут")
+@app_commands.check(is_shutted_down)
 async def context_timeout(interaction: discord.Interaction, message: discord.Message):
     global lastcommand, used_commands
     used_commands += 1
@@ -1112,7 +1136,7 @@ async def context_timeout(interaction: discord.Interaction, message: discord.Mes
 async def debug(ctx: commands.Context, argument, *, arg1 = None):
     if ctx.author.id == owner_id:
         if argument == "help":
-            message = await ctx.send(f"```\nservers - список серверов бота\nserverid [ID] - узнать о сервере при помощи его ID\nservername [NAME] - узнать о сервере по названию\ncreateinvite [ID] - создать инвайт на сервер\naddblacklist [ID] - добавить в ЧС\nremoveblacklist [ID] - убрать из ЧС\nverify [ID] - выдать галочку\nsupport [ID] - дать значок саппорта\nblacklist - список ЧСников\nleaveserver [ID] - покинуть сервер\nsync - синхронизация команд приложения\nchangename [NAME] - поменять ник бота\nstarttyping [SEC] - начать печатать\nsetavatar [AVA] - поменять аватар\nrestart - перезагрузка\ncreatetemplate - Ctrl+C Ctrl+V сервер```")
+            message = await ctx.send(f"```\nservers - список серверов бота\nserverid [ID] - узнать о сервере при помощи его ID\nservername [NAME] - узнать о сервере по названию\ncreateinvite [ID] - создать инвайт на сервер\naddblacklist [ID] - добавить в ЧС\nremoveblacklist [ID] - убрать из ЧС\nverify [ID] - выдать галочку\nsupport [ID] - дать значок саппорта\nblacklist - список ЧСников\nleaveserver [ID] - покинуть сервер\nsync - синхронизация команд приложения\nchangename [NAME] - поменять ник бота\nstarttyping [SEC] - начать печатать\nsetavatar [AVA] - поменять аватар\nrestart - перезагрузка\ncreatetemplate - Ctrl+C Ctrl+V сервер\noffcmd - отключение команды\noncmd - включение команды```")
             await message.delete(delay=60)
         if argument == "servers":
             servernames = []
@@ -1214,10 +1238,19 @@ async def debug(ctx: commands.Context, argument, *, arg1 = None):
         if argument == "stop":
             await ctx.message.add_reaction("🔁")
             await bot.close()
+        if argument == "offcmd":
+            shutted_down.append(arg1)
+            await ctx.message.add_reaction("✅")
+            await sleep(30)
+        if argument == "oncmd":
+            shutted_down.remove(arg1)
+            await ctx.message.add_reaction("✅")
+            await sleep(30)
     await ctx.message.delete()
 
 
 @bot.tree.command(name="badgeinfo", description="[Полезности] Информация о значках пользователей и серверов в боте.")
+@app_commands.check(is_shutted_down)
 async def badgeinfo(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -1233,6 +1266,7 @@ async def badgeinfo(interaction: discord.Interaction):
 
 
 @bot.tree.command(name='outages', description="[Полезности] Показывает актуальные сбои в работе бота.")
+@app_commands.check(is_shutted_down)
 async def outages(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -1257,6 +1291,7 @@ async def outages(interaction: discord.Interaction):
 
 
 @bot.tree.command(name='clone', description="[Модерация] Клонирует чат.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(delete_original="Удалять ли клонируемый канал?", reason="Причина клонирования")
 async def clone(interaction: discord.Interaction, reason: str, delete_original: bool = False):
     global lastcommand, used_commands
@@ -1290,6 +1325,7 @@ async def clone(interaction: discord.Interaction, reason: str, delete_original: 
 
 
 @bot.tree.command(name="resetnick", description="[Модерация] Просит участника поменять ник")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которого надо попросить сменить ник", reason="Причина сброса ника")
 async def resetnick(interaction: discord.Interaction, member: discord.Member, reason: str):
     global lastcommand, used_commands
@@ -1331,6 +1367,7 @@ async def resetnick(interaction: discord.Interaction, member: discord.Member, re
 
 
 @bot.tree.command(name="nick", description="[Полезности] Изменяет ваш ник.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника")
 async def nick(interaction: discord.Interaction, argument: str = None):
     global lastcommand, used_commands
@@ -1408,6 +1445,7 @@ async def nick(interaction: discord.Interaction, argument: str = None):
 
 
 @bot.tree.command(name="idea", description="[Полезности] Предложить идею для бота.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(title="Суть идеи", description="Описание идеи", attachment="Изображение для показа идеи")
 async def idea(interaction: discord.Interaction, title: str, description: str, attachment: discord.Attachment = None):
     global lastcommand, used_commands
@@ -1431,6 +1469,7 @@ async def idea(interaction: discord.Interaction, title: str, description: str, a
 
 
 @bot.tree.command(name="getemoji", description="[Полезности] Выдает эмодзи картинкой.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(emoji_name="Название, ID либо сам эмодзи.", is_registry="Стоит ли учитывать регистр имени?")
 async def getemoji(interaction: discord.Interaction, emoji_name: str, is_registry: bool = False):
     global lastcommand, used_commands
@@ -1470,6 +1509,7 @@ async def getemoji(interaction: discord.Interaction, emoji_name: str, is_registr
 
 
 @bot.tree.command(name="cat", description="[Полезности] Присылает рандомного котика")
+@app_commands.check(is_shutted_down)
 async def cat(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -1490,6 +1530,7 @@ async def cat(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="dog", description="[Полезности] Присылает рандомного пёсика")
+@app_commands.check(is_shutted_down)
 async def dog(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1
@@ -1510,6 +1551,7 @@ async def dog(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="hug", description="[Реакции] Обнять участника")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которого вы хотите обнять")
 async def hug(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
@@ -1537,6 +1579,7 @@ async def hug(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.context_menu(name="Обнять")
+@app_commands.check(is_shutted_down)
 async def context_hug(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
@@ -1563,6 +1606,7 @@ async def context_hug(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.command(name="pat", description="[Реакции] Погладить участника")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которого вы хотите погладить")
 async def pat(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
@@ -1590,6 +1634,7 @@ async def pat(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.context_menu(name="Погладить")
+@app_commands.check(is_shutted_down)
 async def context_pat(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
@@ -1616,6 +1661,7 @@ async def context_pat(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.command(name="wink", description="[Реакции] Подмигнуть. Можно и участнику.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которому вы хотите подмигнуть.")
 async def wink(interaction: discord.Interaction, member: discord.Member = None):
     global lastcommand, used_commands
@@ -1649,6 +1695,7 @@ async def wink(interaction: discord.Interaction, member: discord.Member = None):
 
 
 @bot.tree.context_menu(name="Подмигнуть")
+@app_commands.check(is_shutted_down)
 async def context_wink(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
@@ -1676,6 +1723,7 @@ async def context_wink(interaction: discord.Interaction, member: discord.Member)
 
 
 @bot.tree.command(name="slap", description="[Реакции] Лупит пользователя.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которого вы хотите отлупить.")
 async def slap(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
@@ -1697,6 +1745,7 @@ async def slap(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.command(name="kiss", description="[Реакции] Поцеловать участника")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которого вы хотите поцеловать.")
 async def kiss(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
@@ -1736,6 +1785,7 @@ async def kiss(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.context_menu(name="Поцеловать")
+@app_commands.check(is_shutted_down)
 async def context_kiss(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
@@ -1774,6 +1824,7 @@ async def context_kiss(interaction: discord.Interaction, member: discord.Member)
 
 
 @bot.tree.command(name="hit", description="[Реакции] Ударить участника")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, которого вы хотите ударить.")
 async def hit(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
@@ -1795,6 +1846,7 @@ async def hit(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.context_menu(name="Ударить")
+@app_commands.check(is_shutted_down)
 async def context_hit(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
     used_commands += 1
@@ -1815,6 +1867,7 @@ async def context_hit(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.command(name="base64", description="[Полезности] (Де-)кодирует указанный текст в Base64.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(make="Что нужно сделать с текстом?", text="Текст для (де-)кодировки")
 @app_commands.choices(make=[
     Choice(name="Кодировать", value="encode"),
@@ -1847,6 +1900,7 @@ async def base64(interaction: discord.Interaction, make: Choice[str], text: str)
 
 
 @bot.tree.command(name="nsfw", description="[NSFW] Присылает NSFW картинку на тематику (бе).")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(choice="Тематика NSFW картинки", is_ephemeral="Выберите, будет ли картинка отправлена только вам.")
 @app_commands.choices(choice=[
     Choice(name="Ass", value="ass"),
@@ -1891,6 +1945,7 @@ async def nsfw(interaction: discord.Interaction, choice: Choice[str], is_ephemer
 
 
 @bot.tree.command(name="send", description="[Полезности] Отправляет сообщение в канал от имени вебхука")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(message="Сообщение, которое будет отправлено")
 async def send(interaction: discord.Interaction, message: str):
     global lastcommand, used_commands
@@ -1916,6 +1971,7 @@ async def send(interaction: discord.Interaction, message: str):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @bot.tree.command(name="getaudit", description="[Полезности] Получает информацию о кол-ве модерационных действий пользователя.")
+@app_commands.check(is_shutted_down)
 @app_commands.describe(member="Участник, чьё кол-во действий вы хотите увидить")
 async def getaudit(interaction: discord.Interaction, member: discord.Member):
     global lastcommand, used_commands
@@ -1941,6 +1997,7 @@ async def getaudit(interaction: discord.Interaction, member: discord.Member):
 
 
 @bot.tree.command(name="math", description="[Развлечения] Реши несложный пример на сложение/вычитание")
+@app_commands.check(is_shutted_down)
 async def math_cmd(interaction: discord.Interaction):
     global lastcommand, used_commands
     used_commands += 1

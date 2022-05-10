@@ -41,6 +41,9 @@ bug_terminators = [ # ID баг-терминаторов.
 testserver = [ # Тестовые сервера в формате discord.Object(id=ID).
      
 ]
+shutted_down = [ # Названия слеш-команд, которые должны быть отключены.
+
+]
 
 
 slap_gifs = [ # Гифки шлёпа.

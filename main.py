@@ -5,7 +5,7 @@ requirements.txt (pip install -r requirements.txt). Код закомменти�
 простоты редактирования. Для работы отредактируйте файл config_example.py и
 запустите main.py
 """
-import os, sys, datetime, time, discord, requests, random
+import os, sys, datetime, time, discord, requests, random, typing
 from hmtai import useHM
 from base64 import b64encode, b64decode
 from pypresence import Presence
@@ -1447,7 +1447,7 @@ async def nick(interaction: discord.Interaction, argument: str = None):
 @bot.tree.command(name="idea", description="[Полезности] Предложить идею для бота.")
 @app_commands.check(is_shutted_down)
 @app_commands.describe(title="Суть идеи", description="Описание идеи", attachment="Изображение для показа идеи")
-async def idea(interaction: discord.Interaction, title: str, description: str, attachment: discord.Attachment = None):
+async def idea(interaction: discord.Interaction, title: str, description: str, attachment: typing.Optional[discord.Attachment]):
     global lastcommand, used_commands
     used_commands += 1
     if interaction.user.id in blacklist:

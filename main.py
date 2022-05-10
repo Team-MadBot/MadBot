@@ -833,7 +833,7 @@ async def serverinfo(interaction: discord.Interaction):
     idle = len(list(filter(lambda x: x.status == discord.Status.idle, interaction.guild.members)))
     dnd = len(list(filter(lambda x: x.status == discord.Status.dnd, interaction.guild.members)))
     offline = len(list(filter(lambda x: x.status == discord.Status.offline, interaction.guild.members)))
-    embed = discord.Embed(title=f"{interaction.guild.name} {badges}", color=discord.Color.orange(), description=f"🟢 `{online}`\n🌙 `{idle}`\n🔴 `{dnd}`\n⚪ `{offline}`")
+    embed = discord.Embed(title=f"{interaction.guild.name} {badges}", color=discord.Color.orange(), description=f"🟢 `{online}` | 🌙 `{idle}` | 🔴 `{dnd}` | ⚪ `{offline}`")
     embed.add_field(name="Владелец:", value=interaction.guild.owner.mention, inline=True)
     if interaction.guild.default_notifications == "all_messages":
         embed.add_field(name="Стандартный режим получения уведомлений:", value="Все сообщения", inline=True)

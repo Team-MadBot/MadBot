@@ -829,7 +829,11 @@ async def serverinfo(interaction: discord.Interaction):
     for member in interaction.guild.members:
         if member.bot:
             bots += 1
-    embed = discord.Embed(title=f"{interaction.guild.name} (Число участников: {interaction.guild.member_count}, ботов: {bots}) {badges}", color=discord.Color.orange(), description=interaction.guild.description)
+    online = len(list(filter(lambda x: x.status == discord.Status.online, interaction.guild.members)))
+    idle = len(list(filter(lambda x: x.status == discord.Status.idle, interaction.guild.members)))
+    dnd = len(list(filter(lambda x: x.status == discord.Status.dnd, interaction.guild.members)))
+    offline = len(list(filter(lambda x: x.status == discord.Status.offline, interaction.guild.members)))
+    embed = discord.Embed(title=f"{interaction.guild.name} {badges}", color=discord.Color.orange(), description=f"🟢 `{online}`\n🌙 `{idle}`\n🔴 `{dnd}`\n⚪ `{offline}`")
     embed.add_field(name="Владелец:", value=interaction.guild.owner.mention, inline=True)
     if interaction.guild.default_notifications == "all_messages":
         embed.add_field(name="Стандартный режим получения уведомлений:", value="Все сообщения", inline=True)
@@ -840,7 +844,7 @@ async def serverinfo(interaction: discord.Interaction):
     embed.add_field(name="Текстовых каналов:", value=len(interaction.guild.text_channels), inline=True)
     embed.add_field(name="Голосовых каналов:", value=len(interaction.guild.voice_channels), inline=True)
     embed.add_field(name="Трибун:", value=len(interaction.guild.stage_channels), inline=True)
-    embed.add_field(name="Ролей:", value=len(interaction.guild.roles), inline=True)
+    embed.add_field(name="Участники:", value=f"**Всего:** {interaction.guild.member_count}.\n**Участники:** {interaction.guild.member_count - bots}.\n**Боты:** {bots}.", inline=True)
     embed.add_field(name="Кол-во эмодзи:", value=f"{len(interaction.guild.emojis)}/{interaction.guild.emoji_limit * 2}", inline=True)
     temp = interaction.guild.verification_level
     if temp == discord.VerificationLevel.none:
@@ -871,7 +875,7 @@ async def serverinfo(interaction: discord.Interaction):
             roles += f"и ещё {len(guild_roles) - 15}..."
             break
         counter += 1
-    embed.add_field(name="Роли:", value=roles)
+    embed.add_field(name=f"Роли ({len(interaction.guild.roles)}):", value=roles)
     if interaction.guild.icon != None:
         embed.set_thumbnail(url=interaction.guild.icon.replace(static_format="png", size=1024))
     if interaction.guild.banner != None:

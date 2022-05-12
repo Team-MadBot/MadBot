@@ -2,11 +2,12 @@
 config_example.py. Данные со значениями должны быть обязательно указаны.
 Списки снизу можно дополнять своими данными.
 """
-import discord
+import discord,time
 
 settings = {
     'token': 'TOKEN',
-    'key': 'Ключ some-random-api.ml',
+    'app_id': 880911386916577281, # Application ID вашего бота.
+    'key': 'Ключ some-random-api.md',
     'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
     'owner_id': 560529834325966858, # ID владельца.
     'server': 914181806285279232, # Сервер логов.
@@ -16,9 +17,22 @@ settings = {
     'outages': 950427940338958387, # ID канала с оповещениями о сбоях.
     'github_channel': 953175109135376394, # ID канала обновлений репозитория.
     'idea_channel': 957688771200053379, # ID канала, в который будут публиковаться идеи.
-    'curr_version': "0.7" # Текущая версия MadBot.
+    'curr_version': "0.7", # Текущая версия MadBot.
 }
 
+started_at = int( # Время запуска бота. Не изменять.
+    time.mktime(
+        discord.utils.utcnow().timetuple()
+    ) + 10800
+) 
+lastcommand = "Ещё ни разу команды не использовались."
+used_commands = 0 # Счетчик использованных команд. Не трогать.
+
+cogs = [ # Список cog'ов.
+    "cogs.entartaiment",
+    "cogs.moderation",
+    "cogs.tools"
+]
 
 blacklist = [ # ID сервера/участника, который в ЧС бота.
     

@@ -573,4 +573,4 @@ class Moderation(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Moderation(bot))
-    print('Cog "Moderation" запущен')
+    print('Cog "Moderation" запущен!')

@@ -752,4 +752,4 @@ class Tools(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Tools(bot))
-    print('Cog "Tools" запущен.')
+    print('Cog "Tools" запущен!')

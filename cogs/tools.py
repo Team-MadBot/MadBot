@@ -5,7 +5,6 @@ from asyncio import sleep, TimeoutError
 from discord import NotFound, Forbidden, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
-from matplotlib.pyplot import viridis
 from config_example import *
 
 def is_shutted_down(interaction: discord.Interaction):
@@ -168,12 +167,19 @@ class Tools(commands.Cog):
         global emb
         badges = ''
         guild = self.bot.get_guild(interaction.guild.id)
+        if member == None:
+            member = interaction.user
         for memb in interaction.guild.members:
             if memb == member:
                 member = memb
                 break
-        if member == None:
-            member = interaction.user
+        
+        embed = discord.Embed(color=member.color, description=f"[Скачать]({member.display_avatar.replace(static_format='png', size=2048)})")
+        embed.set_author(name=f"Аватар {member}")
+        embed.set_image(url=member.display_avatar.replace(static_format="png", size=2048))
+        embed.set_footer(text=f"Формат: png | Размер: 2048 | Тип аватара: Серверный.")
+
+        member_color = member.color
         if member.id in blacklist:
             badges += '<:ban:946031802634612826> '
         if member.is_timed_out():
@@ -221,7 +227,37 @@ class Tools(commands.Cog):
         if member.banner != None:
             emb.set_image(url=member.banner.url)
         emb.set_footer(text=f'ID: {member.id}')
-        await interaction.response.send_message(embed=emb)
+
+        if member.banner != None:
+            banner = discord.Embed(color=member_color, description=f"[Скачать]({member.banner.url})")
+            banner.set_author(name=f"Баннер {member}")
+            banner.set_image(url=member.banner.url)
+        else:
+            banner = discord.Embed(title="Ошибка", color=discord.Color.red(), description="У пользователя отсутствует баннер!")
+
+        class SelectMenu(discord.ui.Select):
+            def __init__(self):
+                options = [
+                    discord.SelectOption(label="Аватар", value="avatar", description="Получить аватар пользователя.", emoji="🖼️"),
+                    discord.SelectOption(label="Баннер", value="banner", description="Получить баннер пользователя (при наличии).", emoji="🏙️"),
+                    discord.SelectOption(label="Информация", value="main", description="Информация об пользователе.", emoji="📙")
+                ]
+                super().__init__(placeholder="Информация...", min_values=1, max_values=1, options=options)
+            
+            async def callback(self, viewinteract: discord.Interaction):
+                if self.values[0] == "main":
+                    await viewinteract.response.send_message(embed=emb, ephemeral=True)
+                elif self.values[0] == "avatar":
+                    await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                else:
+                    await viewinteract.response.send_message(embed=banner, ephemeral=True)
+
+        class View(discord.ui.View):
+            def __init__(self):
+                super().__init__()
+                self.add_item(SelectMenu())
+
+        await interaction.response.send_message(embed=emb, view=View())
 
     @app_commands.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
     @app_commands.check(is_shutted_down)
@@ -350,16 +386,53 @@ class Tools(commands.Cog):
             if counter <= 15:
                 roles += f"{role.mention}, "
             else:
-                roles += f"и ещё {len(guild_roles) - 15}..."
+                roles += f"и ещё {len(guild_roles) - 16}..."
                 break
             counter += 1
-        embed.add_field(name=f"Роли ({len(interaction.guild.roles)}):", value=roles)
+        embed.add_field(name=f"Роли ({len(interaction.guild.roles) - 1}):", value=roles)
         if interaction.guild.icon != None:
             embed.set_thumbnail(url=interaction.guild.icon.replace(static_format="png", size=1024))
         if interaction.guild.banner != None:
             embed.set_image(url=interaction.guild.banner.replace(static_format="png"))
         embed.set_footer(text=f"ID: {interaction.guild.id}")
-        await interaction.response.send_message(embed=embed)
+
+        if interaction.guild.banner != None:
+            banner = discord.Embed(color=discord.Color.orange(), description=f"[Скачать]({interaction.guild.banner.url})")
+            banner.set_author(name=f"Баннер {interaction.guild.name}")
+            banner.set_image(url=interaction.guild.banner.url)
+        else:
+            banner = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У сервера отсутствует баннер!")
+
+        if interaction.guild.icon != None:
+            icon = discord.Embed(color=discord.Color.orange(), description=f"[Скачать]({interaction.guild.icon.url})")
+            icon.set_author(name=f"Аватар {interaction.guild.name}")
+            icon.set_image(url=interaction.guild.icon.url)
+        else:
+            icon = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У сервера отсутствует аватар!")
+
+        class SelectMenu(discord.ui.Select):
+            def __init__(self):
+                options = [
+                    discord.SelectOption(label="Аватар", value="avatar", description="Получить аватар сервера.", emoji="🖼️"),
+                    discord.SelectOption(label="Баннер", value="banner", description="Получить баннер сервера (при наличии).", emoji="🏙️"),
+                    discord.SelectOption(label="Информация", value="main", description="Информация об сервере.", emoji="📙")
+                ]
+                super().__init__(placeholder="Информация...", min_values=1, max_values=1, options=options)
+            
+            async def callback(self, viewinteract: discord.Interaction):
+                if self.values[0] == "main":
+                    await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                elif self.values[0] == "avatar":
+                    await viewinteract.response.send_message(embed=icon, ephemeral=True)
+                else:
+                    await viewinteract.response.send_message(embed=banner, ephemeral=True)
+
+        class View(discord.ui.View):
+            def __init__(self):
+                super().__init__()
+                self.add_item(SelectMenu())
+
+        await interaction.response.send_message(embed=embed, view=View())
 
     @app_commands.command(name="botinfo", description="[Полезности] Информация о боте")
     @app_commands.check(is_shutted_down)

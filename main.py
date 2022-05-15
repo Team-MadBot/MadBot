@@ -132,6 +132,20 @@ class MyBot(commands.Bot):
 
 bot=MyBot()
 
+@bot.tree.error
+async def on_error(interaction: discord.Interaction, error):
+    if isinstance(error, app_commands.CheckFailure):
+        embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")
+        return await interaction.response.send_message(embed=embed, ephemeral=True) 
+    embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```", timestamp=discord.utils.utcnow())
+    channel = bot.get_channel(settings['log_channel'])
+    await channel.send(f"```\nOn command '{interaction.command.name}'\n{error}```")
+    try:
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    except discord.errors.InteractionResponded:
+        await interaction.edit_original_message(embeds=[embed])
+    print(error)
+
 @bot.command()
 async def debug(ctx, argument, *, arg1 = None):
     if ctx.author.id == settings['owner_id']:

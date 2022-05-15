@@ -5,6 +5,7 @@ from asyncio import sleep, TimeoutError
 from discord import NotFound, Forbidden, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
+from matplotlib.pyplot import viridis
 from config_example import *
 
 def is_shutted_down(interaction: discord.Interaction):
@@ -485,39 +486,50 @@ class Tools(commands.Cog):
                 string = f"Ваш желаемый ник: `{argument}`."
             embed = discord.Embed(title="Запрос разрешения", color=discord.Color.orange(), description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\n{string}")
             embed.set_footer(text="Время ожидания: 5 минут.")
-            await interaction.response.send_message(embed=embed)
-            bot_message = await interaction.original_message()
-            await bot_message.add_reaction("✅")
-            await bot_message.add_reaction("❌")
-            def check(reaction: discord.Reaction, user: discord.Member):
-                return user.guild_permissions.manage_nicknames and (reaction.emoji == "✅" or reaction.emoji == "❌")
-            try:
-                reaction, user = await self.bot.wait_for('reaction_add', check=check, timeout=300)
-            except TimeoutError:
-                embed = discord.Embed(title="Запрос разрешения", color=discord.Color.red(), description="Время истекло!")
-                await bot_message.clear_reactions()
-                return await interaction.edit_original_message(embed=embed)
-            else:
-                if reaction.emoji == "❌":
-                    embed = discord.Embed(title="Отказ", color=discord.Color.red(), description="Вам отказано в смене ника!")
-                    embed.set_author(name=user, icon_url=user.display_avatar.url)
-                    await bot_message.clear_reactions()
-                    return await interaction.edit_original_message(embed=embed)
-                try:
-                    await interaction.user.edit(nick=argument, reason=f"Одобрено // {user}")
-                except Forbidden:
-                    embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`.")
-                    return await interaction.edit_original_message(embed=embed)
-                else:
-                    embed = None
-                    if argument != None:
-                        embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=discord.utils.utcnow())
-                        embed.set_author(name=user, icon_url=user.display_avatar.url)
+            
+            class NickButtons(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=300)
+                    self.value = None
+
+                @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
+                async def confirm(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if viewinteract.user.guild_permissions.manage_nicknames:
+                        self.value = True
+                        try:
+                            await interaction.user.edit(nick=argument, reason=f"Одобрено // {viewinteract.user}")
+                        except Forbidden:
+                            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`.")
+                            return await interaction.edit_original_message(embed=embed, view=None)
+                        else:
+                            embed = None
+                            if argument != None:
+                                embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=discord.utils.utcnow())
+                                embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
+                            else:
+                                embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
+                                embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
+                            await interaction.edit_original_message(embed=embed, view=None)
                     else:
-                        embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
-                        embed.set_author(name=user, icon_url=user.display_avatar.url)
-                    await bot_message.clear_reactions()
-                    await interaction.edit_original_message(embed=embed)
+                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управлять никнеймами` для использования кнопки!")
+                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
+
+                @discord.ui.button(emoji="<:x_icon:975324570741526568>", style=discord.ButtonStyle.red)
+                async def denied(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if viewinteract.user.guild_permissions.manage_nicknames:
+                        self.value = False
+                        embed = discord.Embed(title="Отказ", color=discord.Color.red(), description="Вам отказано в смене ника!")
+                        embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
+                        return await interaction.edit_original_message(embed=embed, view=None)
+                    else:
+                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управлять никнеймами` для использования кнопки!")
+                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
+            
+            await interaction.response.send_message(embed=embed, view=NickButtons())
+            await NickButtons().wait()
+            if NickButtons().value == None:
+                embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+                await interaction.edit_original_message(embed=embed, view=None)
 
     @app_commands.command(name="idea", description="[Полезности] Предложить идею для бота.")
     @app_commands.check(is_shutted_down)

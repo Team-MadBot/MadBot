@@ -5,7 +5,7 @@ from asyncio import sleep, TimeoutError
 from discord import NotFound, Forbidden, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
-from config_example import *
+from config import *
 
 def is_shutted_down(interaction: discord.Interaction):
     return interaction.command.name not in shutted_down

@@ -10,7 +10,7 @@ from discord import app_commands, Forbidden, NotFound
 from pypresence import Presence
 from discord.ext import commands
 from asyncio import sleep
-from config_example import *
+from config import *
 
 btns=[
     {

@@ -2,7 +2,7 @@ import discord, datetime
 from discord import app_commands,Forbidden, NotFound
 from asyncio import sleep
 from discord.ext import commands
-from config_example import *
+from config import *
 
 def is_shutted_down(interaction: discord.Interaction):
     return interaction.command.name not in shutted_down

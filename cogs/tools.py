@@ -51,6 +51,7 @@ class Tools(commands.Cog):
     @app_commands.describe(ver="Версия бота")
     @app_commands.choices(ver=[
         Choice(name="Актуальная", value="actual"),
+        Choice(name="0.8", value="08"),
         Choice(name="0.7", value='07'),
         Choice(name="0.6", value='06'),
         Choice(name="0.5", value="05"),
@@ -70,9 +71,13 @@ class Tools(commands.Cog):
         embed = None
         if ver != None:
             ver = ver.name
-        if ver == None or ver == '0.7' or ver == "Актуальная":
+        if ver == None or ver == '0.8' or ver == "Актуальная":
+            updated_at = datetime.datetime(2022, 5, 17, 20, 0, 0, 0)
+            embed=discord.Embed(title=f'Версия `{settings["curr_version"]}`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Требование права на просмотр журнала аудита в `/getaudit`.\n> 2) Показ кол-во участников в сети в `/serverinfo`.\n> 3) Изменение вида `/serverinfo`.\n> 4) Добавление Select Menu в `/userinfo` и `/serverinfo`.\n> 5) Команды могут быть отключены владельцем бота.\n> 6) Добавлено новое развлечение: `/doors`.\n> 7) Использование кнопок и форм вместо реакций и сообщений.\n> 8) Добавлена команда `/weather`.\n> 9) Иногда, бот будет показывать свою версию в статусе.\n> 10) Добавлена команда `/ball`.\n> 11) Обновлен дизайн `/botinfo` и `/help`.')
+            embed.set_footer(text="Обновлено:")
+        if ver == '0.7':
             updated_at = datetime.datetime(2022, 5, 8, 20, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `{settings["curr_version"]}`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Исправлена команда `/base64`.\n> 2) Обновлен дизайн `/botinfo` и `/avatar`.\n> 3) Запрос на смену ника при отсутствии права на изменение никнейма в `/nick`.\n> 4) Небольшое дополнение команды `/nsfw`.\n> 5) Авто-постинг новостей из <#953175109135376394>.\n> 6) Показ типа операционной системы, на которой запущен бот, в `/botinfo`.\n> 7) Показ списка ролей сервера в `/serverinfo`.\n> 8) Теперь приветственное сообщение будет присылаться в ЛС добавившему бота, если это возможно.\n> 9) Команда `/outages` снова работает.\n> 10) При правильном ответе, бот пишет время ответа в `/math`.\n> 11) Добавлена команда `/clearoff`.')
+            embed=discord.Embed(title=f'Версия `0.7`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Исправлена команда `/base64`.\n> 2) Обновлен дизайн `/botinfo` и `/avatar`.\n> 3) Запрос на смену ника при отсутствии права на изменение никнейма в `/nick`.\n> 4) Небольшое дополнение команды `/nsfw`.\n> 5) Авто-постинг новостей из <#953175109135376394>.\n> 6) Показ типа операционной системы, на которой запущен бот, в `/botinfo`.\n> 7) Показ списка ролей сервера в `/serverinfo`.\n> 8) Теперь приветственное сообщение будет присылаться в ЛС добавившему бота, если это возможно.\n> 9) Команда `/outages` снова работает.\n> 10) При правильном ответе, бот пишет время ответа в `/math`.\n> 11) Добавлена команда `/clearoff`.')
             embed.set_footer(text="Обновлено:")
         if ver == '0.6':
             updated_at = datetime.datetime(2022, 5, 5, 20, 0, 0, 0)

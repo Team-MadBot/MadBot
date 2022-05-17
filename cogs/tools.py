@@ -510,10 +510,29 @@ class Tools(commands.Cog):
             for member in guild.members:
                 if not(member.bot):
                     members += 1
-        embed = discord.Embed(title=self.bot.user.name, color=discord.Color.orange())
-        embed.add_field(name="Версия:", value=settings['curr_version'])
-        embed.add_field(name="Версия discord.py:", value=f"{discord.version_info.major}.{discord.version_info.minor}.{discord.version_info.micro} `{discord.version_info.releaselevel.upper()}`")
-        embed.add_field(name="Версия Python:", value=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+
+        embed = discord.Embed(title=f"{self.bot.user.name} - v{settings['curr_version']}", color=discord.Color.orange(), description=f"Для выбора категории используйте меню снизу.\n\n**Основная информация:**")
+        embed.add_field(name="Разработчик:", value=f"<@!{settings['owner_id']}> (ID: {settings['owner_id']})")
+        embed.add_field(name="Поддержка", value=f"[Поддержка]({settings['support_invite']})")
+        embed.add_field(name="Добавить на сервер", value=f"[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)")
+        embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+        embed.set_footer(text=f"ID бота: {self.bot.user.id}")
+
+        stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())
+        stats.add_field(name="Пинг:", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
+        stats.add_field(name="Запущен:", value=f"<t:{started_at}:R>")
+        stats.add_field(name="Кол-во серверов:", value=len(self.bot.guilds))
+        stats.add_field(name="Кол-во участников:", value=members)
+        stats.add_field(name="Последняя использованная команда:", value=lastcommand)
+        stats.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input))}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message))}")
+        stats.add_field(name="Обработано команд:", value=used_commands)
+        stats.set_thumbnail(url=self.bot.user.display_avatar.url)
+        stats.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+
+        versions = discord.Embed(title=f"{self.bot.user.name} - Версии", color=discord.Color.orange())
+        versions.add_field(name="Версия:", value=settings['curr_version'])
+        versions.add_field(name="Версия discord.py:", value=f"{discord.version_info.major}.{discord.version_info.minor}.{discord.version_info.micro} `{discord.version_info.releaselevel.upper()}`")
+        versions.add_field(name="Версия Python:", value=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
         ver_info = sys.platform
         if ver_info.startswith("win32"):
             ver_info = "Windows"
@@ -523,20 +542,38 @@ class Tools(commands.Cog):
             ver_info = "AIX"
         if ver_info.startswith("darwin"):
             ver_info = "MacOS"
-        embed.add_field(name="Операционная система:", value=ver_info)
-        embed.add_field(name="Пинг:", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
-        embed.add_field(name="Запущен:", value=f"<t:{started_at}:R>")
-        embed.add_field(name="Кол-во серверов:", value=len(self.bot.guilds))
-        embed.add_field(name="Кол-во участников:", value=members)
-        owner = await self.bot.fetch_user(settings['owner_id'])
-        embed.add_field(name="Разработчик:", value=f"{owner.mention} (ID: 560529834325966858)")
-        embed.add_field(name="Ссылки", value=f"[Поддержка]({settings['support_invite']})\n[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)")
-        embed.add_field(name="Последняя использованная команда:", value=lastcommand)
-        embed.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input))}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message))}")
-        embed.add_field(name="Обработано команд:", value=used_commands)
-        embed.set_thumbnail(url=self.bot.user.display_avatar)
-        embed.set_footer(text=f"ID бота: {self.bot.user.id}")
-        await interaction.response.send_message(embed=embed)
+        versions.add_field(name="Операционная система:", value=ver_info)
+        versions.set_thumbnail(url=self.bot.user.display_avatar.url)
+        versions.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+
+        embeds = {
+            'embed': embed,
+            'stats': stats,
+            'versions': versions
+        }
+
+        class DropDown(discord.ui.Select):
+            def __init__(self):
+                options = [
+                    discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
+                    discord.SelectOption(label="Статистика", value='stats', description="Статистика бота.", emoji="📊"),
+                    discord.SelectOption(label="Версии", value="versions", description="Версии библиотек и Python.", emoji="⚒️")
+                ]
+                super().__init__(placeholder="Выбор...", options=options)
+
+            async def callback(self, viewinteract: discord.Interaction):
+                if interaction.user != viewinteract.user:
+                    return await viewinteract.response.send_message(embed=embeds[self.values[0]], ephemeral=True)
+                else:
+                    await interaction.edit_original_message(embed=embeds[self.values[0]])
+                    await viewinteract.response.defer()
+
+        class View(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=None)
+                self.add_item(DropDown())
+
+        await interaction.response.send_message(embed=embed, view=View())
         lastcommand = "`/botinfo`"
         used_commands += 1
 

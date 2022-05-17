@@ -322,7 +322,7 @@ class Tools(commands.Cog):
 
         class View(discord.ui.View):
             def __init__(self):
-                super().__init__()
+                super().__init__(timeout=None)
                 self.add_item(SelectMenu())
 
         await interaction.response.send_message(embed=emb, view=View())
@@ -497,7 +497,7 @@ class Tools(commands.Cog):
 
         class View(discord.ui.View):
             def __init__(self):
-                super().__init__()
+                super().__init__(timeout=None)
                 self.add_item(SelectMenu())
 
         await interaction.response.send_message(embed=embed, view=View())

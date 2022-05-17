@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import discord, datetime, sys, os, typing
+import discord, datetime, sys, os, typing, requests
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
 from discord import NotFound, Forbidden, app_commands
@@ -131,10 +131,73 @@ class Tools(commands.Cog):
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         lastcommand = "`/help`"
-        embed=discord.Embed(title=f"Спасибо за использование `{self.bot.user.name}`!", color=discord.Color.orange(), description="Бот использует слеш-команды, поэтому, для запрета использования команд в определённом чате достаточно лишь отнять право у @everyone на использование слеш-команд в необходимом канале. В ближайших планах в бота будет добавлена **экономика и создатель эмбедов (с поддержкой вебхуков).** Если вам нужна поддержка - пропишите `/botinfo` и нажмите на 'Поддержка'. Обратите внимание: ЛС <@560529834325966858> предназначено только при обнаружении критического бага, если у вас просто вопрос либо незначительный баг - пишите в <#914189576090845226>!")
-        embed.set_footer(text="Приятного использования!")
-        embed.set_thumbnail(url=self.bot.user.avatar.url)
-        await interaction.response.send_message(embed=embed)
+        commands = self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)
+        mod_commands = ""
+        tools_commands = ""
+        ent_commands = ""
+        for command in commands:
+            if command.description.startswith("[Модерация]"):
+                mod_commands += f"`/{command.name}` - {command.description.removeprefix('[Модерация]')}\n"
+            if command.description.startswith("[Полезности]"):
+                tools_commands += f"`/{command.name}` - {command.description.removeprefix('[Полезности]')}\n"
+            if command.description.startswith("[Развлечения]") or command.description.startswith("[NSFW]") or command.description.startswith("[Реакции]"):
+                ent_commands += f"`/{command.name}` - {command.description.removeprefix('[Развлечения]').removeprefix('[NSFW]').removeprefix('[Реакции]')}\n"
+
+        moderation = discord.Embed(
+            title=f"{self.bot.user.name} - Модерация", 
+            color=discord.Color.orange(), 
+            description=mod_commands
+        )
+        tools = discord.Embed(
+            title=f"{self.bot.user.name} - Полезности",
+            color=discord.Color.orange(), 
+            description=tools_commands
+        )
+        entartaiment = discord.Embed(
+            title=f"{self.bot.user.name} - Развлечения",
+            color=discord.Color.orange(), 
+            description=ent_commands
+        )
+        embed = discord.Embed(title=f"{self.bot.user.name} - Главная", color=discord.Color.orange(), description=f"Спасибо за использование {self.bot.user.name}! Я использую слеш-команды, поэтому для настройки доступа к ним можно использовать настройки Discord.")
+        embed.add_field(name="Поддержка:", value=settings['support_invite'], inline=False)
+        embed.add_field(name="Пригласить:", value=f"[Тык](https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)", inline=False)
+            
+        class DropDown(discord.ui.Select):
+            def __init__(self):
+                options = [
+                    discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
+                    discord.SelectOption(label="Модерация", value="moderation", description="Команды модерации.", emoji="🛑"),
+                    discord.SelectOption(label="Полезности", value="tools", description="Полезные команды.", emoji="⚒️"),
+                    discord.SelectOption(label="Развлечения", value="entartaiment", description="Развлекательные команды.", emoji="🎉")
+                ]
+                super().__init__(placeholder="Выберите категорию", options=options)
+            
+            async def callback(self, viewinteract: discord.Interaction):
+                if interaction.user != viewinteract.user:
+                    if self.values[0] == "embed":
+                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                    elif self.values[0] == "moderation":
+                        return await viewinteract.response.send_message(embed=moderation, ephemeral=True)
+                    elif self.values[0] == "tools":
+                        return await viewinteract.response.send_message(embed=tools, ephemeral=True)
+                    else:
+                        return await viewinteract.response.send_message(embed=entartaiment, ephemeral=True)
+                if self.values[0] == "embed":
+                    await interaction.edit_original_message(embed=embed)
+                elif self.values[0] == "moderation":
+                    await interaction.edit_original_message(embed=moderation)
+                elif self.values[0] == "tools":
+                    await interaction.edit_original_message(embed=tools)
+                else:
+                    await interaction.edit_original_message(embed=entartaiment)
+                await viewinteract.response.defer()
+           
+        class DropDownView(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=None)
+                self.add_item(DropDown())
+
+        await interaction.response.send_message(embed=embed, view=DropDownView())
 
     @app_commands.command(name="ping", description="[Полезности] Проверка бота на работоспособность")
     @app_commands.check(is_shutted_down)
@@ -747,6 +810,40 @@ class Tools(commands.Cog):
             await interaction.edit_original_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `просмотр журнала аудита` для выполнения этой команды!")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="weather", description="[Полезности] Узнать погоду в городе.")
+    @app_commands.describe(city="Город, где надо узнать погоду")
+    @app_commands.check(is_shutted_down)
+    async def weather(self, interaction: discord.Interaction, city: str):
+        global lastcommand, used_commands
+        used_commands += 1
+        if interaction.user.id in blacklist:
+            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        lastcommand = '`/weather`'
+        city = city.replace(' ', '%20')
+        responce = requests.get(f"http://api.openweathermap.org/data/2.5/weather?q={city}&APPID={settings['weather_key']}&units=metric&lang=ru")
+        json = responce.json()
+        if responce.status_code > 400:
+            if json['message'] == "city not found":
+                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Город не найден!")
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+            else:
+                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`")
+                print(f"{json['cod']}: {json['message']}")
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            embed = discord.Embed(title=f"Погода в {json['name']}", color=discord.Color.orange(), description=f"{json['weather'][0]['description']}", url=f"https://openweathermap.org/city/{json['id']}")
+            embed.add_field(name="Температура:", value=f"{int(json['main']['temp'])}°С ({int(json['main']['temp_min'])}°С / {int(json['main']['temp_max'])}°С)")
+            embed.add_field(name="Ощущается как:", value=f"{int(json['main']['feels_like'])}°С")
+            embed.add_field(name="Влажность:", value=f"{json['main']['humidity']}%")
+            embed.add_field(name="Скорость ветра:", value=f"{json['wind']['speed']}м/сек")
+            embed.add_field(name="Облачность:", value=f"{json['clouds']['all']}%")
+            embed.add_field(name="Рассвет/Закат:", value=f"<t:{json['sys']['sunrise']}> / <t:{json['sys']['sunset']}>")
+            embed.set_footer(text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе.")
+            embed.set_thumbnail(url=f"http://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 

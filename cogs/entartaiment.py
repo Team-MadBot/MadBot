@@ -594,6 +594,46 @@ class Entartaiment(commands.Cog):
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             return await interaction.edit_original_message(embed=embed, view=None)
 
+    @app_commands.command(name="ball", description="[Развлечения] Магический шар.")
+    @app_commands.check(is_shutted_down)
+    @app_commands.describe(question="Вопрос, адресованный шару.")
+    async def ball(self, interaction: discord.Interaction, question: str):
+        global lastcommand, used_commands
+        used_commands += 1
+        if interaction.user.id in blacklist:
+            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        lastcommand = '`/ball`'
+        answers = [
+            "Бесспорно",
+            "Предрешено",
+            "Никаких сомнений",
+            "Определённо да",
+            "Можешь быть уверен в этом",
+            "Мне кажется — «да»",
+            "Вероятнее всего",
+            "Хорошие перспективы",
+            "Знаки говорят — «да»",
+            "Да",
+            "Пока не ясно, попробуй снова",
+            "Спроси позже",
+            "Лучше не рассказывать",
+            "Сейчас нельзя предсказать",
+            "Сконцентрируйся и спроси опять",
+            "Даже не думай",
+            "Мой ответ — «нет»",
+            "По моим данным — «нет»",
+            "Перспективы не очень хорошие",
+            "Весьма сомнительно"
+        ]
+        embed = discord.Embed(title="Магический шар", color=discord.Color.orange(), timestamp=discord.utils.utcnow())
+        embed.add_field(name="Ваш вопрос:", value=question, inline=False)
+        embed.add_field(name="Ответ шара:", value=random.choice(answers), inline=False)
+        embed.set_author(name=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Magic_eight_ball.png/800px-Magic_eight_ball.png")
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))

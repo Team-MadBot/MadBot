@@ -15,7 +15,7 @@ from config import *
 btns=[
     {
         "label": "Добавить бота",
-        "url": f"https://discord.com/oauth2/authorize?client_id={settings['client_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"
+        "url": f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"
     },
     {
         "label": "Поддержка бота",
@@ -23,7 +23,7 @@ btns=[
     }
 ]
 try:
-    RPC = Presence(f"{settings['client_id']}") # Discord Rich Presence. Будет видно при запуске бота.
+    RPC = Presence(f"{settings['app_id']}") # Discord Rich Presence. Будет видно при запуске бота.
 except:
     pass
 else:

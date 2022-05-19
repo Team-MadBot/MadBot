@@ -4,6 +4,7 @@ from hmtai import useHM
 from discord import app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
+import config
 from config import *
 
 def is_shutted_down(interaction: discord.Interaction):
@@ -41,13 +42,12 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="cat", description="[Развлечения] Присылает рандомного котика")
     @app_commands.check(is_shutted_down)
     async def cat(self, interaction: discord.Interaction):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/cat`'
+        config.lastcommand = '`/cat`'
         resp = requests.get(f"https://some-random-api.ml/animal/cat?key={settings['key']}")
         json = resp.json()
         if resp.status_code == 200:
@@ -61,13 +61,12 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="dog", description="[Развлечения] Присылает рандомного пёсика")
     @app_commands.check(is_shutted_down)
     async def dog(self, interaction: discord.Interaction):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/dog`'
+        config.lastcommand = '`/dog`'
         resp = requests.get(f"https://some-random-api.ml/animal/dog?key={settings['key']}")
         json = resp.json()
         if resp.status_code == 200:
@@ -82,13 +81,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите обнять")
     async def hug(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/hug`'
+        config.lastcommand = '`/hug`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота обнять нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -107,13 +105,12 @@ class Entartaiment(commands.Cog):
     
     @app_commands.check(is_shutted_down)
     async def context_hug(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/hug`'
+        config.lastcommand = '`/hug`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота обнять нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -134,13 +131,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите погладить")
     async def pat(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/pat`'
+        config.lastcommand = '`/pat`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота погладить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -159,13 +155,12 @@ class Entartaiment(commands.Cog):
     
     @app_commands.check(is_shutted_down)
     async def context_pat(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/pat`'
+        config.lastcommand = '`/pat`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота погладить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -186,13 +181,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которому вы хотите подмигнуть.")
     async def wink(self, interaction: discord.Interaction, member: discord.Member = None):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/wink`'
+        config.lastcommand = '`/wink`'
         if member != None:
             if member.bot:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но боту подмигнуть нельзя")
@@ -217,13 +211,12 @@ class Entartaiment(commands.Cog):
     
     @app_commands.check(is_shutted_down)
     async def context_wink(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/wink`'
+        config.lastcommand = '`/wink`'
         if member != None:
             if member.bot:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но боту подмигнуть нельзя")
@@ -245,13 +238,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите отлупить.")
     async def slap(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/slap`'
+        config.lastcommand = '`/slap`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота отлупить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -266,13 +258,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите поцеловать.")
     async def kiss(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/kiss`'
+        config.lastcommand = '`/kiss`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота поцеловать нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -318,13 +309,12 @@ class Entartaiment(commands.Cog):
     
     @app_commands.check(is_shutted_down)
     async def context_kiss(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/kiss`'
+        config.lastcommand = '`/kiss`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота поцеловать нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -372,13 +362,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите ударить.")
     async def hit(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/hit`'
+        config.lastcommand = '`/hit`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота ударить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -391,13 +380,12 @@ class Entartaiment(commands.Cog):
     
     @app_commands.check(is_shutted_down)
     async def context_hit(self, interaction: discord.Interaction, member: discord.Member):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/hit`'
+        config.lastcommand = '`/hit`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота ударить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -437,13 +425,12 @@ class Entartaiment(commands.Cog):
         Choice(name="NSFW Neko", value="nsfwNeko")
     ])
     async def nsfw(self, interaction: discord.Interaction, choice: Choice[str], is_ephemeral: bool = False):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/nsfw`'
+        config.lastcommand = '`/nsfw`'
         if interaction.channel.is_nsfw():
             embed = discord.Embed(title=choice.name, color=discord.Color.orange())
             embed.set_image(url=useHM(29, choice.value))
@@ -455,13 +442,12 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="math", description="[Развлечения] Реши несложный пример на сложение/вычитание")
     @app_commands.check(is_shutted_down)
     async def math_cmd(self, interaction: discord.Interaction):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/math`'
+        config.lastcommand = '`/math`'
         choice = ['+','-']
         tosolve = f"{random.randint(9,99)} {random.choice(choice)} {random.randint(9,99)}"
         answer = eval(tosolve)
@@ -509,13 +495,12 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="doors", description="[Развлечения] Угадай дверь.")
     @app_commands.check(is_shutted_down)
     async def doors(self, interaction: discord.Interaction):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/doors`'
+        config.lastcommand = '`/doors`'
 
         class DoorsButtons(discord.ui.View):
             def __init__(self):
@@ -598,13 +583,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(is_shutted_down)
     @app_commands.describe(question="Вопрос, адресованный шару.")
     async def ball(self, interaction: discord.Interaction, question: str):
-        global lastcommand, used_commands
-        used_commands += 1
+        config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        lastcommand = '`/ball`'
+        config.lastcommand = '`/ball`'
         answers = [
             "Бесспорно",
             "Предрешено",
@@ -634,6 +618,155 @@ class Entartaiment(commands.Cog):
         embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Magic_eight_ball.png/800px-Magic_eight_ball.png")
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name='knb', description="[Развлечения] Камень, ножницы, бумага.")
+    @app_commands.check(is_shutted_down)
+    @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
+    async def knb(self, interaction: discord.Interaction, member: discord.Member):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/knb`'
+
+        class Approval(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=180)
+                self.value = None
+            
+            @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
+            async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != member.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                self.value = True
+                await viewinteract.response.edit_message(view=None)
+                self.stop()
+
+            @discord.ui.button(emoji="<:x_icon:975324570741526568>", style=discord.ButtonStyle.red)
+            async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == viewinteract.user.id:
+                    embed = discord.Embed(title="Отмена!", color=discord.Color.red(), description="Инициатор игры отменил её.")
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+                    self.value = False
+                    self.stop()
+                elif member.id == viewinteract.user.id:
+                    embed = discord.Embed(title="Отказ!", color=discord.Color.red(), description=f"{member.mention} отказался от игры.")
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+                    self.value = False
+                    self.stop()
+                else:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+        
+        embed = discord.Embed(title="Камень, ножницы, бумага - Ожидание", color=discord.Color.orange(), description=f"Вы хотите сыграть с {member.mention}. Необходимо получить его/её согласие. Время на ответ: `3 минуты`.")
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        appr = Approval()
+        await interaction.response.send_message(embed=embed, view=appr)
+        await appr.wait()
+        if appr.value == None:
+            embed = discord.Embed(title="Камень, ножницы, бумага - Время вышло!", color=discord.Color.red())
+            return await interaction.edit_original_message(embed=embed, view=None)
+        elif appr.value == True:
+            class GamePlay(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=30)
+                    self.choice_one = None
+                    self.choice_two = None
+                
+                @discord.ui.button(emoji="🪨", style=discord.ButtonStyle.blurple)
+                async def stone(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if interaction.user.id == viewinteract.user.id and self.choice_one == None:
+                        embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `камень`, ожидайте итогов.")
+                        await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                        self.choice_one = "stone"
+                        if self.choice_one != None and self.choice_two != None:
+                            self.stop()
+                    elif member.id == viewinteract.user.id and self.choice_two == None:
+                        embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `камень`, ожидайте итогов.")
+                        await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                        self.choice_two = "stone"
+                        if self.choice_one != None and self.choice_two != None:
+                            self.stop()
+                    else:
+                        return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+
+                @discord.ui.button(emoji="✂️", style=discord.ButtonStyle.blurple)
+                async def scissors(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if interaction.user.id == viewinteract.user.id and self.choice_one == None:
+                        embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `ножницы`, ожидайте итогов.")
+                        await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                        self.choice_one = "scissors"
+                        if self.choice_one != None and self.choice_two != None:
+                            self.stop()
+                    elif member.id == viewinteract.user.id and self.choice_two == None:
+                        embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `ножницы`, ожидайте итогов.")
+                        await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                        self.choice_two = "scissors"
+                        if self.choice_one != None and self.choice_two != None:
+                            self.stop()
+                    else:
+                        return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                
+                @discord.ui.button(emoji="📜", style=discord.ButtonStyle.blurple)
+                async def paper(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if interaction.user.id == viewinteract.user.id and self.choice_one == None:
+                        embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `бумагу`, ожидайте итогов.")
+                        await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                        self.choice_one = "paper"
+                        if self.choice_one != None and self.choice_two != None:
+                            self.stop()
+                    elif member.id == viewinteract.user.id and self.choice_two == None:
+                        embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `бумагу`, ожидайте итогов.")
+                        await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                        self.choice_two = "paper"
+                        if self.choice_one != None and self.choice_two != None:
+                            self.stop()
+                    else:
+                        return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+            
+            embed = discord.Embed(title="Камень, ножницы, бумага - Игра", color=discord.Color.orange(), description="Игра началась! Выберите камень, ножницы или бумагу. Время на выбор: `30 секунд`.")
+            embed.set_footer(text=f"{interaction.user} и {member}", icon_url=interaction.user.display_avatar.url)
+            view = GamePlay()
+            await interaction.edit_original_message(embed=embed, view=view)
+            await view.wait()
+            if view.choice_one == None or view.choice_two == None:
+                embed = discord.Embed(title="Камень, ножницы, бумага - Время вышло!", color=discord.Color.red(), description="Один из участников не выбрал(-а) предмет!")
+                return await interaction.edit_original_message(embed=embed, view=None)
+            else:
+                choices = {
+                    'scissors': "Ножницы",
+                    'paper': "Бумагу", 
+                    'stone': 'Камень'
+                }
+                if view.choice_one == view.choice_two:
+                    embed = discord.Embed(title="Камень, ножницы, бумага - Ничья", color=discord.Color.yellow(), description=f"{interaction.user.mention} и {member.mention} использовали `{choices[view.choice_one]}`.")
+                    embed.set_footer(text="Ничья!")
+                    return await interaction.edit_original_message(embed=embed, view=None)
+                
+                if view.choice_one == "paper" and view.choice_two == "stone":
+                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {interaction.user}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
+                    embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+                    await interaction.edit_original_message(embed=embed, view=None)
+                if view.choice_one == "paper" and view.choice_two == "scissors":
+                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {member}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
+                    embed.set_footer(text=str(member), icon_url=member.display_avatar.url)
+                    await interaction.edit_original_message(embed=embed, view=None)
+                if view.choice_one == "stone" and view.choice_two == "scissors":
+                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {interaction.user}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
+                    embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+                    await interaction.edit_original_message(embed=embed, view=None)
+
+                if view.choice_one == "stone" and view.choice_two == "paper":
+                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {member}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
+                    embed.set_footer(text=str(member), icon_url=member.display_avatar.url)
+                    await interaction.edit_original_message(embed=embed, view=None)
+                if view.choice_one == "scissors" and view.choice_two == "paper":
+                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {interaction.user}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
+                    embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+                    await interaction.edit_original_message(embed=embed, view=None)
+                if view.choice_one == "scissors" and view.choice_two == "stone":
+                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {member}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
+                    embed.set_footer(text=str(member), icon_url=member.display_avatar.url)
+                    await interaction.edit_original_message(embed=embed, view=None)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))

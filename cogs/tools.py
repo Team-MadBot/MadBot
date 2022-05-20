@@ -895,36 +895,6 @@ class Tools(commands.Cog):
             embed.set_thumbnail(url=f"http://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png")
             await interaction.response.send_message(embed=embed, ephemeral=True)
     
-    @app_commands.command(name="calc", description="[Полезности] Калькулятор в Discord ¯\_(ツ)_/¯.")
-    @app_commands.check(is_shutted_down)
-    @app_commands.describe(problem="Пример для решения")
-    async def calc(self, interaction: discord.Interaction, problem: str):
-        config.used_commands += 1
-        if interaction.user.id in blacklist:
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/calc`'
-        problem = problem.replace("×", "*")
-        problem = problem.replace("÷", "/")
-        answer = None
-        try:
-            answer = eval(problem)
-        except (SyntaxError, NameError, TypeError):
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы ввели некорректный пример!")
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        except ZeroDivisionError:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Делить на ноль нельзя!")
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        else:
-            problem = problem.replace("*", "×")
-            problem = problem.replace("/", "÷")
-            embed = discord.Embed(title="Калькулятор", color=discord.Color.orange())
-            embed.add_field(name="Пример:", value=f"`{problem}`")
-            embed.add_field(name="Решение:", value=f"`{answer}`")
-            embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
-            await interaction.response.send_message(embed=embed)
-    
     @app_commands.command(name="stopwatch", description="[Полезности] Секундомер.")
     @app_commands.check(is_shutted_down)
     async def stopwatch(self, interaction: discord.Interaction):
@@ -945,7 +915,7 @@ class Tools(commands.Cog):
             @discord.ui.button(label="Стоп", style=discord.ButtonStyle.danger)
             async def callback(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if interaction.user.id != viewinteract.user.id:
-                    return await interaction.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
                 stop = time.time() - self.start
                 embed = discord.Embed(title="Секундомер остановлен!", color=discord.Color.red(), description=f"Насчитанное время: `{round(stop, 3)}s`.")
                 embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)

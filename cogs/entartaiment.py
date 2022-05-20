@@ -652,6 +652,13 @@ class Entartaiment(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/knb`'
 
+        if interaction.user.id == member.id:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if member.bot:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Боту не до игр, не тревожь его!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
         class Approval(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=180)

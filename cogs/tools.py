@@ -68,8 +68,6 @@ class Tools(commands.Cog):
             embed=discord.Embed(title="Привет! Рад, что я тебе чем-то нужен!", color=discord.Color.orange(), description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.")
             await message.reply(embed=embed, mention_author=False)
 
-        await self.bot.process_commands(message)
-
     @app_commands.command(description="[Полезности] Показывает изменения в текущей версии.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(ver="Версия бота")

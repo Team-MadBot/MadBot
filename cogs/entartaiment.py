@@ -103,10 +103,14 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="hug", description="[Реакции] Обнять участника")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите обнять")
-    async def hug(self, interaction: discord.Interaction, member: discord.Member):
+    async def hug(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/hug`'
@@ -127,10 +131,14 @@ class Entartaiment(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.check(is_shutted_down)
-    async def context_hug(self, interaction: discord.Interaction, member: discord.Member):
+    async def context_hug(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/hug`'
@@ -153,10 +161,14 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="pat", description="[Реакции] Погладить участника")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите погладить")
-    async def pat(self, interaction: discord.Interaction, member: discord.Member):
+    async def pat(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/pat`'
@@ -177,10 +189,14 @@ class Entartaiment(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.check(is_shutted_down)
-    async def context_pat(self, interaction: discord.Interaction, member: discord.Member):
+    async def context_pat(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/pat`'
@@ -203,10 +219,14 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="wink", description="[Реакции] Подмигнуть. Можно и участнику.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которому вы хотите подмигнуть.")
-    async def wink(self, interaction: discord.Interaction, member: discord.Member = None):
+    async def wink(self, interaction: discord.Interaction, member: discord.User = None):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/wink`'
@@ -233,10 +253,14 @@ class Entartaiment(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.check(is_shutted_down)
-    async def context_wink(self, interaction: discord.Interaction, member: discord.Member):
+    async def context_wink(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/wink`'
@@ -260,10 +284,14 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="slap", description="[Реакции] Лупит пользователя.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите отлупить.")
-    async def slap(self, interaction: discord.Interaction, member: discord.Member):
+    async def slap(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/slap`'
@@ -280,10 +308,14 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="kiss", description="[Реакции] Поцеловать участника")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите поцеловать.")
-    async def kiss(self, interaction: discord.Interaction, member: discord.Member):
+    async def kiss(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/kiss`'
@@ -331,10 +363,14 @@ class Entartaiment(commands.Cog):
             await interaction.edit_original_message(embed=embed, view=None)
     
     @app_commands.check(is_shutted_down)
-    async def context_kiss(self, interaction: discord.Interaction, member: discord.Member):
+    async def context_kiss(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/kiss`'
@@ -384,10 +420,14 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name="hit", description="[Реакции] Ударить участника")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите ударить.")
-    async def hit(self, interaction: discord.Interaction, member: discord.Member):
+    async def hit(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/hit`'
@@ -402,10 +442,14 @@ class Entartaiment(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.check(is_shutted_down)
-    async def context_hit(self, interaction: discord.Interaction, member: discord.Member):
+    async def context_hit(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/hit`'
@@ -451,6 +495,10 @@ class Entartaiment(commands.Cog):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/nsfw`'
@@ -644,10 +692,14 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name='knb', description="[Развлечения] Камень, ножницы, бумага.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
-    async def knb(self, interaction: discord.Interaction, member: discord.Member):
+    async def knb(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/knb`'

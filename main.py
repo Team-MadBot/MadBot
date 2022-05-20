@@ -99,14 +99,20 @@ class MyBot(commands.Bot):
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
             return
-        await ctx.message.add_reaction("❌")
-        message = await ctx.message.reply(content=f"```\n{error}```")
+        try:
+            await ctx.message.add_reaction("❌")
+            message = await ctx.message.reply(content=f"```\n{error}```")
+        except:
+            pass
         channel = bot.get_channel(settings['log_channel'])
         await channel.send(f'```\nOn message "{ctx.message.content}"\n\n{error}```')
         print(error)
         await sleep(30)
-        await message.delete()
-        await ctx.message.delete()
+        try:
+            await message.delete()
+            await ctx.message.delete()
+        except:
+            pass
     
     async def on_guild_join(self, guild: discord.Guild):
         if guild.id in blacklist or guild.owner.id in blacklist: # Проверка на чёрный список.
@@ -156,6 +162,9 @@ async def on_error(interaction: discord.Interaction, error):
     if isinstance(error, app_commands.CheckFailure):
         embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")
         return await interaction.response.send_message(embed=embed, ephemeral=True) 
+    if str(error).startswith("Failed to convert"):
+        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Данная команда недоступна в личных сообщениях!")
+        return await interaction.response.send_message(embed=embed, ephemeral=True)
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```", timestamp=discord.utils.utcnow())
     channel = bot.get_channel(settings['log_channel'])
     await channel.send(f"```\nOn command '{interaction.command.name}'\n{error}```")
@@ -169,7 +178,7 @@ async def on_error(interaction: discord.Interaction, error):
 async def debug(ctx, argument, *, arg1 = None):
     if ctx.author.id == settings['owner_id']:
         if argument == "help":
-            message = await ctx.send(f"```\nservers - список серверов бота\nserverid [ID] - узнать о сервере при помощи его ID\nservername [NAME] - узнать о сервере по названию\ncreateinvite [ID] - создать инвайт на сервер\naddblacklist [ID] - добавить в ЧС\nremoveblacklist [ID] - убрать из ЧС\nverify [ID] - выдать галочку\nsupport [ID] - дать значок саппорта\nblacklist - список ЧСников\nleaveserver [ID] - покинуть сервер\nsync - синхронизация команд приложения\nchangename [NAME] - поменять ник бота\nstarttyping [SEC] - начать печатать\nsetavatar [AVA] - поменять аватар\nrestart - перезагрузка\ncreatetemplate - Ctrl+C Ctrl+V сервер\noffcmd - отключение команды\noncmd - включение команды\nreloadcogs - перезагрузка cog'ов\nloadcog - загрузка cog'а\nunloadcog - выгрузка cog'a```")
+            message = await ctx.send(f"```\nservers - список серверов бота\nserverid [ID] - узнать о сервере при помощи его ID\nservername [NAME] - узнать о сервере по названию\ncreateinvite [ID] - создать инвайт на сервер\naddblacklist [ID] - добавить в ЧС\nremoveblacklist [ID] - убрать из ЧС\nverify [ID] - выдать галочку\nsupport [ID] - дать значок саппорта\nblacklist - список ЧСников\nleaveserver [ID] - покинуть сервер\nsync - синхронизация команд приложения\nchangename [NAME] - поменять ник бота\nstarttyping [SEC] - начать печатать\nsetavatar [AVA] - поменять аватар\nrestart - перезагрузка\ncreatetemplate - Ctrl+C Ctrl+V сервер\noffcmd - отключение команды\noncmd - включение команды\nreloadcogs - перезагрузка cog'ов\nloadcog - загрузка cog'а\nunloadcog - выгрузка cog'a\nsudo - запуск кода```")
             await message.delete(delay=60)
         if argument == "servers":
             servernames = []
@@ -307,6 +316,10 @@ async def debug(ctx, argument, *, arg1 = None):
             else:
                 await ctx.message.add_reaction("✅")
                 await bot.tree.sync()
+            await sleep(30)
+        if argument == "sudo":
+            exec(arg1)
+            await ctx.message.add_reaction("✅")
             await sleep(30)
     await ctx.message.delete()
 

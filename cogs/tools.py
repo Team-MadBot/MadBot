@@ -22,13 +22,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import discord, datetime, sys, os, typing, requests
+import discord, datetime, sys, os, typing, requests, config
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
 from discord import NotFound, Forbidden, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
-import config
 from config import *
 
 def is_shutted_down(interaction: discord.Interaction):
@@ -239,7 +238,7 @@ class Tools(commands.Cog):
         embed.add_field(name="Поддержка:", value=settings['support_invite'], inline=False)
         embed.add_field(name="Пригласить:", value=f"[Тык](https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)", inline=False)
             
-        class DropDown(discord.ui.Select):
+        class DropDownCommands(discord.ui.Select):
             def __init__(self):
                 options = [
                     discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
@@ -247,7 +246,7 @@ class Tools(commands.Cog):
                     discord.SelectOption(label="Полезности", value="tools", description="Полезные команды.", emoji="⚒️"),
                     discord.SelectOption(label="Развлечения", value="entartaiment", description="Развлекательные команды.", emoji="🎉")
                 ]
-                super().__init__(placeholder="Выберите категорию", options=options)
+                super().__init__(placeholder="Команды", options=options)
             
             async def callback(self, viewinteract: discord.Interaction):
                 if interaction.user.id != viewinteract.user.id:
@@ -268,11 +267,107 @@ class Tools(commands.Cog):
                 else:
                     await interaction.edit_original_message(embed=entartaiment)
                 await viewinteract.response.defer()
+
+        class DropDownHelp(discord.ui.Select):
+            def __init__(self):
+                options = [
+                    discord.SelectOption(label="Я нашел баг!", value="bugreport", description="Заполните форму, и мы исправим баг как можно скорее!", emoji='🐞'),
+                    discord.SelectOption(label="У меня вопрос!", value="question", description="Заполните форму, и вам ответят на вопрос!", emoji='❓'),
+                    discord.SelectOption(label="У меня идея!", value='idea', description="Заполните форму, и ваша идея будет рассмотрена!", emoji="💡")
+                ]
+                super().__init__(placeholder='Обратная связь', options=options)
+
+            class BugReport(discord.ui.Modal, title="Сообщить о баге"):
+                main = discord.ui.TextInput(label="Тема:", placeholder="Команда /команда выдаёт ошибку.", max_length=50)
+                description = discord.ui.TextInput(label="Подробности:", placeholder="При таком-то действии бот выдает ошибку, хотя должен был сделать совсем другое.", style=discord.TextStyle.paragraph, max_length=2048)
+                links = discord.ui.TextInput(label="Ссылки на док-ва:", required=False, style=discord.TextStyle.paragraph, max_length=1024, placeholder="https://imgur.com/RiCkROLl")
+
+                async def on_submit(self, viewinteract: discord.Interaction):
+                    log_channel = viewinteract.client.get_channel(settings['log_channel'])
+                    embed = discord.Embed(title=f"Сообщение о баге: {str(self.main)}", color=discord.Color.red(), description=str(self.description))
+                    embed.set_author(name=str(viewinteract.user), icon_url=viewinteract.user.display_avatar.url)
+                    if str(self.links) != "":
+                        embed.add_field(name="Ссылки:", value=str(self.links))
+                    await log_channel.send(embed=embed)
+                    embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Сообщение о баге успешно отправлено!")
+                    await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                
+            class AskQuestion(discord.ui.Modal, title="Задать вопрос"):
+                main = discord.ui.TextInput(label="Тема:", placeholder="Как сделать так-то.", max_length=50)
+                description = discord.ui.TextInput(label="Подробности:", placeholder="Я хочу сделать так. Как так сделать?", style=discord.TextStyle.paragraph, max_length=2048)
+                links = discord.ui.TextInput(label="Ссылки на док-ва:", required=False, style=discord.TextStyle.paragraph, max_length=1024, placeholder="https://imgur.com/RiCkROLl")
+
+                async def on_submit(self, viewinteract: discord.Interaction):
+                    class Buttons(discord.ui.View):
+                        def __init__(self):
+                            super().__init__(timeout=None)
+                        
+                        @discord.ui.button(label="Ответить", style=discord.ButtonStyle.primary, emoji="✏️")
+                        async def answer(self, buttinteract: discord.Interaction, button: discord.ui.Button):
+                            if not (buttinteract.user.id in supports):
+                                return await buttinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True) 
+                            class AnswerQuestion(discord.ui.Modal, title="Ответ на вопрос"):
+                                answer = discord.ui.TextInput(label="Ответ:", placeholder="Сделайте вот так:", style=discord.TextStyle.paragraph, max_length=2048)
+
+                                async def on_submit(self, ansinteract: discord.Interaction):
+                                    embed = discord.Embed(title="Ответ на вопрос!", color=discord.Color.green(), description=str(self.answer))
+                                    embed.set_author(name=str(ansinteract.user), icon_url=ansinteract.user.display_avatar.url)
+                                    try:
+                                        await viewinteract.user.send(embed=embed)
+                                    except:
+                                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не смог отправить ответ на вопрос в личные сообщения пользователя!")
+                                        await ansinteract.response.send_message(embed=embed, ephemeral=True)
+                                    else:
+                                        embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ответ отправлен пользователю.")
+                                        await ansinteract.response.send_message(embed=embed, ephemeral=True)
+                                    await buttinteract.edit_original_message(view=None)
+                                
+                            await buttinteract.response.send_modal(AnswerQuestion())
+
+                    log_channel = viewinteract.client.get_channel(settings['log_channel'])
+                    embed = discord.Embed(title=f"Вопрос: {str(self.main)}", color=discord.Color.red(), description=str(self.description))
+                    embed.set_author(name=str(viewinteract.user), icon_url=viewinteract.user.display_avatar.url)
+                    if str(self.links) != "":
+                        embed.add_field(name="Ссылки:", value=str(self.links))
+                    await log_channel.send(embed=embed, view=Buttons())
+                    embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Вопрос успешно отправлен!")
+                    await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                
+            class SendIdea(discord.ui.Modal, title="Предложить идею"):
+                main = discord.ui.TextInput(label='Суть идеи:', max_length=50, placeholder="Удалить конфликты.")
+                description = discord.ui.TextInput(label="Идея:", max_length=2048, placeholder="Сделать так, чтобы везде был мир.", style=discord.TextStyle.long)
+                links = discord.ui.TextInput(label="Ссылки:", max_length=1024, placeholder="https://imgur.com/RiCkROLl", required=False)
+
+                async def on_submit(self, viewinteract: discord.Interaction):
+                    idea_embed = discord.Embed(title=str(self.main), color=discord.Color.orange(), description=str(self.description), timestamp=discord.utils.utcnow())
+                    idea_embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar)
+                    if str(self.links) != '':
+                        idea_embed.add_field(name="Ссылки:", value=str(self.links))
+                    channel = viewinteract.client.get_channel(settings['idea_channel'])
+                    message = await channel.send(embed=idea_embed)
+                    await message.add_reaction("✅")
+                    await message.add_reaction("💤")
+                    await message.add_reaction("❌")
+                    embed = discord.Embed(title='Успешно!', color=discord.Color.green(), description="Идея отправлена в канал")
+                    await viewinteract.response.send_message(embed=embed, ephemeral=True)
+
+            async def callback(self, viewinteract: discord.Interaction):
+                if viewinteract.user.id in blacklist:
+                    embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+                    embed.set_thumbnail(url=interaction.user.avatar.url)
+                    return await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                modals = {
+                    'bugreport': self.BugReport(),
+                    'question': self.AskQuestion(),
+                    'idea': self.SendIdea()
+                }
+                await viewinteract.response.send_modal(modals[self.values[0]])
            
         class DropDownView(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)
-                self.add_item(DropDown())
+                self.add_item(DropDownCommands())
+                self.add_item(DropDownHelp())
 
         await interaction.response.send_message(embed=embed, view=DropDownView())
 

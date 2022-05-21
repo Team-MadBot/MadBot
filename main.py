@@ -66,8 +66,8 @@ class MyBot(commands.Bot):
         for ext in cogs:
             try:
                 await self.load_extension(ext)
-            except:
-                print(f"Не удалось подключить {ext}!")
+            except Exception as e:
+                print(f"Не удалось подключить {ext}!\n{e}")
         
         await bot.tree.sync()
     
@@ -157,6 +157,9 @@ bot=MyBot()
 
 @bot.tree.error
 async def on_error(interaction: discord.Interaction, error):
+    if isinstance(error, app_commands.CommandOnCooldown):
+        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"У вас кулдаун! Попробуйте через `{str(error).removeprefix('You are on cooldown. Try again in ')}`!")
+        return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(error, app_commands.CheckFailure):
         embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")
         return await interaction.response.send_message(embed=embed, ephemeral=True) 
@@ -295,8 +298,8 @@ async def debug(ctx, argument, *, arg1 = None):
             for ext in cogs:
                 try:
                     await bot.reload_extension(ext)
-                except:
-                    print(f"Не удалось перезагрузить {ext}!")
+                except Exception as e:
+                    print(f"Не удалось перезагрузить {ext}!\n{e}")
             await ctx.message.add_reaction("✅")
             await sleep(30)
         if argument == "loadcog":
@@ -321,6 +324,13 @@ async def debug(ctx, argument, *, arg1 = None):
             exec(arg1)
             await ctx.message.add_reaction("✅")
             await sleep(30)
+    elif not (ctx.author.id in blacklist):
+        embed = discord.Embed(title="Попытка использования debug-команды!", color=discord.Color.red())
+        embed.add_field(name="Пользователь:", value=f'{ctx.author.mention} (`{ctx.author}`)')
+        embed.add_field(name="Команда:", value=f"`{argument}`")
+        embed.add_field(name="Значение:", value=f"`{arg1}`")
+        channel = bot.get_channel(settings['log_channel'])
+        await channel.send(embed=embed)
     await ctx.message.delete()
 
 print("Подключение к Discord...")

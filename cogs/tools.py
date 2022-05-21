@@ -34,6 +34,9 @@ from config import *
 def is_shutted_down(interaction: discord.Interaction):
     return interaction.command.name not in shutted_down
 
+def cooldown_check(interaction: discord.Interaction):
+    return None if interaction.user.id == settings['owner_id'] else app_commands.Cooldown(1, 300)
+
 class Tools(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -56,6 +59,10 @@ class Tools(commands.Cog):
                 ans = b64encode(ans)
                 ans = str(ans).removeprefix("b'")
                 ans = str(ans).removesuffix("'")
+                if len(text) > 1024 or len(ans) > 1024:
+                    embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange(), description=f"**Исходный текст:**\n{text}")
+                    embed1 = discord.Embed(title="Полученный текст:", color=discord.Color.orange(), description=ans)
+                    return await interaction.response.send_message(embeds=[embed, embed1], ephemeral=True)
                 embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange())
                 embed.add_field(name="Исходный текст:", value=text, inline=False)
                 embed.add_field(name="Полученный текст:", value=ans)
@@ -73,6 +80,10 @@ class Tools(commands.Cog):
                 config.lastcommand = '`/base64 decode`'
                 ans = b64decode(text)
                 ans = ans.decode("utf8")
+                if len(text) > 1024 or len(ans) > 1024:
+                    embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange(), description=f"**Исходный текст:**\n{text}")
+                    embed1 = discord.Embed(title="Полученный текст:", color=discord.Color.orange(), description=ans)
+                    return await interaction.response.send_message(embeds=[embed, embed1], ephemeral=True)
                 embed = discord.Embed(title="Расшифровка:", color=discord.Color.orange())
                 embed.add_field(name="Исходный текст:", value=text, inline=False)
                 embed.add_field(name="Полученный текст:", value=ans)
@@ -106,7 +117,7 @@ class Tools(commands.Cog):
             if message.content == "mad.debug status":
                 await message.channel.send("OK")
 
-        if message.content.startswith(f"<@!{self.bot.user.id}>") or message.content.startswith(f"<@{self.bot.user.id}>"):
+        if message.content.startswith((f"<@!{self.bot.user.id}>") or message.content.startswith(f"<@{self.bot.user.id}>") and message.content.find("debug") == -1):
             embed=discord.Embed(title="Привет! Рад, что я тебе чем-то нужен!", color=discord.Color.orange(), description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.")
             await message.reply(embed=embed, mention_author=False)
 
@@ -764,6 +775,7 @@ class Tools(commands.Cog):
 
     @app_commands.command(name="idea", description="[Полезности] Предложить идею для бота.")
     @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(cooldown_check)
     @app_commands.describe(title="Суть идеи", description="Описание идеи", attachment="Изображение для показа идеи")
     async def idea(self, interaction: discord.Interaction, title: str, description: str, attachment: typing.Optional[discord.Attachment]):
         config.used_commands += 1
@@ -941,6 +953,63 @@ class Tools(commands.Cog):
 
         start = time.time()
         await interaction.response.send_message(embed=embed, view=Button(start))
+
+    @app_commands.command(name="debug", description="[Полезности] Запрос основной информации о боте.")
+    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(cooldown_check)
+    async def debug(self, interaction: discord.Interaction):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/debug`'
+
+        def get_permissions(perms: discord.Permissions):
+            ans = ""
+            ans += f"✅ Отправка сообщений\n" if perms.send_messages else f"❌ Отправка сообщений\n"
+            ans += f"✅ Добавление ссылок\n" if perms.embed_links else f"❌ Добавление ссылок\n"
+            ans += f"✅ Использование внешних эмодзи\n" if perms.use_external_emojis else f"❌ Использование внешних эмодзи\n"
+            ans += f"✅ Управление каналами\n" if perms.manage_channels else f"❌ Управление каналами\n"
+            ans += f"✅ Исключение участников\n" if perms.kick_members else f"❌ Исключение участников\n"
+            ans += f"✅ Блокировка участников\n" if perms.ban_members else f"❌ Блокировка участников\n"
+            ans += f"✅ Чтение истории сообщений\n" if perms.read_message_history else f"❌ Чтение истории сообщений\n"
+            ans += f"✅ Чтение сообщений\n" if perms.read_messages else f"❌ Чтение сообщений\n"
+            ans += f"✅ Управление участниками\n" if perms.moderate_members else f"❌ Управление участниками\n"
+            ans += f"✅ Управление никнеймами\n" if perms.manage_nicknames else f"❌ Управление никнеймами\n"
+            ans += f"✅ Управление сообщениями\n" if perms.manage_messages else f"❌ Управление сообщениями\n"
+            ans += f"✅ Создание приглашений\n" if perms.create_instant_invite else f"❌ Создание приглашений\n"
+            ans += f"✅ Управление сервером\n" if perms.manage_guild else f"❌ Управление сервером\n"
+            ans += f"✅ Управление вебхуками\n" if perms.manage_webhooks else f"❌ Управление вебхуками\n"
+            ans += f"✅ Журнал аудита\n" if perms.view_audit_log else f"❌ Журнал аудита\n"
+            return ans
+
+        embed = discord.Embed(title="Отладка", color=discord.Color.orange())
+        embed.add_field(
+            name="Права бота",
+            value=get_permissions(interaction.guild.get_member(self.bot.user.id).guild_permissions)
+        )
+        embed.add_field(
+            name="Права в этом канале",
+            value=get_permissions(interaction.channel.permissions_for(interaction.guild.get_member(self.bot.user.id)))
+        )
+        embed.add_field(
+            name="Информация о сервере",
+            value=(f"Имя канала:\n`{interaction.channel.name}`\nID канала:\n`{interaction.channel.id}`\n" +
+                f"Кол-во каналов:\n`{len(interaction.guild.channels)}/500`\n" + 
+                f"Название сервера:\n`{interaction.guild.name}`\nID сервера:\n`{interaction.guild.id}`"
+            )
+        )
+        ans = ''
+        ans += f"✅ Создатель\n" if interaction.user.id == interaction.guild.owner.id else f"❌ Создатель\n"
+        ans += f"✅ Администратор\n" if interaction.user.guild_permissions.administrator else f"❌ Администратор\n"
+        embed.add_field(
+            name="Информация о пользователе",
+            value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{ans}`"
+        )
+        channel = self.bot.get_channel(settings['debug_channel'])
+        message = await channel.send(embed=embed)
+        await interaction.response.send_message(content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url}",embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Tools(bot))

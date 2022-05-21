@@ -7,12 +7,13 @@ import discord,time
 settings = {
     'token': 'TOKEN',
     'app_id': 880911386916577281, # Application ID вашего бота.
-    'key': 'Ключ some-random-api.md',
+    'key': 'Ключ some-random-api.ml',
     'weather_key': 'Ключ openweathermap.org',
     'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
     'owner_id': 560529834325966858, # ID владельца.
     'server': 914181806285279232, # Сервер логов.
     'log_channel': 924241555697594380, # Канал логирования.
+    'debug_channel': 977492340459581460, # Канал для debug-сообщений.
     'perm_scope': 1375060978903, # Permission Integer.
     'outages': 950427940338958387, # ID канала с оповещениями о сбоях.
     'github_channel': 953175109135376394, # ID канала обновлений репозитория.

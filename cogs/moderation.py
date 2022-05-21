@@ -144,9 +144,19 @@ class Moderation(commands.Cog):
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
 
             class ReasonInput(discord.ui.Modal, title="Выдача наказания"):
-                answer = discord.ui.TextInput(label="Укажите причину выдачи наказания", style=discord.TextStyle.short, placeholder="Бунтует", required=True, max_length=35)
+                answer = discord.ui.TextInput(label="Укажите причину выдачи наказания", style=discord.TextStyle.paragraph, placeholder="Бунтует", required=True, max_length=450)
                 async def on_submit(self, viewinteract: discord.Interaction):
                     reason = self.answer
+                    proofs = message.content
+                    if message.embeds != None:
+                        for emb in message.embeds:
+                            if bool(emb):
+                                proofs += "embed:\n"
+                                proofs += f"title={emb.title}\n" if emb.title != None else ''
+                                proofs += f"description={emb.description[:896] + (emb.description[896:] and '..')}" if emb.description != None else ''
+                    if message.attachments != None:
+                        for attach in message.attachments:
+                            proofs += f'\n{attach.url}'
                     embed = discord.Embed(title=f'Участник выгнан с сервера {interaction.guild.name}!', color=discord.Color.red(), timestamp=discord.utils.utcnow())
                     embed.add_field(name="Участник:", value=f"{message.author.mention}", inline=True)
                     embed.add_field(name="Модератор:", value=f"{interaction.user.mention}", inline=True)
@@ -186,18 +196,28 @@ class Moderation(commands.Cog):
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
             
             class InputText(discord.ui.Modal, title="Выдача наказания"):
-                reason = discord.ui.TextInput(label="Укажите причину", style=discord.TextStyle.short, placeholder="Бунтует", required=True, max_length=35)
+                reason = discord.ui.TextInput(label="Укажите причину", style=discord.TextStyle.paragraph, placeholder="Бунтует", required=True, max_length=430)
                 delete_message_days = discord.ui.TextInput(label="Удалить историю сообщений", style=discord.TextStyle.short, placeholder="0-7", max_length=1, required=False)
                 async def on_submit(self, viewinteract: discord.Interaction):
                     if not(isinstance(self.delete_message_days, str)):
                         self.delete_message_days = 0
                     if self.delete_message_days > 7:
                         self.delete_message_days = 7
+                    proofs = message.content
+                    if message.embeds != None:
+                        for emb in message.embeds:
+                            if bool(emb):
+                                proofs += "embed:\n"
+                                proofs += f"title={emb.title}\n" if emb.title != None else ''
+                                proofs += f"description={emb.description[:896] + (emb.description[896:] and '..')}" if emb.description != None else ''
+                    if message.attachments != None:
+                        for attach in message.attachments:
+                            proofs += f'\n{attach.url}'
                     embed = discord.Embed(title=f'Участник забанен на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=discord.utils.utcnow())
                     embed.add_field(name="Участник:", value=f"{message.author.mention}", inline=True)
                     embed.add_field(name="Модератор:", value=f"{interaction.user.mention}", inline=True)
                     embed.add_field(name="Причина:", value=f"{self.reason}", inline=True)
-                    embed.add_field(name="Доказательства:", value=f"||{message.content}||")
+                    embed.add_field(name="Доказательства:", value=f"||{proofs}||")
                     try:
                         await message.author.send(embed=embed)
                     except:
@@ -469,7 +489,7 @@ class Moderation(commands.Cog):
             
             class InputText(discord.ui.Modal, title="Выдача наказания"):
                 until = discord.ui.TextInput(label="Срок выдачи наказания (в минутах)", style=discord.TextStyle.short, required=True, placeholder="0 - 40320", max_length=5)
-                reason = discord.ui.TextInput(label="Причина", style=discord.TextStyle.short, placeholder="Бунтует", required=True, max_length=35)
+                reason = discord.ui.TextInput(label="Причина", style=discord.TextStyle.paragraph, placeholder="Бунтует", required=True, max_length=430)
                 async def on_submit(self, viewinteract: discord.Interaction):
                     if not(str(self.until).isdigit()):
                         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Причина должна быть численная!")
@@ -487,6 +507,12 @@ class Moderation(commands.Cog):
                     else:
                         if self.until is not None:
                             proofs = message.content
+                            if message.embeds != None:
+                                for emb in message.embeds:
+                                    if bool(emb):
+                                        proofs += "embed:\n"
+                                        proofs += f"title={emb.title}\n" if emb.title != None else ''
+                                        proofs += f"description={emb.description[:896] + (emb.description[896:] and '..')}" if emb.description != None else ''
                             if message.attachments != None:
                                 for attach in message.attachments:
                                     proofs += f'\n{attach.url}'

@@ -33,6 +33,7 @@ from config import *
 
 def is_shutted_down(interaction: discord.Interaction):
     return interaction.command.name not in shutted_down
+
 class Entartaiment(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -61,7 +62,6 @@ class Entartaiment(commands.Cog):
         self.bot.tree.add_command(self.ctx_hug)
         self.bot.tree.add_command(self.ctx_pat)
         self.bot.tree.add_command(self.ctx_wink)
-
 
     @app_commands.command(name="cat", description="[Развлечения] Присылает рандомного котика")
     @app_commands.check(is_shutted_down)
@@ -696,7 +696,7 @@ class Entartaiment(commands.Cog):
     async def knb(self, interaction: discord.Interaction, member: discord.User = None):
         config.used_commands += 1
         if member == None:
-            member = settings["bot"]
+            member = self.bot.user
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -740,23 +740,23 @@ class Entartaiment(commands.Cog):
                     self.stop()
                 else:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-        if member != settings["bot"]:
+        if member != self.bot.user:
             embed = discord.Embed(title="Камень, ножницы, бумага - Ожидание", color=discord.Color.orange(), description=f"Вы хотите сыграть с {member.mention}. Необходимо получить его/её согласие. Время на ответ: `3 минуты`.")
             embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
             appr = Approval()
             await interaction.response.send_message(embed=embed, view=appr)
             await appr.wait()
-        if member != settings["bot"] and appr.value == None:
+        if member != self.bot.user and appr.value == None:
             embed = discord.Embed(title="Камень, ножницы, бумага - Время вышло!", color=discord.Color.red())
             return await interaction.edit_original_message(embed=embed, view=None)
-        elif member == settings["bot"] or appr.value:
+        elif member == self.bot.user or appr.value:
             class GamePlay(discord.ui.View):
                 def __init__(self):
                     super().__init__(timeout=30)
                     self.choice_one = None
                     self.choice_two = None
                     choices_one = ['scissors','paper', 'stone']
-                    if member == settings["bot"]:
+                    if member == self.bot.user:
                         self.choice_two = choice(choices_one)
                 
                 @discord.ui.button(emoji="🪨", style=discord.ButtonStyle.blurple)

@@ -15,7 +15,7 @@ MadBotPublic
 Требования:
 ------------
 См. `requirements.txt <https://github.com/MadCat9958/MadBotPublic/blob/main/requirements.txt/>`__.
-Рекомендуемая версия **Python**: ``3.9.12``.
+Рекомендуемая версия **Python**: ``3.9.13``.
 
 Помощь в разработке:
 ------------

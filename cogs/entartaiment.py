@@ -756,7 +756,7 @@ class Entartaiment(commands.Cog):
                     self.choice_one = None
                     self.choice_two = None
                     choices_one = ['scissors','paper', 'stone']
-                    if member == self.bot.user:
+                    if member == interaction.client.user:
                         self.choice_two = choice(choices_one)
                 
                 @discord.ui.button(emoji="🪨", style=discord.ButtonStyle.blurple)

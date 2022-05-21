@@ -29,6 +29,7 @@ from discord.ext import commands
 from asyncio import sleep
 from config import *
 
+
 btns=[
     {
         "label": "Добавить бота",
@@ -60,14 +61,14 @@ else:
 
 class MyBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=discord.Intents.all(), application_id=settings['app_id'])
+        super().__init__(command_prefix='mad.', intents=discord.Intents.all(), application_id=settings['app_id'])
 
     async def setup_hook(self):
         for ext in cogs:
             try:
                 await self.load_extension(ext)
-            except Exception as e:
-                print(f"Не удалось подключить {ext}!\n{e}")
+            except:
+                print(f"Не удалось подключить {ext}!")
         
         await bot.tree.sync()
     
@@ -79,7 +80,8 @@ class MyBot(commands.Bot):
         global started_at
         server = bot.get_guild(settings['server']) # Сервер логов.
         logs = server.get_channel(settings['log_channel']) # Канал логов.
-        channel = bot.get_channel(967484036127813713) # Канал "общения" мониторинга. Закомментируйте, если хотите.
+        settings["cmd-log-channel"] = bot.get_channel(settings["cmd-log-id"])
+        settings["bot"] = bot.get_user(settings["app_id"])
         for guild in bot.guilds: # Проверка на нахождение в чёрном списке.
             if guild.id in blacklist:
                 await guild.leave()
@@ -89,13 +91,21 @@ class MyBot(commands.Bot):
             started_at -= 10800
         embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(), description=f"Пинг: `{int(round(bot.latency, 3)*1000)}ms`\nВерсия: `{settings['curr_version']}`")
         await logs.send(embed=embed)
-        await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.
+        #await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.
         while True:
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | {int(round(bot.latency, 3)*1000)}ms"))
             await sleep(60)
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | v{settings['curr_version']}"))
             await sleep(60)
-    
+
+    async def on_interaction(self, ctx: commands.Context):
+        emb = discord.Embed(
+            title="Выполненна команда",
+            colour=discord.Colour.green()
+        )
+        emb.add_field(name="Статус", value="Успешно")
+        await settings["cmd-log-channel"].send(embed=emb)
+
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
             return
@@ -104,6 +114,8 @@ class MyBot(commands.Bot):
             message = await ctx.message.reply(content=f"```\n{error}```")
         except:
             pass
+        channel = bot.get_channel(settings['log_channel'])
+        await channel.send(f'```\nOn message "{ctx.message.content}"\n\n{error}```')
         print(error)
         await sleep(30)
         try:
@@ -157,9 +169,6 @@ bot=MyBot()
 
 @bot.tree.error
 async def on_error(interaction: discord.Interaction, error):
-    if isinstance(error, app_commands.CommandOnCooldown):
-        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"У вас кулдаун! Попробуйте через `{str(error).removeprefix('You are on cooldown. Try again in ')}`!")
-        return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(error, app_commands.CheckFailure):
         embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")
         return await interaction.response.send_message(embed=embed, ephemeral=True) 
@@ -175,9 +184,10 @@ async def on_error(interaction: discord.Interaction, error):
         await interaction.edit_original_message(embeds=[embed])
     print(error)
 
+
 @bot.command()
 async def debug(ctx, argument, *, arg1 = None):
-    if ctx.author.id == settings['owner_id']:
+    if ctx.author.id == settings['owner_id'] or ctx.author.id in settings["developers"]:
         if argument == "help":
             message = await ctx.send(f"```\nservers - список серверов бота\nserverid [ID] - узнать о сервере при помощи его ID\nservername [NAME] - узнать о сервере по названию\ncreateinvite [ID] - создать инвайт на сервер\naddblacklist [ID] - добавить в ЧС\nremoveblacklist [ID] - убрать из ЧС\nverify [ID] - выдать галочку\nsupport [ID] - дать значок саппорта\nblacklist - список ЧСников\nleaveserver [ID] - покинуть сервер\nsync - синхронизация команд приложения\nchangename [NAME] - поменять ник бота\nstarttyping [SEC] - начать печатать\nsetavatar [AVA] - поменять аватар\nrestart - перезагрузка\ncreatetemplate - Ctrl+C Ctrl+V сервер\noffcmd - отключение команды\noncmd - включение команды\nreloadcogs - перезагрузка cog'ов\nloadcog - загрузка cog'а\nunloadcog - выгрузка cog'a\nsudo - запуск кода```")
             await message.delete(delay=60)
@@ -241,11 +251,6 @@ async def debug(ctx, argument, *, arg1 = None):
             else:
                 await ctx.message.add_reaction("✅")
             await sleep(30)
-        if argument == "leaveserver":
-            guild = bot.get_guild(int(arg1))
-            await guild.leave()
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
         if argument == "sync":
             async with ctx.channel.typing():    
                 await bot.tree.sync()
@@ -285,8 +290,6 @@ async def debug(ctx, argument, *, arg1 = None):
             await ctx.message.add_reaction("🔁")
             await bot.close()
         if argument == "offcmd":
-            """Примечание: при отключении группы следует вводить подкоманды (пример:
-            для отключения /base64 encode пропишите mad.debug offcmd encode)."""
             shutted_down.append(arg1)
             await ctx.message.add_reaction("✅")
             await sleep(30)
@@ -298,8 +301,8 @@ async def debug(ctx, argument, *, arg1 = None):
             for ext in cogs:
                 try:
                     await bot.reload_extension(ext)
-                except Exception as e:
-                    print(f"Не удалось перезагрузить {ext}!\n{e}")
+                except:
+                    print(f"Не удалось перезагрузить {ext}!")
             await ctx.message.add_reaction("✅")
             await sleep(30)
         if argument == "loadcog":
@@ -320,17 +323,18 @@ async def debug(ctx, argument, *, arg1 = None):
                 await ctx.message.add_reaction("✅")
                 await bot.tree.sync()
             await sleep(30)
+    else:
+        await settings["cmd-log-channel"].send(f"```Кто-то попытался использовать debug команду...\nАргументы: основной - {argument}, вспомогательные - {arg1}```")
+    if ctx.author.id == settings["owner_id"]:
         if argument == "sudo":
             exec(arg1)
             await ctx.message.add_reaction("✅")
             await sleep(30)
-    elif not (ctx.author.id in blacklist):
-        embed = discord.Embed(title="Попытка использования debug-команды!", color=discord.Color.red())
-        embed.add_field(name="Пользователь:", value=f'{ctx.author.mention} (`{ctx.author}`)')
-        embed.add_field(name="Команда:", value=f"`{argument}`")
-        embed.add_field(name="Значение:", value=f"`{arg1}`")
-        channel = bot.get_channel(settings['log_channel'])
-        await channel.send(embed=embed)
+        if argument == "leaveserver":
+                guild = bot.get_guild(int(arg1))
+                await guild.leave()
+                await ctx.message.add_reaction("✅")
+                await sleep(30)
     await ctx.message.delete()
 
 print("Подключение к Discord...")

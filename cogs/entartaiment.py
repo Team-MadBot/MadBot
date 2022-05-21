@@ -692,7 +692,7 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name='knb', description="[Развлечения] Камень, ножницы, бумага.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
-    async def knb(self, interaction: discord.Interaction, member: discord.User):
+    async def knb(self, interaction: discord.Interaction, member: discord.User = None):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
@@ -704,13 +704,12 @@ class Entartaiment(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/knb`'
 
-        if interaction.user.id == member.id:
+        if member != None and interaction.user.id == member.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if member.bot:
+        if member != None and member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Боту не до игр, не тревожь его!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-
         class Approval(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=180)
@@ -718,7 +717,7 @@ class Entartaiment(commands.Cog):
             
             @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
             async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                if viewinteract.user.id != member.id:
+                if member != None and viewinteract.user.id != member.id:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
                 self.value = True
                 await viewinteract.response.edit_message(view=None)
@@ -731,28 +730,31 @@ class Entartaiment(commands.Cog):
                     await viewinteract.response.edit_message(embed=embed, view=None)
                     self.value = False
                     self.stop()
-                elif member.id == viewinteract.user.id:
+                elif member != None and member.id == viewinteract.user.id:
                     embed = discord.Embed(title="Отказ!", color=discord.Color.red(), description=f"{member.mention} отказался от игры.")
                     await viewinteract.response.edit_message(embed=embed, view=None)
                     self.value = False
                     self.stop()
                 else:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-        
-        embed = discord.Embed(title="Камень, ножницы, бумага - Ожидание", color=discord.Color.orange(), description=f"Вы хотите сыграть с {member.mention}. Необходимо получить его/её согласие. Время на ответ: `3 минуты`.")
-        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
-        appr = Approval()
-        await interaction.response.send_message(embed=embed, view=appr)
-        await appr.wait()
-        if appr.value == None:
+        if member != None:
+            embed = discord.Embed(title="Камень, ножницы, бумага - Ожидание", color=discord.Color.orange(), description=f"Вы хотите сыграть с {member.mention}. Необходимо получить его/её согласие. Время на ответ: `3 минуты`.")
+            embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+            appr = Approval()
+            await interaction.response.send_message(embed=embed, view=appr)
+            await appr.wait()
+        if member != None and appr.value == None:
             embed = discord.Embed(title="Камень, ножницы, бумага - Время вышло!", color=discord.Color.red())
             return await interaction.edit_original_message(embed=embed, view=None)
-        elif appr.value == True:
+        elif member == None or appr.value == True:
             class GamePlay(discord.ui.View):
                 def __init__(self):
                     super().__init__(timeout=30)
                     self.choice_one = None
                     self.choice_two = None
+                    choices_one = ['scissors','paper', 'stone']
+                    if member == None:
+                        self.choice_two = random.choice(choices_one)
                 
                 @discord.ui.button(emoji="🪨", style=discord.ButtonStyle.blurple)
                 async def stone(self, viewinteract: discord.Interaction, button: discord.ui.Button):
@@ -762,7 +764,7 @@ class Entartaiment(commands.Cog):
                         self.choice_one = "stone"
                         if self.choice_one != None and self.choice_two != None:
                             self.stop()
-                    elif member.id == viewinteract.user.id and self.choice_two == None:
+                    elif member != None and member.id == viewinteract.user.id and self.choice_two == None:
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `камень`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_two = "stone"
@@ -770,7 +772,6 @@ class Entartaiment(commands.Cog):
                             self.stop()
                     else:
                         return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-
                 @discord.ui.button(emoji="✂️", style=discord.ButtonStyle.blurple)
                 async def scissors(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                     if interaction.user.id == viewinteract.user.id and self.choice_one == None:
@@ -779,7 +780,7 @@ class Entartaiment(commands.Cog):
                         self.choice_one = "scissors"
                         if self.choice_one != None and self.choice_two != None:
                             self.stop()
-                    elif member.id == viewinteract.user.id and self.choice_two == None:
+                    elif member != None and member.id == viewinteract.user.id and self.choice_two == None:
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `ножницы`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_two = "scissors"
@@ -787,7 +788,6 @@ class Entartaiment(commands.Cog):
                             self.stop()
                     else:
                         return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-                
                 @discord.ui.button(emoji="📜", style=discord.ButtonStyle.blurple)
                 async def paper(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                     if interaction.user.id == viewinteract.user.id and self.choice_one == None:
@@ -796,7 +796,7 @@ class Entartaiment(commands.Cog):
                         self.choice_one = "paper"
                         if self.choice_one != None and self.choice_two != None:
                             self.stop()
-                    elif member.id == viewinteract.user.id and self.choice_two == None:
+                    elif member != None and member.id == viewinteract.user.id and self.choice_two == None:
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `бумагу`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_two = "paper"
@@ -805,11 +805,15 @@ class Entartaiment(commands.Cog):
                     else:
                         return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
             
+            bot_mention = "<@!{settings['app_id']}>"
+            gamer = member if member != None else interaction.client.user
             embed = discord.Embed(title="Камень, ножницы, бумага - Игра", color=discord.Color.orange(), description="Игра началась! Выберите камень, ножницы или бумагу. Время на выбор: `30 секунд`.")
-            embed.set_footer(text=f"{interaction.user} и {member}", icon_url=interaction.user.display_avatar.url)
+            embed.set_footer(text=f"{interaction.user} и {gamer}", icon_url=interaction.user.display_avatar.url)
             view = GamePlay()
-            await interaction.edit_original_message(embed=embed, view=view)
+            member = interaction.client.user
+            await interaction.response.send_message(embed=embed, view=view)
             await view.wait()
+
             if view.choice_one == None or view.choice_two == None:
                 embed = discord.Embed(title="Камень, ножницы, бумага - Время вышло!", color=discord.Color.red(), description="Один из участников не выбрал(-а) предмет!")
                 return await interaction.edit_original_message(embed=embed, view=None)
@@ -825,7 +829,7 @@ class Entartaiment(commands.Cog):
                     return await interaction.edit_original_message(embed=embed, view=None)
                 
                 if view.choice_one == "paper" and view.choice_two == "stone":
-                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {interaction.user}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
+                    embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {interaction.user}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention if member == None else bot_mention} выбрал(-а) `{choices[view.choice_two]}`.")
                     embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
                     await interaction.edit_original_message(embed=embed, view=None)
                 if view.choice_one == "paper" and view.choice_two == "scissors":

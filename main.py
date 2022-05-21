@@ -60,7 +60,7 @@ else:
 
 class MyBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix='mad.', intents=discord.Intents.all(), application_id=settings['app_id'])
+        super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=discord.Intents.all(), application_id=settings['app_id'])
 
     async def setup_hook(self):
         for ext in cogs:
@@ -104,8 +104,6 @@ class MyBot(commands.Bot):
             message = await ctx.message.reply(content=f"```\n{error}```")
         except:
             pass
-        channel = bot.get_channel(settings['log_channel'])
-        await channel.send(f'```\nOn message "{ctx.message.content}"\n\n{error}```')
         print(error)
         await sleep(30)
         try:
@@ -284,6 +282,8 @@ async def debug(ctx, argument, *, arg1 = None):
             await ctx.message.add_reaction("🔁")
             await bot.close()
         if argument == "offcmd":
+            """Примечание: при отключении группы следует вводить подкоманды (пример:
+            для отключения /base64 encode пропишите mad.debug offcmd encode)."""
             shutted_down.append(arg1)
             await ctx.message.add_reaction("✅")
             await sleep(30)

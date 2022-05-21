@@ -38,6 +38,48 @@ class Tools(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+        @app_commands.check(is_shutted_down)
+        class base64(app_commands.Group):
+            """[Полезности] (Де-)кодирует указанный текст в Base64."""
+
+            @app_commands.command(description="[Полезности] Кодирует указанный текст в Base64.")
+            @app_commands.check(is_shutted_down)
+            @app_commands.describe(text="Текст для кодировки")
+            async def encode(self, interaction: discord.Interaction, text: str):
+                config.used_commands += 1
+                if interaction.user.id in blacklist:
+                    embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+                    embed.set_thumbnail(url=interaction.user.avatar.url)
+                    return await interaction.response.send_message(embed=embed, ephemeral=True)
+                config.lastcommand = '`/base64 encode`'
+                ans = text.encode("utf8")
+                ans = b64encode(ans)
+                ans = str(ans).removeprefix("b'")
+                ans = str(ans).removesuffix("'")
+                embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange())
+                embed.add_field(name="Исходный текст:", value=text, inline=False)
+                embed.add_field(name="Полученный текст:", value=ans)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+
+            @app_commands.command(description="[Полезности] Декодирует Base64 в текст.")
+            @app_commands.check(is_shutted_down)
+            @app_commands.describe(text="Текст для декодировки")
+            async def decode(self, interaction: discord.Interaction, text: str):
+                config.used_commands += 1
+                if interaction.user.id in blacklist:
+                    embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+                    embed.set_thumbnail(url=interaction.user.avatar.url)
+                    return await interaction.response.send_message(embed=embed, ephemeral=True)
+                config.lastcommand = '`/base64 decode`'
+                ans = b64decode(text)
+                ans = ans.decode("utf8")
+                embed = discord.Embed(title="Расшифровка:", color=discord.Color.orange())
+                embed.add_field(name="Исходный текст:", value=text, inline=False)
+                embed.add_field(name="Полученный текст:", value=ans)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        self.bot.tree.add_command(base64())
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user or message.author.id in blacklist:
@@ -779,37 +821,6 @@ class Tools(commands.Cog):
         if len(embeds) == 0:
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.response.send_message(embeds=embeds)
-
-    @app_commands.command(name="base64", description="[Полезности] (Де-)кодирует указанный текст в Base64.")
-    @app_commands.check(is_shutted_down)
-    @app_commands.describe(make="Что нужно сделать с текстом?", text="Текст для (де-)кодировки")
-    @app_commands.choices(make=[
-        Choice(name="Кодировать", value="encode"),
-        Choice(name="Декодировать", value="decode")
-    ])
-    async def base64(self, interaction: discord.Interaction, make: Choice[str], text: str):
-        config.used_commands += 1
-        if interaction.user.id in blacklist:
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/base64`'
-        if make.value == "encode":
-            ans = text.encode("utf8")
-            ans = b64encode(ans)
-            ans = str(ans).removeprefix("b'")
-            ans = str(ans).removesuffix("'")
-            embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange())
-            embed.add_field(name="Исходный текст:", value=text, inline=False)
-            embed.add_field(name="Полученный текст:", value=ans)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-        if make.value == "decode":
-            ans = b64decode(text)
-            ans = ans.decode("utf8")
-            embed = discord.Embed(title="Расшифровка:", color=discord.Color.orange())
-            embed.add_field(name="Исходный текст:", value=text, inline=False)
-            embed.add_field(name="Полученный текст:", value=ans)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="send", description="[Полезности] Отправляет сообщение в канал от имени вебхука")
     @app_commands.check(is_shutted_down)

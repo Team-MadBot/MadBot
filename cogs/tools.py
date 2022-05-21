@@ -418,6 +418,8 @@ class Tools(commands.Cog):
         if member.is_timed_out():
             badges += '<:timeout:950702768782458893> '
         if member.id == settings['owner_id']:
+            badges += '<:botdev:977645046188871751> '
+        if member.id in coders:
             badges += '<:code:946056751646638180> '
         if member.id in supports:
             badges += '<:support:946058006641143858> '
@@ -754,7 +756,7 @@ class Tools(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/badgeinfo`"
         embed=discord.Embed(title="Виды значков:", color=discord.Color.orange())
-        embed.add_field(name="Значки пользователя:", value=f"<:ban:946031802634612826> - пользователь забанен в системе бота.\n<:timeout:950702768782458893> - пользователь получил тайм-аут на сервере.\n<:code:946056751646638180> - разработчик бота.\n<:support:946058006641143858> - поддержка бота.\n<:bug_hunter:955497457020715038> - охотник на баги (обнаружил и сообщил о 3-х и более багах).\n<:bug_terminator:955891723152801833> - уничтожитель багов (обнаружил и сообщил о 10-ти и более багах).\n<:verified:946057332389978152> - верифицированный пользователь.\n<:bot:946064625525465118> - участник является ботом.", inline=False)
+        embed.add_field(name="Значки пользователя:", value=f"<:ban:946031802634612826> - пользователь забанен в системе бота.\n<:timeout:950702768782458893> - пользователь получил тайм-аут на сервере.\n<:botdev:977645046188871751> - разработчик бота.\n<:code:946056751646638180> - помощник разработчика.\n<:support:946058006641143858> - поддержка бота.\n<:bug_hunter:955497457020715038> - охотник на баги (обнаружил и сообщил о 3-х и более багах).\n<:bug_terminator:955891723152801833> - уничтожитель багов (обнаружил и сообщил о 10-ти и более багах).\n<:verified:946057332389978152> - верифицированный пользователь.\n<:bot:946064625525465118> - участник является ботом.", inline=False)
         embed.add_field(name="Значки сервера:", value=f"<:verified:946057332389978152> - верифицированный сервер.\n<:ban:946031802634612826> - сервер забанен в системе бота.\n<:beta:946063731819937812> - сервер, имеющий доступ к бета-командам.", inline=False)
         await interaction.response.send_message(embed=embed)
 

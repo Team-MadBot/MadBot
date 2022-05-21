@@ -22,7 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import discord, datetime, sys, os, typing, requests, config
+import discord, datetime, sys, typing, requests, config
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
 from discord import NotFound, Forbidden, app_commands

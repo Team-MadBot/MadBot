@@ -21,14 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import discord, datetime, requests, random, config
 from asyncio import sleep
-import discord, datetime, requests, random
 from hmtai import useHM
 from discord import app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
-import config
-from collections import Counter
 from random import choice
 from config import *
 from typing import List

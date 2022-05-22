@@ -28,8 +28,10 @@ from discord import app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
 import config
+from collections import Counter
 from random import choice
 from config import *
+from typing import List
 
 def is_shutted_down(interaction: discord.Interaction):
     return interaction.command.name not in shutted_down
@@ -81,7 +83,7 @@ class Entartaiment(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.command(name="dog", description="[Развлечения] Присылает рандомного пёсика")
     @app_commands.check(is_shutted_down)
     async def dog(self, interaction: discord.Interaction):
@@ -130,7 +132,7 @@ class Entartaiment(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.check(is_shutted_down)
     async def context_hug(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
@@ -158,7 +160,7 @@ class Entartaiment(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.command(name="pat", description="[Реакции] Погладить участника")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите погладить")
@@ -188,7 +190,7 @@ class Entartaiment(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.check(is_shutted_down)
     async def context_pat(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
@@ -216,7 +218,7 @@ class Entartaiment(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.command(name="wink", description="[Реакции] Подмигнуть. Можно и участнику.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которому вы хотите подмигнуть.")
@@ -252,7 +254,7 @@ class Entartaiment(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.check(is_shutted_down)
     async def context_wink(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
@@ -281,7 +283,7 @@ class Entartaiment(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.command(name="slap", description="[Реакции] Лупит пользователя.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите отлупить.")
@@ -326,12 +328,12 @@ class Entartaiment(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя поцеловать самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        
+
         class KissButtons(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=120)
                 self.value = None
-            
+
             @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
             async def accepted(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user == member:
@@ -353,7 +355,7 @@ class Entartaiment(commands.Cog):
                     self.value = False
                     return await interaction.edit_original_message(embed=embed, view=None)
                 else:
-                    await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)      
+                    await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
 
         view = KissButtons()
         embed = discord.Embed(title="Ожидание...", color=discord.Color.orange(), description=f"{interaction.user.mention}, необходимо получить согласие на поцелуй от {member.mention}\nВремя ограничено!")
@@ -362,7 +364,7 @@ class Entartaiment(commands.Cog):
         if view.value is None:
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             await interaction.edit_original_message(embed=embed, view=None)
-    
+
     @app_commands.check(is_shutted_down)
     async def context_kiss(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
@@ -381,12 +383,12 @@ class Entartaiment(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя поцеловать самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        
+
         class KissButtons(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=120)
                 self.value = None
-            
+
             @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
             async def accepted(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user == member:
@@ -408,7 +410,7 @@ class Entartaiment(commands.Cog):
                     self.value = False
                     return await interaction.edit_original_message(embed=embed, view=None)
                 else:
-                    await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)      
+                    await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
 
         view = KissButtons()
         embed = discord.Embed(title="Ожидание...", color=discord.Color.orange(), description=f"{interaction.user.mention}, необходимо получить согласие на поцелуй от {member.mention}\nВремя ограничено!")
@@ -417,7 +419,7 @@ class Entartaiment(commands.Cog):
         if view.value is None:
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             await interaction.edit_original_message(embed=embed, view=None)
-    
+
     @app_commands.command(name="hit", description="[Реакции] Ударить участника")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите ударить.")
@@ -441,7 +443,7 @@ class Entartaiment(commands.Cog):
         embed = discord.Embed(title="Реакция: удар", color=discord.Color.orange(), description=f"{interaction.user.mention} ударил(-а) {member.mention}.")
         embed.set_image(url=random.choice(hit_gifs))
         await interaction.response.send_message(embed=embed)
-    
+
     @app_commands.check(is_shutted_down)
     async def context_hit(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
@@ -463,7 +465,7 @@ class Entartaiment(commands.Cog):
         embed = discord.Embed(title="Реакция: удар", color=discord.Color.orange(), description=f"{interaction.user.mention} ударил(-а) {member.mention}.")
         embed.set_image(url=random.choice(hit_gifs))
         await interaction.response.send_message(embed=embed)
-    
+
     @app_commands.command(name="nsfw", description="[NSFW] Присылает NSFW картинку на тематику (бе).")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(choice="Тематика NSFW картинки", is_ephemeral="Выберите, будет ли картинка отправлена только вам.")
@@ -529,7 +531,7 @@ class Entartaiment(commands.Cog):
             def __init__(self):
                 super().__init__(timeout=15)
                 self.value = None
-            
+
             @discord.ui.button(label="Ответить", style=discord.ButtonStyle.blurple)
             async def solve(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user != interaction.user:
@@ -555,7 +557,7 @@ class Entartaiment(commands.Cog):
                             embed.set_footer(text=interaction.user, icon_url=interaction.user.display_avatar.url)
                             await interaction.edit_original_message(view=None)
                             await modalinteract.response.send_message(embed=embed)
-                
+
                 await viewinteract.response.send_modal(InputText())
 
         embed = discord.Embed(title="Реши пример!", color=discord.Color.orange(), description=f"`{tosolve}`\nВремя на решение: `15 секунд`.")
@@ -563,7 +565,7 @@ class Entartaiment(commands.Cog):
         await interaction.response.send_message(embed=embed, view=Button())
         await sleep(15)
         await interaction.edit_original_message(view=None)
-    
+
     @app_commands.command(name="doors", description="[Развлечения] Угадай дверь.")
     @app_commands.check(is_shutted_down)
     async def doors(self, interaction: discord.Interaction):
@@ -599,7 +601,7 @@ class Entartaiment(commands.Cog):
                     self.value = 1
                 else:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-                    
+
             @discord.ui.button(label="2", emoji="🚪", style=discord.ButtonStyle.green)
             async def button_two(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if interaction.user == viewinteract.user:
@@ -641,7 +643,7 @@ class Entartaiment(commands.Cog):
                     self.value = 3
                 else:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-        
+
         view = DoorsButtons()
         embed = discord.Embed(title="Выбери дверь:", color=discord.Color.orange(), description="Для выбора нажми на одну из кнопок ниже. Время ограничено (`15` секунд).")
         embed.set_footer(text=interaction.user, icon_url=interaction.user.display_avatar.url)
@@ -717,7 +719,7 @@ class Entartaiment(commands.Cog):
             def __init__(self):
                 super().__init__(timeout=180)
                 self.value = None
-            
+
             @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
             async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user.id != member.id:
@@ -758,7 +760,7 @@ class Entartaiment(commands.Cog):
                     choices_one = ['scissors','paper', 'stone']
                     if member == interaction.client.user:
                         self.choice_two = choice(choices_one)
-                
+
                 @discord.ui.button(emoji="🪨", style=discord.ButtonStyle.blurple)
                 async def stone(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                     if interaction.user.id == viewinteract.user.id and self.choice_one == None:
@@ -819,14 +821,14 @@ class Entartaiment(commands.Cog):
             else:
                 choices = {
                     'scissors': "Ножницы",
-                    'paper': "Бумагу", 
+                    'paper': "Бумагу",
                     'stone': 'Камень'
                 }
                 if view.choice_one == view.choice_two:
                     embed = discord.Embed(title="Камень, ножницы, бумага - Ничья", color=discord.Color.yellow(), description=f"{interaction.user.mention} и {member.mention} использовали `{choices[view.choice_one]}`.")
                     embed.set_footer(text="Ничья!")
                     return await interaction.edit_original_message(embed=embed, view=None)
-                
+
                 if view.choice_one == "paper" and view.choice_two == "stone":
                     embed = discord.Embed(title=f"Камень, ножницы, бумага - Победа {interaction.user}!", color=discord.Color.green(), description=f"{interaction.user.mention} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention} выбрал(-а) `{choices[view.choice_two]}`.")
                     embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
@@ -853,6 +855,177 @@ class Entartaiment(commands.Cog):
                     embed.set_footer(text=str(member), icon_url=member.display_avatar.url)
                     await interaction.edit_original_message(embed=embed, view=None)
 
+    @app_commands.command(name='tic-tac-toe', description="[Развлечения] Крестики-нолики.")
+    @app_commands.check(is_shutted_down)
+    @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
+    async def xo(self, interaction: discord.Interaction, member: discord.User):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/tic-tac-toe`'
+
+        if interaction.user.id == member.id:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
+                                  description="Нельзя играть с самим собой!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if member.bot:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
+                                  description="Боту не до игр, не тревожь его!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        emb = discord.Embed(
+            title="Игра в крестики-нолики!",
+            description=f"{member.mention}, {interaction.user.mention} хочет с вами поиграть",
+            color=discord.Color.green()
+        )
+
+        class accept(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=180)
+                self.value = None
+
+            @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
+            async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != member.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                self.value = True
+                await viewinteract.response.edit_message(view=None)
+                self.stop()
+
+            @discord.ui.button(emoji="<:x_icon:975324570741526568>", style=discord.ButtonStyle.red)
+            async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == viewinteract.user.id:
+                    embed = discord.Embed(title="Отмена!", color=discord.Color.red(),
+                                          description="Инициатор игры отменил её.")
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+                    self.value = False
+                    self.stop()
+                elif member.id == viewinteract.user.id:
+                    embed = discord.Embed(title="Отказ!", color=discord.Color.red(),
+                                          description=f"{member.mention} отказался от игры.")
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+                    self.value = False
+                    self.stop()
+                else:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+
+        acc = accept()
+        if not member.bot:
+            await interaction.response.send_message(embed=emb, view=acc)
+            await acc.wait()
+        if acc.value == None:
+            await interaction.edit_original_message(embed=discord.Embed(
+                title="Время вышло!",
+                color=discord.Color.red()
+            ))
+        elif acc.value == True:
+            class TicTacToeButton(discord.ui.Button['TicTacToe']):
+                def __init__(self, x: int, y: int):
+                    super().__init__(style=discord.ButtonStyle.secondary, label='\u200b', row=y)
+                    self.x = x
+                    self.y = y
+                    self.X = interaction.user
+                    self.O = member
+                async def callback(self, viewinteract: discord.Interaction):
+                    assert self.view is not None
+                    view: TicTacToe = self.view
+                    state = view.board[self.y][self.x]
+                    if state in (view.X, view.O):
+                        return
+                    if view.current_player == view.X and viewinteract.user.id == self.X.id:
+                        self.style = discord.ButtonStyle.danger
+                        self.label = 'X'
+                        self.disabled = True
+                        view.board[self.y][self.x] = view.X
+                        view.current_player = view.O
+                    elif viewinteract.user.id != self.X.id and view.current_player == view.X:
+                        await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                    elif view.current_player == view.O and viewinteract.user.id == self.O.id:
+                        self.style = discord.ButtonStyle.success
+                        self.label = 'O'
+                        self.disabled = True
+                        view.board[self.y][self.x] = view.O
+                        view.current_player = view.X
+                    elif viewinteract.user.id != self.O.id:
+                        await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                    if view.current_player == view.X:
+                        content = "Теперь очередь X"
+                    elif view.current_player == view.O:
+                        content = "Теперь очередь O"
+                    else:
+                        content = "Первый ход за X"
+
+                    winner = view.check_board_winner()
+                    if winner is not None:
+                        if winner == view.X:
+                            content = 'X победил!'
+                        elif winner == view.O:
+                            content = 'O победил!'
+                        else:
+                            content = "Ничья!"
+
+                        for child in view.children:
+                            child.disabled = True
+
+                        view.stop()
+                    await viewinteract.response.edit_message(content=content, view=view)
+
+            class TicTacToe(discord.ui.View):
+                children: List[TicTacToeButton]
+                X = -1
+                O = 1
+                Tie = 2
+                def __init__(self):
+                    super().__init__()
+                    self.current_player = self.X
+                    self.board = [
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0],
+                    ]
+                    for x in range(3):
+                        for y in range(3):
+                            self.add_item(TicTacToeButton(x, y))
+                def check_board_winner(self):
+                    for across in self.board:
+                        value = sum(across)
+                        if value == 3:
+                            return self.O
+                        elif value == -3:
+                            return self.X
+                    for line in range(3):
+                        value = self.board[0][line] + self.board[1][line] + self.board[2][line]
+                        if value == 3:
+                            return self.O
+                        elif value == -3:
+                            return self.X
+                    diag = self.board[0][2] + self.board[1][1] + self.board[2][0]
+                    if diag == 3:
+                        return self.O
+                    elif diag == -3:
+                        return self.X
+
+                    diag = self.board[0][0] + self.board[1][1] + self.board[2][2]
+                    if diag == 3:
+                        return self.O
+                    elif diag == -3:
+                        return self.X
+                    if all(i != 0 for row in self.board for i in row):
+                        return self.Tie
+                    return None
+            tictac=TicTacToe()
+            await interaction.edit_original_message(embed=discord.Embed(
+                title = f"Крестики-нолики",
+                description=f"{interaction.user.mention} VS {member.mention}",
+                color=discord.Color.green()),
+                view=tictac
+            )
+            
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))
     print('Cog "Entartaiment" запущен!')

@@ -861,14 +861,11 @@ class Entartaiment(commands.Cog):
     async def xo(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(),
-                                  description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}",
-                                  timestamp=datetime.datetime.utcnow())
+            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if isinstance(interaction.channel, discord.PartialMessageable):
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
-                                  description="Извините, но данная команда недоступна в личных сообщениях!")
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/tic-tac-toe`'
@@ -1028,6 +1025,7 @@ class Entartaiment(commands.Cog):
                 color=discord.Color.green()),
                 view=tictac
             )
+            
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))
     print('Cog "Entartaiment" запущен!')

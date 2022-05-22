@@ -858,7 +858,7 @@ class Entartaiment(commands.Cog):
     @app_commands.command(name='tic-tac-toe', description="[Развлечения] Крестики-нолики.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
-    async def xo(self, interaction: discord.Interaction, member: discord.User):
+    async def tictac(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
@@ -1018,6 +1018,7 @@ class Entartaiment(commands.Cog):
                     if all(i != 0 for row in self.board for i in row):
                         return self.Tie
                     return None
+
             tictac=TicTacToe()
             await interaction.edit_original_message(embed=discord.Embed(
                 title = f"Крестики-нолики",

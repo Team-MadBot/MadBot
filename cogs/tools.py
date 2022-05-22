@@ -283,7 +283,7 @@ class Tools(commands.Cog):
                 links = discord.ui.TextInput(label="Ссылки на док-ва:", required=False, style=discord.TextStyle.paragraph, max_length=1024, placeholder="https://imgur.com/RiCkROLl")
 
                 async def on_submit(self, viewinteract: discord.Interaction):
-                    log_channel = viewinteract.client.get_channel(settings['log_channel'])
+                    log_channel = viewinteract.client.get_channel(settings['report_channel'])
                     embed = discord.Embed(title=f"Сообщение о баге: {str(self.main)}", color=discord.Color.red(), description=str(self.description))
                     embed.set_author(name=str(viewinteract.user), icon_url=viewinteract.user.display_avatar.url)
                     if str(self.links) != "":
@@ -324,7 +324,7 @@ class Tools(commands.Cog):
                                 
                             await buttinteract.response.send_modal(AnswerQuestion())
 
-                    log_channel = viewinteract.client.get_channel(settings['log_channel'])
+                    log_channel = viewinteract.client.get_channel(settings['report_channel'])
                     embed = discord.Embed(title=f"Вопрос: {str(self.main)}", color=discord.Color.red(), description=str(self.description))
                     embed.set_author(name=str(viewinteract.user), icon_url=viewinteract.user.display_avatar.url)
                     if str(self.links) != "":

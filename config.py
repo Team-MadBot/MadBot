@@ -5,20 +5,21 @@ config_example.py. Данные со значениями должны быть 
 import discord,time
 
 settings = {
-    'token': 'TOKEN',
-    'app_id': 880911386916577281, # Application ID вашего бота.
-    'key': 'Ключ some-random-api.ml',
+    'token': '',
+    'app_id': 977280463792115833, # Application ID вашего бота.
+    'key': 'Ключ some-random-api.md',
     'weather_key': 'Ключ openweathermap.org',
-    'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
-    'owner_id': 560529834325966858, # ID владельца.
-    'server': 914181806285279232, # Сервер логов.
-    'log_channel': 924241555697594380, # Канал логирования.
-    'debug_channel': 977492340459581460, # Канал для debug-сообщений.
-    'perm_scope': 1375060978903, # Permission Integer.
-    'outages': 950427940338958387, # ID канала с оповещениями о сбоях.
-    'github_channel': 953175109135376394, # ID канала обновлений репозитория.
-    'idea_channel': 957688771200053379, # ID канала, в который будут публиковаться идеи.
-    'curr_version': "0.9 `Alpha`", # Текущая версия MadBot.
+    'support_invite': 'https://discord.gg/wX6CxW8J', # Ссылка на сервер поддержки.
+    'owner_id': 754719910256574646, # ID владельца.
+    'server': 796449686986424340, # Сервер логов.
+    'log_channel': 797188770184429608, # Канал логирования.
+    'perm_scope': 8, # Permission Integer.
+    'outages': 797188770184429608, # ID канала с оповещениями о сбоях.
+    'github_channel': 940317991483080765, # ID канала обновлений репозитория.
+    'idea_channel': 797183341513277460, # ID канала, в который будут публиковаться идеи.
+    'curr_version': "0.9 Alpha [ARTAMON EDITION]", # Текущая версия MadBot.
+    'cmd-log-id': 797188770184429608,
+    'developers': [560529834325966858]
 }
 
 started_at = int( # Время запуска бота. Не изменять.
@@ -32,7 +33,12 @@ used_commands = 0 # Счетчик использованных команд. Н
 cogs = [ # Список cog'ов.
     "cogs.entartaiment",
     "cogs.moderation",
-    "cogs.tools"
+    "cogs.tools",
+    "cogs.developerzone"
+]
+
+errload_cogs = [
+    
 ]
 
 blacklist = [ # ID сервера/участника, который в ЧС бота.

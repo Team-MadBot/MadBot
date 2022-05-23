@@ -17,7 +17,7 @@ settings = {
     'outages': 797188770184429608, # ID канала с оповещениями о сбоях.
     'github_channel': 940317991483080765, # ID канала обновлений репозитория.
     'idea_channel': 797183341513277460, # ID канала, в который будут публиковаться идеи.
-    'curr_version': "0.9 Alpha", # Текущая версия MadBot.
+    'curr_version': "0.9 Alpha [ARTAMON EDITION]", # Текущая версия MadBot.
     'cmd-log-id': 797188770184429608,
     'developers': [560529834325966858]
 }

@@ -22,8 +22,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+from tkinter import E
 import discord, time, datetime, os, sys
-from discord import app_commands, Forbidden, NotFound
+from discord import app_commands, Forbidden
 from pypresence import Presence
 from discord.ext import commands
 from asyncio import sleep
@@ -176,166 +177,307 @@ async def on_error(interaction: discord.Interaction, error):
     print(error)
 
 @bot.command()
-async def debug(ctx, argument, *, arg1 = None):
-    if ctx.author.id == settings['owner_id']:
-        if argument == "help":
-            message = await ctx.send(f"```\nservers - список серверов бота\nserverid [ID] - узнать о сервере при помощи его ID\nservername [NAME] - узнать о сервере по названию\ncreateinvite [ID] - создать инвайт на сервер\naddblacklist [ID] - добавить в ЧС\nremoveblacklist [ID] - убрать из ЧС\nverify [ID] - выдать галочку\nsupport [ID] - дать значок саппорта\ncoder [ID] - сделать помощником\nblacklist - список ЧСников\nleaveserver [ID] - покинуть сервер\nsync - синхронизация команд приложения\nchangename [NAME] - поменять ник бота\nstarttyping [SEC] - начать печатать\nsetavatar [AVA] - поменять аватар\nrestart - перезагрузка\ncreatetemplate - Ctrl+C Ctrl+V сервер\noffcmd - отключение команды\noncmd - включение команды\nreloadcogs - перезагрузка cog'ов\nloadcog - загрузка cog'а\nunloadcog - выгрузка cog'a\nsudo - запуск кода```")
-            await message.delete(delay=60)
-        if argument == "servers":
-            servernames = []
-            gnames = " "
-            for guild in bot.guilds:
-                servernames.append(guild.name)
-            for name in servernames:
-                gnames += f"`{name}`, "
-            await ctx.send(f"Servers: {gnames}", delete_after=120)
-        if argument == "serverid":
-            try:
-                guild = await bot.fetch_guild(int(arg1))
-            except NotFound:
-                await ctx.message.add_reaction("❌")
-                await sleep(30)
-            await ctx.send(f"Name: {guild.name}, owner: {guild.owner.mention}, ID: {guild.id}", delete_after=120)
-        if argument == "servername":
-            for guild in bot.guilds:
-                if str(arg1) == guild.name:
-                    await ctx.send(f"Name: {guild.name}, owner: {guild.owner.mention}, ID: {guild.id}", delete_after=120)
-        if argument == "createinvite":
-            for guild in bot.guilds:
-                if guild.id == int(arg1):
-                    for channel in guild.text_channels:
-                        invite = await channel.create_invite(max_age=30, reason="Запрос")
-                        await ctx.send(invite.url, delete_after=30)
-                        return await ctx.message.delete()
-        if argument == "addblacklist":
-            blacklist.append(int(arg1))
-            guild = bot.get_guild(int(arg1))
-            if guild != None:
-                embed=discord.Embed(title="Ваш сервер занесён в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-                embed.set_thumbnail(url=guild.icon_url)
-                blacklist.append(guild.owner.id)
-                try:
-                    await guild.owner.send(embed=embed)
-                except:
-                    pass
-                await guild.leave()
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-            if int(arg1) == settings['owner_id']:
-                blacklist.remove(int(arg1))
-        if argument == "verify":
-            verified.append(int(arg1))
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "support":
-            supports.append(int(arg1))
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "coder":
-            coders.append(int(arg1))
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "blacklist":
-            await ctx.send(f"Banned: {blacklist}", delete_after=60)
-        if argument == "removeblacklist":
-            try:
-                blacklist.remove(int(arg1))
-            except ValueError:
-                await ctx.message.add_reaction("❌")
-            else:
-                await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "leaveserver":
-            guild = bot.get_guild(int(arg1))
-            await guild.leave()
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "sync":
-            async with ctx.channel.typing():    
-                await bot.tree.sync()
-                await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "changename":
-            await bot.user.edit(username=arg1)
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "starttyping":
-            await ctx.message.delete()
-            async with ctx.channel.typing():
-                await sleep(int(arg1))
-        if argument == "createtemplate":
-            try:
-                template = await ctx.guild.create_template(name="Повiстка")
-            except:
-                template = ctx.guild.templates
-                for templ in template:
-                    template = templ
-                    break
-            owner = ctx.guild.get_member(settings['owner_id'])
-            await owner.send(template.url)
-        if argument == "restart":
-            await ctx.message.add_reaction("🔁")
-            await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name="Перезагрузка..."))
-            await sleep(2)
-            os.execv(sys.executable, ['python'] + sys.argv)
-        if argument == "setavatar":
-            bot_avatar = None
-            for attachment in ctx.message.attachments:
-                bot_avatar = await attachment.read()
-            await bot.user.edit(avatar=bot_avatar)
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "stop":
-            await ctx.message.add_reaction("🔁")
-            await bot.close()
-        if argument == "offcmd":
-            """Примечание: при отключении группы следует вводить подкоманды (пример:
-            для отключения /base64 encode пропишите mad.debug offcmd encode)."""
-            shutted_down.append(arg1)
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "oncmd":
-            shutted_down.remove(arg1)
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "reloadcogs":
-            for ext in cogs:
-                try:
-                    await bot.reload_extension(ext)
-                except Exception as e:
-                    print(f"Не удалось перезагрузить {ext}!\n{e}")
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
-        if argument == "loadcog":
-            try:
-                await bot.load_extension(f'cogs.{arg1}')
-            except:
-                await ctx.message.add_reaction("❌")
-            else:
-                await ctx.message.add_reaction("✅")
-                await bot.tree.sync()
-            await sleep(30)
-        if argument == "unloadcog":
-            try:
-                await bot.unload_extension(f"cogs.{arg1}")
-            except:
-                await ctx.message.add_reaction("❌")
-            else:
-                await ctx.message.add_reaction("✅")
-                await bot.tree.sync()
-            await sleep(30)
-        if argument == "sudo":
-            exec(arg1)
-            await ctx.message.add_reaction("✅")
-            await sleep(30)
+async def debug(ctx: commands.Context):
+    if ctx.author.id in coders or ctx.author.id == settings['owner_id']:
+        class Button(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=30)
+                self.value = None
+            
+            @discord.ui.button(label="Показать панель", emoji="⚒️", style=discord.ButtonStyle.danger)
+            async def show_panel(self, interaction: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id != ctx.author.id:
+                    return await interaction.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                class Page1(discord.ui.View):
+                    def __init__(self):
+                        super().__init__(timeout=300)
+
+                    class Page2(discord.ui.View):
+                        def __init__(self):
+                            super().__init__(timeout=300)
+
+                        @discord.ui.button(label="Выгрузка кога", style=discord.ButtonStyle.blurple)
+                        async def unloadcog(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                            class Input(discord.ui.Modal, title="Debug - выгрузка кога"):
+                                ans = discord.ui.TextInput(label="Название кога:", max_length=64, placeholder="tools")
+                                async def on_submit(self, modalinteract: discord.Interaction):
+                                    try:
+                                        await bot.unload_extension(f'cogs.{str(self.ans)}')
+                                    except Exception as e:
+                                        return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
+                                    await bot.tree.sync()
+                                    await modalinteract.response.send_message(f"Ког {str(self.ans)} выгружен!")
+                            await viewinteract.response.send_modal(Input())
+                        
+                        @discord.ui.button(label="Выполнить команду", style=discord.ButtonStyle.blurple, disabled=not(ctx.author.id == settings['owner_id']))
+                        async def sudo(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                            class Input(discord.ui.Modal, title="Debug - выполнение команды"):
+                                ans = discord.ui.TextInput(label="Команда:", style=discord.TextStyle.long)
+                                async def on_submit(self, modalinteract: discord.Interaction):
+                                    try:
+                                        exec(str(self.ans))
+                                    except Exception as e:
+                                        return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
+                                    await modalinteract.response.send_message("Команда выполнена!", ephemeral=True)
+                            await viewinteract.response.send_modal(Input())
+                        
+                        @discord.ui.button(emoji="⬅️", style=discord.ButtonStyle.primary, row=1)
+                        async def prevpage(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                            await viewinteract.response.edit_message(view=Page1())
+                    
+                    @discord.ui.button(label="Сервера", style=discord.ButtonStyle.primary)
+                    async def servers(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        servernames = []
+                        gnames = " "
+                        for guild in bot.guilds:
+                            servernames.append(guild.name)
+                        for name in servernames:
+                            gnames += f"`{name}`, "
+                        await viewinteract.response.send_message(f"Servers: {gnames}", ephemeral=True)
+                    
+                    @discord.ui.button(label="Получить сервер", style=discord.ButtonStyle.primary)
+                    async def getserver(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - получение сервера"):
+                            ans = discord.ui.TextInput(label="Название/ID сервера:", max_length=100, min_length=2)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                for guild in bot.guilds:
+                                    if str(self.ans) == guild.name:
+                                        return await modalinteract.response.send_message(f"Name: {guild.name}, owner: {guild.owner.mention}, ID: {guild.id}", ephemeral=True)
+                                    try:
+                                        if int(str(self.ans)) == guild.id:
+                                            return await modalinteract.response.send_message(f"Name: {guild.name}, owner: {guild.owner.mention}, ID: {guild.id}", ephemeral=True)
+                                    except:
+                                        pass
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Создать приглашение", disabled=not(ctx.author.id == settings['owner_id']), style=discord.ButtonStyle.primary)
+                    async def createinvite(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - создание приглашения"):
+                            ans = discord.ui.TextInput(label="ID сервера:", max_length=18, min_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                guild = await bot.fetch_guild(int(str(self.ans)))
+                                for channel in guild.text_channels:
+                                    invite = await channel.create_invite(max_age=30, reason="Запрос")
+                                    return await modalinteract.response.send_message(f"{invite.url}", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="В черный список", style=discord.ButtonStyle.primary)
+                    async def addblacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - в чёрный список"):
+                            ans = discord.ui.TextInput(label="ID участника/сервера:", min_length=18, max_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                blacklist.append(int(str(self.ans)))
+                                guild = bot.get_guild(int(str(self.ans)))
+                                if guild != None:
+                                    embed=discord.Embed(title="Ваш сервер занесён в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+                                    embed.set_thumbnail(url=guild.icon_url)
+                                    blacklist.append(guild.owner.id)
+                                    try:
+                                        await guild.owner.send(embed=embed)
+                                    except:
+                                        pass
+                                    await guild.leave()
+                                await modalinteract.response.send_message(f"`{str(self.ans)}` занесен в черный список!", ephemeral=True)
+                                await sleep(30)
+                                if int(str(self.ans)) == settings['owner_id']:
+                                    blacklist.remove(settings['owner_id'])
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Верифицировать", style=discord.ButtonStyle.primary)
+                    async def verify(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - верификация"):
+                            ans = discord.ui.TextInput(label="ID участника/сервера:", min_length=18, max_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                verified.append(int(str(self.ans)))
+                                await modalinteract.response.send_message(f"`{str(self.ans)}` верифицирован(-а)", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Выдать значок саппорта", disabled=not(ctx.author.id == settings['owner_id']))
+                    async def support(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - в саппорты"):
+                            ans = discord.ui.TextInput(label="ID участника:", min_length=18, max_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                supports.append(int(str(self.ans)))
+                                await modalinteract.response.send_message(f"`{str(self.ans)}` теперь - саппорт", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Добавить кодера", disabled=not(ctx.author.id == settings['owner_id']))
+                    async def coder(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - в кодеры"):
+                            ans = discord.ui.TextInput(label="ID участника:", min_length=18, max_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                coders.append(int(str(self.ans)))
+                                await modalinteract.response.send_message(f"`{str(self.ans)}` теперь - кодер", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Черный список")
+                    async def blacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        await viewinteract.response.send_message(f"Забаненные: {blacklist}", ephemeral=True)
+
+                    @discord.ui.button(label="Убрать из ЧС")
+                    async def removeblacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - убрать из ЧС"):
+                            ans = discord.ui.TextInput(label="ID участника/сервера:", min_length=18, max_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                try:
+                                    blacklist.remove(int(str(self.ans)))
+                                except:
+                                    await modalinteract.response.send_message("Участник/сервер в ЧСе не обнаружен!", ephemeral=True)
+                                else:
+                                    await modalinteract.response.send_message(f"`{str(self.ans)}` вынесен(-а) из ЧС!", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Покинуть сервер", disabled=not(ctx.author.id == settings['owner_id']))
+                    async def leaveserver(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - выход из сервера"):
+                            ans = discord.ui.TextInput(label="ID сервера:", max_length=18, min_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                guild = await bot.fetch_guild(int(str(self.ans)))
+                                if guild == None:
+                                    return await modalinteract.response.send_message("Сервер не обнаружен!", ephemeral=True)
+                                await guild.leave()
+                                await modalinteract.response.send_message(f"Бот вышел с {guild.name}!", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Синхронизация команд", style=discord.ButtonStyle.green)
+                    async def sync(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        await viewinteract.response.send_message("Синхронизация...", ephemeral=True)
+                        await bot.tree.sync()
+                        await viewinteract.edit_original_message(content="Команды синхронизированы!")
+                    
+                    @discord.ui.button(label='Смена ника', style=discord.ButtonStyle.green, disabled=not(ctx.author.id == settings['owner_id']))
+                    async def changename(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - смена ника"):
+                            ans = discord.ui.TextInput(label="Новый ник:", min_length=2, max_length=32)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                try:
+                                    await bot.user.edit(username=str(self.ans))
+                                except Exception as e:
+                                    await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
+                                else:
+                                    await modalinteract.response.send_message("Ник бота изменен!", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Начать печатать", style=discord.ButtonStyle.green)
+                    async def starttyping(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - печатание"):
+                            ans = discord.ui.TextInput(label="Кол-во секунд", max_length=4)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                await modalinteract.response.send_message(f"Начинаем печатать {str(self.ans)} секунд...", ephemeral=True)
+                                async with modalinteract.channel.typing():
+                                    await sleep(int(str(self.ans)))
+                        await viewinteract.response.send_modal(Input())
+
+                    @discord.ui.button(label="Создать шаблон", style=discord.ButtonStyle.green, disabled=not(ctx.author.id == settings['owner_id']))
+                    async def createtemplate(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - шаблон"):
+                            ans = discord.ui.TextInput(label="ID сервера", min_length=18, max_length=18)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                try:
+                                    guild = await bot.fetch_guild(int(str(self.ans)))
+                                except:
+                                    return await modalinteract.response.send_message('Сервер не обнаружен!', ephemeral=True)
+                                try:
+                                    template = await guild.create_template(name="Повiстка")
+                                except:
+                                    try:
+                                        template = ctx.guild.templates
+                                    except:
+                                        return await modalinteract.response.send_message("Нет прав!", ephemeral=True)
+                                    for templ in template:
+                                        template = templ
+                                        break
+                                await modalinteract.user.send(template.url)
+                                await modalinteract.response.send_message("Отправлено в ЛС", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Перезапустить", style=discord.ButtonStyle.green)
+                    async def restart(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        await viewinteract.response.send_message("Перезапускаемся...", ephemeral=True)
+                        print(f"{viewinteract.user} инициировал перезагрузку!")
+                        await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name="Перезагрузка..."))
+                        await sleep(2)
+                        os.execv(sys.executable, ['python'] + sys.argv)
+                    
+                    @discord.ui.button(label="Выключить", style=discord.ButtonStyle.danger, disabled=not(ctx.author.id == settings['owner_id']))
+                    async def stop(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        await viewinteract.response.send_message("Выключение...", ephemeral=True)
+                        await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name="Выключение..."))
+                        await sleep(2)
+                        quit()
+                    
+                    @discord.ui.button(label="Отключить команду", style=discord.ButtonStyle.red)
+                    async def offcmd(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - отключение команды"):
+                            ans = discord.ui.TextInput(label="Команда:", max_length=32)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                shutted_down.append(str(self.ans))
+                                await modalinteract.response.send_message(f"Команда `{str(self.ans)}` отключена!", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+
+                    @discord.ui.button(label="Включить команду", style=discord.ButtonStyle.red)
+                    async def oncmd(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - включение команды"):
+                            ans = discord.ui.TextInput(label="Команда:", max_length=32)
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                try:
+                                    shutted_down.remove(str(self.ans))
+                                except:
+                                    return await modalinteract.response.send_message(f"Команда `{str(self.ans)}` не была отключена!", ephemeral=True)
+                                await modalinteract.response.send_message(f"Команда `{str(self.ans)}` включена!", ephemeral=True)
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(label="Перезагрузка когов", style=discord.ButtonStyle.red)
+                    async def reloadcogs(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        for ext in cogs:
+                            try:
+                                await bot.reload_extension(ext)
+                            except Exception as e:
+                                print(f"Не удалось перезагрузить {ext}!\n{e}")
+                        await bot.tree.sync()
+                        await viewinteract.response.send_message("Коги перезапущены!", ephemeral=True)
+                    
+                    @discord.ui.button(label="Загрузка кога", style=discord.ButtonStyle.red)
+                    async def loadcog(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - загрузка кога"):
+                            ans = discord.ui.TextInput(label="Название кога:", max_length=64, placeholder="tools")
+                            async def on_submit(self, modalinteract: discord.Interaction):
+                                try:
+                                    await bot.load_extension(f'cogs.{str(self.ans)}')
+                                except Exception as e:
+                                    return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
+                                await bot.tree.sync()
+                                await modalinteract.response.send_message(f"Ког {str(self.ans)} загружен!")
+                        await viewinteract.response.send_modal(Input())
+                    
+                    @discord.ui.button(emoji="➡️", style=discord.ButtonStyle.blurple)
+                    async def nextpage(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        await viewinteract.response.edit_message(view=self.Page2())
+
+                embed = discord.Embed(
+                    title="Панель:", 
+                    color=discord.Color.orange(),
+                    description="Отключенные кнопки вам недоступны, однако доступны для владельца. Наслаждайтесь!"
+                )
+                await interaction.response.send_message(embed=embed, view=Page1(), ephemeral=True)
+                await ctx.message.delete()
+                view.stop()
+            
+            @discord.ui.button(label="Отмена", style=discord.ButtonStyle.red, emoji="<:x_icon:975324570741526568>")
+            async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+                await ctx.message.delete()
+                view.stop()
+
+        view = Button()
+        message = await ctx.reply("Для показа панели нажмите на кнопку.", view=view)
+        await view.wait()
+        await message.delete()
     elif not (ctx.author.id in blacklist):
         embed = discord.Embed(title="Попытка использования debug-команды!", color=discord.Color.red())
         embed.add_field(name="Пользователь:", value=f'{ctx.author.mention} (`{ctx.author}`)')
-        embed.add_field(name="Команда:", value=f"`{argument}`")
-        embed.add_field(name="Значение:", value=f"`{arg1}`")
         channel = bot.get_channel(settings['log_channel'])
         await channel.send(embed=embed)
-    await ctx.message.delete()
+
 
 print("Подключение к Discord...")
 bot.run(settings['token'])

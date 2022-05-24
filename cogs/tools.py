@@ -299,18 +299,22 @@ class Tools(commands.Cog):
 
                 async def on_submit(self, viewinteract: discord.Interaction):
                     class Buttons(discord.ui.View):
-                        def __init__(self):
+                        def __init__(self, main: str):
                             super().__init__(timeout=None)
+                            self.main = main
                         
                         @discord.ui.button(label="Ответить", style=discord.ButtonStyle.primary, emoji="✏️")
                         async def answer(self, buttinteract: discord.Interaction, button: discord.ui.Button):
                             if not (buttinteract.user.id in supports):
                                 return await buttinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True) 
                             class AnswerQuestion(discord.ui.Modal, title="Ответ на вопрос"):
+                                def __init__(self, main: str):
+                                    super().__init__(custom_id="MadBotAnswerQuestion")
+                                    self.main = main
                                 answer = discord.ui.TextInput(label="Ответ:", placeholder="Сделайте вот так:", style=discord.TextStyle.paragraph, max_length=2048)
 
                                 async def on_submit(self, ansinteract: discord.Interaction):
-                                    embed = discord.Embed(title="Ответ на вопрос!", color=discord.Color.green(), description=str(self.answer))
+                                    embed = discord.Embed(title=f'Ответ на вопрос "{self.main}"!', color=discord.Color.green(), description=str(self.answer))
                                     embed.set_author(name=str(ansinteract.user), icon_url=ansinteract.user.display_avatar.url)
                                     try:
                                         await viewinteract.user.send(embed=embed)
@@ -322,14 +326,14 @@ class Tools(commands.Cog):
                                         await ansinteract.response.send_message(embed=embed, ephemeral=True)
                                     await buttinteract.edit_original_message(view=None)
                                 
-                            await buttinteract.response.send_modal(AnswerQuestion())
+                            await buttinteract.response.send_modal(AnswerQuestion(self.main))
 
                     log_channel = viewinteract.client.get_channel(settings['report_channel'])
                     embed = discord.Embed(title=f"Вопрос: {str(self.main)}", color=discord.Color.red(), description=str(self.description))
                     embed.set_author(name=str(viewinteract.user), icon_url=viewinteract.user.display_avatar.url)
                     if str(self.links) != "":
                         embed.add_field(name="Ссылки:", value=str(self.links))
-                    await log_channel.send(embed=embed, view=Buttons())
+                    await log_channel.send(embed=embed, view=Buttons(self.main))
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Вопрос успешно отправлен!")
                     await viewinteract.response.send_message(embed=embed, ephemeral=True)
                 

@@ -1053,6 +1053,7 @@ class Entartaiment(commands.Cog):
             async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if member.id != viewinteract.user.id:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                await viewinteract.response.defer()
                 self.value = True
                 self.stop()
             
@@ -1067,6 +1068,7 @@ class Entartaiment(commands.Cog):
                 elif member.id != viewinteract.user.id:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
                 else:
+                    await viewinteract.response.defer()
                     self.value = False
                     self.clicker = member
                     self.stop()
@@ -1082,10 +1084,6 @@ class Entartaiment(commands.Cog):
         if acc.value == None:
             embed = discord.Embed(title="Время вышло!", color=discord.Color.red())
             return await interaction.edit_original_message(embed=embed, view=None)
-
-        word = ''
-        game = ''
-        hangman = ''
         
         class Button(discord.ui.View):
             def __init__(self):
@@ -1098,6 +1096,8 @@ class Entartaiment(commands.Cog):
                 class Input(discord.ui.Modal, title="Виселица - задать слово"):
                     ans = discord.ui.TextInput(label="Слово", max_length=16)
                     async def on_submit(self, modalinteract: discord.Interaction):
+                        tryes = 0
+                        symbols = []
                         word = str(self.ans).lower()
                         game = "-" * len(word)
                         hangman = "Пусто"
@@ -1132,13 +1132,27 @@ class Entartaiment(commands.Cog):
                                 class Letter(discord.ui.Modal, title="Виселица - ответ"):
                                     ans = discord.ui.TextInput(label="Буква", max_length=1)
                                     async def on_submit(self, modinteract: discord.Interaction):
+                                        nonlocal game, hangman, tryes
                                         letter = str(self.ans).lower()
+                                        if kirillic.find(letter) == -1:
+                                            return await modinteract.response.send_message("Только кириллица!", ephemeral=True)
+                                        if letter in symbols:
+                                            return await modinteract.response.send_message(f"Буква `{letter}` уже была!", ephemeral=True)
+                                        symbols.append(letter)
+                                        tryes += 1
                                         if word.find(letter) == -1:
                                             hangman = man(hangman=hangman)
+                                            if str(hangman) == "¯\_(ツ)_/¯":
+                                                embed = discord.Embed(
+                                                    title="Виселица - Поражение",
+                                                    color=discord.Color.red(),
+                                                    description=f"Слово: `{word}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                                )
+                                                return await modinteract.response.edit_message(embed=embed, view=None)
                                             embed = discord.Embed(
                                                 title="Виселица - Игра",
                                                 color=discord.Color.orange(),
-                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`"
+                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
                                             )
                                             await modinteract.response.edit_message(embed=embed)
                                         else:
@@ -1148,10 +1162,17 @@ class Entartaiment(commands.Cog):
                                                     indexes.append(i)
                                             for index in indexes:
                                                 game = game[:index] + letter + game[index+1:]
+                                            if game.find('-') == -1:
+                                                embed = discord.Embed(
+                                                    title="Виселица - Победа",
+                                                    color=discord.Color.green(),
+                                                    description=f"Слово: `{game}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                                )
+                                                return await modinteract.response.edit_message(embed=embed, view=None)
                                             embed = discord.Embed(
                                                 title="Виселица - Игра", 
                                                 color=discord.Color.orange(),
-                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`"
+                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
                                             )
                                             await modinteract.response.edit_message(embed=embed)
                                 await buttinteract.response.send_modal(Letter())

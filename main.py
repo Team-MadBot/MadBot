@@ -206,7 +206,7 @@ async def debug(ctx: commands.Context):
                                     except Exception as e:
                                         return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
                                     await bot.tree.sync()
-                                    await modalinteract.response.send_message(f"Ког {str(self.ans)} выгружен!")
+                                    await modalinteract.response.send_message(f"Ког {str(self.ans)} выгружен!", ephemeral=True)
                             await viewinteract.response.send_modal(Input())
                         
                         @discord.ui.button(label="Выполнить команду", style=discord.ButtonStyle.blurple, disabled=not(ctx.author.id == settings['owner_id']))
@@ -447,7 +447,7 @@ async def debug(ctx: commands.Context):
                                 except Exception as e:
                                     return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
                                 await bot.tree.sync()
-                                await modalinteract.response.send_message(f"Ког {str(self.ans)} загружен!")
+                                await modalinteract.response.send_message(f"Ког {str(self.ans)} загружен!", ephemeral=True)
                         await viewinteract.response.send_modal(Input())
                     
                     @discord.ui.button(emoji="➡️", style=discord.ButtonStyle.blurple)

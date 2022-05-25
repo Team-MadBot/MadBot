@@ -1082,11 +1082,14 @@ class Entartaiment(commands.Cog):
         if acc.value == None:
             embed = discord.Embed(title="Время вышло!", color=discord.Color.red())
             return await interaction.edit_original_message(embed=embed, view=None)
+
+        word = ''
+        game = ''
+        hangman = ''
         
         class Button(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=30)
-                self.word = None
             
             @discord.ui.button(label="Задать слово", style=discord.ButtonStyle.green)
             async def setword(self, viewinteract: discord.Interaction, button: discord.ui.Button):
@@ -1095,7 +1098,74 @@ class Entartaiment(commands.Cog):
                 class Input(discord.ui.Modal, title="Виселица - задать слово"):
                     ans = discord.ui.TextInput(label="Слово", max_length=16)
                     async def on_submit(self, modalinteract: discord.Interaction):
-                        pass # хз, что тут делать...
+                        word = str(self.ans).lower()
+                        game = "-" * len(word)
+                        hangman = "Пусто"
+                        kirillic = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+                        for i in range(len(word)):
+                            if kirillic.find(word[i]) == -1:
+                                return await modalinteract.response.send_message("Строка должна содержать только кириллицу!", ephemeral=True)
+                        embed = discord.Embed(
+                            title="Виселица - Игра", 
+                            color=discord.Color.orange(), 
+                            description=f"Слово загадано!\nСлово: `{game}`.\nВиселица: `{hangman}`"
+                        )
+
+                        def man(hangman: str):
+                            if hangman == "Пусто": return "ツ" 
+                            if hangman == "ツ": return "(ツ)"
+                            if hangman == "(ツ)": return "_(ツ)"
+                            if hangman == "_(ツ)": return "_(ツ)_"
+                            if hangman == "_(ツ)_": return "\_(ツ)_"
+                            if hangman == "\_(ツ)_": return "\_(ツ)_/"
+                            if hangman == "\_(ツ)_/": return "¯\_(ツ)_/"
+                            if hangman == "¯\_(ツ)_/": return "¯\_(ツ)_/¯"
+
+                        class Answer(discord.ui.View):
+                            def __init__(self):
+                                super().__init__(timeout=60)
+                            
+                            @discord.ui.button(label="Угадать букву", style=discord.ButtonStyle.primary)
+                            async def answer(self, buttinteract: discord.Interaction, button: discord.ui.Button):
+                                if buttinteract.user.id != member.id:
+                                    return await buttinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                                class Letter(discord.ui.Modal, title="Виселица - ответ"):
+                                    ans = discord.ui.TextInput(label="Буква", max_length=1)
+                                    async def on_submit(self, modinteract: discord.Interaction):
+                                        letter = str(self.ans).lower()
+                                        if word.find(letter) == -1:
+                                            hangman = man(hangman=hangman)
+                                            embed = discord.Embed(
+                                                title="Виселица - Игра",
+                                                color=discord.Color.orange(),
+                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`"
+                                            )
+                                            await modinteract.response.edit_message(embed=embed)
+                                        else:
+                                            indexes = []
+                                            for i in range(len(word)):
+                                                if word[i] == letter:
+                                                    indexes.append(i)
+                                            for index in indexes:
+                                                game = game[:index] + letter + game[index+1:]
+                                            embed = discord.Embed(
+                                                title="Виселица - Игра", 
+                                                color=discord.Color.orange(),
+                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`"
+                                            )
+                                            await modinteract.response.edit_message(embed=embed)
+                                await buttinteract.response.send_modal(Letter())
+                            
+                        await modalinteract.response.edit_message(embed=embed, view=Answer())
+                
+                await viewinteract.response.send_modal(Input())
+        
+        embed = discord.Embed(
+            title="Виселица - Задать слово", 
+            color=discord.Color.orange(),
+            description=f"{interaction.user.mention} должен задать слово, нажав на кнопку."
+        )
+        await interaction.edit_original_message(embed=embed, view=Button())
 
             
 async def setup(bot: commands.Bot):

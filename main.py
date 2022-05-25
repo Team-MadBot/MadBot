@@ -45,19 +45,14 @@ try:
 except:
     pass
 else:
-    try:
-        RPC.connect()
-    except:
-        pass
-    else:
-        RPC.update(
-            state=f"Бот запущен.",
-            details="Работа над ботом.",
-            start=time.time(),
-            large_image="mad_cat_default",
-            large_text="MadBot - запущен",
-            buttons=btns
-        )
+    RPC.update(
+        state=f"Бот запущен.",
+        details="Работа над ботом.",
+        start=time.time(),
+        large_image="mad_cat_default",
+        large_text="MadBot - запущен",
+        buttons=btns
+    )
 
 class MyBot(commands.Bot):
     def __init__(self):

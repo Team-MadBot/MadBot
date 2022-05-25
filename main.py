@@ -44,6 +44,7 @@ try:
 except:
     pass
 else:
+    RPC.connect()
     RPC.update(
         state=f"Бот запущен.",
         details="Работа над ботом.",

@@ -810,7 +810,10 @@ class Entartaiment(commands.Cog):
             embed = discord.Embed(title="Камень, ножницы, бумага - Игра", color=discord.Color.orange(), description="Игра началась! Выберите камень, ножницы или бумагу. Время на выбор: `30 секунд`.")
             embed.set_footer(text=f"{interaction.user} и {member}", icon_url=interaction.user.display_avatar.url)
             view = GamePlay()
-            await interaction.response.send_message(embed=embed, view=view)
+            if member == None:
+                await interaction.response.send_message(embed=embed, view=view)
+            else:
+                await interaction.edit_original_message(embed=embed, view=view)
             await view.wait()
 
             if view.choice_one == None or view.choice_two == None:
@@ -1042,6 +1045,13 @@ class Entartaiment(commands.Cog):
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/hangman`'
+
+        if interaction.user.id == member.id:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if member.bot:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Боту не до игр, не тревожь его!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True) 
         
         class Accept(discord.ui.View):
             def __init__(self):
@@ -1060,8 +1070,7 @@ class Entartaiment(commands.Cog):
             @discord.ui.button(style=discord.ButtonStyle.red, emoji='<:x_icon:975324570741526568>')
             async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if member.id != viewinteract.user.id and interaction.user.id == viewinteract.user.id:
-                    embed = discord.Embed(title="Отмена!", color=discord.Color.red(), description="Инициатор игры отменил её!")
-                    await viewinteract.response.edit_message(embed=embed, view=None)
+                    await viewinteract.response.defer()
                     self.value = False
                     self.clicker = interaction.user
                     self.stop()
@@ -1081,23 +1090,27 @@ class Entartaiment(commands.Cog):
         if acc.value == False and acc.clicker == member:
             embed = discord.Embed(title="Отказ", color=discord.Color.red(), description="Участник отказался от игры!")
             return await interaction.edit_original_message(embed=embed, view=None)
+        if acc.value == False and acc.clicker == interaction.user:
+            embed = discord.Embed(title="Отмена!", color=discord.Color.red(), description="Инициатор игры отменил её!")
+            return await interaction.edit_original_message(embed=embed, view=None)
         if acc.value == None:
             embed = discord.Embed(title="Время вышло!", color=discord.Color.red())
             return await interaction.edit_original_message(embed=embed, view=None)
         
         class Button(discord.ui.View):
             def __init__(self):
-                super().__init__(timeout=30)
+                super().__init__(timeout=90)
             
             @discord.ui.button(label="Задать слово", style=discord.ButtonStyle.green)
             async def setword(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user.id != interaction.user.id:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
                 class Input(discord.ui.Modal, title="Виселица - задать слово"):
-                    ans = discord.ui.TextInput(label="Слово", max_length=16)
+                    ans = discord.ui.TextInput(label="Слово", max_length=35)
                     async def on_submit(self, modalinteract: discord.Interaction):
                         tryes = 0
                         symbols = []
+                        fails = 0
                         word = str(self.ans).lower()
                         game = "-" * len(word)
                         hangman = "Пусто"
@@ -1123,7 +1136,7 @@ class Entartaiment(commands.Cog):
 
                         class Answer(discord.ui.View):
                             def __init__(self):
-                                super().__init__(timeout=60)
+                                super().__init__(timeout=None)
                             
                             @discord.ui.button(label="Угадать букву", style=discord.ButtonStyle.primary)
                             async def answer(self, buttinteract: discord.Interaction, button: discord.ui.Button):
@@ -1132,7 +1145,7 @@ class Entartaiment(commands.Cog):
                                 class Letter(discord.ui.Modal, title="Виселица - ответ"):
                                     ans = discord.ui.TextInput(label="Буква", max_length=1)
                                     async def on_submit(self, modinteract: discord.Interaction):
-                                        nonlocal game, hangman, tryes
+                                        nonlocal game, hangman, tryes, fails
                                         letter = str(self.ans).lower()
                                         if kirillic.find(letter) == -1:
                                             return await modinteract.response.send_message("Только кириллица!", ephemeral=True)
@@ -1141,18 +1154,19 @@ class Entartaiment(commands.Cog):
                                         symbols.append(letter)
                                         tryes += 1
                                         if word.find(letter) == -1:
+                                            fails += 1
                                             hangman = man(hangman=hangman)
                                             if str(hangman) == "¯\_(ツ)_/¯":
                                                 embed = discord.Embed(
                                                     title="Виселица - Поражение",
                                                     color=discord.Color.red(),
-                                                    description=f"Слово: `{word}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                                    description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
                                                 )
                                                 return await modinteract.response.edit_message(embed=embed, view=None)
                                             embed = discord.Embed(
                                                 title="Виселица - Игра",
                                                 color=discord.Color.orange(),
-                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
                                             )
                                             await modinteract.response.edit_message(embed=embed)
                                         else:
@@ -1166,16 +1180,77 @@ class Entartaiment(commands.Cog):
                                                 embed = discord.Embed(
                                                     title="Виселица - Победа",
                                                     color=discord.Color.green(),
-                                                    description=f"Слово: `{game}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                                    description=f"Слово: `{game}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
                                                 )
                                                 return await modinteract.response.edit_message(embed=embed, view=None)
                                             embed = discord.Embed(
                                                 title="Виселица - Игра", 
                                                 color=discord.Color.orange(),
-                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}`.\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                                description=f"Слово: `{game}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
                                             )
                                             await modinteract.response.edit_message(embed=embed)
                                 await buttinteract.response.send_modal(Letter())
+
+                            @discord.ui.button(label="Ввести всё слово", style=discord.ButtonStyle.green)
+                            async def enterword(self, buttinteract: discord.Interaction, button: discord.ui.Button):
+                                nonlocal word
+                                if buttinteract.user.id != member.id:
+                                    return await buttinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                                class EnterWord(discord.ui.Modal, title="Виселица - ввод слова"):
+                                    ans = discord.ui.TextInput(label="Слово:", min_length=len(word), max_length=len(word))
+                                    async def on_submit(self, modinteract: discord.Interaction):
+                                        nonlocal word, hangman, game, tryes, symbols, fails
+                                        tryes += 1
+                                        answer = str(self.ans)
+                                        letters = f"\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                        if symbols == []:
+                                            letters = ""
+                                        if answer.lower() != word:
+                                            embed = discord.Embed(
+                                                title="Виселица - Поражение",
+                                                color=discord.Color.red(),
+                                                description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"
+                                            )
+                                            await modinteract.response.edit_message(embed=embed, view=None)
+                                        else:
+                                            embed = discord.Embed(
+                                                title="Виселица - Победа",
+                                                color=discord.Color.green(),
+                                                description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"
+                                            )
+                                            await modinteract.response.edit_message(embed=embed, view=None)
+                                await buttinteract.response.send_modal(EnterWord())
+                            
+                            @discord.ui.button(label="Сдаться", style=discord.ButtonStyle.red)
+                            async def giveup(self, buttinteract: discord.Interaction, button: discord.ui.Button):
+                                if buttinteract.user.id != member.id:
+                                    return await buttinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                                class Sure(discord.ui.View):
+                                    def __init__(self):
+                                        super().__init__(timeout=30)
+                                    
+                                    @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
+                                    async def okey(self, binteract: discord.Interaction, button: discord.ui.Button):
+                                        nonlocal word, hangman, tryes, symbols
+                                        if buttinteract.user.id != member.id:
+                                            return await buttinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                                        letters = f"\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
+                                        if symbols == []:
+                                            letters = ""
+                                        embed = discord.Embed(
+                                            title="Виселица - Поражение",
+                                            color=discord.Color.red(),
+                                            description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"
+                                        )
+                                        await viewinteract.edit_original_message(embed=embed, view=None)
+                                        return await binteract.response.edit_message(view=None)
+                                    
+                                    @discord.ui.button(emoji="<:x_icon:975324570741526568>", style=discord.ButtonStyle.red)
+                                    async def nonono(self, binteract: discord.Interaction, button: discord.ui.Button):
+                                        return await binteract.response.edit_message(view=None)
+                                
+                                embed = discord.Embed(title="Сдаться", color=discord.Color.red(), description="Вы точно хотите сдаться?")
+                                await buttinteract.response.send_message(embed=embed, view=Sure(), ephemeral=True)
                             
                         await modalinteract.response.edit_message(embed=embed, view=Answer())
                 
@@ -1187,6 +1262,25 @@ class Entartaiment(commands.Cog):
             description=f"{interaction.user.mention} должен задать слово, нажав на кнопку."
         )
         await interaction.edit_original_message(embed=embed, view=Button())
+    
+    @app_commands.command(name="coin", description="[Развлечения] Бросить монетку.")
+    @app_commands.check(is_shutted_down)
+    async def coin(self, interaction: discord.Interaction):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/coin`'
+        ans = choice(["Орёл", "Решка"])
+        sel = 'a' if ans == "Решка" else ""
+        embed = discord.Embed(title="Бросить монетку", color=discord.Color.orange(), description=f"Вам выпал{sel}: `{ans}`.")
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
 
             
 async def setup(bot: commands.Bot):

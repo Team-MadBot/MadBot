@@ -228,7 +228,7 @@ async def debug(ctx: commands.Context):
                             servernames.append(guild.name)
                         for name in servernames:
                             gnames += f"`{name}`, "
-                        await viewinteract.response.send_message(f"Servers: {gnames}", ephemeral=True)
+                        await viewinteract.response.send_message(f"Сервера: {gnames}", ephemeral=True)
                     
                     @discord.ui.button(label="Получить сервер", style=discord.ButtonStyle.primary)
                     async def getserver(self, viewinteract: discord.Interaction, button: discord.ui.Button):

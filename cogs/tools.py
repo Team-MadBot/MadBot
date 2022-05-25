@@ -125,6 +125,7 @@ class Tools(commands.Cog):
     @app_commands.describe(ver="Версия бота")
     @app_commands.choices(ver=[
         Choice(name="Актуальная", value="actual"),
+        Choice(name="0.9", value="09"),
         Choice(name="0.8", value="08"),
         Choice(name="0.7", value='07'),
         Choice(name="0.6", value='06'),
@@ -144,7 +145,11 @@ class Tools(commands.Cog):
         embed = None
         if ver != None:
             ver = ver.name
-        if ver == None or ver == '0.8' or ver == "Актуальная":
+        if ver == None or ver == '0.9' or ver == "Актуальная":
+            updated_at = datetime.datetime(2022, 5, 25, 21, 0, 0, 0)
+            embed=discord.Embed(title=f'Версия `0.9`', color=discord.Color.orange(), timestamp=updated_at, description=f"> 1) Исправление бага со счётом команд в `/botinfo`.\n> 2) Добавлены полезная команда `/stopwatch`.\n> 3) Добавлена развлекательная команда `/knb`, `/coin`.\n> 4) Команда `/base64` теперь - группа.\n> 5) Добавлена команда `/debug` для получения сведений о боте.\n> 6) Команда `/idea` теперь в кулдауне (раз в 5 минут).\n> 7) Учет embed'ов и файлов в док-вах в контекстных меню.\n> 8) Добавлена обратная связь через `/help`. ~~Конец `/idea`?~~\n> 9) Новый значок - помощник разработчика.\n> 10) Добавлена игра `/tic-tac-toe`. Спасибо, F_Artamon#7588.\n> 11) Добавлена игра `/hangman`.")
+            embed.set_footer(text="Обновлено:")
+        if ver == '0.8':
             updated_at = datetime.datetime(2022, 5, 17, 20, 0, 0, 0)
             embed=discord.Embed(title=f'Версия `0.8`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Требование права на просмотр журнала аудита в `/getaudit`.\n> 2) Показ кол-во участников в сети в `/serverinfo`.\n> 3) Изменение вида `/serverinfo`.\n> 4) Добавление Select Menu в `/userinfo` и `/serverinfo`.\n> 5) Команды могут быть отключены владельцем бота.\n> 6) Добавлено новое развлечение: `/doors`.\n> 7) Использование кнопок и форм вместо реакций и сообщений.\n> 8) Добавлена команда `/weather`.\n> 9) Иногда, бот будет показывать свою версию в статусе.\n> 10) Добавлена команда `/ball`.\n> 11) Обновлен дизайн `/botinfo` и `/help`.')
             embed.set_footer(text="Обновлено:")

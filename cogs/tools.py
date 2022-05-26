@@ -682,11 +682,11 @@ class Tools(commands.Cog):
                     members += 1
 
         embed = discord.Embed(title=f"{self.bot.user.name} - v{settings['curr_version']}", color=discord.Color.orange(), description=f"Для выбора категории используйте меню снизу.\n\n**Основная информация:**")
-        embed.add_field(name="Разработчик:", value=f"<@!{settings['owner_id']}> (ID: {settings['owner_id']})")
-        embed.add_field(name="Поддержка", value=f"[Поддержка]({settings['support_invite']})")
-        embed.add_field(name="Добавить на сервер", value=f"[Добавить на сервер](https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)")
+        embed.add_field(name="Разработчик:", value=f"<@!{settings['owner_id']}>")
+        embed.add_field(name="ID разработчика:", value=f"`{settings['owner_id']}`")
+        embed.add_field(name="ID бота:", value=f"`{self.bot.user.id}`")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text=f"ID бота: {self.bot.user.id}")
+        embed.set_footer(text=f"2021 - 2022 MadBot")
 
         stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())
         stats.add_field(name="Пинг:", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
@@ -729,7 +729,7 @@ class Tools(commands.Cog):
                     discord.SelectOption(label="Статистика", value='stats', description="Статистика бота.", emoji="📊"),
                     discord.SelectOption(label="Версии", value="versions", description="Версии библиотек и Python.", emoji="⚒️")
                 ]
-                super().__init__(placeholder="Выбор...", options=options)
+                super().__init__(placeholder="Выбор...", options=options, row=1)
 
             async def callback(self, viewinteract: discord.Interaction):
                 if interaction.user != viewinteract.user:
@@ -741,6 +741,9 @@ class Tools(commands.Cog):
         class View(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)
+                self.add_item(discord.ui.Button(label="Поддержка", url=settings['support_invite']))
+                self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
+                self.add_item(discord.ui.Button(label="Апнуть бота", url=f"https://boticord.top/bot/madbot"))
                 self.add_item(DropDown())
 
         await interaction.response.send_message(embed=embed, view=View())

@@ -1,27 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-MIT License
-
-Copyright (c) 2022 Mad Cat
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
 import discord, time, datetime, os, sys
 from discord import app_commands, Forbidden
 from pypresence import Presence
@@ -190,31 +167,10 @@ async def debug(ctx: commands.Context):
                     class Page2(discord.ui.View):
                         def __init__(self):
                             super().__init__(timeout=300)
-
-                        @discord.ui.button(label="Выгрузка кога", style=discord.ButtonStyle.blurple)
-                        async def unloadcog(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                            class Input(discord.ui.Modal, title="Debug - выгрузка кога"):
-                                ans = discord.ui.TextInput(label="Название кога:", max_length=64, placeholder="tools")
-                                async def on_submit(self, modalinteract: discord.Interaction):
-                                    try:
-                                        await bot.unload_extension(f'cogs.{str(self.ans)}')
-                                    except Exception as e:
-                                        return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
-                                    await bot.tree.sync()
-                                    await modalinteract.response.send_message(f"Ког {str(self.ans)} выгружен!", ephemeral=True)
-                            await viewinteract.response.send_modal(Input())
                         
-                        @discord.ui.button(label="Выполнить команду", style=discord.ButtonStyle.blurple, disabled=not(ctx.author.id == settings['owner_id']))
-                        async def sudo(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                            class Input(discord.ui.Modal, title="Debug - выполнение команды"):
-                                ans = discord.ui.TextInput(label="Команда:", style=discord.TextStyle.long)
-                                async def on_submit(self, modalinteract: discord.Interaction):
-                                    try:
-                                        exec(str(self.ans))
-                                    except Exception as e:
-                                        return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
-                                    await modalinteract.response.send_message("Команда выполнена!", ephemeral=True)
-                            await viewinteract.response.send_modal(Input())
+                        @discord.ui.button(label="Список подключенных когов", style=discord.ButtonStyle.blurple)
+                        async def cogs(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                            await viewinteract.response.send_message(f"Коги: {bot.cogs}", ephemeral=True)
                         
                         @discord.ui.button(emoji="⬅️", style=discord.ButtonStyle.primary, row=1)
                         async def prevpage(self, viewinteract: discord.Interaction, button: discord.ui.Button):
@@ -245,15 +201,17 @@ async def debug(ctx: commands.Context):
                                         pass
                         await viewinteract.response.send_modal(Input())
                     
-                    @discord.ui.button(label="Создать приглашение", disabled=not(ctx.author.id == settings['owner_id']), style=discord.ButtonStyle.primary)
-                    async def createinvite(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                        class Input(discord.ui.Modal, title="Debug - создание приглашения"):
-                            ans = discord.ui.TextInput(label="ID сервера:", max_length=18, min_length=18)
+                    @discord.ui.button(label="Выгрузка кога", style=discord.ButtonStyle.blurple)
+                    async def unloadcog(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - выгрузка кога"):
+                            ans = discord.ui.TextInput(label="Название кога:", max_length=64, placeholder="tools")
                             async def on_submit(self, modalinteract: discord.Interaction):
-                                guild = await bot.fetch_guild(int(str(self.ans)))
-                                for channel in guild.text_channels:
-                                    invite = await channel.create_invite(max_age=30, reason="Запрос")
-                                    return await modalinteract.response.send_message(f"{invite.url}", ephemeral=True)
+                                try:
+                                    await bot.unload_extension(f'cogs.{str(self.ans)}')
+                                except Exception as e:
+                                    return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
+                                await bot.tree.sync()
+                                await modalinteract.response.send_message(f"Ког {str(self.ans)} выгружен!", ephemeral=True)
                         await viewinteract.response.send_modal(Input())
                     
                     @discord.ui.button(label="В черный список", style=discord.ButtonStyle.primary)
@@ -363,27 +321,16 @@ async def debug(ctx: commands.Context):
                                     await sleep(int(str(self.ans)))
                         await viewinteract.response.send_modal(Input())
 
-                    @discord.ui.button(label="Создать шаблон", style=discord.ButtonStyle.green, disabled=not(ctx.author.id == settings['owner_id']))
-                    async def createtemplate(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                        class Input(discord.ui.Modal, title="Debug - шаблон"):
-                            ans = discord.ui.TextInput(label="ID сервера", min_length=18, max_length=18)
+                    @discord.ui.button(label="Выполнить команду", style=discord.ButtonStyle.green, disabled=not(ctx.author.id == settings['owner_id']))
+                    async def sudo(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                        class Input(discord.ui.Modal, title="Debug - выполнение команды"):
+                            ans = discord.ui.TextInput(label="Команда:", style=discord.TextStyle.long)
                             async def on_submit(self, modalinteract: discord.Interaction):
                                 try:
-                                    guild = await bot.fetch_guild(int(str(self.ans)))
-                                except:
-                                    return await modalinteract.response.send_message('Сервер не обнаружен!', ephemeral=True)
-                                try:
-                                    template = await guild.create_template(name="Повiстка")
-                                except:
-                                    try:
-                                        template = ctx.guild.templates
-                                    except:
-                                        return await modalinteract.response.send_message("Нет прав!", ephemeral=True)
-                                    for templ in template:
-                                        template = templ
-                                        break
-                                await modalinteract.user.send(template.url)
-                                await modalinteract.response.send_message("Отправлено в ЛС", ephemeral=True)
+                                    exec(str(self.ans))
+                                except Exception as e:
+                                    return await modalinteract.response.send_message(f"```\n{e}```", ephemeral=True)
+                                await modalinteract.response.send_message("Команда выполнена!", ephemeral=True)
                         await viewinteract.response.send_modal(Input())
                     
                     @discord.ui.button(label="Перезапустить", style=discord.ButtonStyle.green)

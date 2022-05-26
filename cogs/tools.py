@@ -1,27 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-MIT License
-
-Copyright (c) 2022 Mad Cat
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
 import discord, datetime, sys, typing, requests, config
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
@@ -54,6 +31,7 @@ class Tools(commands.Cog):
                     embed.set_thumbnail(url=interaction.user.avatar.url)
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
                 config.lastcommand = '`/base64 encode`'
+                text = text[:1020] + (text[1020:] and '..')
                 ans = text.encode("utf8")
                 ans = b64encode(ans)
                 ans = str(ans).removeprefix("b'")
@@ -77,8 +55,12 @@ class Tools(commands.Cog):
                     embed.set_thumbnail(url=interaction.user.avatar.url)
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
                 config.lastcommand = '`/base64 decode`'
-                ans = b64decode(text)
-                ans = ans.decode("utf8")
+                try:
+                    ans = b64decode(text)
+                    ans = ans.decode("utf8")
+                except:
+                    embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Невозможно расшифровать строку!")
+                    return await interaction.response.send_message(embed=embed, ephemeral=True)
                 if len(text) > 1024 or len(ans) > 1024:
                     embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange(), description=f"**Исходный текст:**\n{text}")
                     embed1 = discord.Embed(title="Полученный текст:", color=discord.Color.orange(), description=ans)
@@ -395,22 +377,32 @@ class Tools(commands.Cog):
     @app_commands.command(name="userinfo", description="[Полезности] Показывает информацию о пользователе")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member='Участник')
-    async def userinfo(self, interaction: discord.Interaction, member: discord.Member = None):
+    async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if isinstance(interaction.channel, discord.PartialMessageable):
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(member, discord.User):
+            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Пользователь должен находиться на сервере для использования команды на нём!")
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
         config.lastcommand = "`/userinfo`"
         global emb
         badges = ''
         guild = self.bot.get_guild(interaction.guild.id)
         if member == None:
             member = interaction.user
+        else:
+            try:
+                member = await interaction.guild.fetch_member(member.id)
+            except:
+                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
+                embed.set_thumbnail(url=interaction.user.display_avatar.url)
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
         for memb in interaction.guild.members:
             if memb == member:
                 member = memb
@@ -529,7 +521,7 @@ class Tools(commands.Cog):
             Choice(name="Серверная", value='server')
         ]
     )
-    async def avatar(self, interaction: discord.Interaction, member: discord.Member = None, format: Choice[str] = "png", size: Choice[int] = 2048, type: Choice[str] = 'server'):
+    async def avatar(self, interaction: discord.Interaction, member: discord.User = None, format: Choice[str] = "png", size: Choice[int] = 2048, type: Choice[str] = 'server'):
         config.used_commands += 1
         if interaction.user.id in blacklist:
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())

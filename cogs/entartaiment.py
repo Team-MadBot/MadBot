@@ -1,26 +1,3 @@
-"""
-MIT License
-
-Copyright (c) 2022 Mad Cat
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
 import discord, datetime, requests, random, config
 from asyncio import sleep
 from hmtai import useHM
@@ -684,7 +661,7 @@ class Entartaiment(commands.Cog):
             "Весьма сомнительно"
         ]
         embed = discord.Embed(title="Магический шар", color=discord.Color.orange(), timestamp=discord.utils.utcnow())
-        embed.add_field(name="Ваш вопрос:", value=question, inline=False)
+        embed.add_field(name="Ваш вопрос:", value=question[:1020] + (question[1020:] and '..'), inline=False)
         embed.add_field(name="Ответ шара:", value=random.choice(answers), inline=False)
         embed.set_author(name=str(interaction.user), icon_url=interaction.user.display_avatar.url)
         embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Magic_eight_ball.png/800px-Magic_eight_ball.png")
@@ -810,7 +787,7 @@ class Entartaiment(commands.Cog):
             embed = discord.Embed(title="Камень, ножницы, бумага - Игра", color=discord.Color.orange(), description="Игра началась! Выберите камень, ножницы или бумагу. Время на выбор: `30 секунд`.")
             embed.set_footer(text=f"{interaction.user} и {member}", icon_url=interaction.user.display_avatar.url)
             view = GamePlay()
-            if member == None:
+            if member == self.bot.user:
                 await interaction.response.send_message(embed=embed, view=view)
             else:
                 await interaction.edit_original_message(embed=embed, view=view)

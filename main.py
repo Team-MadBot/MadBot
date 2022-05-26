@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import discord, time, datetime, os, sys
+from boticordpy import BoticordClient
 from discord import app_commands, Forbidden
 from pypresence import Presence
 from discord.ext import commands
@@ -127,6 +128,20 @@ class MyBot(commands.Bot):
     
 
 bot=MyBot()
+
+async def get_stats():
+    return {"servers": len(bot.guilds), "shards": 0, "users": len(bot.users)}
+
+async def on_success_posting():
+    print("Статистика на boticord.top обновлена!")
+
+boticord_client = BoticordClient(settings['boticord_key'])
+autopost = (
+    boticord_client.autopost()
+    .init_stats(get_stats)
+    .on_success(on_success_posting)
+    .start()
+)
 
 @bot.tree.error
 async def on_error(interaction: discord.Interaction, error):

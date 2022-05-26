@@ -7,3 +7,4 @@ translate
 requests
 hmtai
 typing
+boticordpy

@@ -9,6 +9,7 @@ settings = {
     'app_id': 880911386916577281, # Application ID вашего бота.
     'key': 'Ключ some-random-api.ml',
     'weather_key': 'Ключ openweathermap.org',
+    'boticord_key': 'Ключ от boticord API',
     'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
     'owner_id': 560529834325966858, # ID владельца.
     'server': 914181806285279232, # Сервер логов.

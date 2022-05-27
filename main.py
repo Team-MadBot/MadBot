@@ -66,14 +66,15 @@ class MyBot(commands.Bot):
 
         async def on_success_posting():
             print("Статистика на boticord.top обновлена!")
-
-        boticord_client = BoticordClient(settings['boticord_key'])
-        autopost = (
-            boticord_client.autopost()
-            .init_stats(get_stats)
-            .on_success(on_success_posting)
-            .start()
-        )
+        
+        if bot.user.name == "MadBot":
+            boticord_client = BoticordClient(settings['boticord_key'])
+            autopost = (
+                boticord_client.autopost()
+                .init_stats(get_stats)
+                .on_success(on_success_posting)
+                .start()
+            )
         embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(), description=f"Пинг: `{int(round(bot.latency, 3)*1000)}ms`\nВерсия: `{settings['curr_version']}`")
         await logs.send(embed=embed)
         await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.

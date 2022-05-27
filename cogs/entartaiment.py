@@ -1299,7 +1299,7 @@ class Entartaiment(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.bot:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Боту не до игр, не тревожь его!")
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Боту не до дуэлей, не тревожь его!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
         class Accept(discord.ui.View):
@@ -1325,6 +1325,148 @@ class Entartaiment(commands.Cog):
                     self.stop()
                 elif member.id != viewinteract.user.id:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+        
+        acc = Accept()
+        embed = discord.Embed(
+            title='Дуэль - Ожидание', 
+            color=discord.Color.orange(),
+            description=f"{member.mention}, {interaction.user.mention} вызывает вас на дуэль!"
+        )
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, view=acc)
+        await acc.wait()
+        if acc.value == None:
+            embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+            return await interaction.edit_original_message(embed=embed, view=None)
+        if acc.clicker != None:
+            if acc.clicker.id == member.id:
+                embed = discord.Embed(
+                    title="Дуэль - Отказ", 
+                    color=discord.Color.red(),
+                    description=f"{member.mention} не хочет идти на дуэль."
+                )
+                return await interaction.edit_original_message(embed=embed, view=None)
+            if acc.clicker == interaction.user.id:
+                embed = discord.Embed(
+                    title="Дуэль - Отмена",
+                    color=discord.Color.red(),
+                    description="Инициатор дуэли отменил её."
+                )
+                return await interaction.edit_original_message(embed=embed, view=None)
+        
+        class GamePlay(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=120)
+                self.player = interaction.user
+                self.winner = None
+                self.tryes = 0
+            
+            @discord.ui.button(label="Выстрел", style=discord.ButtonStyle.green, emoji="🔫")
+            async def shoot(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != self.player.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                ans = random.randint(0,7)
+                self.tryes += 1
+                if ans == 1:
+                    self.winner = self.player
+                    return self.stop()
+                if self.tryes == 15:
+                    embed = discord.Embed(
+                        title="Дуэль - Ничья",
+                        color=discord.Color.yellow(),
+                        description=f"{self.player.mention} выстрелил, но не попал! Все остались живы и здоровы!"
+                    )
+                    embed.add_field(name=f"Выстрелов за игру:", value=f"`{self.tryes}`.")
+                    self.winner = 'draw'
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+                    return self.stop()
+                next_player = interaction.user if self.player.id == member.id else member
+                embed = discord.Embed(
+                    title="Дуэль - Игра", 
+                    color=discord.Color.orange(),
+                    description=f"{self.player.mention} выстрелил, но не попал. Очередь {next_player.mention}."
+                )
+                embed.add_field(name=f"Выстрелов (в том числе в воздух):", value=f'`{self.tryes}`.')
+                self.player = next_player
+                await viewinteract.response.edit_message(embed=embed)
+            
+            @discord.ui.button(label="Выстрел в воздух", style=discord.ButtonStyle.blurple, emoji="🌫️")
+            async def tothamoon(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != self.player.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                self.tryes += 1
+                if self.tryes == 15:
+                    embed = discord.Embed(
+                        title="Дуэль - Ничья",
+                        color=discord.Color.yellow(),
+                        description=f"{self.player.mention} выстрелил, но не попал! Все остались живы и здоровы!"
+                    )
+                    embed.add_field(name=f"Выстрелов за игру:", value=f"`{self.tryes}`.")
+                    self.winner = 'draw'
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+                    return self.stop()
+                next_player = interaction.user if self.player.id == member.id else member
+                embed = discord.Embed(
+                    title="Дуэль - Игра", 
+                    color=discord.Color.orange(),
+                    description=f"{self.player.mention} выстрелил в воздух. Очередь {next_player.mention}."
+                )
+                embed.add_field(name=f"Выстрелов (в том числе в воздух):", value=f'`{self.tryes}`.')
+                self.player = next_player
+                await viewinteract.response.edit_message(embed=embed)
+
+            @discord.ui.button(label="Сдаться", row=1, style=discord.ButtonStyle.red, emoji="🐔")
+            async def giveup(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != interaction.user.id and viewinteract.user.id != member.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                class Sure(discord.ui.View):
+                    def __init__(self):
+                        super().__init__(timeout=30)
+                        self.value = None
+                    
+                    @discord.ui.button(style=discord.ButtonStyle.green, emoji="✅")
+                    async def yes(self, buttinteract: discord.Interaction, button: discord.ui.Button):
+                        await buttinteract.response.defer()
+                        self.value = True
+                        self.stop()
+                    
+                    @discord.ui.button(style=discord.ButtonStyle.red, emoji="<:x_icon:975324570741526568>")
+                    async def no(self, buttinteract: discord.Interaction, button: discord.ui.Button):
+                        await buttinteract.response.defer()
+                        self.value = False
+                        self.stop()
+                embed = discord.Embed(
+                    title="Дуэль - Сдаться", 
+                    color=discord.Color.red(),
+                    description="Вы точно хотите сдаться?"
+                )
+                view = Sure()
+                await viewinteract.response.send_message(embed=embed, view=view, ephemeral=True)
+                await view.wait()
+                await viewinteract.edit_original_message(view=None)
+                if view.value == True:
+                    self.winner = interaction.user if viewinteract.user.id == member.id else member
+                    self.stop()
+        
+        embed = discord.Embed(
+            title="Дуэль - Игра",
+            color=discord.Color.orange(),
+            description=f"Первым стреляет {interaction.user.mention}"
+        )
+        game = GamePlay()
+        await interaction.edit_original_message(embed=embed, view=game)
+        await game.wait()
+        if game.winner == None and game.tryes != 15:
+            embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+            return await interaction.edit_original_message(embed=embed, view=None)
+        if game.tryes != 15:
+            embed = discord.Embed(
+                title=f"Дуэль - Победа {game.winner}",
+                color=discord.Color.green(),
+                description=f"`{game.winner}` выстрелил и попал! Игра окончена!"
+            )
+            embed.add_field(name="Всего выстрелов (в том числе и в воздух):", value=f"`{game.tryes}`")
+            await interaction.edit_original_message(embed=embed, view=None)
 
             
 async def setup(bot: commands.Bot):

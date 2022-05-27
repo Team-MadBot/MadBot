@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import discord, datetime, sys, typing, requests, config
+import discord, datetime, sys, typing, requests, config, boticordpy
+from boticordpy import BoticordClient
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
 from discord import NotFound, Forbidden, app_commands
@@ -16,6 +17,7 @@ def cooldown_check(interaction: discord.Interaction):
 class Tools(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.boticord_client = BoticordClient(settings['boticord_key'])
 
         @app_commands.check(is_shutted_down)
         class base64(app_commands.Group):
@@ -716,10 +718,27 @@ class Tools(commands.Cog):
         versions.set_thumbnail(url=self.bot.user.display_avatar.url)
         versions.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 
+        boticordinfo: boticordpy.types.Bot = await self.boticord_client.get_bot_info(880911386916577281)
+        boticord = discord.Embed(
+            title = "MadBot - Boticord",
+            color = discord.Color.orange(),
+            url=f"https://boticord.top/bot/{boticordinfo.short_code}",
+            description=boticordinfo.long_description
+        )
+        boticord.add_field(name="Кол-во апов:", value=f"`{boticordinfo.bumps}`.")
+        boticord.add_field(name="Кол-во добавлений:", value=f"`{boticordinfo.added}`")
+        boticord.add_field(name="Теги:", value=f"`{str(boticordinfo.tags).removeprefix('[').removesuffix(']')}`")
+        boticord.add_field(name="Статус рассмотрения:", value=f"`{boticordinfo.status}`")
+        boticord.add_field(name="Короткое описание:", value=f"`{boticordinfo.short_description}`")
+        boticord.add_field(name="Короткий код бота на сайте:", value=f"`{boticordinfo.short_code}`")
+        boticord.set_thumbnail(url=self.bot.user.display_avatar.url)
+        boticord.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+
         embeds = {
             'embed': embed,
             'stats': stats,
-            'versions': versions
+            'versions': versions,
+            'boticord': boticord
         }
 
         class DropDown(discord.ui.Select):
@@ -727,7 +746,8 @@ class Tools(commands.Cog):
                 options = [
                     discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
                     discord.SelectOption(label="Статистика", value='stats', description="Статистика бота.", emoji="📊"),
-                    discord.SelectOption(label="Версии", value="versions", description="Версии библиотек и Python.", emoji="⚒️")
+                    discord.SelectOption(label="Версии", value="versions", description="Версии библиотек и Python.", emoji="⚒️"),
+                    discord.SelectOption(label="Boticord", value="boticord", description="Информация из Boticord.", emoji="<:bc:947181639384051732>")
                 ]
                 super().__init__(placeholder="Выбор...", options=options, row=1)
 

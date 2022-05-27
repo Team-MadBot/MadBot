@@ -1248,16 +1248,83 @@ class Entartaiment(commands.Cog):
             embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/coin`'
         ans = choice(["Орёл", "Решка"])
         sel = 'a' if ans == "Решка" else ""
         embed = discord.Embed(title="Бросить монетку", color=discord.Color.orange(), description=f"Вам выпал{sel}: `{ans}`.")
         embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed)
+    
+    @app_commands.command(name='russian-roulette', description="[Развлечения] Русская рулетка")
+    @app_commands.check(is_shutted_down)
+    async def rr(self, interaction: discord.Interaction):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/russian-roulette`'
+        shoot = random.randint(0,6)
+        if shoot == 1:
+            embed = discord.Embed(
+                title="Русская рулетка - Поражение", 
+                color=discord.Color.red(), 
+                description="В голову прилетела пуля... И зачем это надо было?"
+            )
+            embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        else:
+            embed = discord.Embed(
+                title="Русская рулетка - Победа",
+                color=discord.Color.green(),
+                description="Пули не было. В следующий раз, стоит задуматься перед этой затеей."
+            )
+            embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="duel", description="[Развлечения] Дуэль с участником.")
+    @app_commands.check(is_shutted_down)
+    @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
+    async def duel(self, interaction: discord.Interaction, member: discord.User):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/duel`'
+        if interaction.user.id == member.id:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if member.bot:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Боту не до игр, не тревожь его!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        class Accept(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=300)
+                self.value = None
+                self.clicker = None
+            
+            @discord.ui.button(style=discord.ButtonStyle.green, emoji="✅")
+            async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if member.id != viewinteract.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                await viewinteract.response.defer()
+                self.value = True
+                self.stop()
+            
+            @discord.ui.button(style=discord.ButtonStyle.red, emoji='<:x_icon:975324570741526568>')
+            async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == viewinteract.user.id or member.id == viewinteract.user.id:
+                    await viewinteract.response.defer()
+                    self.value = False
+                    self.clicker = viewinteract.user
+                    self.stop()
+                elif member.id != viewinteract.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
 
             
 async def setup(bot: commands.Bot):

@@ -1023,16 +1023,18 @@ class Tools(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/weather`'
         city = city.replace(' ', '%20')
+        embed = discord.Embed(title="Поиск...", color=discord.Color.yellow(), description="Ищем ваш город...")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         responce = requests.get(f"http://api.openweathermap.org/data/2.5/weather?q={city}&APPID={settings['weather_key']}&units=metric&lang=ru")
         json = responce.json()
         if responce.status_code > 400:
             if json['message'] == "city not found":
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Город не найден!")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+                return await interaction.edit_original_message(embed=embed)
             else:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`")
                 print(f"{json['cod']}: {json['message']}")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+                return await interaction.edit_original_message(embed=embed)
         else:
             embed = discord.Embed(title=f"Погода в {json['name']}", color=discord.Color.orange(), description=f"{json['weather'][0]['description']}", url=f"https://openweathermap.org/city/{json['id']}")
             embed.add_field(name="Температура:", value=f"{int(json['main']['temp'])}°С ({int(json['main']['temp_min'])}°С / {int(json['main']['temp_max'])}°С)")
@@ -1043,7 +1045,7 @@ class Tools(commands.Cog):
             embed.add_field(name="Рассвет/Закат:", value=f"<t:{json['sys']['sunrise']}> / <t:{json['sys']['sunset']}>")
             embed.set_footer(text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе.")
             embed.set_thumbnail(url=f"http://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.edit_original_message(embed=embed)
     
     @app_commands.command(name="stopwatch", description="[Полезности] Секундомер.")
     @app_commands.check(is_shutted_down)

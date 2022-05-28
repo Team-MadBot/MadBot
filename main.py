@@ -185,7 +185,10 @@ async def debug(ctx: commands.Context):
                         
                         @discord.ui.button(label="Список подключенных когов", style=discord.ButtonStyle.blurple)
                         async def cogs(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                            await viewinteract.response.send_message(f"Коги: {bot.cogs}", ephemeral=True)
+                            embed = discord.Embed(title="Список подключенных когов", color=discord.Color.orange())
+                            for name in bot.cogs:
+                                embed.add_field(name=name, value="Запущен")
+                            await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         
                         @discord.ui.button(emoji="⬅️", style=discord.ButtonStyle.primary, row=1)
                         async def prevpage(self, viewinteract: discord.Interaction, button: discord.ui.Button):

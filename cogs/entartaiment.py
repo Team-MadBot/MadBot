@@ -1,3 +1,4 @@
+from code import interact
 import discord, datetime, requests, random, config
 from asyncio import sleep
 from hmtai import useHM
@@ -862,7 +863,7 @@ class Entartaiment(commands.Cog):
             color=discord.Color.green()
         )
 
-        class accept(discord.ui.View):
+        class Accept(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=180)
                 self.value = None
@@ -892,7 +893,7 @@ class Entartaiment(commands.Cog):
                 else:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
 
-        acc = accept()
+        acc = Accept()
         if not member.bot:
             await interaction.response.send_message(embed=emb, view=acc)
             await acc.wait()
@@ -1468,6 +1469,181 @@ class Entartaiment(commands.Cog):
             embed.add_field(name="Всего выстрелов (в том числе и в воздух):", value=f"`{game.tryes}`")
             await interaction.edit_original_message(embed=embed, view=None)
 
+    @app_commands.command(name="number", description="[Развлечения] Угадать число")
+    @app_commands.check(is_shutted_down)
+    async def whatsnumber(self, interaction: discord.Interaction, member: discord.User = None):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True) 
+        if member != None:
+            try:
+                member = await interaction.guild.fetch_member(member.id)
+            except:
+                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
+                embed.set_thumbnail(url=interaction.user.display_avatar.url)
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/number`'
+        if member == None:
+            number = random.randint(1,10)
+        else:
+            class Accept(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=300)
+                    self.value = None
+                    self.clicker = None
+                
+                @discord.ui.button(style=discord.ButtonStyle.green, emoji="✅")
+                async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if member.id != viewinteract.user.id:
+                        return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                    await viewinteract.response.defer()
+                    self.value = True
+                    self.stop()
+                
+                @discord.ui.button(style=discord.ButtonStyle.red, emoji='<:x_icon:975324570741526568>')
+                async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if interaction.user.id == viewinteract.user.id or member.id == viewinteract.user.id:
+                        await viewinteract.response.defer()
+                        self.value = False
+                        self.clicker = viewinteract.user
+                        return self.stop()
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+            
+            acc = Accept()
+            embed = discord.Embed(
+                title='Угадывание числа - Ожидание', 
+                color=discord.Color.orange(),
+                description=f"{member.mention}, {interaction.user.mention} хочет поиграть с Вами!"
+            )
+            embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+            await interaction.response.send_message(embed=embed, view=acc)
+            await acc.wait()
+            if acc.value == None:
+                embed = discord.Embed(title="Время истекло", color=discord.Color.red())
+                return await interaction.edit_original_message(embed=embed, view=None)
+            if acc.value == False:
+                if acc.clicker.id == interaction.user.id:
+                    embed = discord.Embed(
+                        title="Угадывание числа - Отмена",
+                        color=discord.Color.red(),
+                        description="Инициатор игры отменил её."
+                    )
+                    return await interaction.edit_original_message(embed=embed, view=None)
+                embed = discord.Embed(
+                    title="Угадывание числа - Отказ", 
+                    color=discord.Color.red(),
+                    description="Участник отказался играть с Вами."
+                )
+                return await interaction.edit_original_message(embed=embed, view=None)
+            
+            class InputButton(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=120)
+                    self.value = None
+                
+                @discord.ui.button(label="Загадать число", style=discord.ButtonStyle.blurple)
+                async def inputnumber(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    if viewinteract.user.id != interaction.user.id:
+                        return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                    class InputNumber(discord.ui.Modal, title="Угадывание числа - Загадывание числа"):
+                        value = None
+                        ans = discord.ui.TextInput(label="Число:", max_length=2)
+                        async def on_submit(self, modalinteract: discord.Interaction):
+                            try:
+                                self.value = int(str(self.ans))
+                            except:
+                                return await modalinteract.response.send_message("Введённая строка не является числом!", ephemeral=True)
+                            if self.value < 1 or self.value > 10:
+                                self.value = None
+                                return await modalinteract.response.send_message("Число должно быть в диапазоне от одного до десяти!", ephemeral=True)
+                            await modalinteract.response.defer()
+                    modal = InputNumber()
+                    await viewinteract.response.send_modal(modal)
+                    await modal.wait()
+                    self.value = modal.value
+                    if self.value != None:
+                        self.stop()
+            button = InputButton()
+            embed = discord.Embed(
+                title="Угадывание числа - Задать число",
+                color=discord.Color.orange(),
+                description=f"{interaction.user.mention} должен задать число от одного до десяти."
+            )
+            embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+            await interaction.edit_original_message(embed=embed, view=button)
+            await button.wait()
+            if button.value == None:
+                embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+                return await interaction.edit_original_message(embed=embed, view=None)
+            number = button.value
+        tryes = 0
+        player = interaction.user if member == None else member
+        
+        class Button(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=180)
+            
+            @discord.ui.button(label="Отгадать число", style=discord.ButtonStyle.blurple)
+            async def inputanswer(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != player.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                class Input(discord.ui.Modal, title="Угадывание числа - Ответ"):
+                    ans = discord.ui.TextInput(label="Число:", max_length=2)
+                    async def on_submit(self, modalinteract: discord.Interaction):
+                        nonlocal number, tryes
+                        try:
+                            answer = int(str(self.ans))
+                        except:
+                            return await modalinteract.response.send_message("Введённая строка не является числом!", ephemeral=True)
+                        tryes += 1
+                        if answer != number and tryes == 4:
+                            embed = discord.Embed(
+                                title="Угадывание числа - Поражение",
+                                color=discord.Color.red(),
+                                description=f"**Ваш ответ:** `{answer}`.\n**Правильный ответ:** `{number}`.\n**Число попыток:** `{tryes} / 4`."
+                            )
+                            embed.set_footer(text=str(player), icon_url=player.display_avatar.url)
+                            return await modalinteract.response.edit_message(embed=embed, view=None)
+                        if answer > number:
+                            embed = discord.Embed(
+                                title="Угадывание числа - Игра",
+                                color=discord.Color.orange(),
+                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `больше` загаданного числа.\n**Число попыток:** `{tryes} / 4`."
+                            )
+                            embed.set_footer(text=str(player), icon_url=player.display_avatar.url)
+                            await modalinteract.response.edit_message(embed=embed)
+                        if answer < number:
+                            embed = discord.Embed(
+                                title="Угадывание числа - Игра",
+                                color=discord.Color.orange(),
+                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `меньше` загаданного числа.\n**Число попыток:** `{tryes} / 4`."
+                            )
+                            embed.set_footer(text=str(player), icon_url=player.display_avatar.url)
+                            await modalinteract.response.edit_message(embed=embed)
+                        if answer == number:
+                            embed = discord.Embed(
+                                title="Угадывание числа - Победа",
+                                color=discord.Color.green(),
+                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `равен` загаданному числа.\n**Число попыток:** `{tryes} / 4`."
+                            )
+                            embed.set_footer(text=str(player), icon_url=player.display_avatar.url)
+                            return await modalinteract.response.edit_message(embed=embed, view=None)
+                await viewinteract.response.send_modal(Input())
+        
+        embed = discord.Embed(
+            title="Угадывание числа - Игра",
+            color=discord.Color.orange(),
+            description=f"**Введите число**, нажав на кнопку.\nЧисло загадано в диапазоне от `одного до десяти` включительно.\n**Число попыток:** `{tryes} / 4`."
+        )
+        embed.set_footer(text=str(player), icon_url=player.display_avatar.url)
+        await interaction.response.send_message(embed=embed, view=Button()) if member == None else await interaction.edit_original_message(embed=embed, view=Button())
+        
             
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))

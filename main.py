@@ -160,7 +160,7 @@ async def on_error(interaction: discord.Interaction, error):
     try:
         await interaction.response.send_message(embed=embed, ephemeral=True)
     except discord.errors.InteractionResponded:
-        await interaction.edit_original_message(embeds=[embed])
+        await interaction.edit_original_message(embeds=[embed], view=None)
     print(error)
 
 @bot.command()

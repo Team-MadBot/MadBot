@@ -677,24 +677,19 @@ class Tools(commands.Cog):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        members = 0
-        for guild in self.bot.guilds:
-            for member in guild.members:
-                if not(member.bot):
-                    members += 1
 
         embed = discord.Embed(title=f"{self.bot.user.name} - v{settings['curr_version']}", color=discord.Color.orange(), description=f"Для выбора категории используйте меню снизу.\n\n**Основная информация:**")
         embed.add_field(name="Разработчик:", value=f"<@!{settings['owner_id']}>")
         embed.add_field(name="ID разработчика:", value=f"`{settings['owner_id']}`")
         embed.add_field(name="ID бота:", value=f"`{self.bot.user.id}`")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text=f"2021 - 2022 MadBot")
+        embed.set_footer(text=f"©️ 2021 - 2022 {self.bot.user.name}")
 
         stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())
         stats.add_field(name="Пинг:", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
         stats.add_field(name="Запущен:", value=f"<t:{started_at}:R>")
         stats.add_field(name="Кол-во серверов:", value=len(self.bot.guilds))
-        stats.add_field(name="Кол-во участников:", value=members)
+        stats.add_field(name="Кол-во участников:", value=len(self.bot.users))
         stats.add_field(name="Последняя использованная команда:", value=config.lastcommand)
         stats.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input))}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message))}")
         stats.add_field(name="Обработано команд:", value=config.used_commands)

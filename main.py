@@ -80,8 +80,11 @@ class MyBot(commands.Bot):
         await logs.send(embed=embed)
         await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.
         while True:
-            await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | {int(round(bot.latency, 3)*1000)}ms"))
-            await sleep(60)
+            try:
+                await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | {int(round(bot.latency, 3)*1000)}ms"))
+                await sleep(60)
+            except:
+                pass
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | v{settings['curr_version']}"))
             await sleep(60)
     

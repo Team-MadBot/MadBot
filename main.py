@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import discord, time, datetime, os, sys
+from urllib.parse import quote_plus
 from boticordpy import BoticordClient
 from discord import app_commands, Forbidden
 from pypresence import Presence
@@ -139,6 +140,19 @@ class MyBot(commands.Bot):
             log_channel = bot.get_channel(settings['log_channel'])
             await log_channel.send(embed=embed)
             await bot.tree.sync()
+        
+    async def on_member_join(self, member: discord.Member):
+        if member.guild.id == 914181806285279232 and not(member.bot):
+            channel = member.guild.get_channel(914191453738119240)
+            embed = discord.Embed(title='Новый участник!', color=discord.Color.green(), description=f"Пользователь {member.mention} присоединился к серверу.", timestamp=member.joined_at)
+            embed.add_field(name="Дата регистрации:", value=f"{discord.utils.format_dt(member.created_at, 'D')} ({discord.utils.format_dt(member.created_at, 'R')})", inline=False)
+            embed.set_thumbnail(url=member.avatar.url)
+            embed.set_footer(text=f"ID участника: {member.id}")
+            try:
+                embed.set_image(url=f"https://some-random-api.ml/welcome/img/5/gaming4?key={settings['key']}&type=join&username={quote_plus(member.name)}&discriminator={member.discriminator}&memberCount={member.guild.member_count}&guildName=MadBot%20Support&avatar={member.display_avatar.replace(format='png')}&textcolor=orange")
+            except:
+                pass
+            await channel.send(embed=embed)
     
 
 bot=MyBot()

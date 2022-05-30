@@ -143,7 +143,7 @@ class MyBot(commands.Bot):
             await log_channel.send(embed=embed)
             await bot.tree.sync()
 
-    async def on_guild_remove(guild: discord.Guild):
+    async def on_guild_remove(self, guild: discord.Guild):
         embed = discord.Embed(title='Минус сервер(((', color=discord.Color.red())
         embed.add_field(name="Название:", value=f"`{guild.name}`")
         embed.add_field(name="Владелец:", value=f"{guild.owner.mention}")

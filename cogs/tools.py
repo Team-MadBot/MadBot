@@ -1020,9 +1020,9 @@ class Tools(commands.Cog):
         city = city.replace(' ', '%20')
         embed = discord.Embed(title="Поиск...", color=discord.Color.yellow(), description="Ищем ваш город...")
         await interaction.response.send_message(embed=embed, ephemeral=True)
-        responce = requests.get(f"http://api.openweathermap.org/data/2.5/weather?q={city}&APPID={settings['weather_key']}&units=metric&lang=ru")
-        json = responce.json()
-        if responce.status_code > 400:
+        response = requests.get(f"http://api.openweathermap.org/data/2.5/weather?q={city}&APPID={settings['weather_key']}&units=metric&lang=ru")
+        json = response.json()
+        if response.status_code > 400:
             if json['message'] == "city not found":
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Город не найден!")
                 return await interaction.edit_original_message(embed=embed)

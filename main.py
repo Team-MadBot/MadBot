@@ -130,19 +130,29 @@ class MyBot(commands.Bot):
             try:
                 await adder.send(embed=embed)
             except:
-                pass
+                if guild.system_channel != None:
+                    await guild.system_channel.send(embed=embed)
             embed = discord.Embed(title="Новый сервер!", color=discord.Color.green())
             embed.add_field(name="Название:", value=f"`{guild.name}`")
             embed.add_field(name="Владелец:", value=f"{guild.owner.mention}")
             embed.add_field(name="ID сервера:", value=f"`{guild.id}`")
             embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
-            try:
+            if guild.icon != None:
                 embed.set_thumbnail(url=guild.icon.url)
-            except:
-                pass
             log_channel = bot.get_channel(settings['log_channel'])
             await log_channel.send(embed=embed)
             await bot.tree.sync()
+
+    async def on_guild_remove(guild: discord.Guild):
+        embed = discord.Embed(title='Минус сервер(((', color=discord.Color.red())
+        embed.add_field(name="Название:", value=f"`{guild.name}`")
+        embed.add_field(name="Владелец:", value=f"{guild.owner.mention}")
+        embed.add_field(name="ID сервера:", value=f"`{guild.id}`")
+        embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
+        if guild.icon != None:
+            embed.set_thumbnail(url=guild.icon.url)
+        log_channel = bot.get_channel(settings['log_channel'])
+        await log_channel.send(embed=embed)
         
     async def on_member_join(self, member: discord.Member):
         if member.guild.id == 914181806285279232 and not(member.bot):

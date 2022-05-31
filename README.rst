@@ -1,4 +1,4 @@
-MadBotPublic
+MadBot
 ============
 .. image:: https://discord.com/api/guilds/914181806285279232/embed.png
    :target: https://discord.gg/uWVTTbb9q6

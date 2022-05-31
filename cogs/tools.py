@@ -1282,7 +1282,11 @@ class Tools(commands.Cog):
                 description=description
             )
             embed.set_footer(text=f"Создал: {interaction.user}", icon_url=interaction.user.display_avatar.url)
-            await interaction.channel.send(embed=embed, view=View())
+            try:
+                await interaction.channel.send(embed=embed, view=View())
+            except:
+                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не имеет права на отправку сообщения в этом канале!")
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
             log_channel = self.bot.get_channel(settings['log_channel'])
             await log_channel.send(content=f"`{interaction.user}` на сервере `{interaction.guild.name}` создал выдачу ролей! Их эмбед:", embed=embed)
             embed = discord.Embed(

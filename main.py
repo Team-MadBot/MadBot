@@ -171,9 +171,9 @@ class MyBot(commands.Bot):
 bot=MyBot()
 
 @bot.tree.error
-async def on_error(interaction: discord.Interaction, error):
+async def on_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.CommandOnCooldown):
-        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"У вас кулдаун! Попробуйте через `{str(error).removeprefix('You are on cooldown. Try again in ')}`!")
+        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Задержка на команду `/{interaction.command.name}`! Попробуйте через `{error.retry_after}s`!")
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(error, app_commands.CheckFailure):
         embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")

@@ -1347,7 +1347,7 @@ class Entartaiment(commands.Cog):
                     description=f"{member.mention} не хочет идти на дуэль."
                 )
                 return await interaction.edit_original_message(embed=embed, view=None)
-            if acc.clicker == interaction.user.id:
+            if acc.clicker.id == interaction.user.id:
                 embed = discord.Embed(
                     title="Дуэль - Отмена",
                     color=discord.Color.red(),
@@ -1651,6 +1651,102 @@ class Entartaiment(commands.Cog):
         embed.set_footer(text=str(player), icon_url=player.display_avatar.url)
         await interaction.response.send_message(embed=embed, view=Button()) if member == None else await interaction.edit_original_message(embed=embed, view=Button())
         
+    @app_commands.command(name='dice', description="[Развлечения] Сыграй в кости с другом.")
+    @app_commands.check(is_shutted_down)
+    @app_commands.describe(member="Участник, с которым вы хотите поиграть")
+    async def dice(self, interaction: discord.Interaction, member: discord.User):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True) 
+        if member != None:
+            try:
+                member = await interaction.guild.fetch_member(member.id)
+            except:
+                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
+                embed.set_thumbnail(url=interaction.user.display_avatar.url)
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/dice`'
+        if interaction.user.id == member.id:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if member.bot:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Боту не до игр, не тревожь его!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        class Accept(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=300)
+                self.value = None
+                self.clicker = None
+            
+            @discord.ui.button(style=discord.ButtonStyle.green, emoji="✅")
+            async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if member.id != viewinteract.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                await viewinteract.response.defer()
+                self.value = True
+                self.stop()
+            
+            @discord.ui.button(style=discord.ButtonStyle.red, emoji='<:x_icon:975324570741526568>')
+            async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == viewinteract.user.id or member.id == viewinteract.user.id:
+                    await viewinteract.response.defer()
+                    self.value = False
+                    self.clicker = viewinteract.user
+                    self.stop()
+                elif member.id != viewinteract.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+        
+        acc = Accept()
+        embed = discord.Embed(
+            title='Кости - Ожидание', 
+            color=discord.Color.orange(),
+            description=f"{member.mention}, {interaction.user.mention} хочет поиграть с вами!"
+        )
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, view=acc)
+        await acc.wait()
+        if acc.value == None:
+            embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+            return await interaction.edit_original_message(embed=embed, view=None)
+        if acc.clicker != None:
+            if acc.clicker.id == member.id:
+                embed = discord.Embed(
+                    title="Кости - Отказ", 
+                    color=discord.Color.red(),
+                    description=f"{member.mention} отказался от игры."
+                )
+                return await interaction.edit_original_message(embed=embed, view=None)
+            if acc.clicker.id == interaction.user.id:
+                embed = discord.Embed(
+                    title="Кости - Отмена",
+                    color=discord.Color.red(),
+                    description="Инициатор игры отменил её."
+                )
+                return await interaction.edit_original_message(embed=embed, view=None)
+        embed = discord.Embed(title="Кости - Игра", color=discord.Color.orange())
+        score1 = 0
+        score2 = 0
+        for i in range(6):
+            player1 = random.randint(1,6)
+            player2 = random.randint(1,6)
+            embed.add_field(
+                name=f"Раунд {i+1}:",
+                value=f"{interaction.user.mention}: {player1} - {member.mention}: {player2}"
+            )
+            if player1 > player2:
+                score1 += 1
+            elif player1 < player2:
+                score2 += 1
+        embed.add_field(name="Победитель:", value="Ничья!") if score1 == score2 else embed.add_field(name="Победитель:", value=interaction.user.mention if score1 > score2 else member.mention)
+        await interaction.edit_original_message(embed=embed, view=None)
+
             
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))

@@ -155,6 +155,7 @@ class Tools(commands.Cog):
     @app_commands.describe(ver="Версия бота")
     @app_commands.choices(ver=[
         Choice(name="Актуальная", value="actual"),
+        Choice(name="0.10", value='010'),
         Choice(name="0.9", value="09"),
         Choice(name="0.8", value="08"),
         Choice(name="0.7", value='07'),
@@ -175,7 +176,11 @@ class Tools(commands.Cog):
         embed = None
         if ver != None:
             ver = ver.name
-        if ver == None or ver == '0.9' or ver == "Актуальная":
+        if ver == None or ver == '0.10' or ver == "Актуальная":
+            updated_at = datetime.datetime(2022, 5, 31, 17, 0, 0, 0)
+            embed=discord.Embed(title=f'Версия `0.10`', color=discord.Color.orange(), timestamp=updated_at, description=f"> 1) Добавление `/russian-roulette` и `/duel`.\n> 2) Использование кнопок-ссылок в `/botinfo`.\n> 3) Добавлена страница бота на Boticord в `/botinfo`.\n> 4) Добавлено угадывание числа (`/number`).\n> 5) Улучшение статистики `/botinfo`.\n> 6) При ошибке, кнопки сообщения будут убраны.\n> 7) Предосторожности в `/weather`.\n> 8) Добавлена команда `/autorole` для настройки ролей на нажатие кнопок.\n> 9) Добавлена команда `/dice`.\n> 10) Изменение сообщения о кулдауне.")
+            embed.set_footer(text="Обновлено:")
+        if ver == '0.9':
             updated_at = datetime.datetime(2022, 5, 25, 21, 0, 0, 0)
             embed=discord.Embed(title=f'Версия `0.9`', color=discord.Color.orange(), timestamp=updated_at, description=f"> 1) Исправление бага со счётом команд в `/botinfo`.\n> 2) Добавлены полезная команда `/stopwatch`.\n> 3) Добавлена развлекательная команда `/knb`, `/coin`.\n> 4) Команда `/base64` теперь - группа.\n> 5) Добавлена команда `/debug` для получения сведений о боте.\n> 6) Команда `/idea` теперь в кулдауне (раз в 5 минут).\n> 7) Учет embed'ов и файлов в док-вах в контекстных меню.\n> 8) Добавлена обратная связь через `/help`. ~~Конец `/idea`?~~\n> 9) Новый значок - помощник разработчика.\n> 10) Добавлена игра `/tic-tac-toe`. Спасибо, F_Artamon#7588.\n> 11) Добавлена игра `/hangman`.")
             embed.set_footer(text="Обновлено:")

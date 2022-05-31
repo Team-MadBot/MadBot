@@ -103,6 +103,52 @@ class Tools(commands.Cog):
         if message.content.startswith((f"<@!{self.bot.user.id}>") or message.content.startswith(f"<@{self.bot.user.id}>") and message.content.find("debug") == -1):
             embed=discord.Embed(title="Привет! Рад, что я тебе чем-то нужен!", color=discord.Color.orange(), description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.")
             await message.reply(embed=embed, mention_author=False)
+    
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: discord.Interaction):
+        if interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 2:
+            try:
+                role_id = int(interaction.data['custom_id'])
+            except:
+                pass
+            try:
+                member = await interaction.guild.fetch_member(interaction.user.id)
+                role = interaction.guild.get_role(role_id)
+                if role == None:
+                    return
+                if role_id in [role.id for role in member.roles]:
+                    try:
+                        await member.remove_roles(role, reason="Нажатие на кнопку")
+                    except:
+                        embed = discord.Embed(
+                            title="Ошибка!",
+                            color=discord.Color.red(),
+                            description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"
+                        )
+                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                    embed = discord.Embed(
+                        title="Выбор роли", 
+                        color=discord.Color.green(),
+                        description=f"Роль {role.mention} успешно убрана!"
+                    )
+                else:
+                    try:
+                        await member.add_roles(role, reason="Нажатие на кнопку")
+                    except:
+                        embed = discord.Embed(
+                            title="Ошибка!",
+                            color=discord.Color.red(),
+                            description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"
+                        )
+                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                    embed = discord.Embed(
+                        title="Выбор роли", 
+                        color=discord.Color.green(),
+                        description=f"Роль {role.mention} успешно добавлена!"
+                    )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            except:
+                pass
 
     @app_commands.command(description="[Полезности] Показывает изменения в текущей версии.")
     @app_commands.check(is_shutted_down)
@@ -1128,6 +1174,122 @@ class Tools(commands.Cog):
         channel = self.bot.get_channel(settings['debug_channel'])
         message = await channel.send(embed=embed)
         await interaction.response.send_message(content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url}",embed=embed)
+
+    @app_commands.command(name="autorole", description="[Полезности] Настроить выдачу ролей по нажатию кнопки.")
+    @app_commands.describe(
+        title='Название эмбеда',
+        description='Содержание эмбеда',
+        role1='Роль для выдачи', 
+        role2='Роль для выдачи',
+        role3='Роль для выдачи',
+        role4='Роль для выдачи',
+        role5='Роль для выдачи',
+        role6='Роль для выдачи',
+        role7='Роль для выдачи',
+        role8='Роль для выдачи',
+        role9='Роль для выдачи',
+        role10='Роль для выдачи',
+        role11='Роль для выдачи',
+        role12='Роль для выдачи',
+        role13='Роль для выдачи',
+        role14='Роль для выдачи',
+        role15='Роль для выдачи',
+        role16='Роль для выдачи',
+        role17='Роль для выдачи',
+        role18='Роль для выдачи',
+        role19='Роль для выдачи',
+        role20='Роль для выдачи',
+        role21='Роль для выдачи',
+        role22='Роль для выдачи',
+        role23='Роль для выдачи'
+    )
+    @app_commands.check(is_shutted_down)
+    async def autorole(
+        self, 
+        interaction: discord.Interaction, 
+        title: str,
+        description: str,
+        role1: discord.Role, 
+        role2: typing.Optional[discord.Role],
+        role3: typing.Optional[discord.Role],
+        role4: typing.Optional[discord.Role],
+        role5: typing.Optional[discord.Role],
+        role6: typing.Optional[discord.Role],
+        role7: typing.Optional[discord.Role],
+        role8: typing.Optional[discord.Role],
+        role9: typing.Optional[discord.Role],
+        role10: typing.Optional[discord.Role],
+        role11: typing.Optional[discord.Role],
+        role12: typing.Optional[discord.Role],
+        role13: typing.Optional[discord.Role],
+        role14: typing.Optional[discord.Role],
+        role15: typing.Optional[discord.Role],
+        role16: typing.Optional[discord.Role],
+        role17: typing.Optional[discord.Role],
+        role18: typing.Optional[discord.Role],
+        role19: typing.Optional[discord.Role],
+        role20: typing.Optional[discord.Role],
+        role21: typing.Optional[discord.Role],
+        role22: typing.Optional[discord.Role],
+        role23: typing.Optional[discord.Role]
+    ):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.PartialMessageable):
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True) 
+        config.lastcommand = '`/autorole`'
+        if interaction.user.guild_permissions.manage_roles:
+            bot_member = await interaction.guild.fetch_member(self.bot.user.id)
+            if not(bot_member.guild_permissions.manage_roles):
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description="Бот не имеет права `управлять ролями`, что необходимо для работы команды!"
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+            roles = [
+                role1, role2, role3, role4, role5,
+                role6, role7, role8, role9, role10,
+                role11, role12, role13, role14, role15,
+                role16, role17, role18, role19, role20,
+                role21, role22, role23
+            ]
+            class View(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=None)
+                    for role in roles:
+                        if role != None:
+                            self.add_item(
+                                discord.ui.Button(
+                                    label=role.name, 
+                                    style=discord.ButtonStyle.blurple,
+                                    custom_id=str(role.id)
+                                )
+                            )
+            embed = discord.Embed(
+                title=title,
+                color=discord.Color.orange(),
+                description=description
+            )
+            embed.set_footer(text=f"Создал: {interaction.user}", icon_url=interaction.user.display_avatar.url)
+            await interaction.channel.send(embed=embed, view=View())
+            log_channel = self.bot.get_channel(settings['log_channel'])
+            await log_channel.send(content=f"`{interaction.user}` на сервере `{interaction.guild.name}` создал выдачу ролей! Их эмбед:", embed=embed)
+            embed = discord.Embed(
+                title="Успешно!",
+                color=discord.Color.green(),
+                description="Выдача ролей успешно настроена!"
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управлять ролями` для использования команды!")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(Tools(bot))

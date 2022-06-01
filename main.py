@@ -107,7 +107,7 @@ class MyBot(commands.Bot):
                     'Authorization': "SDC " + settings['sdc_key']
                 }
                 body = {
-                    'shards': 0,
+                    'shards': 1,
                     'servers': len(bot.guilds)
                 }
                 requests.post(f"https://api.server-discord.com/v2/bots/{bot.user.id}/stats", headers=headers, json=body)

@@ -102,15 +102,18 @@ class MyBot(commands.Bot):
             await total.edit(name=f"👥・Total: {len(community.members)}")
             await members.edit(name=f'👪・Members: {len(community.members) - bots}')
             await bots_ch.edit(name=f"🤖・Bots: {bots}")
-            if bot.user.name == "MadBot":
+            if bot.user.id == 880911386916577281:
                 headers = {
-                    'Authorization': "SDC " + settings['sdc_key']
+                    'Authorization': f"{settings['sdc_key']}"
                 }
                 body = {
                     'shards': 1,
                     'servers': len(bot.guilds)
                 }
-                requests.post(f"https://api.server-discord.com/v2/bots/{bot.user.id}/stats", headers=headers, json=body)
+                response = requests.post(f"https://api.server-discord.com/v2/bots/{bot.user.id}/stats", headers=headers, json=body)
+                json = response.json()
+                print(response.status_code)
+                if response.status_code != 200: print(json)
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | v{settings['curr_version']}"))
             await sleep(60)
     

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import discord, time, datetime, os, sys
+import discord, time, datetime, os, sys, requests
 from urllib.parse import quote_plus
 from boticordpy import BoticordClient
 from discord import app_commands, Forbidden
@@ -52,7 +52,8 @@ class MyBot(commands.Bot):
 
     async def on_ready(self):
         global started_at
-        server = bot.get_guild(settings['server']) # Сервер логов.
+        server = bot.get_guild(settings['supp_guild']) # Сервер логов.
+        community = bot.get_guild(settings['comm_guild']) # Сервер сообщества.
         logs = server.get_channel(settings['log_channel']) # Канал логов.
         channel = bot.get_channel(967484036127813713) # Канал "общения" мониторинга. Закомментируйте, если хотите.
         for guild in bot.guilds: # Проверка на нахождение в чёрном списке.
@@ -62,6 +63,7 @@ class MyBot(commands.Bot):
         print(f"Авторизация успешна! {bot.user} готов к работе!")
         if round(bot.latency, 3)*1000 < 90:
             started_at -= 10800
+
         async def get_stats():
             return {"servers": len(bot.guilds), "shards": 0, "users": len(bot.users)}
 
@@ -76,6 +78,12 @@ class MyBot(commands.Bot):
                 .on_success(on_success_posting)
                 .start()
             )
+
+        online_ch = community.get_channel(981256493808623716)
+        total = community.get_channel(981258127951409243)
+        members = community.get_channel(981256654307856494)
+        bots_ch = community.get_channel(981257114162987018)
+
         embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(), description=f"Пинг: `{int(round(bot.latency, 3)*1000)}ms`\nВерсия: `{settings['curr_version']}`")
         await logs.send(embed=embed)
         await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.
@@ -84,7 +92,25 @@ class MyBot(commands.Bot):
                 await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | {int(round(bot.latency, 3)*1000)}ms"))
                 await sleep(60)
             except:
-                print(round(bot.latency, 3)*1000)
+                await logs.send(round(bot.latency, 3)*1000)
+            bots = 0
+            online = len(list(filter(lambda x: x.status == discord.Status.online, community.members))) + len(list(filter(lambda x: x.status == discord.Status.idle, community.members))) + len(list(filter(lambda x: x.status == discord.Status.dnd, community.members)))
+            for member in community.members:
+                if member.bot:
+                    bots += 1
+            await online_ch.edit(name=f"🟢・Online: {online}")
+            await total.edit(name=f"👥・Total: {len(community.members)}")
+            await members.edit(name=f'👪・Members: {len(community.members) - bots}')
+            await bots_ch.edit(name=f"🤖・Bots: {bots}")
+            if bot.user.name == "MadBot":
+                headers = {
+                    'Authorization': "SDC " + settings['sdc_key']
+                }
+                body = {
+                    'shards': 0,
+                    'servers': len(bot.guilds)
+                }
+                requests.post(f"https://api.server-discord.com/v2/bots/{bot.user.id}/stats", headers=headers, json=body)
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | v{settings['curr_version']}"))
             await sleep(60)
     
@@ -216,6 +242,16 @@ async def debug(ctx: commands.Context):
                             for name in bot.cogs:
                                 embed.add_field(name=name, value="Запущен")
                             await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                        
+                        @discord.ui.button(label="Получить пользователя", style=discord.ButtonStyle.primary)
+                        async def getuser(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                            class Input(discord.ui.Modal, title="Debug - Получение пользователя."):
+                                ans = discord.ui.TextInput(label="Ник пользователя:", max_length=32, placeholder="Mad_Cat")
+                                async def on_submit(self, modalinteract: discord.Interaction):
+                                    for user in bot.users:
+                                        if user.name == str(self.ans):
+                                            return await modalinteract.response.send_message(f"Пользователь: `{user}`, ID: `{user.id}`")
+                            await viewinteract.response.send_modal(Input())
                         
                         @discord.ui.button(emoji="⬅️", style=discord.ButtonStyle.primary, row=1)
                         async def prevpage(self, viewinteract: discord.Interaction, button: discord.ui.Button):

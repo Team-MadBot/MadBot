@@ -10,9 +10,11 @@ settings = {
     'key': 'Ключ some-random-api.ml',
     'weather_key': 'Ключ openweathermap.org',
     'boticord_key': 'Ключ от boticord API',
+    'sdc_key': 'Ключ от сдук API',
     'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
     'owner_id': 560529834325966858, # ID владельца.
-    'server': 914181806285279232, # Сервер логов.
+    'supp_guild': 914181806285279232, # Сервер поддержки.
+    'comm_guild': 981247575451639888, # Сервер сообщества.
     'log_channel': 924241555697594380, # Канал логирования.
     'report_channel': 977581205778231396, # Канал для вопросов/баг-репортов.
     'debug_channel': 977492340459581460, # Канал для debug-сообщений.

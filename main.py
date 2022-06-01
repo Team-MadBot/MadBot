@@ -110,10 +110,8 @@ class MyBot(commands.Bot):
                     'shards': 1,
                     'servers': len(bot.guilds)
                 }
-                response = requests.post(f"https://api.server-discord.com/v2/bots/{bot.user.id}/stats", headers=headers, json=body)
-                json = response.json()
+                response = requests.post(url=f"https://api.server-discord.com/v2/bots/{bot.user.id}/stats", headers=headers, json=body)
                 print(response.status_code)
-                if response.status_code != 200: print(json)
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | v{settings['curr_version']}"))
             await sleep(60)
     

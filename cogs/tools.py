@@ -1299,6 +1299,28 @@ class Tools(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управлять ролями` для использования команды!")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
+    @app_commands.command(name="bump", description="[Полезности] Прислать ссылки на мониторинги бота.")
+    @app_commands.check(is_shutted_down)
+    async def bump(self, interaction: discord.Interaction):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/bump`'
+        embed = discord.Embed(
+            title="Мониторинги", 
+            color=discord.Color.orange(),
+            description="Спасибо, что обратили на нашего бота внимание! Будем еще больше благодарны, если вы апните бота на одном из мониторингов ( можно сразу на двую :) ). Ссылки на мониторинги внизу."
+        )
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        class View(discord.ui.View):
+            def __init__(self):
+                super().__init__()
+                self.add_item(discord.ui.Button(label="BotiCord.top", url="https://boticord.top/bot/madbot", emoji="<:bc:947181639384051732>"))
+                self.add_item(discord.ui.Button(label="SDC Monitoring", url="https://bots.server-discord.com/880911386916577281", emoji="<:favicon:981586173204000808>"))
+        await interaction.response.send_message(embed=embed, view=View())
+
 
 async def setup(bot):
     await bot.add_cog(Tools(bot))

@@ -3,7 +3,7 @@ import discord, datetime, sys, typing, requests, config, boticordpy
 from boticordpy import BoticordClient
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
-from discord import NotFound, Forbidden, app_commands
+from discord import Forbidden, app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
 from config import *
@@ -251,13 +251,16 @@ class Tools(commands.Cog):
         mod_commands = ""
         tools_commands = ""
         ent_commands = ""
+        react_commands = ""
         for command in commands:
             if command.description.startswith("[Модерация]"):
                 mod_commands += f"`/{command.name}` - {command.description.removeprefix('[Модерация]')}\n"
             if command.description.startswith("[Полезности]"):
                 tools_commands += f"`/{command.name}` - {command.description.removeprefix('[Полезности]')}\n"
-            if command.description.startswith("[Развлечения]") or command.description.startswith("[NSFW]") or command.description.startswith("[Реакции]"):
-                ent_commands += f"`/{command.name}` - {command.description.removeprefix('[Развлечения]').removeprefix('[NSFW]').removeprefix('[Реакции]')}\n"
+            if command.description.startswith("[Развлечения]") or command.description.startswith("[NSFW]"):
+                ent_commands += f"`/{command.name}` - {command.description.removeprefix('[Развлечения]').removeprefix('[NSFW]')}\n"
+            if command.description.startswith("[Реакции]"):
+                react_commands += f"`/{command.name}` - {command.description.removeprefix('[Реакции]')}\n"
 
         moderation = discord.Embed(
             title=f"{self.bot.user.name} - Модерация", 
@@ -274,6 +277,11 @@ class Tools(commands.Cog):
             color=discord.Color.orange(), 
             description=ent_commands
         )
+        reactions = discord.Embed(
+            title=f"{self.bot.user.name} - Реакции",
+            color=discord.Color.orange(),
+            description=react_commands
+        )
         embed = discord.Embed(title=f"{self.bot.user.name} - Главная", color=discord.Color.orange(), description=f"Спасибо за использование {self.bot.user.name}! Я использую слеш-команды, поэтому для настройки доступа к ним можно использовать настройки Discord.")
         embed.add_field(name="Поддержка:", value=settings['support_invite'], inline=False)
         embed.add_field(name="Пригласить:", value=f"[Тык](https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)", inline=False)
@@ -284,7 +292,8 @@ class Tools(commands.Cog):
                     discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
                     discord.SelectOption(label="Модерация", value="moderation", description="Команды модерации.", emoji="🛑"),
                     discord.SelectOption(label="Полезности", value="tools", description="Полезные команды.", emoji="⚒️"),
-                    discord.SelectOption(label="Развлечения", value="entartaiment", description="Развлекательные команды.", emoji="🎉")
+                    discord.SelectOption(label="Развлечения", value="entartaiment", description="Развлекательные команды.", emoji="🎉"),
+                    discord.SelectOption(label="Реакции", value="reactions", description="Команды реакций.", emoji="🎭")
                 ]
                 super().__init__(placeholder="Команды", options=options)
             
@@ -296,17 +305,20 @@ class Tools(commands.Cog):
                         return await viewinteract.response.send_message(embed=moderation, ephemeral=True)
                     elif self.values[0] == "tools":
                         return await viewinteract.response.send_message(embed=tools, ephemeral=True)
+                    elif self.values[0] == "reactions":
+                        return await viewinteract.response.send_message(embed=reactions, ephemeral=True)
                     else:
                         return await viewinteract.response.send_message(embed=entartaiment, ephemeral=True)
                 if self.values[0] == "embed":
-                    await interaction.edit_original_message(embed=embed)
+                    await viewinteract.response.edit_message(embed=embed)
                 elif self.values[0] == "moderation":
-                    await interaction.edit_original_message(embed=moderation)
+                    await viewinteract.response.edit_message(embed=moderation)
                 elif self.values[0] == "tools":
-                    await interaction.edit_original_message(embed=tools)
+                    await viewinteract.response.edit_message(embed=tools)
+                elif self.values[0] == "reactions":
+                    return await viewinteract.response.edit_message(embed=reactions)
                 else:
-                    await interaction.edit_original_message(embed=entartaiment)
-                await viewinteract.response.defer()
+                    await viewinteract.response.edit_message(embed=entartaiment)
 
         class DropDownHelp(discord.ui.Select):
             def __init__(self):

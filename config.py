@@ -36,7 +36,8 @@ used_commands = 0 # Счетчик использованных команд. Н
 cogs = [ # Список cog'ов.
     "cogs.entartaiment",
     "cogs.moderation",
-    "cogs.tools"
+    "cogs.tools",
+    "cogs.reactions"
 ]
 
 blacklist = [ # ID сервера/участника, который в ЧС бота.

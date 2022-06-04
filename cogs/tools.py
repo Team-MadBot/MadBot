@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import discord, datetime, sys, typing, requests, config, boticordpy
+import discord, datetime, sys, typing, requests, config, boticordpy, numexpr
 from boticordpy import BoticordClient
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
@@ -1362,6 +1362,34 @@ class Tools(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управлять ролями` для использования команды!")
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="calc", description="[Полезности] Калькулятор в Discord.")
+    @app_commands.check(is_shutted_down)
+    @app_commands.describe(problem="Пример для решения")
+    async def calc(self, interaction: discord.Interaction, problem: str):
+        config.used_commands += 1
+        if interaction.user.id in blacklist:
+            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/calc`'
+        try:
+            answer = numexpr.evaluate(problem)
+        except ZeroDivisionError:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(),
+                description="Расскажу-ка тебе секрет. На ноль делить нельзя."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            embed = discord.Embed(
+                title="Калькулятор",
+                color=discord.Color.orange(),
+                description=f"Ваш пример: `{problem}`\nОтвет: `{answer}`"
+            )
+            embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+            await interaction.response.send_message(embed=embed)
 
 
 async def setup(bot):

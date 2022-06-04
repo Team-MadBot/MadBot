@@ -1300,25 +1300,53 @@ class Tools(commands.Cog):
                             custom_id=str(role.id)
                         )
                     )
+            class AcceptRules(discord.ui.View):
+                def __init__(self, bot: commands.Bot):
+                    super().__init__(timeout=60)
+                    self.value = None
+                    self.bot = bot
+                
+                @discord.ui.button(style=discord.ButtonStyle.green, emoji="✅")
+                async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    nonlocal view
+                    self.value = True
+                    embed = discord.Embed(
+                        title=title,
+                        color=discord.Color.orange(),
+                        description=description
+                    )
+                    embed.set_footer(text=f"Создал: {interaction.user}", icon_url=interaction.user.display_avatar.url)
+                    try:
+                        await viewinteract.channel.send(embed=embed, view=view)
+                    except:
+                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не имеет права на отправку сообщения в этом канале!")
+                        return await viewinteract.response.edit_message(embed=embed, view=None)
+                    log_channel = self.bot.get_channel(settings['log_channel'])
+                    await log_channel.send(content=f"`{interaction.user}` на сервере `{interaction.guild.name}` создал выдачу ролей! Их эмбед:", embed=embed)
+                    embed = discord.Embed(
+                        title="Успешно!",
+                        color=discord.Color.green(),
+                        description="Выдача ролей успешно настроена!"
+                    )
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+                
+                @discord.ui.button(style=discord.ButtonStyle.red, emoji="<:x_icon:975324570741526568>")
+                async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                    self.value = False
+                    embed = discord.Embed(title="Отмена!", color=discord.Color.red(), description="Выдача ролей по реакциям отменена!")
+                    await viewinteract.response.edit_message(embed=embed, view=None)
+            
             embed = discord.Embed(
-                title=title,
+                title="Обязательно к прочтению!",
                 color=discord.Color.orange(),
-                description=description
+                description=f"Мы, простые разработчики бота, просим не использовать в кастомизированном эмбеде что-либо, нарушающее правила Discord. В противном случае, Ваш сервер и Ваш аккаунт будут занесены в черный список бота.\nВы согласны с требованиями?"
             )
-            embed.set_footer(text=f"Создал: {interaction.user}", icon_url=interaction.user.display_avatar.url)
-            try:
-                await interaction.channel.send(embed=embed, view=view)
-            except:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не имеет права на отправку сообщения в этом канале!")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            log_channel = self.bot.get_channel(settings['log_channel'])
-            await log_channel.send(content=f"`{interaction.user}` на сервере `{interaction.guild.name}` создал выдачу ролей! Их эмбед:", embed=embed)
-            embed = discord.Embed(
-                title="Успешно!",
-                color=discord.Color.green(),
-                description="Выдача ролей успешно настроена!"
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            waiting = AcceptRules(bot=self.bot)
+            await interaction.response.send_message(embed=embed, ephemeral=True, view=waiting)
+            await waiting.wait()
+            if waiting.value == None:
+                embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+                await interaction.edit_original_message(embed=embed, view=None)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управлять ролями` для использования команды!")
             await interaction.response.send_message(embed=embed, ephemeral=True)

@@ -809,7 +809,8 @@ class Tools(commands.Cog):
                 super().__init__(timeout=None)
                 self.add_item(discord.ui.Button(label="Поддержка", url=settings['support_invite']))
                 self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
-                self.add_item(discord.ui.Button(label="Апнуть бота", url=f"https://boticord.top/bot/madbot"))
+                self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url="https://boticord.top/bot/madbot", emoji="<:bc:947181639384051732>"))
+                self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url="https://bots.server-discord.com/880911386916577281", emoji="<:favicon:981586173204000808>"))
                 self.add_item(DropDown())
 
         await interaction.response.send_message(embed=embed, view=View())
@@ -1267,15 +1268,38 @@ class Tools(commands.Cog):
             class View(discord.ui.View):
                 def __init__(self):
                     super().__init__(timeout=None)
-                    for role in roles:
-                        if role != None:
-                            self.add_item(
-                                discord.ui.Button(
-                                    label=role.name, 
-                                    style=discord.ButtonStyle.blurple,
-                                    custom_id=str(role.id)
-                                )
-                            )
+            view = View()
+            for role in roles:
+                role: discord.Role
+                if role != None:
+                    if role.position == 0:
+                        embed = discord.Embed(
+                            title="Ошибка!",
+                            color=discord.Color.red(),
+                            description="Ты кому собираешься выдавать @everyone?)"
+                        )
+                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                    if bot_member.top_role <= role:
+                        embed = discord.Embed(
+                            title="Ошибка!",
+                            color=discord.Color.red(),
+                            description=f"Роль {role.mention} выше роли бота, поэтому бот не сможет выдать её кому-либо."
+                        )
+                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                    if role.is_bot_managed():
+                        embed = discord.Embed(
+                            title="Ошибка!", 
+                            color=discord.Color.red(),
+                            description=f"Роль {role.mention} является ролью интеграции, поэтому выдать её кому-либо нельзя!"
+                        )
+                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                    view.add_item(
+                        discord.ui.Button(
+                            label=role.name, 
+                            style=discord.ButtonStyle.blurple,
+                            custom_id=str(role.id)
+                        )
+                    )
             embed = discord.Embed(
                 title=title,
                 color=discord.Color.orange(),
@@ -1283,7 +1307,7 @@ class Tools(commands.Cog):
             )
             embed.set_footer(text=f"Создал: {interaction.user}", icon_url=interaction.user.display_avatar.url)
             try:
-                await interaction.channel.send(embed=embed, view=View())
+                await interaction.channel.send(embed=embed, view=view)
             except:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не имеет права на отправку сообщения в этом канале!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1298,28 +1322,6 @@ class Tools(commands.Cog):
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управлять ролями` для использования команды!")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-
-    @app_commands.command(name="bump", description="[Полезности] Прислать ссылки на мониторинги бота.")
-    @app_commands.check(is_shutted_down)
-    async def bump(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if interaction.user.id in blacklist:
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/bump`'
-        embed = discord.Embed(
-            title="Мониторинги", 
-            color=discord.Color.orange(),
-            description="Спасибо, что обратили на нашего бота внимание! Будем еще больше благодарны, если вы апните бота на одном из мониторингов ( можно сразу на двую :) ). Ссылки на мониторинги внизу."
-        )
-        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
-        class View(discord.ui.View):
-            def __init__(self):
-                super().__init__()
-                self.add_item(discord.ui.Button(label="BotiCord.top", url="https://boticord.top/bot/madbot", emoji="<:bc:947181639384051732>"))
-                self.add_item(discord.ui.Button(label="SDC Monitoring", url="https://bots.server-discord.com/880911386916577281", emoji="<:favicon:981586173204000808>"))
-        await interaction.response.send_message(embed=embed, view=View())
 
 
 async def setup(bot):

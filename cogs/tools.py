@@ -100,7 +100,10 @@ class Tools(commands.Cog):
             if message.content == "mad.debug status":
                 await message.channel.send("OK")
 
-        if message.content.startswith((f"<@!{self.bot.user.id}>") or message.content.startswith(f"<@{self.bot.user.id}>") and message.content.find("debug") == -1):
+        if 'debug' in message.content:
+            return
+
+        if message.content.startswith(f"<@!{self.bot.user.id}>") or message.content.startswith(f"<@{self.bot.user.id}>"):
             embed=discord.Embed(title="Привет! Рад, что я тебе чем-то нужен!", color=discord.Color.orange(), description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.")
             await message.reply(embed=embed, mention_author=False)
     
@@ -149,6 +152,49 @@ class Tools(commands.Cog):
                 await interaction.response.send_message(embed=embed, ephemeral=True)
             except:
                 pass
+        if interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 3:
+            await interaction.response.defer(thinking=True, ephemeral=True)
+            changes = ""
+            for value in interaction.data['values']:
+                try:
+                    role_id = int(value)
+                except:
+                    pass
+                try:
+                    member = await interaction.guild.fetch_member(interaction.user.id)
+                    role = interaction.guild.get_role(role_id)
+                    if role == None:
+                        return
+                    if role_id in [role.id for role in member.roles]:
+                        try:
+                            await member.remove_roles(role, reason="Нажатие на кнопку")
+                        except:
+                            embed = discord.Embed(
+                                title="Ошибка!",
+                                color=discord.Color.red(),
+                                description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"
+                            )
+                            return await interaction.response.send_message(embed=embed, ephemeral=True)
+                        changes += f"Роль {role.mention} успешно убрана!\n"
+                    else:
+                        try:
+                            await member.add_roles(role, reason="Нажатие на кнопку")
+                        except:
+                            embed = discord.Embed(
+                                title="Ошибка!",
+                                color=discord.Color.red(),
+                                description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"
+                            )
+                            return await interaction.response.send_message(embed=embed, ephemeral=True)
+                        changes += f"Роль {role.mention} успешно добавлена!\n"
+                except:
+                    pass
+            embed = discord.Embed(
+                title="Выбор ролей:",
+                color=discord.Color.green()
+            )
+            embed.add_field(name="Изменения:", value=changes)
+            await interaction.followup.send(embed=embed)
 
     @app_commands.command(description="[Полезности] Показывает изменения в текущей версии.")
     @app_commands.check(is_shutted_down)
@@ -1281,6 +1327,7 @@ class Tools(commands.Cog):
                 def __init__(self):
                     super().__init__(timeout=None)
             view = View()
+            options = []
             for role in roles:
                 role: discord.Role
                 if role != None:
@@ -1305,13 +1352,30 @@ class Tools(commands.Cog):
                             description=f"Роль {role.mention} является ролью интеграции, поэтому выдать её кому-либо нельзя!"
                         )
                         return await interaction.response.send_message(embed=embed, ephemeral=True)
-                    view.add_item(
-                        discord.ui.Button(
-                            label=role.name, 
-                            style=discord.ButtonStyle.blurple,
-                            custom_id=str(role.id)
+                    options.append(
+                        discord.SelectOption(
+                            label=f"{role.name}",
+                            value=str(role.id),
+                            description="Выберите это пункт, чтобы взять/убрать роль."
                         )
                     )
+            if len(options) == 1:
+                view.add_item(
+                    discord.ui.Button(
+                        style=discord.ButtonStyle.green, 
+                        label=role1.name,
+                        custom_id=str(role1.id)
+                    )
+                )
+            else:
+                view.add_item(
+                    discord.ui.Select(
+                        custom_id=str(interaction.guild.id),
+                        placeholder="Выберите роли",
+                        max_values=len(options),
+                        options=options
+                    )
+                )
             class AcceptRules(discord.ui.View):
                 def __init__(self, bot: commands.Bot):
                     super().__init__(timeout=60)

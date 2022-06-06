@@ -158,7 +158,10 @@ class MyBot(commands.Bot):
                 await adder.send(embed=embed)
             except:
                 if guild.system_channel != None:
-                    await guild.system_channel.send(embed=embed)
+                    try:
+                        await guild.system_channel.send(embed=embed)
+                    except:
+                        pass
             embed = discord.Embed(title="Новый сервер!", color=discord.Color.green())
             embed.add_field(name="Название:", value=f"`{guild.name}`")
             embed.add_field(name="Владелец:", value=f"{guild.owner.mention}")
@@ -186,7 +189,7 @@ class MyBot(commands.Bot):
             channel = member.guild.get_channel(914191453738119240)
             embed = discord.Embed(title='Новый участник!', color=discord.Color.green(), description=f"Пользователь {member.mention} присоединился к серверу.", timestamp=member.joined_at)
             embed.add_field(name="Дата регистрации:", value=f"{discord.utils.format_dt(member.created_at, 'D')} ({discord.utils.format_dt(member.created_at, 'R')})", inline=False)
-            embed.set_thumbnail(url=member.avatar.url)
+            embed.set_thumbnail(url=member.display_avatar.url)
             embed.set_footer(text=f"ID участника: {member.id}")
             try:
                 embed.set_image(url=f"https://some-random-api.ml/welcome/img/5/gaming4?key={settings['key']}&type=join&username={quote_plus(member.name)}&discriminator={member.discriminator}&memberCount={member.guild.member_count}&guildName=MadBot%20Support&avatar={member.display_avatar.replace(format='png')}&textcolor=orange")
@@ -251,8 +254,15 @@ async def debug(ctx: commands.Context):
                                 async def on_submit(self, modalinteract: discord.Interaction):
                                     for user in bot.users:
                                         if user.name == str(self.ans):
-                                            return await modalinteract.response.send_message(f"Пользователь: `{user}`, ID: `{user.id}`")
+                                            return await modalinteract.response.send_message(f"Пользователь: `{user}`, ID: `{user.id}`", ephemeral=True)
                             await viewinteract.response.send_modal(Input())
+                        
+                        @discord.ui.button(label="Сколько серверов покинет бот при лимите", style=discord.ButtonStyle.blurple)
+                        async def checkleaves(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                            counter = 0
+                            for guild in bot.guilds: 
+                                if guild.member_count < 10: counter += 1
+                            await viewinteract.response.send_message(f"Кол-во серверов: `{counter}`", ephemeral=True)
                         
                         @discord.ui.button(emoji="⬅️", style=discord.ButtonStyle.primary, row=1)
                         async def prevpage(self, viewinteract: discord.Interaction, button: discord.ui.Button):

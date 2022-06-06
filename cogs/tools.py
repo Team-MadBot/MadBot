@@ -109,7 +109,7 @@ class Tools(commands.Cog):
     
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
-        if interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 2:
+        if interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 2 and interaction.data['custom_id'].isdigit():
             try:
                 role_id = int(interaction.data['custom_id'])
             except:
@@ -152,7 +152,7 @@ class Tools(commands.Cog):
                 await interaction.response.send_message(embed=embed, ephemeral=True)
             except:
                 pass
-        if interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 3:
+        elif interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 3 and interaction.data['values'][0].isdigit():
             await interaction.response.defer(thinking=True, ephemeral=True)
             changes = ""
             for value in interaction.data['values']:
@@ -195,12 +195,23 @@ class Tools(commands.Cog):
             )
             embed.add_field(name="Изменения:", value=changes)
             await interaction.followup.send(embed=embed)
+        elif not(interaction.response.is_done()) and interaction.type == discord.InteractionType.component:
+            embed = discord.Embed(
+                title="Ошибка",
+                color=discord.Color.red(),
+                description="Похоже, данный компонент больше не работает. Вызовите команду для получения этого компонента снова!"
+            )
+            try:
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            except:
+                pass
 
     @app_commands.command(description="[Полезности] Показывает изменения в текущей версии.")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(ver="Версия бота")
     @app_commands.choices(ver=[
         Choice(name="Актуальная", value="actual"),
+        Choice(name='0.10.1', value='0101'),
         Choice(name="0.10", value='010'),
         Choice(name="0.9", value="09"),
         Choice(name="0.8", value="08"),
@@ -222,7 +233,11 @@ class Tools(commands.Cog):
         embed = None
         if ver != None:
             ver = ver.name
-        if ver == None or ver == '0.10' or ver == "Актуальная":
+        if ver == None or ver == '0.10.1' or ver == "Актуальная":
+            updated_at = datetime.datetime(2022, 6, 6, 18, 0, 0, 0)
+            embed=discord.Embed(title=f'Версия `0.10`', color=discord.Color.orange(), timestamp=updated_at, description=f"1) Фиксы багов с `/autorole`.\n2) Косметические изменения `/botinfo`.\n3) Новая категория - Реакции.\n4) Изменение вида `/autorole`.\n5) Экстренные изменения из-за приближения лимита серверов.\n6) Ответ пользователю на неработающий компонент.")
+            embed.set_footer(text="Обновлено:")
+        if ver == "0.10":
             updated_at = datetime.datetime(2022, 5, 31, 17, 0, 0, 0)
             embed=discord.Embed(title=f'Версия `0.10`', color=discord.Color.orange(), timestamp=updated_at, description=f"> 1) Добавление `/russian-roulette` и `/duel`.\n> 2) Использование кнопок-ссылок в `/botinfo`.\n> 3) Добавлена страница бота на Boticord в `/botinfo`.\n> 4) Добавлено угадывание числа (`/number`).\n> 5) Улучшение статистики `/botinfo`.\n> 6) При ошибке, кнопки сообщения будут убраны.\n> 7) Предосторожности в `/weather`.\n> 8) Добавлена команда `/autorole` для настройки ролей на нажатие кнопок.\n> 9) Добавлена команда `/dice`.\n> 10) Изменение сообщения о кулдауне.")
             embed.set_footer(text="Обновлено:")

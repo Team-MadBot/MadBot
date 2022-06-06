@@ -235,7 +235,7 @@ class Tools(commands.Cog):
             ver = ver.name
         if ver == None or ver == '0.10.1' or ver == "Актуальная":
             updated_at = datetime.datetime(2022, 6, 6, 18, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.10`', color=discord.Color.orange(), timestamp=updated_at, description=f"1) Фиксы багов с `/autorole`.\n2) Косметические изменения `/botinfo`.\n3) Новая категория - Реакции.\n4) Изменение вида `/autorole`.\n5) Экстренные изменения из-за приближения лимита серверов.\n6) Ответ пользователю на неработающий компонент.")
+            embed=discord.Embed(title=f'Версия `0.10.1`', color=discord.Color.orange(), timestamp=updated_at, description=f"1) Фиксы багов с `/autorole`.\n2) Косметические изменения `/botinfo`.\n3) Новая категория - Реакции.\n4) Изменение вида `/autorole`.\n5) Экстренные изменения из-за приближения лимита серверов.\n6) Ответ пользователю на неработающий компонент.")
             embed.set_footer(text="Обновлено:")
         if ver == "0.10":
             updated_at = datetime.datetime(2022, 5, 31, 17, 0, 0, 0)

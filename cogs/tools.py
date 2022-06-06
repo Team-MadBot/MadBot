@@ -196,6 +196,7 @@ class Tools(commands.Cog):
             embed.add_field(name="Изменения:", value=changes)
             await interaction.followup.send(embed=embed)
         elif not(interaction.response.is_done()) and interaction.type == discord.InteractionType.component:
+            await sleep(2)
             embed = discord.Embed(
                 title="Ошибка",
                 color=discord.Color.red(),

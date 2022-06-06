@@ -261,7 +261,7 @@ async def debug(ctx: commands.Context):
                         async def checkleaves(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                             counter = 0
                             for guild in bot.guilds: 
-                                if guild.member_count < 10: counter += 1
+                                if guild.member_count < 5: counter += 1
                             await viewinteract.response.send_message(f"Кол-во серверов: `{counter}`", ephemeral=True)
                         
                         @discord.ui.button(emoji="⬅️", style=discord.ButtonStyle.primary, row=1)

@@ -5,6 +5,7 @@ config.py. Данные со значениями должны быть обяз
 import discord,time
 
 settings = {
+    'min_members': 10,
     'token': 'TOKEN',
     'app_id': 880911386916577281, # Application ID вашего бота.
     'key': 'Ключ some-random-api.ml',

@@ -261,7 +261,7 @@ async def debug(ctx: commands.Context):
                         async def checkleaves(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                             counter = 0
                             for guild in bot.guilds: 
-                                if guild.member_count < 5: counter += 1
+                                if guild.member_count < settings['min_members']: counter += 1
                             await viewinteract.response.send_message(f"Кол-во серверов: `{counter}`", ephemeral=True)
                         
                         @discord.ui.button(emoji="⬅️", style=discord.ButtonStyle.primary, row=1)
@@ -285,10 +285,10 @@ async def debug(ctx: commands.Context):
                             async def on_submit(self, modalinteract: discord.Interaction):
                                 for guild in bot.guilds:
                                     if str(self.ans) == guild.name:
-                                        return await modalinteract.response.send_message(f"Name: {guild.name}, owner: {guild.owner.mention}, ID: {guild.id}", ephemeral=True)
+                                        return await modalinteract.response.send_message(f"Название: {guild.name}, владелец: {guild.owner.mention}, ID: {guild.id}, участников: {guild.member_count}", ephemeral=True)
                                     try:
                                         if int(str(self.ans)) == guild.id:
-                                            return await modalinteract.response.send_message(f"Name: {guild.name}, owner: {guild.owner.mention}, ID: {guild.id}", ephemeral=True)
+                                            return await modalinteract.response.send_message(f"Название: {guild.name}, владелец: {guild.owner.mention}, ID: {guild.id}, участников: {guild.member_count}", ephemeral=True)
                                     except:
                                         pass
                         await viewinteract.response.send_modal(Input())

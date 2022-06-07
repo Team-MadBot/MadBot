@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from config import *
 
 class Limiter(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -9,7 +10,7 @@ class Limiter(commands.Cog):
     async def on_guild_join(self, guild: discord.Guild):
         if len(self.bot.guilds) == 100 and not(self.bot.user.public_flags.verified_bot):
             for guild in self.bot.guilds:
-                if guild.member_count < 5 and len(self.bot.guilds) > 90:
+                if guild.member_count < settings['min_members'] and len(self.bot.guilds) > 90:
                     await guild.leave()
 
 async def setup(bot: commands.Bot):

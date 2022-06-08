@@ -104,7 +104,8 @@ class MyBot(commands.Bot):
             await bots_ch.edit(name=f"🤖・Bots: {bots}")
             if bot.user.id == 880911386916577281:
                 headers = {
-                    'Authorization': f"{settings['sdc_key']}"
+                    'Authorization': f"{settings['sdc_key']}",
+                    "Content-Type": "application/json"
                 }
                 body = {
                     'shards': 1,

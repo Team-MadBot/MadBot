@@ -214,7 +214,7 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```", timestamp=discord.utils.utcnow())
     channel = bot.get_channel(settings['log_channel'])
-    await channel.send(f"```\nOn command '{interaction.command.name}'\n{error}```")
+    await channel.send(f"[ОШИБКА!]: Инициатор: `{interaction.user}`\n```\nOn command '{interaction.command.name}'\n{error}```")
     try:
         await interaction.response.send_message(embed=embed, ephemeral=True)
     except discord.errors.InteractionResponded:

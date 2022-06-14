@@ -518,7 +518,6 @@ class Tools(commands.Cog):
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Пользователь должен находиться на сервере для использования команды на нём!")
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
         config.lastcommand = "`/userinfo`"
-        global emb
         badges = ''
         guild = self.bot.get_guild(interaction.guild.id)
         if member == None:
@@ -560,6 +559,7 @@ class Tools(commands.Cog):
         if member.bot:
             badges += '<:bot:946064625525465118> '
         member = guild.get_member(member.id)
+        emb: discord.Embed
         if member.nick == None:
             emb = discord.Embed(title=f"`{member.name}#{member.discriminator}` {badges}", color=member.color)
         else:
@@ -624,7 +624,12 @@ class Tools(commands.Cog):
 
     @app_commands.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
     @app_commands.check(is_shutted_down)
-    @app_commands.describe(member='Участник, чью аватарку вы хотите получить', format="Формат изображения", size="Размер изображения", type="Тип аватара")
+    @app_commands.describe(
+        member='Участник, чью аватарку вы хотите получить', 
+        format="Формат изображения", 
+        size="Размер изображения", 
+        type="Тип аватара"
+    )
     @app_commands.choices(
         format=[
             Choice(name="PNG (прозрачный фон)", value="png"),

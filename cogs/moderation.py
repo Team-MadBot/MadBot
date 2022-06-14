@@ -1,8 +1,7 @@
-import discord, datetime
-from discord import app_commands,Forbidden, NotFound
+import discord, datetime, config
+from discord import app_commands, Forbidden, NotFound
 from asyncio import sleep
 from discord.ext import commands
-import config
 from config import *
 
 def is_shutted_down(interaction: discord.Interaction):
@@ -55,7 +54,7 @@ class Moderation(commands.Cog):
             if member.top_role.position >= member_bot.top_role.position or interaction.guild.owner.id == member.id or member_bot.guild_permissions.kick_members == False:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права на исключение данного участника!\nТип ошибки: `Forbidden`.")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             embed = discord.Embed(title=f'Участник выгнан с сервера {interaction.guild.name}!', color=discord.Color.red(), timestamp=discord.utils.utcnow())
             embed.add_field(name="Участник:", value=f"{member.mention}", inline=True)
             embed.add_field(name="Модератор:", value=f"{interaction.user.mention}", inline=True)
@@ -98,7 +97,7 @@ class Moderation(commands.Cog):
             if member.top_role.position >= member_bot.top_role.position or interaction.guild.owner.id == member.id or member_bot.guild_permissions.ban_members == False:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права на бан данного участника!\nТип ошибки: `Forbidden`.")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             embed = discord.Embed(title=f'Участник забанен на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=discord.utils.utcnow())
             embed.add_field(name="Участник:", value=f"{member.mention}", inline=True)
             embed.add_field(name="Модератор:", value=f"{interaction.user.mention}", inline=True)
@@ -190,10 +189,9 @@ class Moderation(commands.Cog):
                 reason = discord.ui.TextInput(label="Укажите причину", style=discord.TextStyle.paragraph, placeholder="Бунтует", required=True, max_length=430)
                 delete_message_days = discord.ui.TextInput(label="Удалить историю сообщений", style=discord.TextStyle.short, placeholder="0-7", max_length=1, required=False)
                 async def on_submit(self, viewinteract: discord.Interaction):
-                    if not(isinstance(self.delete_message_days, str)):
-                        self.delete_message_days = 0
-                    if self.delete_message_days > 7:
-                        self.delete_message_days = 7
+                    delete_message_days = 0 if str(self.delete_message_days) == None or not(str(self.delete_message_days).isdigit()) else int(str(self.delete_message_days))
+                    if str(self.delete_message_days) != None and str(self.delete_message_days).isdigit() and int(str(self.delete_message_days)) > 7:
+                        delete_message_days = 7
                     proofs = message.content
                     if message.embeds != None:
                         for emb in message.embeds:
@@ -213,7 +211,7 @@ class Moderation(commands.Cog):
                         await message.author.send(embed=embed)
                     except:
                         embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
-                    await message.author.ban(delete_message_days=str(self.delete_message_days), reason=f"{self.reason} // {interaction.user.name}")
+                    await message.author.ban(delete_message_days=delete_message_days, reason=f"{self.reason} // {interaction.user.name}")
                     return await viewinteract.response.send_message(embed=embed)
             
             await interaction.response.send_modal(InputText())
@@ -247,7 +245,7 @@ class Moderation(commands.Cog):
             else:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Указанное значение не является чьим-то ID.")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             try:
                 await interaction.guild.ban(member, delete_message_days=delete_message_days, reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}")
             except Forbidden:
@@ -286,7 +284,7 @@ class Moderation(commands.Cog):
             else:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Указанное значение не является чьим-то ID.")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             try:
                 await interaction.guild.unban(member, reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}")
             except Forbidden:
@@ -402,7 +400,7 @@ class Moderation(commands.Cog):
         if seconds == 0:
             delay = None
         if interaction.channel.permissions_for(interaction.user).manage_channels:
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             try:
                 await interaction.channel.edit(reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}", slowmode_delay=delay)
             except:
@@ -444,7 +442,7 @@ class Moderation(commands.Cog):
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
             until = discord.utils.utcnow() + datetime.timedelta(minutes=minutes)
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             if minutes == 0:
                 until = None
             try:
@@ -567,7 +565,7 @@ class Moderation(commands.Cog):
         config.lastcommand = "`/clone`"
         if interaction.user.guild_permissions.manage_channels:
             cloned = None
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             try:
                 cloned = await interaction.channel.clone(reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}")
             except Forbidden:
@@ -605,7 +603,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/resetnick`"
         if interaction.user.guild_permissions.manage_nicknames:
-            reason = reason[:25] + (reason[25:] and '..')
+            reason = reason[:460] + (reason[460:] and '..')
             if member.top_role.position >= interaction.user.top_role.position and interaction.guild.owner.id != interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не можете управлять никнеймами участников, чья роль выше либо равна вашей!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)

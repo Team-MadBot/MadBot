@@ -412,6 +412,12 @@ class Tools(commands.Cog):
                 links = discord.ui.TextInput(label="Ссылки на док-ва:", required=False, style=discord.TextStyle.paragraph, max_length=1024, placeholder="https://imgur.com/RiCkROLl")
 
                 async def on_submit(self, viewinteract: discord.Interaction):
+                    log_channel = viewinteract.client.get_channel(settings['report_channel'])
+                    q_embed = discord.Embed(title=f"Вопрос: {str(self.main)}", color=discord.Color.red(), description=str(self.description))
+                    q_embed.set_author(name=str(viewinteract.user), icon_url=viewinteract.user.display_avatar.url)
+                    if str(self.links) != "":
+                        q_embed.add_field(name="Ссылки:", value=str(self.links))
+
                     class Buttons(discord.ui.View):
                         def __init__(self, main: str):
                             super().__init__(timeout=None)
@@ -428,6 +434,7 @@ class Tools(commands.Cog):
                                 answer = discord.ui.TextInput(label="Ответ:", placeholder="Сделайте вот так:", style=discord.TextStyle.paragraph, max_length=2048)
 
                                 async def on_submit(self, ansinteract: discord.Interaction):
+                                    nonlocal q_embed
                                     embed = discord.Embed(title=f'Ответ на вопрос "{self.main}"!', color=discord.Color.green(), description=str(self.answer))
                                     embed.set_author(name=str(ansinteract.user), icon_url=ansinteract.user.display_avatar.url)
                                     try:
@@ -438,16 +445,12 @@ class Tools(commands.Cog):
                                     else:
                                         embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ответ отправлен пользователю.")
                                         await ansinteract.response.send_message(embed=embed, ephemeral=True)
-                                    await buttinteract.edit_original_message(view=None)
+                                    q_embed.add_field(name=f"Ответ от {ansinteract.user}:", value=str(self.answer))
+                                    await buttinteract.edit_original_message(embed=q_embed, view=None)
                                 
                             await buttinteract.response.send_modal(AnswerQuestion(self.main))
 
-                    log_channel = viewinteract.client.get_channel(settings['report_channel'])
-                    embed = discord.Embed(title=f"Вопрос: {str(self.main)}", color=discord.Color.red(), description=str(self.description))
-                    embed.set_author(name=str(viewinteract.user), icon_url=viewinteract.user.display_avatar.url)
-                    if str(self.links) != "":
-                        embed.add_field(name="Ссылки:", value=str(self.links))
-                    await log_channel.send(embed=embed, view=Buttons(self.main))
+                    await log_channel.send(embed=q_embed, view=Buttons(self.main))
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Вопрос успешно отправлен!")
                     await viewinteract.response.send_message(embed=embed, ephemeral=True)
                 

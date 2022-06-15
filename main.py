@@ -78,12 +78,6 @@ class MyBot(commands.Bot):
                 .on_success(on_success_posting)
                 .start()
             )
-
-        online_ch = community.get_channel(981256493808623716)
-        total = community.get_channel(981258127951409243)
-        members = community.get_channel(981256654307856494)
-        bots_ch = community.get_channel(981257114162987018)
-
         embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(), description=f"Пинг: `{int(round(bot.latency, 3)*1000)}ms`\nВерсия: `{settings['curr_version']}`")
         await logs.send(embed=embed)
         await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.
@@ -93,15 +87,6 @@ class MyBot(commands.Bot):
                 await sleep(60)
             except:
                 await logs.send(round(bot.latency, 3)*1000)
-            bots = 0
-            online = len(list(filter(lambda x: x.status == discord.Status.online, community.members))) + len(list(filter(lambda x: x.status == discord.Status.idle, community.members))) + len(list(filter(lambda x: x.status == discord.Status.dnd, community.members)))
-            for member in community.members:
-                if member.bot:
-                    bots += 1
-            await online_ch.edit(name=f"🟢・Online: {online}")
-            await total.edit(name=f"👥・Total: {len(community.members)}")
-            await members.edit(name=f'👪・Members: {len(community.members) - bots}')
-            await bots_ch.edit(name=f"🤖・Bots: {bots}")
             if bot.user.id == 880911386916577281:
                 headers = {
                     'Authorization': f"{settings['sdc_key']}",
@@ -146,6 +131,8 @@ class MyBot(commands.Bot):
             await sleep(1)
             embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}", color=discord.Color.orange(), description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Ваш сервер: `{len(bot.guilds)}-ый`.")
             embed.add_field(name="Поддержка:", value=settings['support_invite'])
+            if guild.member_count < settings['min_members']:
+                embed.add_field(name="ВНИМАНИЕ:", value=f"На Вашем сервере меньше {settings['min_members']} участников! Это означает, что бот покинет этот сервер, когда наберёт 100 серверов. Наберите большее число участников, чтобы избежать этого!")
             embed.set_thumbnail(url=bot.user.avatar.url)
             adder = None
             try:

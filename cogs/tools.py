@@ -470,6 +470,7 @@ class Tools(commands.Cog):
                     await message.add_reaction("💤")
                     await message.add_reaction("❌")
                     embed = discord.Embed(title='Успешно!', color=discord.Color.green(), description="Идея отправлена в канал")
+                    embed.add_field(name="ВНИМАНИЕ:", value="В случае, если идея является некорректной, Вам будет выдан ЧС бота!")
                     await viewinteract.response.send_message(embed=embed, ephemeral=True)
 
             async def callback(self, viewinteract: discord.Interaction):

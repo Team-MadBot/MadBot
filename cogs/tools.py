@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import discord, datetime, sys, typing, requests, config, boticordpy, numexpr
+from numpy import ediff1d
 from boticordpy import BoticordClient
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
@@ -863,11 +864,23 @@ class Tools(commands.Cog):
         boticord.set_thumbnail(url=self.bot.user.display_avatar.url)
         boticord.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 
+        thanks = discord.Embed(
+            title = "MadBot - Благодарности",
+            color = discord.Color.orange(),
+            description="Этим людям я очень благодарен. Благодаря им, MadBot поднимается и улучшается."
+        )
+        thanks.add_field(name="A LIGHT PERSON#7588", value="Второй разработчик бота и лучший бета-тестер. Написал некоторые команды развлечений и помог выявить более 10-ти багов.", inline=False)
+        thanks.add_field(name="зайка#8418", value="Именно этот человек заполнял форму на получение верификации. Благодаря ему, бот получил верификацию.", inline=False)
+        thanks.add_field(name="milka#5557", value="Помимо его работы саппортом, он часто апает бота, чем помогает в распространении его.", inline=False)
+        thanks.set_thumbnail(url=self.bot.user.display_avatar.url)
+        thanks.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+
         embeds = {
             'embed': embed,
             'stats': stats,
             'versions': versions,
-            'boticord': boticord
+            'boticord': boticord,
+            'thanks': thanks
         }
 
         class DropDown(discord.ui.Select):
@@ -876,7 +889,8 @@ class Tools(commands.Cog):
                     discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
                     discord.SelectOption(label="Статистика", value='stats', description="Статистика бота.", emoji="📊"),
                     discord.SelectOption(label="Версии", value="versions", description="Версии библиотек и Python.", emoji="⚒️"),
-                    discord.SelectOption(label="Boticord", value="boticord", description="Информация из Boticord.", emoji="<:bc:947181639384051732>")
+                    discord.SelectOption(label="Boticord", value="boticord", description="Информация из Boticord.", emoji="<:bc:947181639384051732>"),
+                    discord.SelectOption(label="Благодарности", value="thanks", description="Эти люди сделали многое для бота.", emoji="❤️")
                 ]
                 super().__init__(placeholder="Выбор...", options=options, row=1)
 

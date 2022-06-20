@@ -53,7 +53,6 @@ class MyBot(commands.Bot):
     async def on_ready(self):
         global started_at
         server = bot.get_guild(settings['supp_guild']) # Сервер логов.
-        community = bot.get_guild(settings['comm_guild']) # Сервер сообщества.
         logs = server.get_channel(settings['log_channel']) # Канал логов.
         channel = bot.get_channel(967484036127813713) # Канал "общения" мониторинга. Закомментируйте, если хотите.
         for guild in bot.guilds: # Проверка на нахождение в чёрном списке.
@@ -131,7 +130,7 @@ class MyBot(commands.Bot):
             await sleep(1)
             embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}", color=discord.Color.orange(), description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Ваш сервер: `{len(bot.guilds)}-ый`.")
             embed.add_field(name="Поддержка:", value=settings['support_invite'])
-            if guild.member_count < settings['min_members']:
+            if guild.member_count < settings['min_members'] and not bot.user.public_flags.verified_bot:
                 embed.add_field(name="ВНИМАНИЕ:", value=f"На Вашем сервере меньше {settings['min_members']} участников! Это означает, что бот покинет этот сервер, когда наберёт 100 серверов. Наберите большее число участников, чтобы избежать этого!")
             embed.set_thumbnail(url=bot.user.avatar.url)
             adder = None
@@ -241,7 +240,7 @@ async def debug(ctx: commands.Context):
                                 ans = discord.ui.TextInput(label="Ник пользователя:", max_length=32, placeholder="Mad_Cat")
                                 async def on_submit(self, modalinteract: discord.Interaction):
                                     for user in bot.users:
-                                        if user.name == str(self.ans):
+                                        if user.name == str(self.ans) or str(user) == str(self.ans) or str(self.ans) == str(user.id):
                                             return await modalinteract.response.send_message(f"Пользователь: `{user}`, ID: `{user.id}`", ephemeral=True)
                             await viewinteract.response.send_modal(Input())
                         

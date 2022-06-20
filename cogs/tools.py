@@ -345,7 +345,18 @@ class Tools(commands.Cog):
             color=discord.Color.orange(),
             description=react_commands
         )
-        embed = discord.Embed(title=f"{self.bot.user.name} - Главная", color=discord.Color.orange(), description=f"Спасибо за использование {self.bot.user.name}! Я использую слеш-команды, поэтому для настройки доступа к ним можно использовать настройки Discord.")
+        embed = discord.Embed(
+            title=f"{self.bot.user.name} - Главная", 
+            color=discord.Color.orange(), 
+            description=f"""Спасибо за использование {self.bot.user.name}! Я использую слеш-команды, поэтому для настройки доступа к ним можно использовать настройки Discord.
+            
+            **Что я умею?**
+            - **Развлекать**. Если Вам скучно, то посмотрите, как можно развлечься.
+            - **Модерировать**. Я напишу причину и предоставлю доказательства нарушения нарушителю при использовании команд модерации.
+            - **Реагировать**. Хотите показать свои эмоции? Пожалуйста!
+            - **Прочее**. Узнать погоду, подсчитать пример или получить аватар пользователя можно в одном боте!
+            
+            Выберите катерогию команд для их просмотра.""")
         embed.add_field(name="Поддержка:", value=settings['support_invite'], inline=False)
         embed.add_field(name="Пригласить:", value=f"[Тык](https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)", inline=False)
             

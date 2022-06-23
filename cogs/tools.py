@@ -545,10 +545,6 @@ class Tools(commands.Cog):
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        for memb in interaction.guild.members:
-            if memb == member:
-                member = memb
-                break
         
         embed = discord.Embed(color=member.color, description=f"[Скачать]({member.display_avatar.replace(static_format='png', size=2048)})")
         embed.set_author(name=f"Аватар {member}")
@@ -581,14 +577,15 @@ class Tools(commands.Cog):
         else:
             emb = discord.Embed(title=f"`{member.name}#{member.discriminator}` | `{member.nick}` {badges}", color=member.color)
         emb.add_field(name="Упоминание:", value=member.mention, inline=False)
-        if member.status == discord.Status.online:
+        """if member.status == discord.Status.online:
             emb.add_field(name="Статус:", value="🟢 В сети", inline=False)
         elif member.status == discord.Status.idle:
             emb.add_field(name="Статус:", value="🌙 Нет на месте", inline=False)
         elif member.status == discord.Status.dnd:
             emb.add_field(name="Статус:", value="🔴 Не беспокоить", inline=False)
         else:
-            emb.add_field(name="Статус:", value="🔘 Не в сети", inline=False)
+            emb.add_field(name="Статус:", value="🔘 Не в сети", inline=False)"""
+        emb.add_field(name="Статус:", value="`Недоступен`", inline=False)
         emb.add_field(name="Ссылка на профиль:", value=f"[Тык](https://discord.com/users/{member.id})", inline=False)
         if member.bot:
             emb.add_field(name="Бот?:", value="Да", inline=False)
@@ -725,11 +722,11 @@ class Tools(commands.Cog):
         for member in interaction.guild.members:
             if member.bot:
                 bots += 1
-        online = len(list(filter(lambda x: x.status == discord.Status.online, interaction.guild.members)))
+        """online = len(list(filter(lambda x: x.status == discord.Status.online, interaction.guild.members)))
         idle = len(list(filter(lambda x: x.status == discord.Status.idle, interaction.guild.members)))
         dnd = len(list(filter(lambda x: x.status == discord.Status.dnd, interaction.guild.members)))
-        offline = len(list(filter(lambda x: x.status == discord.Status.offline, interaction.guild.members)))
-        embed = discord.Embed(title=f"{interaction.guild.name} {badges}", color=discord.Color.orange(), description=f"🟢 `{online}` | 🌙 `{idle}` | 🔴 `{dnd}` | ⚪ `{offline}`")
+        offline = len(list(filter(lambda x: x.status == discord.Status.offline, interaction.guild.members)))"""
+        embed = discord.Embed(title=f"{interaction.guild.name} {badges}", color=discord.Color.orange())
         embed.add_field(name="Владелец:", value=interaction.guild.owner.mention, inline=True)
         if interaction.guild.default_notifications == "all_messages":
             embed.add_field(name="Стандартный режим получения уведомлений:", value="Все сообщения", inline=True)

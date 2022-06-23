@@ -8,6 +8,9 @@ from discord.ext import commands
 from asyncio import sleep
 from config import *
 
+intents = discord.Intents.default()
+intents.message_content = True
+
 btns=[
     {
         "label": "Добавить бота",
@@ -35,7 +38,7 @@ else:
 
 class MyBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=discord.Intents.all(), application_id=settings['app_id'])
+        super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=intents, application_id=settings['app_id'])
 
     async def setup_hook(self):
         for ext in cogs:

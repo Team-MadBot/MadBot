@@ -201,6 +201,18 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
     if str(error).startswith("Failed to convert"):
         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Данная команда недоступна в личных сообщениях!")
         return await interaction.response.send_message(embed=embed, ephemeral=True)
+    if isinstance(error, discord.NotFound):
+        return
+    if isinstance(error, Forbidden):
+        embed = discord.Embed(
+            title="Ошибка!",
+            color=discord.Color.red(),
+            description=f"Вы видите это сообщение, потому что бот не имеет прав для совершения действия!"
+        )
+        try:
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        except:
+            return await interaction.edit_original_message(embed=embed)
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```", timestamp=discord.utils.utcnow())
     channel = bot.get_channel(settings['log_channel'])
     await channel.send(f"[ОШИБКА!]: Инициатор: `{interaction.user}`\n```\nOn command '{interaction.command.name}'\n{error}```")

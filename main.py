@@ -133,8 +133,7 @@ class MyBot(commands.Bot):
             await sleep(1)
             embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}", color=discord.Color.orange(), description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Ваш сервер: `{len(bot.guilds)}-ый`.")
             embed.add_field(name="Поддержка:", value=settings['support_invite'])
-            if guild.member_count < settings['min_members'] and not bot.user.public_flags.verified_bot:
-                embed.add_field(name="ВНИМАНИЕ:", value=f"На Вашем сервере меньше {settings['min_members']} участников! Это означает, что бот покинет этот сервер, когда наберёт 100 серверов. Наберите большее число участников, чтобы избежать этого!")
+            embed.add_field(name="Сообщество (чат):", value=settings['comm_invite'])
             embed.set_thumbnail(url=bot.user.avatar.url)
             adder = None
             try:

@@ -13,6 +13,7 @@ settings = {
     'boticord_key': 'Ключ от boticord API',
     'sdc_key': 'Ключ от сдук API',
     'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
+    'comm_invite': 'https://discord.gg/8AxMvXjynQ',
     'owner_id': 560529834325966858, # ID владельца.
     'supp_guild': 914181806285279232, # Сервер поддержки.
     'log_channel': 924241555697594380, # Канал логирования.

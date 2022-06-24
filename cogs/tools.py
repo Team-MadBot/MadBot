@@ -916,6 +916,7 @@ class Tools(commands.Cog):
                 self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url="https://boticord.top/bot/madbot", emoji="<:bc:947181639384051732>"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url="https://bots.server-discord.com/880911386916577281", emoji="<:favicon:981586173204000808>"))
+                self.add_item(discord.ui.Button(label="Сообщество (чат)", url=settings['comm_invite']))
                 self.add_item(DropDown())
 
         await interaction.response.send_message(embed=embed, view=View())

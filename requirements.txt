@@ -5,7 +5,6 @@ PyNaCl
 aiohttp
 translate
 requests
-hmtai
 typing
 boticordpy
 numexpr

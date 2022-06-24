@@ -1,6 +1,5 @@
 import discord, datetime, requests, random, config
 from asyncio import sleep
-from hmtai import useHM
 from discord import app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
@@ -53,7 +52,7 @@ class Entartaiment(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="nsfw", description="[NSFW] Присылает NSFW картинку на тематику (бе).")
+    """@app_commands.command(name="nsfw", description="[NSFW] Присылает NSFW картинку на тематику (бе).")
     @app_commands.check(is_shutted_down)
     @app_commands.describe(choice="Тематика NSFW картинки", is_ephemeral="Выберите, будет ли картинка отправлена только вам.")
     @app_commands.choices(choice=[
@@ -98,7 +97,7 @@ class Entartaiment(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=is_ephemeral)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Данный канал не является NSFW каналом!")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=True)"""
 
     @app_commands.command(name="math", description="[Развлечения] Реши несложный пример на сложение/вычитание")
     @app_commands.check(is_shutted_down)

@@ -1367,6 +1367,202 @@ class Entartaiment(commands.Cog):
                 score2 += 1
         embed.add_field(name="Победитель:", value="Ничья!") if score1 == score2 else embed.add_field(name="Победитель:", value=interaction.user.mention if score1 > score2 else member.mention)
         await interaction.edit_original_message(embed=embed, view=None)
+    
+    @app_commands.command(name="tol", description='[Развлечения] Правда или ложь.')
+    @app_commands.check(is_in_blacklist)
+    @app_commands.check(is_shutted_down)
+    @app_commands.describe(member="Участник, с которым Вы хотите поиграть.")
+    async def tol(self, interaction: discord.Interaction, member: discord.User):
+        config.used_commands += 1
+        config.lastcommand = '/tol'
+        member = interaction.guild.get_member(member.id)
+        if member is None:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Участник должен быть на сервере!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        class Accept(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=300)
+                self.value = None
+                self.clicker = None
+            
+            @discord.ui.button(style=discord.ButtonStyle.green, emoji="✅")
+            async def accept(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if member.id != viewinteract.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                await viewinteract.response.defer()
+                self.value = True
+                self.stop()
+            
+            @discord.ui.button(style=discord.ButtonStyle.red, emoji='<:x_icon:975324570741526568>')
+            async def deny(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == viewinteract.user.id or member.id == viewinteract.user.id:
+                    await viewinteract.response.defer()
+                    self.value = False
+                    self.clicker = viewinteract.user
+                    self.stop()
+                elif member.id != viewinteract.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+        
+        acc = Accept()
+        embed = discord.Embed(
+            title='Правда или ложь - Ожидание', 
+            color=discord.Color.orange(),
+            description=f"{member.mention}, {interaction.user.mention} хочет поиграть с вами!"
+        )
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, view=acc)
+        await acc.wait()
+        if acc.value == None:
+            embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+            return await interaction.edit_original_message(embed=embed, view=None)
+        if acc.clicker != None:
+            if acc.clicker.id == member.id:
+                embed = discord.Embed(
+                    title="Правда или ложь - Отказ", 
+                    color=discord.Color.red(),
+                    description=f"{member.mention} отказался от игры."
+                )
+                return await interaction.edit_original_message(embed=embed, view=None)
+            if acc.clicker.id == interaction.user.id:
+                embed = discord.Embed(
+                    title="Правда или ложь - Отмена",
+                    color=discord.Color.red(),
+                    description="Инициатор игры отменил её."
+                )
+                return await interaction.edit_original_message(embed=embed, view=None)
+
+        history = ""
+        is_true = None
+        
+        class SetWord(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=180)
+                self.value = None
+            
+            @discord.ui.button(label="Задать историю", style=discord.ButtonStyle.blurple)
+            async def setword(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != interaction.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                class Input(discord.ui.Modal, title="Правда или ложь - Задать историю"):
+                    ans = discord.ui.TextInput(label="История:", max_length=1024)
+                    async def on_submit(self, modalinteract: discord.Interaction):
+                        nonlocal history, is_true
+                        history = str(self.ans)
+                        embed = discord.Embed(
+                            title="Правда или ложь - Заполнение",
+                            color=discord.Color.green(),
+                            description="История записана. Если Вы уже указали, правда ли это или ложь, то игра начнётся."
+                        )
+                        await modalinteract.response.send_message(embed=embed, ephemeral=True)
+                        if is_true is not None:
+                            self.value = True
+                            self.stop()
+                await viewinteract.response.send_modal(Input())
+            
+            @discord.ui.button(label="Это правда", style=discord.ButtonStyle.green)
+            async def true(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                nonlocal is_true
+                if viewinteract.user.id != interaction.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                is_true = True
+                embed = discord.Embed(
+                    title="Правда или ложь - Заполнение",
+                    color=discord.Color.green(),
+                    description="История является правдой. Если Вы уже указали историю, то игра начнётся."
+                )
+                await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                if history != '':
+                    self.value = True
+                    self.stop()
+            
+            @discord.ui.button(label="Это ложь", style=discord.ButtonStyle.red)
+            async def false(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                nonlocal is_true
+                if viewinteract.user.id != interaction.user.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                is_true = False
+                embed = discord.Embed(
+                    title="Правда или ложь - Заполнение",
+                    color=discord.Color.green(),
+                    description="История является ложью. Если Вы уже указали историю, то игра начнётся."
+                )
+                await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                if history != '':
+                    self.value = True
+                    self.stop()
+        
+        game_setup = SetWord()
+        embed = discord.Embed(
+            title="Правда или ложь - Заполнение",
+            color=discord.Color.orange(),
+            description=f"{interaction.user.mention} должен написать историю и указать, является ли она правдой или ложью."
+        )
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        await interaction.edit_original_message(embed=embed, view=game_setup)
+        await game_setup.wait()
+        if game_setup.value is None:
+            embed = discord.Embed(
+                title="Время истекло!",
+                color=discord.Color.red()
+            )
+            return await interaction.edit_original_message(embed=embed, view=None)
+
+        class Guessing(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=300)
+                self.value = None
+            
+            @discord.ui.button(label="Это правда", style=discord.ButtonStyle.green)
+            async def itistrue(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != member.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                self.value = True
+                self.stop()
+                await viewinteract.response.defer()
+            
+            @discord.ui.button(label="Это ложь", style=discord.ButtonStyle.red)
+            async def itisfalse(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                if viewinteract.user.id != member.id:
+                    return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+                self.value = False
+                self.stop()
+                await viewinteract.response.defer()
+
+        answer = Guessing()
+        embed = discord.Embed(
+            title="Правда или ложь - Игра",
+            color=discord.Color.orange(),
+            description=f"{interaction.user.mention} задал историю для {member.mention}. Он должен догадаться, является ли история ложью. Разрешено задавать вопросы."
+        )
+        embed.add_field(name="История:", value=f"\"{history}\"")
+        embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        await interaction.edit_original_message(embed=embed, view=answer)
+        await answer.wait()
+        if answer.value is None:
+            embed = discord.Embed(
+                title="Время истекло!",
+                color=discord.Color.red()
+            )
+            return await interaction.edit_original_message(embed=embed, view=None)
+        truth = "Правда" if is_true else "Ложь"
+        if answer.value == is_true:
+            embed = discord.Embed(
+                title="Правда или ложь - Победа",
+                color=discord.Color.green(),
+                description=f"{member.mention} угадал!\n\nЭта история: `{truth}`."
+            )
+            return await interaction.edit_original_message(embed=embed, view=None)
+        embed = discord.Embed(
+            title="Правда или ложь - Поражение",
+            color=discord.Color.red(),
+            description=f"{member.mention} не угадал!\n\nЭта история: `{truth}`."
+        )
+        await interaction.edit_original_message(embed=embed, view=None)
 
             
 async def setup(bot: commands.Bot):

@@ -4,9 +4,6 @@ from asyncio import sleep
 from discord.ext import commands
 from config import *
 
-def is_shutted_down(interaction: discord.Interaction):
-    return interaction.command.name not in shutted_down
-
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -27,6 +24,7 @@ class Moderation(commands.Cog):
         self.bot.tree.add_command(self.ctx_timeout)
     
     @app_commands.command(name="kick", description="[Модерация] Выгнать участника с сервера")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member='Участник, который будет исключен', reason="Причина кика")
     async def kick(self, interaction: discord.Interaction, member: discord.User, reason: str):
@@ -70,6 +68,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="ban", description="[Модерация] Забанить участника на сервере")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member='Участник, который будет забанен', reason="Причина бана", delete_message_days="За какой период дней удалить сообщения.")
     async def ban(self, interaction: discord.Interaction, member: discord.User, reason: str, delete_message_days: app_commands.Range[int, 0, 7] = 0):
@@ -113,6 +112,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_kick(self, interaction: discord.Interaction, message: discord.Message):
         config.used_commands += 1
         if interaction.user.id in blacklist:
@@ -165,6 +165,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_ban(self, interaction: discord.Interaction, message: discord.Message):
         config.used_commands += 1
         if interaction.user.id in blacklist:
@@ -220,6 +221,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.command(name="banoff", description="[Модерация] Банит участника, используя его ID")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="ID участника, который должен быть забанен", delete_message_days="За какой период удалять сообщения", reason="Причина бана")
     async def banoff(self, interaction: discord.Interaction, member: str, reason: str, delete_message_days: app_commands.Range[int, 0, 7] = 0):
@@ -265,6 +267,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="unban", description="[Модерация] Разбанить участника на сервере")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="ID участника, который должен быть разбанен", reason="Причина разбана")
     async def unban(self, interaction: discord.Interaction, member: str, reason: str):
@@ -304,6 +307,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="clear", description="[Модерация] Очистка сообщений")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(radius='Радиус, в котором будут очищаться сообщения.', member="Участник, чьи сообщения будут очищены.")
     async def clear(self, interaction: discord.Interaction, radius: app_commands.Range[int, 1, 1000], member: discord.User = None):
@@ -350,6 +354,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="clearoff", description="[Модерация] Очистка сообщений от вышедших участников")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(radius='Радиус, в котором будут очищаться сообщения.', member="Ник или ID участника, чьи сообщения необходимо удалить.")
     async def clearoff(self, interaction: discord.Interaction, member: str, radius: app_commands.Range[int, 1, 1000]):
@@ -383,6 +388,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="slowmode", description="[Модерация] Установить медленный режим в данном канале. Введите 0 для отключения.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(seconds="Кол-во секунд. Укажите 0 для снятия.", reason='Причина установки медленного режима')
     async def slowmode(self, interaction: discord.Interaction, seconds: app_commands.Range[int, 0, 21600], reason: str = "Отсутствует"):
@@ -418,6 +424,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="timeout", description="[Модерация] Отправляет участника подумать о своем поведении")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которому нужно выдать тайм-аут", minutes="Кол-во минут, на которые будет выдан тайм-аут.", reason="Причина выдачи наказания.")
     async def timeout(self, interaction: discord.Interaction, member: discord.User, minutes: app_commands.Range[int, 0, 40320], reason: str):
@@ -477,6 +484,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_timeout(self, interaction: discord.Interaction, message: discord.Message):
         config.used_commands += 1
         if interaction.user.id in blacklist:
@@ -550,6 +558,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.command(name='clone', description="[Модерация] Клонирует чат.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(delete_original="Удалять ли клонируемый канал?", reason="Причина клонирования")
     async def clone(self, interaction: discord.Interaction, reason: str, delete_original: bool = False):
@@ -583,6 +592,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="resetnick", description="[Модерация] Просит участника поменять ник")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого надо попросить сменить ник", reason="Причина сброса ника")
     async def resetnick(self, interaction: discord.Interaction, member: discord.User, reason: str):

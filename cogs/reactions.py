@@ -3,9 +3,6 @@ from discord.ext import commands
 from discord import app_commands
 from config import *
 
-def is_shutted_down(interaction: discord.Interaction):
-    return interaction.command.name not in shutted_down
-
 class Reactions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -36,6 +33,7 @@ class Reactions(commands.Cog):
         self.bot.tree.add_command(self.ctx_wink)
     
     @app_commands.command(name="hug", description="[Реакции] Обнять участника")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите обнять")
     async def hug(self, interaction: discord.Interaction, member: discord.User):
@@ -66,6 +64,7 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_hug(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
@@ -94,6 +93,7 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="pat", description="[Реакции] Погладить участника")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите погладить")
     async def pat(self, interaction: discord.Interaction, member: discord.User):
@@ -124,6 +124,7 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_pat(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
@@ -152,6 +153,7 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="wink", description="[Реакции] Подмигнуть. Можно и участнику.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которому вы хотите подмигнуть.")
     async def wink(self, interaction: discord.Interaction, member: discord.User = None):
@@ -188,6 +190,7 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_wink(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
@@ -217,6 +220,7 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="slap", description="[Реакции] Лупит пользователя.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите отлупить.")
     async def slap(self, interaction: discord.Interaction, member: discord.User):
@@ -241,6 +245,7 @@ class Reactions(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="kiss", description="[Реакции] Поцеловать участника")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите поцеловать.")
     async def kiss(self, interaction: discord.Interaction, member: discord.User):
@@ -298,6 +303,7 @@ class Reactions(commands.Cog):
             await interaction.edit_original_message(embed=embed, view=None)
 
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_kiss(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:
@@ -353,6 +359,7 @@ class Reactions(commands.Cog):
             await interaction.edit_original_message(embed=embed, view=None)
 
     @app_commands.command(name="hit", description="[Реакции] Ударить участника")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите ударить.")
     async def hit(self, interaction: discord.Interaction, member: discord.User):
@@ -377,6 +384,7 @@ class Reactions(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def context_hit(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
         if interaction.user.id in blacklist:

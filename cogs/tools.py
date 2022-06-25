@@ -9,9 +9,6 @@ from discord.app_commands import Choice
 from discord.ext import commands
 from config import *
 
-def is_shutted_down(interaction: discord.Interaction):
-    return interaction.command.name not in shutted_down
-
 def cooldown_check(interaction: discord.Interaction):
     return None if interaction.user.id == settings['owner_id'] else app_commands.Cooldown(1, 300)
 
@@ -21,18 +18,16 @@ class Tools(commands.Cog):
         self.boticord_client = BoticordClient(settings['boticord_key'])
 
         @app_commands.check(is_shutted_down)
+        @app_commands.check(is_in_blacklist)
         class base64(app_commands.Group):
             """[Полезности] (Де-)кодирует указанный текст в Base64."""
 
             @app_commands.command(description="[Полезности] Кодирует указанный текст в Base64.")
+            @app_commands.check(is_in_blacklist)
             @app_commands.check(is_shutted_down)
             @app_commands.describe(text="Текст для кодировки")
             async def encode(self, interaction: discord.Interaction, text: str):
                 config.used_commands += 1
-                if interaction.user.id in blacklist:
-                    embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-                    embed.set_thumbnail(url=interaction.user.avatar.url)
-                    return await interaction.response.send_message(embed=embed, ephemeral=True)
                 config.lastcommand = '`/base64 encode`'
                 text = text[:1020] + (text[1020:] and '..')
                 ans = text.encode("utf8")
@@ -49,14 +44,11 @@ class Tools(commands.Cog):
                 await interaction.response.send_message(embed=embed, ephemeral=True)
 
             @app_commands.command(description="[Полезности] Декодирует Base64 в текст.")
+            @app_commands.check(is_in_blacklist)
             @app_commands.check(is_shutted_down)
             @app_commands.describe(text="Текст для декодировки")
             async def decode(self, interaction: discord.Interaction, text: str):
                 config.used_commands += 1
-                if interaction.user.id in blacklist:
-                    embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-                    embed.set_thumbnail(url=interaction.user.avatar.url)
-                    return await interaction.response.send_message(embed=embed, ephemeral=True)
                 config.lastcommand = '`/base64 decode`'
                 try:
                     ans = b64decode(text)
@@ -209,6 +201,7 @@ class Tools(commands.Cog):
                 pass
 
     @app_commands.command(description="[Полезности] Показывает изменения в текущей версии.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(ver="Версия бота")
     @app_commands.choices(ver=[
@@ -286,6 +279,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="errors", description="[Полезности] Список ошибок и решения их")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def errors(self, interaction: discord.Interaction):
         config.used_commands += 1
@@ -302,6 +296,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="help", description="[Полезности] Показывает основную информацию о боте.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def help(self, interaction: discord.Interaction):
         config.used_commands += 1
@@ -506,6 +501,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed, view=DropDownView())
 
     @app_commands.command(name="ping", description="[Полезности] Проверка бота на работоспособность")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def ping(self, interaction: discord.Interaction):
         config.used_commands += 1
@@ -518,6 +514,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="userinfo", description="[Полезности] Показывает информацию о пользователе")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member='Участник')
     async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):
@@ -636,6 +633,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=emb, view=View())
 
     @app_commands.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(
         member='Участник, чью аватарку вы хотите получить', 
@@ -699,6 +697,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="serverinfo", description="[Полезности] Информация о сервере")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def serverinfo(self, interaction: discord.Interaction):
         config.used_commands += 1
@@ -814,6 +813,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed, view=View())
 
     @app_commands.command(name="botinfo", description="[Полезности] Информация о боте")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def botinfo(self, interaction: discord.Interaction):
         if interaction.user.id in blacklist:
@@ -924,6 +924,7 @@ class Tools(commands.Cog):
         config.used_commands += 1
 
     @app_commands.command(name="badgeinfo", description="[Полезности] Информация о значках пользователей и серверов в боте.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def badgeinfo(self, interaction: discord.Interaction):
         config.used_commands += 1
@@ -938,6 +939,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name='outages', description="[Полезности] Показывает актуальные сбои в работе бота.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def outages(self, interaction: discord.Interaction):
         config.used_commands += 1
@@ -961,6 +963,7 @@ class Tools(commands.Cog):
             await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="nick", description="[Полезности] Изменяет ваш ник.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника")
     async def nick(self, interaction: discord.Interaction, argument: str = None):
@@ -1048,6 +1051,7 @@ class Tools(commands.Cog):
                 await interaction.edit_original_message(embed=embed, view=None)
 
     @app_commands.command(name="idea", description="[Полезности] Предложить идею для бота.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.checks.dynamic_cooldown(cooldown_check)
     @app_commands.describe(title="Суть идеи", description="Описание идеи", attachment="Изображение для показа идеи")
@@ -1071,6 +1075,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="getemoji", description="[Полезности] Выдает эмодзи картинкой.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(emoji_name="Название, ID либо сам эмодзи.", is_registry="Стоит ли учитывать регистр имени?")
     async def getemoji(self, interaction: discord.Interaction, emoji_name: str, is_registry: bool = False):
@@ -1109,6 +1114,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embeds=embeds)
 
     @app_commands.command(name="send", description="[Полезности] Отправляет сообщение в канал от имени вебхука")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(message="Сообщение, которое будет отправлено")
     async def send(self, interaction: discord.Interaction, message: str):
@@ -1138,6 +1144,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="getaudit", description="[Полезности] Получает информацию о кол-ве модерационных действий пользователя.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(member="Участник, чьё кол-во действий вы хотите увидить")
     async def getaudit(self, interaction: discord.Interaction, member: discord.User):
@@ -1167,6 +1174,7 @@ class Tools(commands.Cog):
 
     @app_commands.command(name="weather", description="[Полезности] Узнать погоду в городе.")
     @app_commands.describe(city="Город, где надо узнать погоду")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def weather(self, interaction: discord.Interaction, city: str):
         config.used_commands += 1
@@ -1201,6 +1209,7 @@ class Tools(commands.Cog):
             await interaction.edit_original_message(embed=embed)
     
     @app_commands.command(name="stopwatch", description="[Полезности] Секундомер.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     async def stopwatch(self, interaction: discord.Interaction):
         config.used_commands += 1
@@ -1231,6 +1240,7 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed, view=Button(start))
 
     @app_commands.command(name="debug", description="[Полезности] Запрос основной информации о боте.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.checks.dynamic_cooldown(cooldown_check)
     async def debug(self, interaction: discord.Interaction):
@@ -1316,6 +1326,7 @@ class Tools(commands.Cog):
         role23='Роль для выдачи'
     )
     @app_commands.check(is_shutted_down)
+    @app_commands.check(is_in_blacklist)
     async def autorole(
         self, 
         interaction: discord.Interaction, 
@@ -1476,6 +1487,7 @@ class Tools(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="calc", description="[Полезности] Калькулятор в Discord.")
+    @app_commands.check(is_in_blacklist)
     @app_commands.check(is_shutted_down)
     @app_commands.describe(problem="Пример для решения")
     async def calc(self, interaction: discord.Interaction, problem: str):

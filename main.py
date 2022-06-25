@@ -195,8 +195,18 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Задержка на команду `/{interaction.command.name}`! Попробуйте через `{error.retry_after}s`!")
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     if isinstance(error, app_commands.CheckFailure):
-        embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")
-        return await interaction.response.send_message(embed=embed, ephemeral=True) 
+        if not is_in_blacklist(interaction):
+            embed=discord.Embed(
+                title="Вы занесены в чёрный список бота!", 
+                color=discord.Color.red(), 
+                description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", 
+                timestamp=datetime.datetime.utcnow()
+            )
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if not is_shutted_down(interaction):
+            embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(), description="Владелец бота временно отключил эту команду! Попробуйте позже!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True) 
     if str(error).startswith("Failed to convert"):
         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Данная команда недоступна в личных сообщениях!")
         return await interaction.response.send_message(embed=embed, ephemeral=True)

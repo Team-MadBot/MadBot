@@ -100,3 +100,9 @@ hit_gifs = [ # Гифки удара.
     "https://cdn.discordapp.com/attachments/956616897363869796/967842756875673710/hit-anime.gif",
     "https://cdn.discordapp.com/attachments/956616897363869796/967842757148278864/hit-head-anime.gif"
 ]
+
+def is_in_blacklist(interaction: discord.Interaction):
+    return interaction.user.id not in blacklist
+
+def is_shutted_down(interaction: discord.Interaction):
+    return interaction.command.name not in shutted_down

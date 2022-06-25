@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import discord, datetime, sys, typing, requests, config, boticordpy, numexpr
-from numpy import ediff1d
+import discord, datetime, sys, typing, requests, config, boticordpy, numexpr, qrcode, os
 from boticordpy import BoticordClient
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
@@ -19,7 +18,7 @@ class Tools(commands.Cog):
 
         @app_commands.check(is_shutted_down)
         @app_commands.check(is_in_blacklist)
-        class base64(app_commands.Group):
+        class Base64(app_commands.Group):
             """[Полезности] (Де-)кодирует указанный текст в Base64."""
 
             @app_commands.command(description="[Полезности] Кодирует указанный текст в Base64.")
@@ -64,8 +63,34 @@ class Tools(commands.Cog):
                 embed.add_field(name="Исходный текст:", value=text, inline=False)
                 embed.add_field(name="Полученный текст:", value=ans)
                 await interaction.response.send_message(embed=embed, ephemeral=True)
+            
+        class QrCode(app_commands.Group):
+            """[Полезности] Создание/чтение QR-кода."""
+            @app_commands.command(description='[Полезности] Создать QR-код.')
+            @app_commands.check(is_in_blacklist)
+            @app_commands.check(is_shutted_down)
+            @app_commands.describe(text="Зашифрованный текст")
+            async def create(self, interaction: discord.Interaction, text: str):
+                config.used_commands += 1
+                config.lastcommand = "/create"
+                await interaction.response.defer(thinking=True, ephemeral=True)
+                qr = qrcode.QRCode()
+                qr.add_data(text)
+                img = qr.make_image()
+                img.save(f'{interaction.user.id}.png')
+                file = discord.File(f'{interaction.user.id}.png', filename=f"{interaction.user.id}.png")
+                embed = discord.Embed(
+                    title="QR-код",
+                    color=discord.Color.orange()
+                )
+                embed.add_field(name="Ваш текст:", value=f"`{text}`")
+                embed.set_image(url=f'attachment://{interaction.user.id}.png')
+                await interaction.followup.send(embed=embed, file=file)
+                await sleep(5)
+                os.remove(f'{interaction.user.id}.png')
         
-        self.bot.tree.add_command(base64())
+        self.bot.tree.add_command(Base64())
+        self.bot.tree.add_command(QrCode())
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -873,7 +898,7 @@ class Tools(commands.Cog):
         boticord.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 
         thanks = discord.Embed(
-            title = "MadBot - Благодарности",
+            title = f"{self.bot.user.name} - Благодарности",
             color = discord.Color.orange(),
             description="Этим людям я очень благодарен. Благодаря им, MadBot поднимается и улучшается."
         )
@@ -913,10 +938,10 @@ class Tools(commands.Cog):
             def __init__(self):
                 super().__init__(timeout=None)
                 self.add_item(discord.ui.Button(label="Поддержка", url=settings['support_invite']))
+                self.add_item(discord.ui.Button(label="Сообщество (чат)", url=settings['comm_invite']))
                 self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url="https://boticord.top/bot/madbot", emoji="<:bc:947181639384051732>"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url="https://bots.server-discord.com/880911386916577281", emoji="<:favicon:981586173204000808>"))
-                self.add_item(discord.ui.Button(label="Сообщество (чат)", url=settings['comm_invite']))
                 self.add_item(DropDown())
 
         await interaction.response.send_message(embed=embed, view=View())

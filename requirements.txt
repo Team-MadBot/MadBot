@@ -8,3 +8,4 @@ requests
 typing
 boticordpy
 numexpr
+qrcode

@@ -104,9 +104,6 @@ class Tools(commands.Cog):
             except:
                 pass
 
-        if message.content.startswith('Дарова, ботяра'):
-            await message.reply(f' {message.author.mention} бот, не я')
-
         if message.content.startswith("/"):
             embed = discord.Embed(title="Команда введена неправильно!", color=discord.Color.red(), description="У бота `/` является не префиксом, а вызовом слеш-команд. Полностью очистите строку сообщений, поставьте `/` и выберите команду из списка.")
             await message.reply(embed=embed, delete_after=20)

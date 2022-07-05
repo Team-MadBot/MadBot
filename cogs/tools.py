@@ -769,7 +769,7 @@ class Tools(commands.Cog):
             embed.add_field(name="Уровень проверки:", value="Средний", inline=True)
         elif temp == discord.VerificationLevel.high:
             embed.add_field(name="Уровень проверки:", value="Высокий", inline=True)
-        elif temp == discord.VerificationLevel.very_high:
+        elif temp == discord.VerificationLevel.highest:
             embed.add_field(name="Уровень проверки:", value="Очень высокий", inline=True)
         embed.add_field(name="Дата создания:", value=f"{discord.utils.format_dt(interaction.guild.created_at, 'D')} ({discord.utils.format_dt(interaction.guild.created_at, 'R')})", inline=True)
         if interaction.guild.rules_channel != None:
@@ -878,21 +878,26 @@ class Tools(commands.Cog):
         versions.set_thumbnail(url=self.bot.user.display_avatar.url)
         versions.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 
-        boticordinfo: boticordpy.types.Bot = await self.boticord_client.get_bot_info(880911386916577281)
-        boticord = discord.Embed(
-            title = "MadBot - Boticord",
-            color = discord.Color.orange(),
-            url=f"https://boticord.top/bot/{boticordinfo.short_code}",
-            description=boticordinfo.long_description
-        )
-        boticord.add_field(name="Кол-во апов:", value=f"`{boticordinfo.bumps}`.")
-        boticord.add_field(name="Кол-во добавлений:", value=f"`{boticordinfo.added}`")
-        boticord.add_field(name="Теги:", value=f"`{str(boticordinfo.tags).removeprefix('[').removesuffix(']')}`")
-        boticord.add_field(name="Статус рассмотрения:", value=f"`{boticordinfo.status}`")
-        boticord.add_field(name="Короткое описание:", value=f"`{boticordinfo.short_description}`")
-        boticord.add_field(name="Короткий код бота на сайте:", value=f"`{boticordinfo.short_code}`")
-        boticord.set_thumbnail(url=self.bot.user.display_avatar.url)
-        boticord.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        is_bc_available = True
+        try:
+            boticordinfo: boticordpy.types.Bot = await self.boticord_client.get_bot_info(880911386916577281)
+            boticord = discord.Embed(
+                title = "MadBot - Boticord",
+                color = discord.Color.orange(),
+                url=f"https://boticord.top/bot/{boticordinfo.short_code}",
+                description=boticordinfo.long_description
+            )
+            boticord.add_field(name="Кол-во апов:", value=f"`{boticordinfo.bumps}`.")
+            boticord.add_field(name="Кол-во добавлений:", value=f"`{boticordinfo.added}`")
+            boticord.add_field(name="Теги:", value=f"`{str(boticordinfo.tags).removeprefix('[').removesuffix(']')}`")
+            boticord.add_field(name="Статус рассмотрения:", value=f"`{boticordinfo.status}`")
+            boticord.add_field(name="Короткое описание:", value=f"`{boticordinfo.short_description}`")
+            boticord.add_field(name="Короткий код бота на сайте:", value=f"`{boticordinfo.short_code}`")
+            boticord.set_thumbnail(url=self.bot.user.display_avatar.url)
+            boticord.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        except Exception as e:
+            print(e)
+            is_bc_available = False
 
         thanks = discord.Embed(
             title = f"{self.bot.user.name} - Благодарности",
@@ -928,6 +933,13 @@ class Tools(commands.Cog):
                 if interaction.user != viewinteract.user:
                     return await viewinteract.response.send_message(embed=embeds[self.values[0]], ephemeral=True)
                 else:
+                    if self.values[0] == "boticord" and not is_bc_available:
+                        error = discord.Embed(
+                            title="Ошибка!",
+                            color=discord.Color.red(),
+                            description="Информация об боте на BotiCord.top недоступна!"
+                        )
+                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
                     await interaction.edit_original_message(embed=embeds[self.values[0]])
                     await viewinteract.response.defer()
 

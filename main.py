@@ -66,41 +66,13 @@ class MyBot(commands.Bot):
         if round(bot.latency, 3)*1000 < 90:
             started_at -= 10800
 
-        async def get_stats():
-            return {"servers": len(bot.guilds), "shards": 0, "users": len(bot.users)}
-
-        async def on_success_posting():
-            print("Статистика на boticord.top обновлена!")
-        
-        if bot.user.name == "MadBot":
-            boticord_client = BoticordClient(settings['boticord_key'])
-            autopost = (
-                boticord_client.autopost()
-                .init_stats(get_stats)
-                .on_success(on_success_posting)
-                .start()
-            )
         embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(), description=f"Пинг: `{int(round(bot.latency, 3)*1000)}ms`\nВерсия: `{settings['curr_version']}`")
         await logs.send(embed=embed)
         await channel.send("OK") # Канал "общения" мониторинга. Закомментируйте, если хотите.
         while True:
-            try:
-                await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | {int(round(bot.latency, 3)*1000)}ms"))
-                await sleep(60)
-            except:
-                await logs.send(round(bot.latency, 3)*1000)
-            if bot.user.id == 880911386916577281:
-                headers = {
-                    'Authorization': f"{settings['sdc_key']}",
-                    "Content-Type": "application/json"
-                }
-                body = {
-                    'shards': 1,
-                    'servers': len(bot.guilds)
-                }
-                response = requests.post(url=f"https://api.server-discord.com/v2/bots/{bot.user.id}/stats", headers=headers, json=body)
-                print(response.status_code)
-            await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} серверов | v{settings['curr_version']}"))
+            await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name=f"поддержка прекращена!"))
+            await sleep(60)
+            await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name=f"закат MadBot'a..."))
             await sleep(60)
     
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):

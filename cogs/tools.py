@@ -14,7 +14,6 @@ def cooldown_check(interaction: discord.Interaction):
 class Tools(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.boticord_client = BoticordClient(settings['boticord_key'])
 
         @app_commands.check(is_shutted_down)
         @app_commands.check(is_in_blacklist)
@@ -209,6 +208,11 @@ class Tools(commands.Cog):
                 color=discord.Color.green()
             )
             embed.add_field(name="Изменения:", value=changes)
+            embed2 = discord.Embed(
+                title="Внимание!",
+                color=discord.Color.red(),
+                description="Поддержка бота прекращена! Данный функционал скоро станет недоступным! Подробнее: https://t.me/MadCat9958/187"
+            )
             await interaction.followup.send(embed=embed)
         elif not(interaction.response.is_done()) and interaction.type == discord.InteractionType.component:
             await sleep(2)
@@ -507,12 +511,12 @@ class Tools(commands.Cog):
                     embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
                     embed.set_thumbnail(url=interaction.user.avatar.url)
                     return await viewinteract.response.send_message(embed=embed, ephemeral=True)
-                modals = {
-                    'bugreport': self.BugReport(),
-                    'question': self.AskQuestion(),
-                    'idea': self.SendIdea()
-                }
-                await viewinteract.response.send_modal(modals[self.values[0]])
+                embed = discord.Embed(
+                    title="Внимание!",
+                    color=discord.Color.red(),
+                    description="Поддержка бота прекращена! Обратная связь невозможна!\n\nПодробнее: https://t.me/MadCat9958/187"
+                )
+                await viewinteract.response.send_message(embed=embed, ephemeral=True)
            
         class DropDownView(discord.ui.View):
             def __init__(self):
@@ -878,35 +882,14 @@ class Tools(commands.Cog):
         versions.set_thumbnail(url=self.bot.user.display_avatar.url)
         versions.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 
-        is_bc_available = True
-        try:
-            boticordinfo: boticordpy.types.Bot = await self.boticord_client.get_bot_info(880911386916577281)
-            boticord = discord.Embed(
-                title = "MadBot - Boticord",
-                color = discord.Color.orange(),
-                url=f"https://boticord.top/bot/{boticordinfo.short_code}",
-                description=boticordinfo.long_description
-            )
-            boticord.add_field(name="Кол-во апов:", value=f"`{boticordinfo.bumps}`.")
-            boticord.add_field(name="Кол-во добавлений:", value=f"`{boticordinfo.added}`")
-            boticord.add_field(name="Теги:", value=f"`{str(boticordinfo.tags).removeprefix('[').removesuffix(']')}`")
-            boticord.add_field(name="Статус рассмотрения:", value=f"`{boticordinfo.status}`")
-            boticord.add_field(name="Короткое описание:", value=f"`{boticordinfo.short_description}`")
-            boticord.add_field(name="Короткий код бота на сайте:", value=f"`{boticordinfo.short_code}`")
-            boticord.set_thumbnail(url=self.bot.user.display_avatar.url)
-            boticord.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
-        except Exception as e:
-            print(e)
-            is_bc_available = False
-
         thanks = discord.Embed(
             title = f"{self.bot.user.name} - Благодарности",
             color = discord.Color.orange(),
-            description="Этим людям я очень благодарен. Благодаря им, MadBot поднимается и улучшается."
+            description="Этим людям я очень благодарен. Благодаря им, MadBot поднимался и улучшался."
         )
         thanks.add_field(name="A LIGHT PERSON#7588", value="Второй разработчик бота и лучший бета-тестер. Написал некоторые команды развлечений и помог выявить более 10-ти багов.", inline=False)
-        thanks.add_field(name="зайка#8418", value="Именно этот человек заполнял форму на получение верификации. Благодаря ему, бот получил верификацию.", inline=False)
-        thanks.add_field(name="milka#5557", value="Помимо его работы саппортом, он часто апает бота, чем помогает в распространении его.", inline=False)
+        thanks.add_field(name="зайка#8418", value="Именно этот человек заполнял форму на получение верификации. Благодаря ему, бот мог получить верификацию.", inline=False)
+        thanks.add_field(name="milka#5557", value="Помимо его работы саппортом, он часто апал бота, чем помогал в распространении его.", inline=False)
         thanks.set_thumbnail(url=self.bot.user.display_avatar.url)
         thanks.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 
@@ -914,7 +897,6 @@ class Tools(commands.Cog):
             'embed': embed,
             'stats': stats,
             'versions': versions,
-            'boticord': boticord,
             'thanks': thanks
         }
 
@@ -924,7 +906,6 @@ class Tools(commands.Cog):
                     discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
                     discord.SelectOption(label="Статистика", value='stats', description="Статистика бота.", emoji="📊"),
                     discord.SelectOption(label="Версии", value="versions", description="Версии библиотек и Python.", emoji="⚒️"),
-                    discord.SelectOption(label="Boticord", value="boticord", description="Информация из Boticord.", emoji="<:bc:947181639384051732>"),
                     discord.SelectOption(label="Благодарности", value="thanks", description="Эти люди сделали многое для бота.", emoji="❤️")
                 ]
                 super().__init__(placeholder="Выбор...", options=options, row=1)
@@ -933,13 +914,6 @@ class Tools(commands.Cog):
                 if interaction.user != viewinteract.user:
                     return await viewinteract.response.send_message(embed=embeds[self.values[0]], ephemeral=True)
                 else:
-                    if self.values[0] == "boticord" and not is_bc_available:
-                        error = discord.Embed(
-                            title="Ошибка!",
-                            color=discord.Color.red(),
-                            description="Информация об боте на BotiCord.top недоступна!"
-                        )
-                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
                     await interaction.edit_original_message(embed=embeds[self.values[0]])
                     await viewinteract.response.defer()
 
@@ -1401,6 +1375,12 @@ class Tools(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True) 
         config.lastcommand = '`/autorole`'
         if interaction.user.guild_permissions.manage_roles:
+            embed = discord.Embed(
+                title="Внимание!",
+                color=discord.Color.red(),
+                description="Поддержка бота прекращена! Данный функционал больше недоступен! Подробнее: https://t.me/MadCat9958/187"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
             bot_member = await interaction.guild.fetch_member(self.bot.user.id)
             if not(bot_member.guild_permissions.manage_roles):
                 embed = discord.Embed(

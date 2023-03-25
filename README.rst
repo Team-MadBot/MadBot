@@ -1,7 +1,7 @@
 MadBot
 ============
-.. image:: https://discord.com/api/guilds/914181806285279232/embed.png
-   :target: https://discord.gg/uWVTTbb9q6
+.. image:: https://discord.com/api/guilds/981247575451639888/embed.png
+   :target: https://discord.gg/DvYPRm939R
    :alt: Приглашение на Discord сервер поддержки.
 Исходный код MadBot. Вы можете помогать созданию бота, используя Pull Requests.
 

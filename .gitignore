@@ -1,4 +1,8 @@
 *.pyc
-/venv/
-/.idea/
-*.png
+.idea
+/venv
+database.db
+test.py
+.env
+__pycache__
+*.log

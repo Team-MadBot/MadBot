@@ -1,0 +1,106 @@
+import time
+
+from pymongo import MongoClient
+from tools.models import BlackList
+from tools.models import GuildUser
+from tools.models import EconomyActionIDs
+from typing import Optional, Literal
+
+client = MongoClient()
+db = client.madbot
+
+def check_blacklist(user_id: int) -> bool:
+    coll = db.blacklist
+    return bool(coll.find_one({"user_id": str(user_id)}))
+
+def get_blacklist(user_id: int) -> Optional[BlackList]:
+    coll = db.blacklist
+    blacklist = coll.find_one({"user_id": str(user_id)})
+    if blacklist is None: return None
+    return BlackList(
+        int(blacklist['user_id']), 
+        blacklist['blocked_at'],
+        blacklist['reason'],
+        blacklist['blocked_until']
+    )
+
+def add_blacklist(user_id: int, reason: Optional[str], blocked_until: Optional[int]) -> bool:
+    coll = db.blacklist
+    blacklist = coll.find_one({"user_id": str(user_id)})
+    if blacklist is not None: return False
+    coll.insert_one(
+        {
+            'user_id': str(user_id),
+            'blocked_at': round(time.time()),
+            'reason': reason,
+            'blocked_until': blocked_until
+        }
+    )
+    return True
+
+def remove_blacklist(user_id: int) -> bool:
+    coll = db.blacklist
+    blacklist = coll.find_one({"user_id": str(user_id)})
+    if blacklist is None: return False
+    coll.delete_one({'user_id': str(user_id)})
+    return True
+
+def get_guild_user(guild_id: int, user_id: int) -> Optional[GuildUser]:
+    coll = db.guild
+    guild = coll.find_one({'guild_id': str(guild_id)})
+    if guild is None: return None
+    user = [memb for memb in guild['members'] if memb['user_id'] == str(user_id)]
+    if len(user) == 0: return None
+    user = user[0]
+    return GuildUser(guild_id, user_id, user['balance'], user['xp'], user['level'])
+
+def update_money(guild_id: int, user_id: int, amount: int, reason: Optional[str], action_id: EconomyActionIDs) -> bool:
+    coll = db.guild
+    guild = coll.find_one({'guild_id': str(guild_id)})
+    if guild is None:
+        coll.insert_one(
+            {
+                'guild_id': str(guild_id),
+                'members': [
+                    {
+                        'user_id': str(user_id),
+                        'balance': amount,
+                        'level': 0,
+                        'xp': 0
+                    }
+                ]
+            }
+        )
+        return True
+    user = next((item for item in guild['members'] if item["user_id"] == str(user_id)), None)
+    if user is None:
+        coll.update_one(
+            {'guild_id': str(guild_id)},
+            {
+                "$push": {
+                    'members': {
+                        'user_id': str(user_id),
+                        'balance': amount,
+                        'level': 0,
+                        'xp': 0
+                    }
+                }
+            } 
+        )
+        return True
+    coll.update_one(
+        {
+            'guild_id': str(guild_id),
+            'members': {
+                "$elemMatch": {
+                    'user_id': str(user_id)
+                }
+            }
+        },
+        {
+            "$inc": {
+                "members.$.balance": amount
+            }
+        }
+    )
+    return True

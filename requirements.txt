@@ -1,11 +1,5 @@
-git+https://github.com/Rapptz/discord.py
-discord-components
-pypresence
-PyNaCl
-aiohttp
-translate
-requests
-typing
-boticordpy
-numexpr
-qrcode
+discord.py
+jishaku
+python_dotenv
+pymongo
+git+https://codeberg.org/Starrysparklez/pynepcord/

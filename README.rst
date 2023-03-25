@@ -14,7 +14,13 @@ MadBot
 - При необходимости, меняем значения в ``config.py`` на свои (ОБРАТИТЕ ВНИАНИЕ НА ID БОТА!!!).
 - Запускаем ``main.py``.
 
+MongoDB:
+-----------
+Не забудьте про неё. Без этого все команды, использующие MongoDB (а это все команды) не запустяться.
+- Если у Вашего сервера MongoDB свои настройки - измените их в ``./tools/db.py``.
+- Если у Вас нету MongoDB - установите её и перезапустите ПК (если у Вас Windows).
+
 Требования:
 ------------
-См. `requirements.txt <https://github.com/MadCat9958/MadBotPublic/blob/main/requirements.txt/>`__.
+См. `requirements.txt <https://github.com/Team-MadBot/MadBot/blob/v2/requirements.txt/>`__.
 Минимальная версия **Python**: ``3.10``.

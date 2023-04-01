@@ -9,6 +9,7 @@ class Ban(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="ban", description="Блокировка участника на сервере")
+    @app_commands.guild_only()
     @app_commands.checks.has_permissions(ban_members=True)
     @app_commands.describe(
         user="Пользователь, которому необходимо выдать наказание.",

@@ -9,6 +9,7 @@ class Untimeout(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="untimeout", description="Убрать у участника мут.")
+    @app_commands.guild_only()
     @app_commands.checks.has_permissions(moderate_members=True)
     @app_commands.describe(
         user="Пользователь, которому необходимо убрать наказание.",

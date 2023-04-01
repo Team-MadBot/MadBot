@@ -96,6 +96,9 @@ class EditMoneyAction:
         self.user_id = user_id
         self.amount = amount
 
+    def to_dict(self, reason: Optional[str]):
+        return self.__dict__.update({'reason': reason})
+
 class PatchMoneyAction(EditMoneyAction):
     def __init__(self, _id: int, user_id: int, patcher_id: int, reason: Optional[str], amount: int):
         self.patcher_id = patcher_id

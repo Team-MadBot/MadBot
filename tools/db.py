@@ -3,8 +3,8 @@ import time
 from pymongo import MongoClient
 from tools.models import BlackList
 from tools.models import GuildUser
-from tools.models import EconomyActionIDs
-from typing import Optional, Literal
+from tools.models import EditMoneyAction
+from typing import Optional
 
 client = MongoClient()
 db = client.madbot
@@ -54,7 +54,13 @@ def get_guild_user(guild_id: int, user_id: int) -> Optional[GuildUser]:
     user = user[0]
     return GuildUser(guild_id, user_id, user['balance'], user['xp'], user['level'])
 
-def update_money(guild_id: int, user_id: int, amount: int, reason: Optional[str], action_id: EconomyActionIDs) -> bool:
+def update_money(
+    guild_id: int, 
+    user_id: int,
+    amount: int, 
+    reason: Optional[str], 
+    action: EditMoneyAction
+) -> bool:
     coll = db.guild
     guild = coll.find_one({'guild_id': str(guild_id)})
     if guild is None:
@@ -100,6 +106,14 @@ def update_money(guild_id: int, user_id: int, amount: int, reason: Optional[str]
         {
             "$inc": {
                 "members.$.balance": amount
+            }
+        }
+    )
+    coll.update_one(
+        {'guild_id': str(guild_id)},
+        {
+            "$push": {
+                'actions': action.to_dict(reason=reason)
             }
         }
     )

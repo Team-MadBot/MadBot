@@ -12,6 +12,7 @@ class Clear(commands.Cog):
         self.bot = bot
     
     @app_commands.command(name="clear", description="Очистка канала от N сообщений")
+    @app_commands.guild_only()
     @app_commands.checks.dynamic_cooldown(cooldown.clear)
     @app_commands.checks.has_permissions(manage_messages=True)
     @app_commands.checks.bot_has_permissions(manage_messages=True, read_message_history=True)

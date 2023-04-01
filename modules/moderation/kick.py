@@ -9,6 +9,7 @@ class Kick(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="kick", description="Исключение участника с сервера")
+    @app_commands.guild_only()
     @app_commands.checks.has_permissions(kick_members=True)
     @app_commands.describe(
         user="Пользователь, которому необходимо выдать наказание.",

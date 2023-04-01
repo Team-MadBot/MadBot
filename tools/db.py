@@ -72,7 +72,8 @@ def update_money(action: EditMoneyAction) -> bool:
                         'level': 0,
                         'xp': 0
                     }
-                ]
+                ],
+                'actions': []
             }
         )
         return True

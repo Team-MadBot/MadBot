@@ -9,6 +9,7 @@ class Add_Money(commands.Cog):
         self.bot = bot
     
     @app_commands.command(name="add-money", description="Добавить монет участнику")
+    @app_commands.guild_only()
     @app_commands.checks.has_permissions(manage_guild=True)
     @app_commands.describe(member="Участник, кому надо выдать деньги", money="Кол-во валюты")
     async def add_money(self, interaction: discord.Interaction, member: discord.User, money: app_commands.Range[int, 1, None]):
@@ -21,7 +22,7 @@ class Add_Money(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if not isinstance(member, discord.Member):
             try:
-                member = await interaction.guild.fetch_member(member.id)
+                member = await interaction.guild.fetch_member(member.id) # type: ignore
             except discord.NotFound:
                 embed = discord.Embed(
                     title="Ошибка!",
@@ -29,7 +30,15 @@ class Add_Money(commands.Cog):
                     description="Выполнение данной команды возможно только на участнике, который есть на сервере."
                 ).set_image(url="https://http.cat/400")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        db.update_money(interaction.guild.id, member.id, money)
+        db.update_money(
+            models.PatchMoneyAction(
+                guild_id=interaction.guild.id, # type: ignore
+                user_id=member.id,
+                patcher_id=interaction.user.id,
+                reason="/add-money command",
+                amount=money
+            )
+        )
         embed = discord.Embed(
             title="Выдача денег - Успешно!",
             color=discord.Color.green(),

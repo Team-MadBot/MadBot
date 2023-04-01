@@ -54,14 +54,12 @@ def get_guild_user(guild_id: int, user_id: int) -> Optional[GuildUser]:
     user = user[0]
     return GuildUser(guild_id, user_id, user['balance'], user['xp'], user['level'])
 
-def update_money(
-    guild_id: int, 
-    user_id: int,
-    amount: int, 
-    reason: Optional[str], 
-    action: EditMoneyAction
-) -> bool:
+def update_money(action: EditMoneyAction) -> bool:
     coll = db.guild
+    guild_id = action.guild_id
+    user_id = action.user_id
+    amount = action.amount
+
     guild = coll.find_one({'guild_id': str(guild_id)})
     if guild is None:
         coll.insert_one(
@@ -78,6 +76,7 @@ def update_money(
             }
         )
         return True
+    
     user = next((item for item in guild['members'] if item["user_id"] == str(user_id)), None)
     if user is None:
         coll.update_one(
@@ -109,11 +108,12 @@ def update_money(
             }
         }
     )
+
     coll.update_one(
         {'guild_id': str(guild_id)},
         {
             "$push": {
-                'actions': action.to_dict(reason=reason)
+                'actions': action.to_dict()
             }
         }
     )

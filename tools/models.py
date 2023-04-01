@@ -84,34 +84,32 @@ class GuildUser:
         self.level = level
 
 class EconomyActionIDs:    
-    ADD_MONEY = 1
-    REMOVE_MONEY = 2
-    TRANSFER = 3
-    BUY = 4
-    API_PATCH = 5
+    PATCH_MONEY = 1
+    TRANSFER = 2
+    BUY = 3
 
 class EditMoneyAction:
-    def __init__(self, _id: int, user_id: int, amount: int = 0):
+    def __init__(self, _id: int, guild_id: int, user_id: int, reason: Optional[str], amount: int = 0):
         self.id = _id
+        self.guild_id = guild_id
         self.user_id = user_id
         self.amount = amount
+        self.reason = reason
 
-    def to_dict(self, reason: Optional[str]):
-        return self.__dict__.update({'reason': reason})
+    def to_dict(self):
+        return self.__dict__
 
 class PatchMoneyAction(EditMoneyAction):
-    def __init__(self, _id: int, user_id: int, patcher_id: int, reason: Optional[str], amount: int):
+    def __init__(self, guild_id: int, user_id: int, patcher_id: int, reason: Optional[str], amount: int):
         self.patcher_id = patcher_id
-        self.reason = reason
-        super().__init__(_id, user_id, amount)
+        super().__init__(1, guild_id, user_id, reason, amount)
 
 class TransferAction(EditMoneyAction):
-    def __init__(self, _id: int, user_id: int, transferrer_id: int, reason: Optional[str], amount: int):
+    def __init__(self, guild_id: int, user_id: int, transferrer_id: int, reason: Optional[str], amount: int):
         self.transferrer_id = transferrer_id
-        self.reason = reason
-        super().__init__(_id, user_id, amount)
+        super().__init__(2, guild_id, user_id, reason, amount)
 
 class BuyAction(EditMoneyAction):
-    def __init__(self, _id: int, user_id: int, item_id: int, amount: int):
+    def __init__(self, guild_id: int, user_id: int, item_id: int, reason: Optional[str], amount: int):
         self.item_id = item_id
-        super().__init__(_id, user_id, amount)
+        super().__init__(3, guild_id, user_id, reason, amount)

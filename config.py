@@ -17,6 +17,7 @@ cogs = (
     "modules.moderation.untimeout",
     "modules.moderation.unban",
     "modules.moderation.clear",
+    "modules.moderation.warn",
     "modules.economy.profile",
     "modules.economy.add_money",
     "modules.economy.remove_money"

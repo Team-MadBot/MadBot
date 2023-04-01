@@ -119,3 +119,40 @@ def update_money(action: EditMoneyAction) -> bool:
         }
     )
     return True
+
+def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str):
+    coll = db.guild
+    guild = coll.find_one({'guild_id': str(guild_id)})
+
+    if guild is None:
+        coll.insert_one(
+            {
+                'guild_id': str(guild_id),
+                'members': [],
+                'actions': [
+                    {
+                        'id': 4,
+                        'user_id': str(user_id),
+                        'mod_id': str(mod_id),
+                        'until': until,
+                        'reason': reason
+                    }
+                ]
+            }
+        )
+        return True
+    coll.update_one(
+        {'guild_id': str(guild_id)},
+        {
+            "$push": {
+                'actions': {
+                    'id': 4,
+                    'user_id': str(user_id),
+                    'mod_id': str(mod_id),
+                    'until': until,
+                    'reason': reason
+                }
+            }
+        } 
+    )
+    return True

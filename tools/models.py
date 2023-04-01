@@ -83,10 +83,12 @@ class GuildUser:
         self.xp = xp
         self.level = level
 
-class EconomyActionIDs:    
+class GuildActionsIDs:    
     PATCH_MONEY = 1
     TRANSFER = 2
     BUY = 3
+    WARN = 4
+    UNWARN = 5
 
 class EditMoneyAction:
     def __init__(self, _id: int, guild_id: int, user_id: int, reason: Optional[str], amount: int = 0):
@@ -97,7 +99,10 @@ class EditMoneyAction:
         self.reason = reason
 
     def to_dict(self):
-        return self.__dict__
+        dct = self.__dict__
+        dct['user_id'] = str(dct['user_id'])
+        dct.pop('guild_id')
+        return dct
 
 class PatchMoneyAction(EditMoneyAction):
     def __init__(self, guild_id: int, user_id: int, patcher_id: int, reason: Optional[str], amount: int):

@@ -14,7 +14,9 @@ class Warn(commands.Cog):
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(moderate_members=True)
     @app_commands.describe(
-
+        member="Участник, которому необходимо выдать предупреждение",
+        duration="Срок варна",
+        reason="Причина наказания"
     )
     async def warn(
         self, 

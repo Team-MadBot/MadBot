@@ -1,6 +1,7 @@
 import time
 
 from pymongo import MongoClient
+from tools import models
 from tools.models import BlackList
 from tools.models import GuildUser
 from tools.models import EditMoneyAction
@@ -134,6 +135,7 @@ def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str)
                         'id': 4,
                         'user_id': str(user_id),
                         'mod_id': str(mod_id),
+                        'time': round(time.time()),
                         'until': until,
                         'reason': reason
                     }
@@ -149,6 +151,7 @@ def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str)
                     'id': 4,
                     'user_id': str(user_id),
                     'mod_id': str(mod_id),
+                    'time': round(time.time()),
                     'until': until,
                     'reason': reason
                 }
@@ -156,3 +159,25 @@ def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str)
         } 
     )
     return True
+
+def remove_last_warn(guild_id: int, user_id: int, mod_id: int, reason: Optional[str]) -> bool:
+    coll = db.guild
+    guild = coll.find_one({'guild_id': str(guild_id)})
+
+    if guild is None:
+        return False
+    
+    coll.update_one(
+        {'guild_id': str(guild_id)},
+        {
+            '$push': {
+                'actions': {
+                    'id': 5,
+                    'user_id': str(user_id),
+                    'mod_id': str(mod_id),
+                    'time': round(time.time()),
+                    'reason': reason
+                }
+            }
+        }
+    )

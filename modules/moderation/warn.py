@@ -115,3 +115,6 @@ class Warn(commands.Cog):
             reason=reason
         )
         await interaction.followup.send(embed=embed)
+
+async def setup(bot: models.MadBot):
+    await bot.add_cog(Warn(bot))

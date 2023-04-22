@@ -1,5 +1,4 @@
-git+https://github.com/Rapptz/discord.py
-discord-components
+discord.py
 pypresence
 PyNaCl
 aiohttp

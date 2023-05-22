@@ -1,13 +1,14 @@
 import time
 
 from pymongo import MongoClient
+from config import settings
 from tools import models
 from tools.models import BlackList
 from tools.models import GuildUser
 from tools.models import EditMoneyAction
 from typing import Optional
 
-client = MongoClient()
+client = MongoClient() if settings['mongo_url'] is None else MongoClient(settings['mongo_url'])
 db = client.madbot
 
 def check_blacklist(user_id: int) -> bool:

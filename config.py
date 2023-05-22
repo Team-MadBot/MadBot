@@ -35,6 +35,7 @@ class Settings(TypedDict):
     log_channel: int
     color: Color
     support_invite: str
+    mongo_url: str
 
 settings: Settings = {
     "token": os.environ.get("TOKEN"),
@@ -47,7 +48,8 @@ settings: Settings = {
     "shard_count": 1,
     "log_channel": 924241555697594380,
     "color": Color.orange(),
-    "support_invite": "https://discord.gg/DvYPRm939R"
+    "support_invite": "https://discord.gg/DvYPRm939R",
+    "mongo_url": os.environ.get("MONGODB_URL")
 }
 
 coders = [

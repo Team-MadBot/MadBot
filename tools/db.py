@@ -9,7 +9,7 @@ from tools.models import EditMoneyAction
 from typing import Optional
 
 client = MongoClient() if settings['mongo_url'] is None else MongoClient(settings['mongo_url'])
-db = client.madbot
+db = client.madbotv2
 
 def check_blacklist(user_id: int) -> bool:
     coll = db.blacklist

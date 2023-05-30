@@ -1,3 +1,14 @@
+"""
+This is database callback code. You can see the structure of collections:
+
+1. Blacklist:
+{
+    'user_id': str,
+    'blocked_at': int,
+    'reason': str,
+    'blocked_at': Optional[str]
+}
+"""
 import time
 
 from pymongo import MongoClient
@@ -8,14 +19,17 @@ from tools.models import GuildUser
 from tools.models import EditMoneyAction
 from typing import Optional
 
+# db init
 client = MongoClient() if settings['mongo_url'] is None else MongoClient(settings['mongo_url'])
 db = client.madbotv2
 
 def check_blacklist(user_id: int) -> bool:
+    # you can find collection's structute at line 4 (collection 1).
     coll = db.blacklist
     return bool(coll.find_one({"user_id": str(user_id)}))
 
 def get_blacklist(user_id: int) -> Optional[BlackList]:
+    # you can find collection's structute at line 4 (collection 1).
     coll = db.blacklist
     blacklist = coll.find_one({"user_id": str(user_id)})
     if blacklist is None: return None
@@ -27,6 +41,7 @@ def get_blacklist(user_id: int) -> Optional[BlackList]:
     )
 
 def add_blacklist(user_id: int, reason: Optional[str], blocked_until: Optional[int]) -> bool:
+    # you can find collection's structute at line 4 (collection 1).
     coll = db.blacklist
     blacklist = coll.find_one({"user_id": str(user_id)})
     if blacklist is not None: return False
@@ -41,6 +56,7 @@ def add_blacklist(user_id: int, reason: Optional[str], blocked_until: Optional[i
     return True
 
 def remove_blacklist(user_id: int) -> bool:
+    # you can find collection's structute at line 4 (collection 1).
     coll = db.blacklist
     blacklist = coll.find_one({"user_id": str(user_id)})
     if blacklist is None: return False

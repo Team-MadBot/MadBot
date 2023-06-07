@@ -5,6 +5,7 @@ import traceback
 from typing import Optional, Literal
 from discord.ext import commands
 from config import settings, cogs
+from enum import IntEnum
 # from tools import db
 
 NC_CATEGORIES = Literal[
@@ -83,7 +84,7 @@ class GuildUser:
         self.xp = xp
         self.level = level
 
-class GuildActionsIDs:    
+class GuildActionsType(IntEnum):    
     PATCH_MONEY = 1
     TRANSFER = 2
     BUY = 3
@@ -105,16 +106,96 @@ class EditMoneyAction:
         return dct
 
 class PatchMoneyAction(EditMoneyAction):
-    def __init__(self, guild_id: int, user_id: int, patcher_id: int, reason: Optional[str], amount: int):
+    def __init__(
+        self, 
+        guild_id: int, 
+        user_id: int, 
+        patcher_id: int, 
+        reason: Optional[str], 
+        amount: int
+    ):
         self.patcher_id = patcher_id
-        super().__init__(1, guild_id, user_id, reason, amount)
+        super().__init__(
+            GuildActionsType.PATCH_MONEY, 
+            guild_id, 
+            user_id, 
+            reason, 
+            amount
+        )
 
 class TransferAction(EditMoneyAction):
-    def __init__(self, guild_id: int, user_id: int, transferrer_id: int, reason: Optional[str], amount: int):
-        self.transferrer_id = transferrer_id
-        super().__init__(2, guild_id, user_id, reason, amount)
+    def __init__(
+        self, 
+        guild_id: int, 
+        from_id: int, 
+        to_id: int, 
+        reason: Optional[str], 
+        amount: int
+    ):
+        super().__init__(
+            GuildActionsType.TRANSFER, 
+            guild_id, 
+            from_id, 
+            reason, 
+            amount
+        )
+        self.__delattr__("user_id")
+        self.from_id = from_id
+        self.to_id = to_id
 
 class BuyAction(EditMoneyAction):
-    def __init__(self, guild_id: int, user_id: int, item_id: int, reason: Optional[str], amount: int):
+    def __init__(
+        self, 
+        guild_id: int, 
+        user_id: int, 
+        item_id: int, 
+        reason: Optional[str], 
+        amount: int
+    ):
         self.item_id = item_id
-        super().__init__(3, guild_id, user_id, reason, amount)
+        super().__init__(
+            GuildActionsType.BUY, 
+            guild_id, 
+            user_id, 
+            reason, 
+            amount
+        )
+
+class UserWarn:
+    def __init__(
+        self,
+        guild_id: int,
+        user_id: int,
+        mod_id: int,
+        until: int,
+        reason: int
+    ):
+        self.id = GuildActionsType.WARN
+        self.guild_id = guild_id
+        self.user_id = user_id
+        self.mod_id = mod_id
+        self.until = until
+        self.reason = reason
+    
+    def to_dict(self):
+        dct = self.__dict__
+        dct.pop("guild_id")
+        dct['user_id'] = str(dct['user_id'])
+        dct['mod_id'] = str(dct['mod_id'])
+        return dct
+
+class UserUnwarn(UserWarn):
+    def __init__(self, 
+        guild_id: int, 
+        user_id: int, 
+        mod_id: int, 
+        reason: int
+    ):
+        super().__init__(
+            guild_id, 
+            user_id, 
+            mod_id, 
+            0, 
+            reason
+        )
+        self.__delattr__("until")

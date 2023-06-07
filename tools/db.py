@@ -8,6 +8,37 @@ This is database callback code. You can see the structure of collections:
     'reason': str,
     'blocked_at': Optional[str]
 }
+
+2. GuildMemberAction:
+{
+    'type': int,
+    ...and other stuff for specific action
+}
+
+3. GuildMember:
+{
+    'user_id': str,
+    'balance': int,
+    'level': int,
+    'xp': int,
+    'actions': List[GuildMemberAction]
+}
+
+4. ButtonRole:
+{
+    'channel_id': str,
+    'message_id': str,
+    'type': str in ("single", "multiple")
+    'roles': List[str]
+}
+
+5. Guild:
+{
+    'guild_id': str,
+    'members': List[GuildMember],
+    'autoroles': List[str],
+    'buttonroles': List[ButtonRole]
+}
 """
 import time
 
@@ -24,12 +55,12 @@ client = MongoClient() if settings['mongo_url'] is None else MongoClient(setting
 db = client.madbotv2
 
 def check_blacklist(user_id: int) -> bool:
-    # you can find collection's structute at line 4 (collection 1).
+    # you can find collection's structure at line 4 (collection 1).
     coll = db.blacklist
     return bool(coll.find_one({"user_id": str(user_id)}))
 
 def get_blacklist(user_id: int) -> Optional[BlackList]:
-    # you can find collection's structute at line 4 (collection 1).
+    # you can find collection's structure at line 4 (collection 1).
     coll = db.blacklist
     blacklist = coll.find_one({"user_id": str(user_id)})
     if blacklist is None: return None
@@ -41,7 +72,7 @@ def get_blacklist(user_id: int) -> Optional[BlackList]:
     )
 
 def add_blacklist(user_id: int, reason: Optional[str], blocked_until: Optional[int]) -> bool:
-    # you can find collection's structute at line 4 (collection 1).
+    # you can find collection's structure at line 4 (collection 1).
     coll = db.blacklist
     blacklist = coll.find_one({"user_id": str(user_id)})
     if blacklist is not None: return False
@@ -56,7 +87,7 @@ def add_blacklist(user_id: int, reason: Optional[str], blocked_until: Optional[i
     return True
 
 def remove_blacklist(user_id: int) -> bool:
-    # you can find collection's structute at line 4 (collection 1).
+    # you can find collection's structure at line 4 (collection 1).
     coll = db.blacklist
     blacklist = coll.find_one({"user_id": str(user_id)})
     if blacklist is None: return False
@@ -88,10 +119,12 @@ def update_money(action: EditMoneyAction) -> bool:
                         'user_id': str(user_id),
                         'balance': amount,
                         'level': 0,
-                        'xp': 0
+                        'xp': 0,
+                        'actions': [action.to_dict()]
                     }
                 ],
-                'actions': []
+                'autoroles': [],
+                'buttonroles': []
             }
         )
         return True
@@ -106,13 +139,14 @@ def update_money(action: EditMoneyAction) -> bool:
                         'user_id': str(user_id),
                         'balance': amount,
                         'level': 0,
-                        'xp': 0
+                        'xp': 0,
+                        'actions': [action.to_dict()]
                     }
                 }
             } 
         )
         return True
-    coll.update_one(
+    coll.update_many(
         {
             'guild_id': str(guild_id),
             'members': {
@@ -124,15 +158,9 @@ def update_money(action: EditMoneyAction) -> bool:
         {
             "$inc": {
                 "members.$.balance": amount
-            }
-        }
-    )
-
-    coll.update_one(
-        {'guild_id': str(guild_id)},
-        {
+            },
             "$push": {
-                'actions': action.to_dict()
+                "members.$.actions": action.to_dict()
             }
         }
     )
@@ -146,25 +174,66 @@ def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str)
         coll.insert_one(
             {
                 'guild_id': str(guild_id),
-                'members': [],
-                'actions': [
+                'members': [
                     {
-                        'id': 4,
                         'user_id': str(user_id),
-                        'mod_id': str(mod_id),
-                        'time': round(time.time()),
-                        'until': until,
-                        'reason': reason
+                        'balance': 0,
+                        'level': 0,
+                        'xp': 0,
+                        'actions': {
+                            {
+                                'id': 4,
+                                'user_id': str(user_id),
+                                'mod_id': str(mod_id),
+                                'time': round(time.time()),
+                                'until': until,
+                                'reason': reason
+                            }
+                        }
                     }
-                ]
+                ],
             }
         )
         return True
-    coll.update_one(
-        {'guild_id': str(guild_id)},
+    
+    user = next((item for item in guild['members'] if item["user_id"] == str(user_id)), None)
+    if user is None:
+        coll.update_one(
+            {'guild_id': str(guild_id)},
+            {
+                "$push": {
+                    'members': {
+                        'user_id': str(user_id),
+                        'balance': 0,
+                        'level': 0,
+                        'xp': 0,
+                        'actions': [
+                            {
+                                'id': 4,
+                                'user_id': str(user_id),
+                                'mod_id': str(mod_id),
+                                'time': round(time.time()),
+                                'until': until,
+                                'reason': reason
+                            }
+                        ]
+                    }
+                }
+            } 
+        )
+        return True
+    coll.update_many(
+        {
+            'guild_id': str(guild_id),
+            'members': {
+                "$elemMatch": {
+                    'user_id': str(user_id)
+                }
+            }
+        },
         {
             "$push": {
-                'actions': {
+                "members.$.actions": {
                     'id': 4,
                     'user_id': str(user_id),
                     'mod_id': str(mod_id),
@@ -173,7 +242,7 @@ def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str)
                     'reason': reason
                 }
             }
-        } 
+        }
     )
     return True
 
@@ -184,11 +253,22 @@ def remove_last_warn(guild_id: int, user_id: int, mod_id: int, reason: Optional[
     if guild is None:
         return False
     
-    coll.update_one(
-        {'guild_id': str(guild_id)},
+    user = next((item for item in guild['members'] if item["user_id"] == str(user_id)), None)
+    if user is None:
+        return False
+    
+    coll.update_many(
         {
-            '$push': {
-                'actions': {
+            'guild_id': str(guild_id),
+            'members': {
+                "$elemMatch": {
+                    'user_id': str(user_id)
+                }
+            }
+        },
+        {
+            "$push": {
+                "members.$.actions": {
                     'id': 5,
                     'user_id': str(user_id),
                     'mod_id': str(mod_id),
@@ -198,3 +278,4 @@ def remove_last_warn(guild_id: int, user_id: int, mod_id: int, reason: Optional[
             }
         }
     )
+    return True

@@ -36,6 +36,7 @@ class Profile(commands.Cog):
         embed.add_field(name="Баланс:", value=f"`{memb.balance:,}`")
         embed.add_field(name="Уровень:", value=f"`{memb.level:,}`")
         embed.add_field(name="Опыт:", value=f"`{memb.xp:,}`")
+        embed.add_field(name=f"Инвентарь ({len(memb.inventory)})", value="*Скоро...*")
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot: models.MadBot):

@@ -113,7 +113,7 @@ def get_guild_user(guild_id: int, user_id: int) -> Optional[GuildUser]:
     user = [memb for memb in guild['members'] if memb['user_id'] == str(user_id)]
     if len(user) == 0: return None
     user = user[0]
-    return GuildUser(guild_id, user_id, user['balance'], user['xp'], user['level'])
+    return GuildUser(guild_id, user_id, user['balance'], user['xp'], user['level'], user['inventory'])
 
 def update_money(action: EditMoneyAction) -> bool:
     coll = db.guild

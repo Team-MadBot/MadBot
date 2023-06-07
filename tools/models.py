@@ -76,13 +76,15 @@ class GuildUser:
         user_id: int,
         balance: int,
         xp: int,
-        level: int
+        level: int,
+        inventory: list
     ):
         self.guild_id = guild_id
         self.user_id = user_id
         self.balance = balance
         self.xp = xp
         self.level = level
+        self.inventory = inventory
 
 class GuildActionsType(IntEnum):    
     PATCH_MONEY = 1

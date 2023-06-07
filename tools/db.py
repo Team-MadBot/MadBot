@@ -48,6 +48,7 @@ from tools import models
 from tools.models import BlackList
 from tools.models import GuildUser
 from tools.models import EditMoneyAction
+from tools.models import UserWarn, UserUnwarn
 from typing import Optional
 
 # db init
@@ -166,8 +167,14 @@ def update_money(action: EditMoneyAction) -> bool:
     )
     return True
 
-def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str):
+def warn_user(action: UserWarn):
     coll = db.guild
+    guild_id = action.guild_id
+    user_id = action.user_id
+    mod_id = action.mod_id
+    until = action.until
+    reason = action.reason
+
     guild = coll.find_one({'guild_id': str(guild_id)})
 
     if guild is None:
@@ -246,8 +253,13 @@ def warn_user(guild_id: int, user_id: int, mod_id: int, until: int, reason: str)
     )
     return True
 
-def remove_last_warn(guild_id: int, user_id: int, mod_id: int, reason: Optional[str]) -> bool:
+def remove_last_warn(action: UserUnwarn) -> bool:
     coll = db.guild
+    guild_id = action.guild_id
+    user_id = action.user_id
+    mod_id = action.mod_id
+    reason = action.reason
+
     guild = coll.find_one({'guild_id': str(guild_id)})
 
     if guild is None:

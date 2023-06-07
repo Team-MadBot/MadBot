@@ -2,7 +2,11 @@ import discord
 import config
 import traceback
 
-from typing import Optional, Literal
+from typing import (
+    Optional, 
+    Literal,
+    List
+)
 from discord.ext import commands
 from config import settings, cogs
 from enum import IntEnum
@@ -69,6 +73,36 @@ class BlackList:
     # def unblock(self) -> bool:
     #     return db.remove_blacklist(self.user_id)
 
+class GuildItem:
+    def __init__(
+        self,
+        id: int,
+        guild_id: int,
+        name: str,
+        cost: int,
+        description: str,
+        req_role: Optional[int]
+    ):
+        self.id = id
+        self.guild_id = guild_id
+        self.name = name
+        self.cost = cost
+        self.description = description
+        self.req_role = req_role
+    
+    @classmethod
+    def from_dict(cls, guild_id: int, data: dict):
+        self = cls.__new__(cls)
+
+        self.id = data['id']
+        self.guild_id = guild_id
+        self.name = data['name']
+        self.cost = data['cost']
+        self.description = data['description']
+        self.req_role = int(data['req_role'])
+
+        return self
+
 class GuildUser:
     def __init__(
         self,
@@ -77,7 +111,7 @@ class GuildUser:
         balance: int,
         xp: int,
         level: int,
-        inventory: list
+        inventory: List[GuildItem]
     ):
         self.guild_id = guild_id
         self.user_id = user_id

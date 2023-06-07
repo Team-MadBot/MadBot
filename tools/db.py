@@ -21,7 +21,7 @@ This is database callback code. You can see the structure of collections:
     'name': str,
     'cost': int,
     'description': str,
-    'req_role': str
+    'req_role': Optional[str]
 }
 
 4. GuildMember:
@@ -60,6 +60,7 @@ from tools.models import BlackList
 from tools.models import GuildUser
 from tools.models import EditMoneyAction
 from tools.models import UserWarn, UserUnwarn
+from tools.models import GuildItem
 from typing import Optional
 
 # db init
@@ -113,7 +114,14 @@ def get_guild_user(guild_id: int, user_id: int) -> Optional[GuildUser]:
     user = [memb for memb in guild['members'] if memb['user_id'] == str(user_id)]
     if len(user) == 0: return None
     user = user[0]
-    return GuildUser(guild_id, user_id, user['balance'], user['xp'], user['level'], user['inventory'])
+    return GuildUser(
+        guild_id, 
+        user_id, 
+        user['balance'], 
+        user['xp'], 
+        user['level'], 
+        [GuildItem.from_dict(guild_id, item) for item in user['inventory']]
+    )
 
 def update_money(action: EditMoneyAction) -> bool:
     coll = db.guild

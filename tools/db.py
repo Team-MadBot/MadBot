@@ -15,16 +15,26 @@ This is database callback code. You can see the structure of collections:
     ...and other stuff for specific action
 }
 
-3. GuildMember:
+3. GuildItem:
+{
+    'id': int,
+    'name': str,
+    'cost': int,
+    'description': str,
+    'req_role': str
+}
+
+4. GuildMember:
 {
     'user_id': str,
     'balance': int,
     'level': int,
     'xp': int,
     'actions': List[GuildMemberAction]
+    'inventory': List[GuildItem]
 }
 
-4. ButtonRole:
+5. ButtonRole:
 {
     'channel_id': str,
     'message_id': str,
@@ -32,12 +42,13 @@ This is database callback code. You can see the structure of collections:
     'roles': List[str]
 }
 
-5. Guild:
+6. Guild:
 {
     'guild_id': str,
     'members': List[GuildMember],
     'autoroles': List[str],
-    'buttonroles': List[ButtonRole]
+    'buttonroles': List[ButtonRole],
+    'items': List[GuildItem]
 }
 """
 import time
@@ -121,11 +132,13 @@ def update_money(action: EditMoneyAction) -> bool:
                         'balance': amount,
                         'level': 0,
                         'xp': 0,
-                        'actions': [action.to_dict()]
+                        'actions': [action.to_dict()],
+                        'inventory': []
                     }
                 ],
                 'autoroles': [],
-                'buttonroles': []
+                'buttonroles': [],
+                'items': []
             }
         )
         return True
@@ -141,7 +154,8 @@ def update_money(action: EditMoneyAction) -> bool:
                         'balance': amount,
                         'level': 0,
                         'xp': 0,
-                        'actions': [action.to_dict()]
+                        'actions': [action.to_dict()],
+                        'inventory': []
                     }
                 }
             } 
@@ -187,7 +201,7 @@ def warn_user(action: UserWarn):
                         'balance': 0,
                         'level': 0,
                         'xp': 0,
-                        'actions': {
+                        'actions': [
                             {
                                 'id': 4,
                                 'user_id': str(user_id),
@@ -196,9 +210,14 @@ def warn_user(action: UserWarn):
                                 'until': until,
                                 'reason': reason
                             }
-                        }
+                        ],
+                        'inventory': []
                     }
                 ],
+                'autoroles': [],
+                'buttonroles': [],
+                'items': []
+                
             }
         )
         return True
@@ -223,7 +242,8 @@ def warn_user(action: UserWarn):
                                 'until': until,
                                 'reason': reason
                             }
-                        ]
+                        ],
+                        'inventory': []
                     }
                 }
             } 

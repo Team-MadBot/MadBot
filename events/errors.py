@@ -94,7 +94,7 @@ class ErrorCog(commands.Cog):
                 pass
         print("ERROR:")
         traceback.print_exception(error)
-        print("======================")
+        print("===========================================")
         
 async def setup(bot: models.MadBot):
     await bot.add_cog(ErrorCog(bot))

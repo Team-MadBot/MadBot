@@ -1,4 +1,5 @@
 import discord
+import traceback
 
 from discord.ext import commands
 from discord import app_commands, ui
@@ -91,7 +92,9 @@ class ErrorCog(commands.Cog):
                 await interaction.followup.send(embed=embed, ephemeral=True, view=None)
             except:
                 pass
-        print(f"ERROR:\n{error}\n======================")
+        print("ERROR:")
+        traceback.print_exception(error)
+        print("======================")
         
 async def setup(bot: models.MadBot):
     await bot.add_cog(ErrorCog(bot))

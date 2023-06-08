@@ -99,7 +99,10 @@ class GuildItem:
         self.name = data['name']
         self.cost = data['cost']
         self.description = data['description']
-        self.req_role = int(data['req_role'])
+        if data.get('req_role') is not None:
+            self.req_role = int(data['req_role'])
+        else:
+            self.req_role = None
 
         return self
 

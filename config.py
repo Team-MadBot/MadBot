@@ -27,28 +27,28 @@ class Settings(TypedDict):
     token: str | None
     nc_token: str | None
     sdc_token: str | None
-    prefix: str
+    prefix: str | None
     owner_id: int
     intents: Intents
     bot_id: int
     shard_count: int
     log_channel: int
     color: Color
-    support_invite: str
-    mongo_url: str
+    support_invite: str | None
+    mongo_url: str | None
 
 settings: Settings = {
     "token": os.environ.get("TOKEN"),
     "nc_token": os.environ.get("NC_TOKEN"),
     "sdc_token": os.environ.get("SDC_TOKEN"),
-    "prefix": "$",
-    "owner_id": 560529834325966858,
-    "bot_id": 1116370571433885787,
+    "prefix": os.environ.get("PREFIX"),
+    "owner_id": int(os.environ.get("OWNER_ID")),  # type: ignore
+    "bot_id": int(os.environ.get("BOT_ID")),  # type: ignore
     "intents": Intents.default(),
-    "shard_count": 1,
-    "log_channel": 924241555697594380,
+    "shard_count": int(os.environ.get("SHARD_COUNT")),
+    "log_channel": int(os.environ.get("LOG_CHANNEL_ID")),
     "color": Color.orange(),
-    "support_invite": "https://discord.gg/DvYPRm939R",
+    "support_invite": os.environ.get("SUPPORT_URL"),
     "mongo_url": os.environ.get("MONGODB_URL")
 }
 

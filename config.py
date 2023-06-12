@@ -20,7 +20,8 @@ cogs = (
     "modules.moderation.warn",
     "modules.economy.profile",
     "modules.economy.add_money",
-    "modules.economy.remove_money"
+    "modules.economy.remove_money",
+    "modules.economy.add_item"
 )
 
 class Settings(TypedDict):

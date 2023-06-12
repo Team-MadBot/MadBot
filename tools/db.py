@@ -319,3 +319,48 @@ def remove_last_warn(action: UserUnwarn) -> bool:
         }
     )
     return True
+
+def add_guild_item(item: models.GuildItem) -> bool:
+    coll = db.guild
+    guild_id = item.guild_id
+    name = item.name
+    cost = item.cost
+    description = item.description
+    req_role = item.req_role
+    if req_role is not None: req_role = str(req_role)
+
+    guild = coll.find_one({'guild_id': str(guild_id)})
+    if guild is None:
+        coll.insert_one(
+            {
+                'guild_id': str(guild_id),
+                'members': [],
+                'autoroles': [],
+                'buttonroles': [],
+                'items': [
+                    {
+                        'name': name,
+                        'cost': cost,
+                        'description': description,
+                        'req_role': req_role
+                    }
+                ]
+                
+            }
+        )
+        return True
+    
+    coll.update_one(
+        {'guild_id': str(guild_id)},
+        {
+            '$push': {
+                "items": {
+                    'name': name,
+                    'cost': cost,
+                    'description': description,
+                    'req_role': req_role
+                }
+            }
+        }
+    )
+    return True

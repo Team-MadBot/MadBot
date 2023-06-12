@@ -82,9 +82,13 @@ class BlackList:
     #     return db.remove_blacklist(self.user_id)
 
 class GuildItem:
+    """Guild item object.
+    
+    ID can be None if this is partial object (not created in DB)"""
+
     def __init__(
         self,
-        id: int,
+        id: int | None,
         guild_id: int,
         name: str,
         cost: int,
@@ -113,6 +117,13 @@ class GuildItem:
             self.req_role = None
 
         return self
+
+    def to_dict(self):
+        dct: dict = self.__dict__
+        dct.pop("guild_id")
+        if self.req_role is None: dct['req_role'] = None
+        else: dct['req_role'] = str(self.req_role)
+        return dct
 
 class GuildUser:
     def __init__(

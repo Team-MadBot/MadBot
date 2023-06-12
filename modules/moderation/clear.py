@@ -30,7 +30,7 @@ class Clear(commands.Cog):
         if user is not None:
             after = discord.utils.utcnow() - datetime.timedelta(weeks=2)
             delete_messages = [
-                msg async for msg in interaction.channel.history(
+                msg async for msg in interaction.channel.history( # type: ignore
                     limit=None,
                     after=after,
                     oldest_first=False
@@ -45,7 +45,7 @@ class Clear(commands.Cog):
                 return await interaction.followup.send(embed=embed, ephemeral=True)
             delete_messages = delete_messages[:amount]
             try:
-                await interaction.channel.delete_messages(delete_messages, reason=str(interaction.user))
+                await interaction.channel.delete_messages(delete_messages, reason=str(interaction.user)) # type: ignore
             except discord.Forbidden:
                 embed = discord.Embed(
                     title="Ошибка!",
@@ -65,7 +65,7 @@ class Clear(commands.Cog):
             msg = await interaction.followup.send(embed=embed, wait=True)
             return await msg.delete(delay=30)
         try:
-            deleted = await interaction.channel.purge(
+            deleted = await interaction.channel.purge( # type: ignore
                 limit=amount,
                 check=lambda m: m.created_at.astimezone(discord.utils.utcnow().tzinfo) > discord.utils.utcnow() - datetime.timedelta(weeks=2),
                 reason=str(interaction.user)

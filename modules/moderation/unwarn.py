@@ -25,7 +25,7 @@ class Unwarn(commands.Cog):
     ) -> None:
         await interaction.response.defer(thinking=True)
         dm_embed = discord.Embed(
-            title=f"С Вас снят последний варн на сервере {interaction.guild.name}!",
+            title=f"С Вас снят последний варн на сервере {interaction.guild.name}!", # type: ignore
             color=discord.Color.red()
         )
         dm_embed.add_field(name="Модератор", value=f"{interaction.user.mention} (`{interaction.user}`)")
@@ -38,10 +38,12 @@ class Unwarn(commands.Cog):
         except (discord.Forbidden, discord.HTTPException):
             embed.set_footer(text="Участник не получил сообщение, так как его ЛС закрыто.")
         db.remove_last_warn(
-            guild_id=interaction.guild.id, 
-            user_id=member.id, 
-            mod_id=interaction.user.id,
-            reason=reason
+            models.UserUnwarn(
+                guild_id=interaction.guild.id, # type: ignore
+                user_id=member.id,
+                mod_id=interaction.user.id,
+                reason=reason
+            )
         )
         await interaction.followup.send(embed=embed)
 

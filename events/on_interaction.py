@@ -21,10 +21,10 @@ class OnInteractionEvent(commands.Cog):
     async def on_interaction(self, interaction: discord.Interaction):
         if interaction.type == discord.InteractionType.application_command:
             config.used_commands += 1
-            config.last_command = '/' + interaction.command.qualified_name
+            config.last_command = '/' + interaction.command.qualified_name # type: ignore
     
     async def interact_check(self, interaction: discord.Interaction) -> bool:
-        if interaction.guild.id != 1080911312600694785 or not blacklist.in_blacklist(interaction):
+        if interaction.guild.id != 1080911312600694785 or not blacklist.in_blacklist(interaction): # type: ignore
             raise app_commands.CheckFailure("iznas")
         return True
 

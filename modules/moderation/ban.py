@@ -32,28 +32,28 @@ class Ban(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if not isinstance(user, discord.Member):
             try:
-                user = await interaction.guild.fetch_member(user.id)
+                user = await interaction.guild.fetch_member(user.id) # type: ignore
             except discord.NotFound:
                 pass
             else:
-                bot_member = await interaction.guild.fetch_member(self.bot.user.id)
-                if bot_member.top_role <= user.top_role:
+                bot_member = await interaction.guild.fetch_member(self.bot.user.id) # type: ignore
+                if bot_member.top_role <= user.top_role: # type: ignore
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
                         description="Самая высокая роль бота должна быть выше самой высокой роли пользователя."
                     ).set_image(url="https://http.cat/403")
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
-                if interaction.user.top_role <= user.top_role:
+                if interaction.user.top_role <= user.top_role: # type: ignore
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
                         description="Ваша самая высокая роль должна быть выше самой высокой роли пользователя."
-                    ).set_image("https://http.cat/403")
+                    ).set_image(url="https://http.cat/403")
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.response.defer(thinking=True)
         dm_embed = discord.Embed(
-            title=f"Вы забанены на сервере {interaction.guild.name}!",
+            title=f"Вы забанены на сервере {interaction.guild.name}!", # type: ignore
             color=discord.Color.red()
         )
         dm_embed.add_field(name="Модератор", value=f"{interaction.user.mention} (`{interaction.user}`)")
@@ -65,7 +65,7 @@ class Ban(commands.Cog):
             await user.send(embed=dm_embed)
         except (discord.Forbidden, discord.HTTPException):
             embed.set_footer(text="Участник не получил сообщение, так как его ЛС закрыто.")
-        await interaction.guild.ban(
+        await interaction.guild.ban( # type: ignore
             user=user,
             reason=reason + f" // {interaction.user}", 
             delete_message_days=delete_message_days

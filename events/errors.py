@@ -23,7 +23,7 @@ class ErrorCog(commands.Cog):
                 title="Притормози-ка!",
                 color=discord.Color.red(),
                 description=(
-                    f"Команда `/{interaction.command.qualified_name}` имеет задержку в `{round(error.cooldown.rate)}` "
+                    f"Команда `/{interaction.command.qualified_name}` имеет задержку в `{round(error.cooldown.rate)}` " # type: ignore
                     f"использование в течении `{round(error.cooldown.per)}` секунд. Пожалуйста, попробуйте снова через "
                     f"`{round(error.retry_after, 2)}` секунд."
                 )
@@ -31,7 +31,7 @@ class ErrorCog(commands.Cog):
             embed.set_image(url="https://http.cat/429")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if isinstance(error, app_commands.CheckFailure):
-            if interaction.guild.id != 1080911312600694785:
+            if interaction.guild.id != 1080911312600694785: # type: ignore
                 embed = discord.Embed(
                     color=discord.Color.from_str("#2b2d31")
                 ).set_image(url="https://http.cat/400")
@@ -48,12 +48,12 @@ class ErrorCog(commands.Cog):
                         "решение окончательное."
                     )
                 )
-                embed.add_field(name="Дата занесения:", value=f"<t:{blacklist.blocked_at}> (<t:{blacklist.blocked_at}:R>)")
-                embed.add_field(name="Причина:", value=blacklist.reason if blacklist.reason is not None else "Не указана")
+                embed.add_field(name="Дата занесения:", value=f"<t:{blacklist.blocked_at}> (<t:{blacklist.blocked_at}:R>)") # type: ignore
+                embed.add_field(name="Причина:", value=blacklist.reason if blacklist.reason is not None else "Не указана") # type: ignore
                 embed.add_field(
                     name="Дата окончания:", 
                     value=(
-                        f"<t:{blacklist.blocked_until}> (<t:{blacklist.blocked_until}:R>)" if blacklist.blocked_until is not None
+                        f"<t:{blacklist.blocked_until}> (<t:{blacklist.blocked_until}:R>)" if blacklist.blocked_until is not None # type: ignore
                         else "Никогда"
                     )
                 )
@@ -86,14 +86,14 @@ class ErrorCog(commands.Cog):
             )    
         )
         try:
-            await interaction.response.send_message(embed=embed, ephemeral=True, view=None)
+            await interaction.response.send_message(embed=embed, ephemeral=True, view=None) # type: ignore
         except:
             try:
-                await interaction.followup.send(embed=embed, ephemeral=True, view=None)
+                await interaction.followup.send(embed=embed, ephemeral=True, view=None) # type: ignore
             except:
                 pass
         self.bot.logger.error(
-            f"Command /{interaction.command.qualified_name} raised an exception:\n"
+            f"Command /{interaction.command.qualified_name} raised an exception:\n" # type: ignore
             f"{traceback.format_exc()}\n"
             f"==========================================="
         )

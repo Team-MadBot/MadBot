@@ -27,7 +27,7 @@ class Timeout(commands.Cog):
     ):
         if not isinstance(user, discord.Member):
             try:
-                user = await interaction.guild.fetch_member(user.id)
+                user = await interaction.guild.fetch_member(user.id) # type: ignore
             except discord.NotFound:
                 embed = discord.Embed(
                     title="Ошибка!",
@@ -42,29 +42,29 @@ class Timeout(commands.Cog):
                 description="Я не имею права на мут участников, поэтому выполнение команды невозможно."
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if user.is_timed_out():
+        if user.is_timed_out(): # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Пользователь уже замучен. Размутьте для перевыдачи наказания."
             ).set_image(url="https://http.cat/400")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        bot_member = await interaction.guild.fetch_member(self.bot.user.id)
-        if bot_member.top_role <= user.top_role:
+        bot_member = await interaction.guild.fetch_member(self.bot.user.id) # type: ignore
+        if bot_member.top_role <= user.top_role: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Самая высокая роль бота должна быть выше самой высокой роли пользователя."
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.user.top_role <= user.top_role:
+        if interaction.user.top_role <= user.top_role: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Ваша самая высокая роль должна быть выше самой высокой роли пользователя."
-            ).set_image("https://http.cat/403")
+            ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if user.guild_permissions.administrator:
+        if user.guild_permissions.administrator: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -72,7 +72,7 @@ class Timeout(commands.Cog):
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         dur = 0
-        duration = duration.split()
+        duration = duration.split() # type: ignore
         for pos in duration:
             if pos[-1] not in ('d', 'h', 'm', 's') and not pos.isdigit():
                 embed = discord.Embed(
@@ -121,7 +121,7 @@ class Timeout(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.response.defer(thinking=True)
         dm_embed = discord.Embed(
-            title=f"Вы замучены на сервере {interaction.guild.name}!",
+            title=f"Вы замучены на сервере {interaction.guild.name}!", # type: ignore
             color=discord.Color.red()
         )
         dm_embed.add_field(name="Модератор", value=f"{interaction.user.mention} (`{interaction.user}`)")
@@ -134,7 +134,7 @@ class Timeout(commands.Cog):
             await user.send(embed=dm_embed)
         except (discord.Forbidden, discord.HTTPException):
             embed.set_footer(text="Участник не получил сообщение, так как его ЛС закрыто.")
-        await user.edit(
+        await user.edit( # type: ignore
             timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=dur),
             reason=reason + f" // {interaction.user}"
         )

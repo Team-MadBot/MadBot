@@ -36,7 +36,7 @@ class MadBot(commands.AutoShardedBot):
 
     def __init__(self):
         super().__init__(
-            command_prefix=commands.when_mentioned_or(settings['prefix']),
+            command_prefix=commands.when_mentioned_or(settings['prefix']), # type: ignore
             intents=settings['intents'],
             help_command=None,
             application_id=settings["bot_id"],
@@ -215,7 +215,7 @@ class UserWarn:
         user_id: int,
         mod_id: int,
         until: int,
-        reason: int
+        reason: str
     ):
         self.id = GuildActionsType.WARN
         self.guild_id = guild_id
@@ -236,7 +236,7 @@ class UserUnwarn(UserWarn):
         guild_id: int, 
         user_id: int, 
         mod_id: int, 
-        reason: int
+        reason: str
     ):
         super().__init__(
             guild_id, 

@@ -29,9 +29,9 @@ class LaunchCog(commands.Cog):
         embed = discord.Embed(
             title=f"Шард {shard_id} перезагружен!",
             color=settings["color"],
-            description=f"Пинг шарда: `{round(self.bot.get_shard(shard_id).latency * 1000)}ms`"
+            description=f"Пинг шарда: `{round(self.bot.get_shard(shard_id).latency * 1000)}ms`" # type: ignore
         )
-        await log_channel.send(embed=embed)
+        await log_channel.send(embed=embed) # type: ignore
         self.bot.logger.info(f"Shard ID {shard_id} is ready!")
 
 async def setup(bot: models.MadBot):

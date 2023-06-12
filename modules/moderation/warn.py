@@ -25,9 +25,9 @@ class Warn(commands.Cog):
         duration: app_commands.Range[str, None, 40],
         reason: str = "Не указана"
     ) -> None:
-        if not isinstance(user, discord.Member):
+        if not isinstance(user, discord.Member): # type: ignore
             try:
-                user = await interaction.guild.fetch_member(user.id)
+                user = await interaction.guild.fetch_member(user.id) # type: ignore
             except discord.NotFound:
                 embed = discord.Embed(
                     title="Ошибка!",
@@ -36,16 +36,16 @@ class Warn(commands.Cog):
                 ).set_image(url="https://http.cat/400")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
         
-        if interaction.user.top_role <= user.top_role:
+        if interaction.user.top_role <= user.top_role: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Ваша самая высокая роль должна быть выше самой высокой роли пользователя."
-            ).set_image("https://http.cat/403")
+            ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
         dur = 0
-        duration = duration.split()
+        duration = duration.split() # type: ignore
         for pos in duration:
             if pos[-1] not in ('d', 'h', 'm', 's') and not pos.isdigit():
                 embed = discord.Embed(
@@ -96,7 +96,7 @@ class Warn(commands.Cog):
         until = round(time.time()) + dur
         await interaction.response.defer(thinking=True)
         dm_embed = discord.Embed(
-            title=f"Вы получили варн на сервере {interaction.guild.name}!",
+            title=f"Вы получили варн на сервере {interaction.guild.name}!", # type: ignore
             color=discord.Color.red()
         )
         dm_embed.add_field(name="Модератор", value=f"{interaction.user.mention} (`{interaction.user}`)")
@@ -110,11 +110,13 @@ class Warn(commands.Cog):
         except (discord.Forbidden, discord.HTTPException):
             embed.set_footer(text="Участник не получил сообщение, так как его ЛС закрыто.")
         db.warn_user(
-            guild_id=interaction.guild.id, 
-            user_id=member.id, 
-            mod_id=interaction.user.id,
-            until=until,
-            reason=reason
+            models.UserWarn(
+                guild_id=interaction.guild.id, # type: ignore
+                user_id=member.id, 
+                mod_id=interaction.user.id,
+                until=until,
+                reason=reason
+            )
         )
         await interaction.followup.send(embed=embed)
 

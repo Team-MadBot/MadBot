@@ -18,7 +18,7 @@ class Kick(commands.Cog):
     async def kick(self, interaction: discord.Interaction, user: discord.User, reason: app_commands.Range[str, None, 470] = "Не указана"):
         if not isinstance(user, discord.Member):
             try:
-                user = await interaction.guild.fetch_member(user.id)
+                user = await interaction.guild.fetch_member(user.id) # type: ignore
             except discord.NotFound:
                 embed = discord.Embed(
                     title="Ошибка!",
@@ -33,24 +33,24 @@ class Kick(commands.Cog):
                 description="Я не имею права на исключение участников, поэтому выполнение команды невозможно."
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        bot_member = await interaction.guild.fetch_member(self.bot.user.id)
-        if bot_member.top_role <= user.top_role:
+        bot_member = await interaction.guild.fetch_member(self.bot.user.id) # type: ignore
+        if bot_member.top_role <= user.top_role: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Самая высокая роль бота должна быть выше самой высокой роли пользователя."
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.user.top_role <= user.top_role:
+        if interaction.user.top_role <= user.top_role: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Ваша самая высокая роль должна быть выше самой высокой роли пользователя."
-            ).set_image("https://http.cat/403")
+            ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.response.defer(thinking=True)
         dm_embed = discord.Embed(
-            title=f"Вы исключены из сервера {interaction.guild.name}!",
+            title=f"Вы исключены из сервера {interaction.guild.name}!", # type: ignore
             color=discord.Color.red()
         )
         dm_embed.add_field(name="Модератор", value=f"{interaction.user.mention} (`{interaction.user}`)")
@@ -62,7 +62,7 @@ class Kick(commands.Cog):
             await user.send(embed=dm_embed)
         except (discord.Forbidden, discord.HTTPException):
             embed.set_footer(text="Участник не получил сообщение, так как его ЛС закрыто.")
-        await user.kick(reason=reason + f" // {interaction.user}")
+        await user.kick(reason=reason + f" // {interaction.user}") # type: ignore
         await interaction.followup.send(embed=embed)
 
 async def setup(bot: models.MadBot):

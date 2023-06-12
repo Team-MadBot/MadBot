@@ -44,9 +44,9 @@ settings: Settings = {
     "prefix": os.environ.get("PREFIX"),
     "owner_id": int(os.environ.get("OWNER_ID")),  # type: ignore
     "bot_id": int(os.environ.get("BOT_ID")),  # type: ignore
-    "intents": Intents.default(),
-    "shard_count": int(os.environ.get("SHARD_COUNT")),
-    "log_channel": int(os.environ.get("LOG_CHANNEL_ID")),
+    "intents": Intents.default(), # type: ignore
+    "shard_count": int(os.environ.get("SHARD_COUNT")), # type: ignore
+    "log_channel": int(os.environ.get("LOG_CHANNEL_ID")), # type: ignore
     "color": Color.orange(),
     "support_invite": os.environ.get("SUPPORT_URL"),
     "mongo_url": os.environ.get("MONGODB_URL")

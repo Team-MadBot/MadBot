@@ -92,9 +92,11 @@ class ErrorCog(commands.Cog):
                 await interaction.followup.send(embed=embed, ephemeral=True, view=None)
             except:
                 pass
-        print("ERROR:")
-        traceback.print_exception(error)
-        print("===========================================")
+        self.bot.logger.error(
+            f"Command /{interaction.command.qualified_name} raised an exception:\n"
+            f"{traceback.format_exc()}\n"
+            f"==========================================="
+        )
         
 async def setup(bot: models.MadBot):
     await bot.add_cog(ErrorCog(bot))

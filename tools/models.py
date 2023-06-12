@@ -57,7 +57,11 @@ class MadBot(commands.AutoShardedBot):
             try:
                 await self.load_extension(ext)
             except Exception as err:
-                print(f"Error has occured while loading {ext} cog:\n{traceback.format_exc()}\n=============")
+                self.logger.error(
+                    f"Error has occured while loading {ext} cog:\n"
+                    f"{traceback.format_exc()}\n"
+                    f"==========================================="
+                )
             else:
                 self.logger.info(f"Cog \"{ext}\" loaded!")
 

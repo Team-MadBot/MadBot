@@ -1,5 +1,6 @@
 import discord
 import config
+import logging
 import traceback
 
 from typing import (
@@ -31,6 +32,8 @@ NC_CATEGORIES = Literal[
 SDC_URL = "https://api.server-discord.com/v2/bots/{bot_id}/stats"
 
 class MadBot(commands.AutoShardedBot):
+    logger: logging.Logger
+
     def __init__(self):
         super().__init__(
             command_prefix=commands.when_mentioned_or(settings['prefix']),
@@ -39,6 +42,9 @@ class MadBot(commands.AutoShardedBot):
             application_id=settings["bot_id"],
             shard_count=settings['shard_count']
         )
+        logger = logging.getLogger("discord.ext.commands.bot")
+        logger.name = "MadBot"
+        self.logger = logger
     
     async def is_owner(self, user: discord.User):
         if user.id in config.coders:
@@ -51,11 +57,9 @@ class MadBot(commands.AutoShardedBot):
             try:
                 await self.load_extension(ext)
             except Exception as err:
-                print(f"=============\nERROR WHILE LOADING COG {ext}!!!")
-                traceback.print_exc()
-                print("=============")
+                print(f"Error has occured while loading {ext} cog:\n{traceback.format_exc()}\n=============")
             else:
-                print(f"Cog \"{ext}\" запущен!")
+                self.logger.info(f"Cog \"{ext}\" loaded!")
 
 class BlackList:
     def __init__(

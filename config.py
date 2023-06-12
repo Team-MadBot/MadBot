@@ -43,7 +43,7 @@ settings: Settings = {
     "sdc_token": os.environ.get("SDC_TOKEN"),
     "prefix": "$",
     "owner_id": 560529834325966858,
-    "bot_id": 977280463792115833,
+    "bot_id": 1116370571433885787,
     "intents": Intents.default(),
     "shard_count": 1,
     "log_channel": 924241555697594380,

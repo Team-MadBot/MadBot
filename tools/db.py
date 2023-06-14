@@ -465,7 +465,16 @@ def add_guild_item(item: models.GuildItem) -> bool:
     )
     return True
 
-def get_guild(guild_id: int) -> models.BotGuild:
+def get_guild(guild_id: int) -> Optional[models.BotGuild]:
     coll = db.guild
-
-    
+    guild = coll.find_one(
+        {"guild_id": str(guild_id)}
+    )
+    if guild is None: return None
+    return models.BotGuild(
+        guild_id=guild_id,
+        members=[models.GuildUser.from_dict(user, guild_id) for user in guild['members']],
+        inventory=[models.GuildItem.from_dict(guild_id, item) for item in guild['items']],
+        autoroles=[str(role_id) for role_id in guild['autoroles']],
+        buttonroles=[models.ButtonRole.from_dict(brole) for brole in guild['buttonroles']]
+    )

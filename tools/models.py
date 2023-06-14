@@ -143,6 +143,17 @@ class GuildUser:
         self.level = level
         self.inventory = inventory
 
+    @classmethod
+    def from_dict(cls, data: dict, guild_id: int):
+        self = cls.__new__(cls)
+        self.guild_id = guild_id
+        self.user_id = int(data['user_id'])
+        self.balance = data['balance']
+        self.xp = data['xp']
+        self.level = data['level']
+        self.inventory = [GuildItem.from_dict(guild_id, item) for item in data['inventory']]
+        return self
+
 class GuildActionsType(IntEnum):    
     PATCH_MONEY = 1
     TRANSFER = 2
@@ -284,6 +295,15 @@ class ButtonRole:
         self.message_id = message_id
         self.type = type
         self.roles = roles
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        self = cls.__new__(cls)
+        self.channel_id = str(data['channel_id'])
+        self.message_id = str(data['message_id'])
+        self.type = data['type']
+        self.roles = [int(role) for role in data['roles']]
+        return self
     
     def to_dict(self):
         dct = self.__dict__

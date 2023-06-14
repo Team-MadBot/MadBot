@@ -11,12 +11,12 @@ class EconomyPay(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="pay", description="Передать деньги человеку")
+    @app_commands.rename(reason="comment")
     @app_commands.describe(
         member="Участник, которому переводятся деньги",
         amount="Количество денег для перевода",
-        comment="Комментарий к переводу"
+        reason="Комментарий к переводу"
     )
-    @app_commands.rename(reason="comment")
     async def _pay(
         self, 
         interaction: discord.Interaction, 
@@ -37,7 +37,7 @@ class EconomyPay(commands.Cog):
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Нельзя переводить деньги самому себе!"
-            ).set_image("https://http.cat/400")
+            ).set_image(url="https://http.cat/400")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         user = db.get_guild_user(

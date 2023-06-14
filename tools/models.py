@@ -182,6 +182,11 @@ class PatchMoneyAction(EditMoneyAction):
             reason, 
             amount
         )
+    
+    def to_dict(self):
+        dct = super().to_dict()
+        dct['patcher_id'] = str(dct['patcher_id'])
+        return dct
 
 class TransferAction(EditMoneyAction):
     def __init__(
@@ -192,6 +197,8 @@ class TransferAction(EditMoneyAction):
         reason: Optional[str], 
         amount: int
     ):
+        self.from_id = from_id
+        self.to_id = to_id
         super().__init__(
             GuildActionsType.TRANSFER, 
             guild_id, 
@@ -200,8 +207,6 @@ class TransferAction(EditMoneyAction):
             amount
         )
         self.__delattr__("user_id")
-        self.from_id = from_id
-        self.to_id = to_id
     
     def to_dict(self):
         dct = super().to_dict()

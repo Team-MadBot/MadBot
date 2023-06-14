@@ -33,7 +33,7 @@ class Remove_Money(commands.Cog):
                 guild_id=interaction.guild.id, # type: ignore
                 user_id=member.id,
                 patcher_id=interaction.user.id,
-                reason="/add-money command",
+                reason="/remove-money command",
                 amount=-money
             )
         )

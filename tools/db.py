@@ -467,4 +467,5 @@ def add_guild_item(item: models.GuildItem) -> bool:
 
 def get_guild(guild_id: int) -> models.BotGuild:
     coll = db.guild
+
     

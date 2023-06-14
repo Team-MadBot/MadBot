@@ -11,6 +11,7 @@ class EconomyPay(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="pay", description="Передать деньги человеку")
+    @app_commands.guild_only()
     @app_commands.rename(reason="comment")
     @app_commands.describe(
         member="Участник, которому переводятся деньги",

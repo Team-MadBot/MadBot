@@ -37,10 +37,8 @@ class Profile(commands.Cog):
         embed.add_field(name="📈️ Уровень:", value=f"{memb.level:,}")
         embed.add_field(name="✨️ Опыт:", value=f"{memb.xp:,}")
         embed.add_field(
-            name=f"🎒️ Инвентарь ({len(memb.inventory)}):", 
-            value=", ".join(
-                [f"- **{item.name}**" for item in memb.inventory]
-            )
+            name=f"🎒️ Кол-во предметов:",
+            value=f"{len(memb.inventory):,}" 
         )
         await interaction.response.send_message(embed=embed)
 

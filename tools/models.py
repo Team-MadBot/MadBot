@@ -159,8 +159,10 @@ class EditMoneyAction:
 
     def to_dict(self):
         dct = self.__dict__
-        dct['user_id'] = str(dct['user_id'])
-        dct.pop('guild_id')
+        if dct.get('user_id') is not None:
+            dct['user_id'] = str(dct['user_id'])
+        if dct.get('guild_id') is not None:
+            dct.pop('guild_id')
         return dct
 
 class PatchMoneyAction(EditMoneyAction):
@@ -200,6 +202,12 @@ class TransferAction(EditMoneyAction):
         self.__delattr__("user_id")
         self.from_id = from_id
         self.to_id = to_id
+    
+    def to_dict(self):
+        dct = super().to_dict()
+        dct['from_id'] = str(dct['from_id'])
+        dct['to_id'] = str(dct['to_id'])
+        return dct
 
 class BuyAction(EditMoneyAction):
     def __init__(

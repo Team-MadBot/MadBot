@@ -73,10 +73,10 @@ class EconomyPay(commands.Cog):
         )
         
         command = await self.bot.tree.fetch_commands()
-        command = dutils.get(command, name=interaction.command.name)
+        command = dutils.get(command, name="profile")
 
         embed = discord.Embed(
-            title="Перевод денег",
+            title=f"Перевод денег - ${amount:,}",
             color=discord.Color.orange(),
             description="Успешно совершён перевод денег другому пользователю. Вот Ваш чек.\n"
             f"Чтобы посмотреть свой баланс, воспользуйтесь командой {command.mention}."
@@ -87,8 +87,8 @@ class EconomyPay(commands.Cog):
             name="Получатель",
             value=f"{member.mention} ({dutils.escape_markdown(str(member))})"
         ).add_field(
-            name="Сумма",
-            value=f"{amount:,}"
+            name="Комментарий",
+            value=reason or "Не указан"
         ).set_image(
             url="https://http.cat/200"
         )

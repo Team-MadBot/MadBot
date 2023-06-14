@@ -126,10 +126,94 @@ def get_guild_user(guild_id: int, user_id: int) -> Optional[GuildUser]:
 def update_money(action: EditMoneyAction) -> bool:
     coll = db.guild
     guild_id = action.guild_id
-    user_id = action.user_id
     amount = action.amount
 
     guild = coll.find_one({'guild_id': str(guild_id)})
+    if action.id == models.GuildActionsType.TRANSFER:
+        if guild is None:
+            return False
+        
+        from_id = action.from_id
+        to_id = action.to_id
+
+        from_user = next((item for item in guild['members'] if item["user_id"] == str(from_id)), None)
+        to_user = next((item for item in guild['members'] if item["user_id"] == str(to_id)), None)
+        if from_user is None:
+            return False
+        if to_user is None:
+            coll.update_many(
+                {
+                    'guild_id': str(guild_id),
+                    'members': {
+                        "$elemMatch": {
+                            'user_id': str(from_id)
+                        }
+                    }
+                },
+                {
+                    "$inc": {
+                        "members.$.balance": -amount
+                    },
+                    "$push": {
+                        "members.$.actions": action.to_dict()
+                    }
+                }
+            )
+            coll.update_one(
+                {'guild_id': str(guild_id)},
+                {
+                    "$push": {
+                        'members': {
+                            'user_id': str(to_id),
+                            'balance': amount,
+                            'level': 0,
+                            'xp': 0,
+                            'actions': [action.to_dict()],
+                            'inventory': []
+                        }
+                    }
+                } 
+            )
+            return True
+        coll.update_many(
+            {
+                'guild_id': str(guild_id),
+                'members': {
+                    "$elemMatch": {
+                        'user_id': str(from_id)
+                    }
+                }
+            },
+            {
+                "$inc": {
+                    "members.$.balance": -amount
+                },
+                "$push": {
+                    "members.$.actions": action.to_dict()
+                }
+            }
+        )
+        coll.update_many(
+            {
+                'guild_id': str(guild_id),
+                'members': {
+                    "$elemMatch": {
+                        'user_id': str(to_id)
+                    }
+                }
+            },
+            {
+                "$inc": {
+                    "members.$.balance": amount
+                },
+                "$push": {
+                    "members.$.actions": action.to_dict()
+                }
+            }
+        )
+        return True
+
+    user_id = action.user_id
     if guild is None:
         coll.insert_one(
             {

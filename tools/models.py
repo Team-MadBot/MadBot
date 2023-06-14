@@ -316,12 +316,12 @@ class BotGuild:
         self,
         guild_id: int,
         members: List[GuildUser],
-        inventory: List[GuildItem],
+        items: List[GuildItem],
         autoroles: List[int],
         buttonroles: List[ButtonRole]
     ):
         self.guild_id = guild_id
         self.members = members
-        self.inventory = inventory
+        self.items = items
         self.autoroles = autoroles
         self.buttonroles = buttonroles

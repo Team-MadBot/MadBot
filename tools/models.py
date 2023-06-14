@@ -11,6 +11,7 @@ from typing import (
 from discord.ext import commands
 from config import settings, cogs
 from enum import IntEnum
+from dataclasses import dataclass
 # from tools import db
 
 NC_CATEGORIES = Literal[
@@ -270,3 +271,37 @@ class UserUnwarn(UserWarn):
             reason
         )
         self.__delattr__("until")
+
+class ButtonRole:
+    def __init__(
+        self,
+        channel_id: int,
+        message_id: int,
+        type: Literal["single", "multiple"],
+        roles: List[int]
+    ):
+        self.channel_id = channel_id
+        self.message_id = message_id
+        self.type = type
+        self.roles = roles
+    
+    def to_dict(self):
+        dct = self.__dict__
+        dct["channel_id"] = str(dct['channel_id'])
+        dct["message_id"] = str(dct['message_id'])
+        dct["roles"] = [str(role) for role in dct["roles"]]
+
+class BotGuild:
+    def __init__(
+        self,
+        guild_id: int,
+        members: List[GuildUser],
+        inventory: List[GuildItem],
+        autoroles: List[int],
+        buttonroles: List[ButtonRole]
+    ):
+        self.guild_id = guild_id
+        self.members = members
+        self.inventory = inventory
+        self.autoroles = autoroles
+        self.buttonroles = buttonroles

@@ -405,6 +405,22 @@ def remove_last_warn(action: UserUnwarn) -> bool:
     return True
 
 def add_guild_item(item: models.GuildItem) -> bool:
+    """
+    Добавляет предмет в магазин сервера.
+
+    Параметры:
+    item (models.GuildItem): Объект предмета сервера. Содержит:
+    - guild_id (int): ID сервера
+    - name (str): Название предмета
+    - cost (int): Цена предмета
+    - description (str): Описание предмета
+    - req_role (Optional[int]): Необходимая роль для покупки предмета
+
+    Функциональность:
+    - Проверяет, есть ли запись о сервере в базе данных. Если нет, создает новую запись.
+    - Добавляет предмет в список предметов сервера.
+    - Возвращает True в случае успеха, иначе False.
+    """
     coll = db.guild
     guild_id = item.guild_id
     name = item.name
@@ -448,3 +464,7 @@ def add_guild_item(item: models.GuildItem) -> bool:
         }
     )
     return True
+
+def get_guild(guild_id: int) -> models.BotGuild:
+    coll = db.guild
+

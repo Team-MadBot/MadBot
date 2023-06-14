@@ -1,4 +1,4 @@
-git+https://github.com/Rapptz/discord.py
+discord.py
 jishaku
 python_dotenv
 pymongo

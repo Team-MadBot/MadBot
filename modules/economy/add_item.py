@@ -54,7 +54,7 @@ class AddItemModal(ui.Modal, title="Добавление предмета"):
         label="Название предмета",
         placeholder="Котяра",
         min_length=1,
-        max_length=100
+        max_length=50
     )
     cost = ui.TextInput(
         label="Стоимость",
@@ -66,7 +66,7 @@ class AddItemModal(ui.Modal, title="Добавление предмета"):
         placeholder="Очень классный котяра. Раритет.",
         style=discord.TextStyle.long,
         min_length=10,
-        max_length=2000
+        max_length=500
     )
 
     async def on_submit(self, interaction: discord.Interaction):

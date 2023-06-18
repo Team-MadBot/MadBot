@@ -22,7 +22,8 @@ cogs = (
     "modules.economy.add_money",
     "modules.economy.remove_money",
     "modules.economy.add_item",
-    "modules.economy.pay"
+    "modules.economy.pay",
+    "modules.economy.shop"
 )
 
 class Settings(TypedDict):

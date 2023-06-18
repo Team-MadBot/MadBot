@@ -4,8 +4,6 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord import ui
-from discord.interactions import Interaction
-from discord.utils import MISSING
 from tools import models, db
 
 class AddItemRoleSelect(ui.RoleSelect):
@@ -26,6 +24,9 @@ class AddItemRoleSelect(ui.RoleSelect):
             title="Добавление предмета - Успешно!",
             color=discord.Color.green(),
             description=f"Предмет **{self.item.name}** добавлен!"
+        ).set_footer(
+            text=str(interaction.user),
+            icon_url=interaction.user.display_avatar.url
         )
         await interaction.response.send_message(embed=embed)
         self.view.stop() # type: ignore
@@ -45,6 +46,9 @@ class AddItemRoleSelectView(ui.View):
             title="Добавление предмета - Успешно!",
             color=discord.Color.green(),
             description=f"Предмет **{item.name}** добавлен!"
+        ).set_footer(
+            text=str(interaction.user),
+            icon_url=interaction.user.display_avatar.url
         )
         await interaction.response.send_message(embed=embed)
         self.stop()

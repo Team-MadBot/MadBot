@@ -133,8 +133,8 @@ def update_money(action: EditMoneyAction) -> bool:
         if guild is None:
             return False
         
-        from_id = action.from_id
-        to_id = action.to_id
+        from_id = action.from_id # type: ignore
+        to_id = action.to_id # type: ignore
 
         from_user = next((item for item in guild['members'] if item["user_id"] == str(from_id)), None)
         to_user = next((item for item in guild['members'] if item["user_id"] == str(to_id)), None)
@@ -474,7 +474,7 @@ def get_guild(guild_id: int) -> Optional[models.BotGuild]:
     return models.BotGuild(
         guild_id=guild_id,
         members=[models.GuildUser.from_dict(user, guild_id) for user in guild['members']],
-        inventory=[models.GuildItem.from_dict(guild_id, item) for item in guild['items']],
-        autoroles=[str(role_id) for role_id in guild['autoroles']],
+        items=[models.GuildItem.from_dict(guild_id, item) for item in guild['items']],
+        autoroles=[int(role_id) for role_id in guild['autoroles']],
         buttonroles=[models.ButtonRole.from_dict(brole) for brole in guild['buttonroles']]
     )

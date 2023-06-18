@@ -42,10 +42,10 @@ class EconomyPay(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         user = db.get_guild_user(
-            interaction.guild.id, 
+            interaction.guild.id, # type: ignore
             interaction.user.id
         ) or models.GuildUser(
-            interaction.guild.id,
+            interaction.guild.id, # type: ignore
             interaction.user.id,
             0, 0, 0, []    
         )
@@ -65,7 +65,7 @@ class EconomyPay(commands.Cog):
         
         db.update_money(
             models.TransferAction(
-                interaction.guild.id,
+                interaction.guild.id, # type: ignore
                 interaction.user.id,
                 member.id,
                 reason=reason,
@@ -80,7 +80,7 @@ class EconomyPay(commands.Cog):
             title=f"Перевод денег - ${amount:,}",
             color=discord.Color.orange(),
             description="Успешно совершён перевод денег другому пользователю. Вот Ваш чек.\n"
-            f"Чтобы посмотреть свой баланс, воспользуйтесь командой {command.mention}."
+            f"Чтобы посмотреть свой баланс, воспользуйтесь командой {command.mention}." # type: ignore
         ).add_field(
             name="Отправитель",
             value=f"{interaction.user.mention} ({dutils.escape_markdown(str(interaction.user))})"

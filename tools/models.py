@@ -107,7 +107,7 @@ class GuildItem:
     def from_dict(cls, guild_id: int, data: dict):
         self = cls.__new__(cls)
 
-        self.id = data['id']
+        self.id = data.get('id')
         self.guild_id = guild_id
         self.name = data['name']
         self.cost = data['cost']

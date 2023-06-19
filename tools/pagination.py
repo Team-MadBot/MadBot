@@ -2,6 +2,9 @@ import discord
 
 from discord import ui
 from typing import List, Any, Optional
+from discord.interactions import Interaction
+
+from discord.utils import MISSING
 from tools.models import GuildItem
 
 def paginate(data: list, per_page: int = 10) -> List[List[Any]]:
@@ -26,6 +29,12 @@ def shop_paginate(pages: List[List[GuildItem]]) -> List[str]:
             )
     
     return formatted_pages
+
+class NavSelect(ui.Modal, title="Выбор страницы"):
+    page_num_input = ui.TextInput(label="Номер страницы:")
+
+    async def on_submit(self, interaction: discord.Interaction):
+        self.interaction = interaction
 
 class NavView(ui.View):
     def __init__(self, title: str, pages: List[str]):
@@ -55,13 +64,38 @@ class NavView(ui.View):
     
     @ui.button(label="<")
     async def page_prev(self, interaction: discord.Interaction, button: ui.Button):
-        self.curr_page = self.curr_page - 1 if self.curr_page != 0 else 1
+        self.curr_page = self.curr_page - 1 if self.curr_page != 0 else 0
         await self.edit_page(interaction, button)
 
     @ui.button(label="1")
     async def page_select(self, interaction: discord.Interaction, button: ui.Button):
-        pass
+        modal = NavSelect()
+        modal.page_num_input.max_length = len(str(self.pages_len))
+        modal.page_num_input.placeholder = f"{self.curr_page} / {self.pages_len}"
+        await interaction.response.send_modal(modal)
+        await modal.wait()
 
+        modal_interaction = modal.interaction
+        new_page = modal.page_num_input.value
+        print(new_page)
+        try:
+            new_page = int(new_page)
+        except:
+            return await modal_interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description="Номер страницы должен быть числом"
+                ).set_image(url="https://http.cat/400"),
+                ephemeral=True
+            )
+        
+        if new_page < 1: new_page = 1
+        if new_page > self.pages_len: new_page = self.pages_len
+        
+        self.curr_page = new_page - 1
+        await self.edit_page(modal_interaction, button)
+    
     @ui.button(label=">")
     async def page_next(self, interaction: discord.Interaction, button: ui.Button):
         self.curr_page = self.curr_page + 1 if self.curr_page + 1 != self.pages_len else self.pages_len - 1

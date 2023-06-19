@@ -53,7 +53,7 @@ class NavView(ui.View):
                 title=self.title,
                 color=discord.Color.orange(),
                 description=self.pages[self.curr_page]
-            ),
+            ).set_footer(text=f"Страница {self.curr_page + 1} из {self.pages_len}"),
             view=view
         )
     
@@ -71,13 +71,12 @@ class NavView(ui.View):
     async def page_select(self, interaction: discord.Interaction, button: ui.Button):
         modal = NavSelect()
         modal.page_num_input.max_length = len(str(self.pages_len))
-        modal.page_num_input.placeholder = f"{self.curr_page} / {self.pages_len}"
+        modal.page_num_input.placeholder = f"{self.curr_page + 1} / {self.pages_len}"
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         modal_interaction = modal.interaction
         new_page = modal.page_num_input.value
-        print(new_page)
         try:
             new_page = int(new_page)
         except:

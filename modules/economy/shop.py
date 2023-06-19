@@ -22,15 +22,15 @@ class EconomyShop(commands.Cog):
         items = guild.items
         pages = pagination.shop_paginate(pagination.paginate(items))
         view = pagination.NavView(
-            title="Магазин сервера",
+            title=f"Магазин сервера ({len(items)})",
             pages=pages
         )
         await interaction.response.send_message(
             embed=discord.Embed(
-                title="Магазин сервера",
+                title=f"Магазин сервера ({len(items)})",
                 color=discord.Color.orange(),
                 description=pages[0]
-            ), 
+            ).set_footer(text=f"Страница 1 из {len(pages)}"),
             view=view
         )
 

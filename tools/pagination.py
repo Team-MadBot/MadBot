@@ -21,11 +21,10 @@ def shop_paginate(pages: List[List[GuildItem]]) -> List[str]:
         for i, item in enumerate(page, start=0):
             req_role = f"<@&{item.req_role}>" if item.req_role is not None else "Отсутствует"
             formatted_pages[count] += (
-                f"{i * 10 + (count+1)}\\. **{item.name} - ${item.cost:,}**\n"
+                f"{count * 10 + (i+1)}\\. **{item.name} - ${item.cost:,}**\n"
                 f"{item.description}\n**Необходимая роль для покупки:** {req_role}\n"
             )
     
-    print(formatted_pages)
     return formatted_pages
 
 class NavView(ui.View):
@@ -36,12 +35,10 @@ class NavView(ui.View):
         self.pages_len = len(self.pages)
         self.curr_page = 0
     
-    @ui.button(label="<<")
-    async def page_begin(self, interaction: discord.Interaction, button: ui.Button):
+    async def edit_page(self, interaction: discord.Interaction, button: ui.Button):
         assert button.view is not None
-        self.curr_page = 0
         view: NavView = button.view
-        view.page_select.label = "1"
+        view.page_select.label = str(self.curr_page + 1)
         await interaction.response.edit_message(
             embed=discord.Embed(
                 title=self.title,
@@ -51,20 +48,15 @@ class NavView(ui.View):
             view=view
         )
     
+    @ui.button(label="<<")
+    async def page_begin(self, interaction: discord.Interaction, button: ui.Button):
+        self.curr_page = 0
+        await self.edit_page(interaction, button)
+    
     @ui.button(label="<")
     async def page_prev(self, interaction: discord.Interaction, button: ui.Button):
-        assert button.view is not None
         self.curr_page = self.curr_page - 1 if self.curr_page != 0 else 1
-        view: NavView = button.view
-        view.page_select.label = str(self.curr_page + 1)
-        await interaction.response.edit_message(
-            embed=discord.Embed(
-                title=self.title,
-                color=discord.Color.orange(),
-                description=self.pages[self.curr_page]
-            ),
-            view=view
-        )
+        await self.edit_page(interaction, button)
 
     @ui.button(label="1")
     async def page_select(self, interaction: discord.Interaction, button: ui.Button):
@@ -72,31 +64,11 @@ class NavView(ui.View):
 
     @ui.button(label=">")
     async def page_next(self, interaction: discord.Interaction, button: ui.Button):
-        assert button.view is not None
         self.curr_page = self.curr_page + 1 if self.curr_page + 1 != self.pages_len else self.pages_len - 1
-        view: NavView = button.view
-        view.page_select.label = str(self.curr_page + 1)
-        await interaction.response.edit_message(
-            embed=discord.Embed(
-                title=self.title,
-                color=discord.Color.orange(),
-                description=self.pages[self.curr_page]
-            ),
-            view=view
-        )
+        await self.edit_page(interaction, button)
 
     @ui.button(label=">>")
     async def page_end(self, interaction: discord.Interaction, button: ui.Button):
-        assert button.view is not None
         self.curr_page = self.pages_len - 1
-        view: NavView = button.view
-        view.page_select.label = str(self.curr_page + 1)
-        await interaction.response.edit_message(
-            embed=discord.Embed(
-                title=self.title,
-                color=discord.Color.orange(),
-                description=self.pages[self.curr_page]
-            ),
-            view=view
-        )
+        await self.edit_page(interaction, button)
     

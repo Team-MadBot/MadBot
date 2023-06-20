@@ -1,14 +1,16 @@
 import discord
 
 from discord import ui
-from typing import List, Any, Optional
-from discord.interactions import Interaction
+from typing import List, Any, Optional, Callable
 
 from discord.utils import MISSING
 from tools.models import GuildItem
 
-def paginate(data: list, per_page: int = 10) -> List[List[Any]]:
+def paginate(data: List[Any], /, *, filter: Optional[Callable] = None, per_page: int = 10) -> List[List[Any]]:
     pages = []
+
+    data = sorted(data, key=filter)
+
     for count, page in enumerate(data):
         if count % per_page == 0:
             pages.append([page])

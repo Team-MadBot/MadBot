@@ -20,7 +20,11 @@ class EconomyShop(commands.Cog):
             ).set_image(url="https://http.cat/204")
             return await interaction.response.send_message(embed=embed)
         items = guild.items
-        pages = pagination.shop_paginate(pagination.paginate(items))
+        pages = pagination.shop_paginate(
+            pagination.paginate(
+                items, filter=lambda x: x.cost
+            )
+        )
         view = pagination.NavView(
             title=f"Магазин сервера ({len(items)})",
             pages=pages

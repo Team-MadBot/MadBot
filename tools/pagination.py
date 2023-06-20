@@ -2,8 +2,6 @@ import discord
 
 from discord import ui
 from typing import List, Any, Optional, Callable
-
-from discord.utils import MISSING
 from tools.models import GuildItem
 
 def paginate(data: List[Any], /, *, filter: Optional[Callable] = None, per_page: int = 10) -> List[List[Any]]:

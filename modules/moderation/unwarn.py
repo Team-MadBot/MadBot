@@ -10,7 +10,7 @@ class Unwarn(commands.Cog):
     def __init__(self, bot: models.MadBot):
         self.bot = bot
 
-    @app_commands.command(name="unward", description="Снимает последнее предупреждение участника")
+    @app_commands.command(name="unwarn", description="Снимает последнее предупреждение участника")
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(moderate_members=True)
     @app_commands.describe(

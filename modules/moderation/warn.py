@@ -25,9 +25,11 @@ class Warn(commands.Cog):
         duration: app_commands.Range[str, None, 40],
         reason: str = "Не указана"
     ) -> None:
-        if not isinstance(user, discord.Member): # type: ignore
+        assert interaction.guild is not None
+
+        if not isinstance(member, discord.Member): # type: ignore
             try:
-                user = await interaction.guild.fetch_member(user.id) # type: ignore
+                member = await interaction.guild.fetch_member(member.id) # type: ignore
             except discord.NotFound:
                 embed = discord.Embed(
                     title="Ошибка!",
@@ -36,11 +38,19 @@ class Warn(commands.Cog):
                 ).set_image(url="https://http.cat/400")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
         
-        if interaction.user.top_role <= user.top_role: # type: ignore
+        if interaction.user.top_role <= member.top_role: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Ваша самая высокая роль должна быть выше самой высокой роли пользователя."
+            ).set_image(url="https://http.cat/403")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        if member.id == interaction.guild.owner_id:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Нельзя заварнить владельца сервера."
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
@@ -104,9 +114,9 @@ class Warn(commands.Cog):
         dm_embed.add_field(name="Причина", value=reason)
         embed = dm_embed.copy()
         embed.title = "Пользователь получил варн на сервере!"
-        embed.add_field(name="Пользователь", value=f"{user.mention} (`{user}`)")
+        embed.add_field(name="Пользователь", value=f"{member.mention} (`{member}`)")
         try:
-            await user.send(embed=dm_embed)
+            await member.send(embed=dm_embed)
         except (discord.Forbidden, discord.HTTPException):
             embed.set_footer(text="Участник не получил сообщение, так как его ЛС закрыто.")
         db.warn_user(

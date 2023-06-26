@@ -1,7 +1,12 @@
 import discord
 
 from discord import ui
-from typing import List, Any, Optional, Callable
+from typing import (
+    List, 
+    Any,
+    Optional, 
+    Callable
+)
 from tools.models import GuildItem
 
 def paginate(data: List[Any], /, *, filter: Optional[Callable] = None, per_page: int = 10) -> List[List[Any]]:
@@ -18,14 +23,17 @@ def paginate(data: List[Any], /, *, filter: Optional[Callable] = None, per_page:
     return pages
 
 def shop_paginate(pages: List[List[GuildItem]]) -> List[str]:
-    formatted_pages: List[str] = ["" for _ in pages]
+    formatted_pages: List[str] = [
+        "- Для покупки выберите товар из списка.\n\n" 
+        for _ in pages
+    ]
     
     for count, page in enumerate(pages):
         for i, item in enumerate(page, start=0):
             req_role = f"<@&{item.req_role}>" if item.req_role is not None else "Отсутствует"
             formatted_pages[count] += (
                 f"{count * 10 + (i+1)}\\. **{item.name} - ${item.cost:,}**\n"
-                f"{item.description}\n**Необходимая роль для покупки:** {req_role}\n"
+                f"{item.description}\n**Необходимая роль для покупки:** {req_role}\n\n"
             )
     
     return formatted_pages
@@ -37,17 +45,25 @@ class NavSelect(ui.Modal, title="Выбор страницы"):
         self.interaction = interaction
 
 class NavView(ui.View):
-    def __init__(self, title: str, pages: List[str]):
+    def __init__(
+        self, 
+        title: str,
+        pages: List[str],
+        select: Optional[List[ui.Select]] = None
+    ):
         super().__init__(timeout=180)
         self.pages = pages
         self.title = title
         self.pages_len = len(self.pages)
         self.curr_page = 0
+        self.select = select
     
     async def edit_page(self, interaction: discord.Interaction, button: ui.Button):
         assert button.view is not None
         view: NavView = button.view
         view.page_select.label = str(self.curr_page + 1)
+        if self.select:
+            view.add_item(self.select[self.curr_page])
         await interaction.response.edit_message(
             embed=discord.Embed(
                 title=self.title,

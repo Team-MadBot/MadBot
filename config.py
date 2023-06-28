@@ -24,7 +24,9 @@ cogs = (
     "modules.economy.remove_money",
     "modules.economy.add_item",
     "modules.economy.pay",
-    "modules.economy.shop"
+    "modules.economy.shop",
+    "modules.reactions.sad",
+    "modules.boticord.websocket"
 )
 
 class Settings(TypedDict):
@@ -40,11 +42,14 @@ class Settings(TypedDict):
     color: Color
     support_invite: str | None
     mongo_url: str | None
+    bc_token: str | None
+    bc_webhook_url: str | None
 
 settings: Settings = {
     "token": os.environ.get("TOKEN"),
     "nc_token": os.environ.get("NC_TOKEN"),
     "sdc_token": os.environ.get("SDC_TOKEN"),
+    "bc_token": os.environ.get("BC_TOKEN"),
     "prefix": os.environ.get("PREFIX"),
     "owner_id": int(os.environ.get("OWNER_ID")),  # type: ignore
     "bot_id": int(os.environ.get("BOT_ID")),  # type: ignore
@@ -53,7 +58,8 @@ settings: Settings = {
     "log_channel": int(os.environ.get("LOG_CHANNEL_ID")), # type: ignore
     "color": Color.orange(),
     "support_invite": os.environ.get("SUPPORT_URL"),
-    "mongo_url": os.environ.get("MONGODB_URL")
+    "mongo_url": os.environ.get("MONGODB_URL"),
+    "bc_webhook_url": os.environ.get("BC_WEBHOOK_URL")
 }
 
 coders = [

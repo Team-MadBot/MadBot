@@ -30,6 +30,7 @@ class ErrorCog(commands.Cog):
             )
             embed.set_image(url="https://http.cat/429")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
         if isinstance(error, app_commands.CheckFailure):
             if interaction.guild.id != 1080911312600694785: # type: ignore
                 embed = discord.Embed(
@@ -69,6 +70,7 @@ class ErrorCog(commands.Cog):
                     )
                 )
                 return await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+        
         if isinstance(error, app_commands.MissingPermissions):
             embed = discord.Embed(
                 title="Ошибка - Недостаточно прав!",

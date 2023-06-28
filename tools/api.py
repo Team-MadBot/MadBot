@@ -8,16 +8,21 @@ from config import settings
 
 class Requests:
     def __init__(self):
-        self.__loop = asyncio.AbstractEventLoop()
-        self.__nc_session = ImageSession(settings['nc_token'], self.__loop)
+        self.__nc_session = ImageSession(settings['nc_token'])
 
-    async def nc_get_image(self, category: models.NC_CATEGORIES):
-        image = await self.__nc_session.get_image(category)
-        if image.code >= 400: raise NepuError(f"Code: {image.code}")
+    async def nc_get_image(self, category: models.NC_CATEGORIES) -> str:
+        try:
+            image = await self.__nc_session.get_image(category)
+        except Exception as e:
+            await self.__nc_session.session.close()
+            raise NepuError().with_traceback(e.__traceback__)
+        await self.__nc_session.session.close()
+        if image.code >= 400: 
+            raise NepuError(f"Code: {image.code}")
         return image.url
 
     async def send_sdc_stats(self, bot_id: int, servers: int, shards: int):
-        async with aiohttp.ClientSession(loop=self.__loop) as session:
+        async with aiohttp.ClientSession() as session:
             headers = {
                 "Authorization": settings["sdc_token"]
             }

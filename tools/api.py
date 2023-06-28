@@ -14,9 +14,9 @@ class Requests:
         try:
             image = await self.__nc_session.get_image(category)
         except Exception as e:
-            await self.__nc_session.session.close()
             raise NepuError().with_traceback(e.__traceback__)
-        await self.__nc_session.session.close()
+        finally:
+            await self.__nc_session.session.close()
         if image.code >= 400: 
             raise NepuError(f"Code: {image.code}")
         return image.url
@@ -35,7 +35,5 @@ class Requests:
                 headers=headers,
                 data=body
             ) as resp:
-                if resp.ok:
-                    await session.close()
-                else:
-                    raise errors.SDCError(resp, "An error occured when sending bot's statisticks")
+                if not resp.ok:
+                    raise errors.SDCError(resp, "An error occured while sending bot's statisticks")

@@ -37,4 +37,4 @@ class UserUnwarn(UserWarn):
             0, 
             reason
         )
-        self.__delattr__("until")
+        del self.until

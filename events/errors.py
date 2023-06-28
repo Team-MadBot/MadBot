@@ -4,7 +4,7 @@ import traceback
 from discord.ext import commands
 from discord import app_commands, ui
 from config import settings
-from classes import views
+from tools.models.views.on_use_try import BotUseTry
 from tools import db, models
 
 class ErrorCog(commands.Cog):
@@ -35,7 +35,11 @@ class ErrorCog(commands.Cog):
                 embed = discord.Embed(
                     color=discord.Color.from_str("#2b2d31")
                 ).set_image(url="https://http.cat/400")
-                return await interaction.response.send_message(embed=embed, ephemeral=True, view=views.BotUseTry())
+                return await interaction.response.send_message(
+                    embed=embed, 
+                    ephemeral=True, 
+                    view=BotUseTry()
+                )
             if db.check_blacklist(interaction.user.id):
                 blacklist = db.get_blacklist(interaction.user.id)
                 embed = discord.Embed(

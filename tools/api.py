@@ -34,4 +34,3 @@ class Requests:
                     await session.close()
                 else:
                     raise errors.SDCError(resp, "An error occured when sending bot's statisticks")
-            

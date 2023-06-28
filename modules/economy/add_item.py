@@ -62,7 +62,7 @@ class AddItemModal(ui.Modal, title="Добавление предмета"):
     )
     cost = ui.TextInput(
         label="Стоимость",
-        placeholder="9999999",
+        placeholder="0",
         max_length=10
     )
     description = ui.TextInput(

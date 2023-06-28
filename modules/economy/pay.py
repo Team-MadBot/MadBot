@@ -22,7 +22,7 @@ class EconomyPay(commands.Cog):
         self, 
         interaction: discord.Interaction, 
         member: discord.Member,
-        amount: app_commands.Range[int, 1, 2000000000],
+        amount: app_commands.Range[int, 1, 2_000_000_000],
         reason: Optional[str]
     ):
         if member.bot:

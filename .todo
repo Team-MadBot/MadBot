@@ -1,0 +1,5 @@
+move low db operations into funcs in other file in tools\db
+Вынести получение пинга в отдельную функцию в tools\models\bot.py
+Редизайн reactions
+Проверка на овнера в moderation
+Изменить paginate_shop под сигнатуру paginate, избавляя от лишних вызовов функций в конечном коде

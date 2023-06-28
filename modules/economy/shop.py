@@ -12,7 +12,7 @@ class EconomyShop(commands.Cog):
     @app_commands.guild_only()
     async def shop(self, interaction: discord.Interaction):
         guild = db.get_guild(interaction.guild.id) # type: ignore
-        if guild is None or guild.items == []:
+        if guild is None or not guild.items:
             embed = discord.Embed(
                 title="Магазин сервера (0)",
                 color=discord.Color.orange(),

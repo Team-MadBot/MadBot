@@ -6,6 +6,7 @@ from discord import app_commands, ui
 from config import settings
 from tools.models.views.on_use_try import BotUseTry
 from tools import db, models
+from contextlib import supress
 
 class ErrorCog(commands.Cog):
     def __init__(self, bot: models.MadBot):
@@ -27,18 +28,17 @@ class ErrorCog(commands.Cog):
                     f"использование в течении `{round(error.cooldown.per)}` секунд. Пожалуйста, попробуйте снова через "
                     f"`{round(error.retry_after, 2)}` секунд."
                 )
-            )
-            embed.set_image(url="https://http.cat/429")
+            ).set_image(url="https://http.cat/429")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
         if isinstance(error, app_commands.CheckFailure):
             if interaction.guild.id != 1080911312600694785: # type: ignore
                 embed = discord.Embed(
                     color=discord.Color.from_str("#2b2d31")
-                ).set_image(url="https://http.cat/400")
+                ).set_image(url="https://http.cat/403")
                 return await interaction.response.send_message(
                     embed=embed, 
-                    ephemeral=True, 
+                    ephemeral=True,
                     view=BotUseTry()
                 )
             if db.check_blacklist(interaction.user.id):
@@ -54,7 +54,7 @@ class ErrorCog(commands.Cog):
                     )
                 )
                 embed.add_field(name="Дата занесения:", value=f"<t:{blacklist.blocked_at}> (<t:{blacklist.blocked_at}:R>)") # type: ignore
-                embed.add_field(name="Причина:", value=blacklist.reason if blacklist.reason is not None else "Не указана") # type: ignore
+                embed.add_field(name="Причина:", value=blacklist.reason or "Не указана") # type: ignore
                 embed.add_field(
                     name="Дата окончания:", 
                     value=(
@@ -94,10 +94,9 @@ class ErrorCog(commands.Cog):
         try:
             await interaction.response.send_message(embed=embed, ephemeral=True, view=None) # type: ignore
         except:
-            try:
+            with supress(Exception):
                 await interaction.followup.send(embed=embed, ephemeral=True, view=None) # type: ignore
-            except:
-                pass
+        
         self.bot.logger.error(
             f"Command /{interaction.command.qualified_name} raised an exception:\n" # type: ignore
             f"{traceback.format_exc()}\n"

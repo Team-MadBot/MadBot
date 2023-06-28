@@ -18,7 +18,7 @@ class OnInteractionEvent(commands.Cog):
         self.bot.tree.interaction_check = self.__interaction_check
 
     @commands.Cog.listener()
-    async def on_interaction(self, interaction: discord.Interaction):
+    async def on_interaction(self, interaction: discord.Interaction): # Nice job!!!
         if interaction.type == discord.InteractionType.application_command:
             config.used_commands += 1
             config.last_command = '/' + interaction.command.qualified_name # type: ignore

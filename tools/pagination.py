@@ -9,7 +9,7 @@ from typing import (
 )
 from tools.models import GuildItem
 
-def paginate(data: List[Any], /, *, filter: Optional[Callable] = None, per_page: int = 10) -> List[List[Any]]:
+def paginate(data: List[Any], /, *, filter: Optional[Callable] = None, per_page: int = 10) -> List[List[Any]]: # TODO Cody is nice as f*ck
     pages = []
 
     data = sorted(data, key=filter)
@@ -80,7 +80,7 @@ class NavView(ui.View):
     
     @ui.button(label="<")
     async def page_prev(self, interaction: discord.Interaction, button: ui.Button):
-        self.curr_page = self.curr_page - 1 if self.curr_page != 0 else 0
+        self.curr_page = self.curr_page - 1 if self.curr_page != 0 else self.pages_len - 1
         await self.edit_page(interaction, button)
 
     @ui.button(label="1")
@@ -95,7 +95,7 @@ class NavView(ui.View):
         new_page = modal.page_num_input.value
         try:
             new_page = int(new_page)
-        except:
+        except ValueError:
             return await modal_interaction.response.send_message(
                 embed=discord.Embed(
                     title="Ошибка!",
@@ -105,15 +105,15 @@ class NavView(ui.View):
                 ephemeral=True
             )
         
-        if new_page < 1: new_page = 1
+        if new_page < 1: new_page = 1 # check in line 97
         if new_page > self.pages_len: new_page = self.pages_len
-        
+
         self.curr_page = new_page - 1
         await self.edit_page(modal_interaction, button)
     
     @ui.button(label=">")
     async def page_next(self, interaction: discord.Interaction, button: ui.Button):
-        self.curr_page = self.curr_page + 1 if self.curr_page + 1 != self.pages_len else self.pages_len - 1
+        self.curr_page = self.curr_page + 1 if self.curr_page + 1 != self.pages_len else 0
         await self.edit_page(interaction, button)
 
     @ui.button(label=">>")

@@ -29,7 +29,7 @@ cogs = (
     "modules.boticord.websocket"
 )
 
-class Settings(TypedDict): # I should use it too
+class Settings(TypedDict):
     token: str | None
     nc_token: str | None
     sdc_token: str | None
@@ -67,4 +67,4 @@ coders = [
 ]
 
 used_commands = 0
-last_command = "Команды ещё не использовались" # Nice idea
+last_command = "Команды ещё не использовались"

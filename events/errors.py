@@ -6,7 +6,7 @@ from discord import app_commands, ui
 from config import settings
 from tools.models.views.on_use_try import BotUseTry
 from tools import db, models
-from contextlib import supress
+from contextlib import suppress
 
 class ErrorCog(commands.Cog):
     def __init__(self, bot: models.MadBot):
@@ -94,7 +94,7 @@ class ErrorCog(commands.Cog):
         try:
             await interaction.response.send_message(embed=embed, ephemeral=True, view=None) # type: ignore
         except:
-            with supress(Exception):
+            with suppress(Exception):
                 await interaction.followup.send(embed=embed, ephemeral=True, view=None) # type: ignore
         
         self.bot.logger.error(

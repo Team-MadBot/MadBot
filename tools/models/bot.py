@@ -11,7 +11,6 @@ from config import settings, cogs
 class MadBot(commands.AutoShardedBot):
     logger: logging.Logger
     boticordClient: BoticordClient
-    boticordWebsocket: BoticordWS
 
     def __init__(self):
         super().__init__(
@@ -27,7 +26,6 @@ class MadBot(commands.AutoShardedBot):
         self.log_level = logging.DEBUG if settings['debug_mode'] else logging.INFO
         assert settings["bc_token"]
         self.boticordClient = BoticordClient(settings['bc_token']) # type: ignore
-        self.boticordWebsocket = BoticordWS(settings['bc_token'])
     
     async def is_owner(self, user: discord.User):
         if user.id in config.coders:
@@ -36,7 +34,6 @@ class MadBot(commands.AutoShardedBot):
         return await super().is_owner(user)
     
     async def setup_hook(self):
-        self.boticordWebsocket._logger.setLevel(self.log_level)
         self.logger.setLevel(self.log_level)
         for ext in cogs:
             try:

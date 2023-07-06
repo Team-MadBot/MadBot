@@ -4,7 +4,7 @@ import traceback
 
 from discord.ext import commands
 from discord import Webhook
-from tools.models import MadBot
+from tools.models import MadBot, BoticordWS
 from config import settings
 
 class BCWebSocket(commands.Cog):
@@ -15,37 +15,39 @@ class BCWebSocket(commands.Cog):
             settings["bc_webhook_url"], # type: ignore
             session=self.session
         )
-        self.bot.boticordWebsocket.loop = asyncio.get_event_loop()
+        assert settings['bc_token']
+        self.ws = BoticordWS(settings['bc_token'])
+        self.ws._logger.setLevel(self.bot.log_level)
     
     async def cog_load(self):
-        self.bot.boticordWebsocket._logger.debug("Trying to launch Boticord Websocket")
+        self.ws._logger.debug("Trying to launch Boticord Websocket")
 
-        self.bot.boticordWebsocket.register_listener(
+        self.ws.register_listener(
             "comment_removed",
             self.comment_removed
         )
-        self.bot.boticordWebsocket.register_listener(
+        self.ws.register_listener(
             "up_added",
             self.up_added
         )
-        self.bot.boticordWebsocket.register_listener(
+        self.ws.register_listener(
             "comment_added",
             self.comment_added
         )
-        self.bot.boticordWebsocket.register_listener(
+        self.ws.register_listener(
             "comment_edited",
             self.comment_edited
         )
-        self.bot.boticordWebsocket.register_connecter(
+        self.ws.register_connecter(
             self.on_connect
         )
-        self.bot.boticordWebsocket.register_closer(
+        self.ws.register_closer(
             self.on_close
         )
 
-        self.bot.boticordWebsocket._logger.debug("cog_load: trying to connect")
+        self.ws._logger.debug("cog_load: trying to connect")
         try:
-            await self.bot.boticordWebsocket.connect()
+            await self.ws.connect()
         except Exception:
             self.bot.logger.error(
                 "An error occured while connecting to Boticord WebSocket:\n"
@@ -54,11 +56,11 @@ class BCWebSocket(commands.Cog):
                 traceback.format_exc()
             )
         else:
-            self.bot.boticordWebsocket._logger.debug("cog_load: done!")
+            self.ws._logger.debug("cog_load: done!")
 
     async def cog_unload(self):
-        await self.bot.boticordWebsocket.close()
-        self.bot.boticordWebsocket.clear_listeners()
+        self.ws._logger.debug("Closing websocket...")
+        await self.ws.close()
     
     async def comment_added(self, data):
         await self.webhook.send(

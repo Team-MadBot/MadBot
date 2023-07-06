@@ -3,14 +3,15 @@ import config
 import discord
 import traceback
 
-from boticordpy import BotiCordWebsocket, BoticordClient
+from boticordpy import BoticordClient
+from .bc_websocket import BoticordWS
 from discord.ext import commands
 from config import settings, cogs
 
 class MadBot(commands.AutoShardedBot):
     logger: logging.Logger
     boticordClient: BoticordClient
-    boticordWebsocket: BotiCordWebsocket
+    boticordWebsocket: BoticordWS
 
     def __init__(self):
         super().__init__(
@@ -23,8 +24,10 @@ class MadBot(commands.AutoShardedBot):
         logger = logging.getLogger("discord.ext.commands.bot")
         logger.name = "MadBot"
         self.logger = logger
+        self.log_level = logging.DEBUG if settings['debug_mode'] else logging.INFO
+        assert settings["bc_token"]
         self.boticordClient = BoticordClient(settings['bc_token']) # type: ignore
-        self.boticordWebsocket = BotiCordWebsocket(settings['bc_token']) # type: ignore
+        self.boticordWebsocket = BoticordWS(settings['bc_token'])
     
     async def is_owner(self, user: discord.User):
         if user.id in config.coders:
@@ -33,15 +36,8 @@ class MadBot(commands.AutoShardedBot):
         return await super().is_owner(user)
     
     async def setup_hook(self):
-        try:
-            await self.boticordWebsocket.connect()
-        except Exception as e:
-            self.logger.error(
-                "An error occured while connecting to Boticord WebSocket:\n"
-                "%s"
-                "You'll not get information about bumps and comments.",
-                traceback.format_exc()
-            )
+        self.boticordWebsocket._logger.setLevel(self.log_level)
+        self.logger.setLevel(self.log_level)
         for ext in cogs:
             try:
                 await self.load_extension(ext)
@@ -53,4 +49,3 @@ class MadBot(commands.AutoShardedBot):
                 )
             else:
                 self.logger.info(f"Cog \"{ext}\" loaded!")
-        

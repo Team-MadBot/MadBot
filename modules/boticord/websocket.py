@@ -1,4 +1,6 @@
 import aiohttp
+import asyncio
+import traceback
 
 from discord.ext import commands
 from discord import Webhook
@@ -13,17 +15,84 @@ class BCWebSocket(commands.Cog):
             settings["bc_webhook_url"], # type: ignore
             session=self.session
         )
+        self.bot.boticordWebsocket.loop = asyncio.get_event_loop()
+    
+    async def cog_load(self):
+        self.bot.boticordWebsocket._logger.debug("Trying to launch Boticord Websocket")
+
         self.bot.boticordWebsocket.register_listener(
             "comment_removed",
-            self.on_comment_removed
+            self.comment_removed
+        )
+        self.bot.boticordWebsocket.register_listener(
+            "up_added",
+            self.up_added
+        )
+        self.bot.boticordWebsocket.register_listener(
+            "comment_added",
+            self.comment_added
+        )
+        self.bot.boticordWebsocket.register_listener(
+            "comment_edited",
+            self.comment_edited
+        )
+        self.bot.boticordWebsocket.register_connecter(
+            self.on_connect
+        )
+        self.bot.boticordWebsocket.register_closer(
+            self.on_close
+        )
+
+        self.bot.boticordWebsocket._logger.debug("cog_load: trying to connect")
+        try:
+            await self.bot.boticordWebsocket.connect()
+        except Exception:
+            self.bot.logger.error(
+                "An error occured while connecting to Boticord WebSocket:\n"
+                "%s"
+                "You'll not get information about bumps and comments.",
+                traceback.format_exc()
+            )
+        else:
+            self.bot.boticordWebsocket._logger.debug("cog_load: done!")
+
+    async def cog_unload(self):
+        await self.bot.boticordWebsocket.close()
+        self.bot.boticordWebsocket.clear_listeners()
+    
+    async def comment_added(self, data):
+        await self.webhook.send(
+            content=f"Получены данные от Boticord:\n\n```\n"
+            f"{data}\n```"
         )
     
-    async def on_comment_removed(self, data):
+    async def comment_edited(self, data):
         await self.webhook.send(
             content=f"Получены данные от Boticord:\n\n```\n"
             f"{data}\n```"
         )
 
+    async def comment_removed(self, data):
+        await self.webhook.send(
+            content=f"Получены данные от Boticord:\n\n```\n"
+            f"{data}\n```"
+        )
+
+    async def up_added(self, data):
+        await self.webhook.send(
+            content=f"Получены данные от Boticord:\n\n```\n"
+            f"{data}\n```"
+        )
+    
+    async def on_connect(self):
+        await self.webhook.send(
+            content=f"Websocket жив!"
+        )
+    
+    async def on_close(self, code: int):
+        await self.webhook.send(
+            content=f"Websocket умер. Код выхода: {code}"
+        )
+
 async def setup(bot: MadBot):
-    if bot.boticordWebsocket.not_closed:
-        await bot.add_cog(BCWebSocket(bot))
+    await bot.add_cog(BCWebSocket(bot))

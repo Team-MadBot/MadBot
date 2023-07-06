@@ -1,5 +1,4 @@
 import aiohttp
-import asyncio
 
 from pynepcord.aio import ImageSession
 from pynepcord.errors import NepuError

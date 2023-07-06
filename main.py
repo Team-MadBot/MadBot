@@ -27,4 +27,10 @@ from tools import models
 
 bot = models.MadBot()
 
-bot.run(settings['token'], root_logger=True) # type: ignore
+assert settings['token']
+
+bot.run(
+    settings['token'], 
+    root_logger=True, 
+    log_level=bot.log_level
+)

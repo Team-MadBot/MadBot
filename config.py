@@ -44,6 +44,7 @@ class Settings(TypedDict):
     mongo_url: str | None
     bc_token: str | None
     bc_webhook_url: str | None
+    debug_mode: bool
 
 settings: Settings = {
     "token": os.environ.get("TOKEN"),
@@ -59,7 +60,8 @@ settings: Settings = {
     "color": Color.orange(),
     "support_invite": os.environ.get("SUPPORT_URL"),
     "mongo_url": os.environ.get("MONGODB_URL"),
-    "bc_webhook_url": os.environ.get("BC_WEBHOOK_URL")
+    "bc_webhook_url": os.environ.get("BC_WEBHOOK_URL"),
+    "debug_mode": True # type: ignore
 }
 
 coders = [

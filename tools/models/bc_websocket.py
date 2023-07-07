@@ -51,6 +51,7 @@ class BoticordWS(BotiCordWebsocket):
             
             self._logger.debug("WebSocket was closed. Retrying...")
             await self.connect()
+            await self._send_identify()
             return
         
         return await super()._handle_close(code)

@@ -30,8 +30,9 @@ class BoticordWS(BotiCordWebsocket):
 
         if data['event'] == "error":
             if data['data']['code'] == 6:
-                self._logger.error("Token is invalid. Closing websocket...")
-                await self.close()
+                self._logger.error("Token is invalid. Sending identify again...")
+                await asyncio.sleep(5)
+                await self._send_identify()
             else:
                 self._logger.error(f"An error occured! {data}")
     

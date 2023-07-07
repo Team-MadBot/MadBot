@@ -49,6 +49,7 @@ class BoticordWS(BotiCordWebsocket):
             if self.__session and not self.__session.closed:
                 await self.__session.close()
             
+            self.__session = aiohttp.ClientSession()
             self._logger.debug("WebSocket was closed. Retrying...")
             await self.connect()
             await self._send_identify()

@@ -32,28 +32,16 @@ class BoticordWS(BotiCordWebsocket):
             if data['data']['code'] == 6:
                 """Это - жирный костыль из-за офигенной системы вебсокетов Boticord.
                 Когда система будет доработана, костыль я уберу."""
-                self._logger.error("Token is invalid. Sending identify again...")
-                await asyncio.sleep(5)
-                await self._send_identify()
+                self._logger.error("Token is invalid. Closing Websocket...")
+                await self.close()
             else:
                 self._logger.error(f"An error occured! {data}")
     
     async def _handle_close(self, code: int):
         if self._on_close:
-            self.loop.create_task(self._on_close(code))
+            await self._on_close(code)
 
         self._logger.debug(f"Connection closed with code {code}.")
-
-        if code == 1006:
-            self.not_closed = False
-            if self.__session and not self.__session.closed:
-                await self.__session.close()
-            
-            self.__session = aiohttp.ClientSession()
-            self._logger.debug("WebSocket was closed. Retrying...")
-            await self.connect()
-            await self._send_identify()
-            return
         
         return await super()._handle_close(code)
     

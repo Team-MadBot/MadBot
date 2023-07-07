@@ -95,7 +95,10 @@ class BCWebSocket(commands.Cog):
         await self.webhook.send(
             content=f"<@560529834325966858> Websocket умер. Код выхода: {code}"
         )
-        await self.bot.reload_extension("modules.boticord.websocket")
+        if code == 4000:
+            await self.bot.unload_extension("modules.boticord.websocket")
+        else:
+            await self.bot.reload_extension("modules.boticord.websocket")
 
 async def setup(bot: MadBot):
     await bot.add_cog(BCWebSocket(bot))

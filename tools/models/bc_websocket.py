@@ -30,6 +30,8 @@ class BoticordWS(BotiCordWebsocket):
 
         if data['event'] == "error":
             if data['data']['code'] == 6:
+                """Это - жирный костыль из-за офигенной системы вебсокетов Boticord.
+                Когда система будет доработана, костыль я уберу."""
                 self._logger.error("Token is invalid. Sending identify again...")
                 await asyncio.sleep(5)
                 await self._send_identify()

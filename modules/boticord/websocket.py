@@ -88,12 +88,12 @@ class BCWebSocket(commands.Cog):
     
     async def on_connect(self):
         await self.webhook.send(
-            content=f"<@560529834325966858> Websocket жив!"
+            content=f"Websocket жив!"
         )
     
     async def on_close(self, code: int):
         await self.webhook.send(
-            content=f"<@560529834325966858> Websocket умер. Код выхода: {code}"
+            content=f"Websocket умер. Код выхода: {code}"
         )
         if code == 4000:
             await self.bot.unload_extension("modules.boticord.websocket")

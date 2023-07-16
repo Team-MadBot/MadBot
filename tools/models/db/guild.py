@@ -1,5 +1,10 @@
-from typing import Optional, List, Literal
-from dataclasses import dataclass
+from typing import (
+    List, 
+    Literal, 
+    ClassVar
+)
+from dataclasses import dataclass, field
+from ..enums import GuildActionsType
 from .abc import DBObjectBase
 
 @dataclass
@@ -7,6 +12,8 @@ class GuildAction(DBObjectBase):
     """Guild action object.
     
     It's a global class for guild actions."""
+    id: ClassVar[int] = field(default=GuildActionsType.OTHER, init=False)
+    guild_id: int
 
 @dataclass
 class GuildItem(DBObjectBase):

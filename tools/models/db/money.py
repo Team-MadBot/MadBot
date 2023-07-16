@@ -1,10 +1,10 @@
 from typing import Optional, ClassVar
 from ..enums import GuildActionsType
 from dataclasses import dataclass, field
-from .abc import DBObjectBase
+from .guild import GuildAction
 
 @dataclass
-class EditMoneyAction(DBObjectBase):
+class EditMoneyAction(GuildAction):
     id: ClassVar[int]
     guild_id: int
     user_id: int

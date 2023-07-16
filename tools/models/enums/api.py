@@ -1,6 +1,9 @@
-from typing import Literal
+from typing import (
+    Literal, 
+    Final
+)
 
-NC_CATEGORIES = Literal[
+NC_CATEGORIES: Final = Literal[
     'baka', 
     'cry', 
     'cuddle', 
@@ -16,4 +19,4 @@ NC_CATEGORIES = Literal[
     'wave', 
     'menhera-chan'
 ]
-SDC_URL = "https://api.server-discord.com/v2/bots/{bot_id}/stats"
+SDC_URL: Final[str] = "https://api.server-discord.com/v2/bots/{bot_id}/stats"

@@ -4,3 +4,4 @@ python_dotenv
 pymongo
 git+https://codeberg.org/Starrysparklez/pynepcord/
 git+https://github.com/boticord/boticordpy/
+dacite

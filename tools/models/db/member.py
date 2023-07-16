@@ -1,40 +1,21 @@
 from ..enums import GuildActionsType
+from .abc import DBObjectBase
+from dataclasses import dataclass, field
+from typing import Final
 
-class UserWarn:
-    def __init__(
-        self,
-        guild_id: int,
-        user_id: int,
-        mod_id: int,
-        until: int,
-        reason: str
-    ):
-        self.id = GuildActionsType.WARN
-        self.guild_id = guild_id
-        self.user_id = user_id
-        self.mod_id = mod_id
-        self.until = until
-        self.reason = reason
-    
-    def to_dict(self):
-        dct = self.__dict__
-        dct.pop("guild_id")
-        dct['user_id'] = str(dct['user_id'])
-        dct['mod_id'] = str(dct['mod_id'])
-        return dct
+@dataclass
+class UserWarn(DBObjectBase):
+    guild_id: int
+    user_id: int
+    mod_id: int
+    until: int
+    reason: str
+    id: Final[int] = field(default=GuildActionsType.WARN, init=False)
 
-class UserUnwarn(UserWarn):
-    def __init__(self, 
-        guild_id: int, 
-        user_id: int, 
-        mod_id: int, 
-        reason: str
-    ):
-        super().__init__(
-            guild_id, 
-            user_id, 
-            mod_id, 
-            0, 
-            reason
-        )
-        del self.until
+@dataclass
+class UserUnwarn(DBObjectBase):
+    guild_id: int 
+    user_id: int 
+    mod_id: int 
+    reason: str
+    id: Final[int] = field(default=GuildActionsType.UNWARN, init=False)

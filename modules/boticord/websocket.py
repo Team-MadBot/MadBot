@@ -1,11 +1,11 @@
 import aiohttp
-import asyncio
 import traceback
 
 from discord.ext import commands
 from discord import Webhook
 from tools.models import MadBot, BoticordWS
 from config import settings
+from asyncio import sleep
 
 class BCWebSocket(commands.Cog):
     def __init__(self, bot: MadBot):
@@ -98,6 +98,7 @@ class BCWebSocket(commands.Cog):
         if code == 4000:
             await self.bot.unload_extension("modules.boticord.websocket")
         else:
+            await sleep(15)
             await self.bot.reload_extension("modules.boticord.websocket")
 
 async def setup(bot: MadBot):

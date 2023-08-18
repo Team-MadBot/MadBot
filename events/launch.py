@@ -19,8 +19,8 @@ class LaunchCog(commands.Cog):
     @commands.Cog.listener()
     async def on_shard_ready(self, shard_id: int):
         await self.bot.change_presence(
-            activity=discord.Game(
-                name=f"разработка v2 | Шард {shard_id}"
+            activity=discord.CustomActivity(
+                name=f"Разработка v2 | Шард {shard_id}"
             ),
             status=discord.Status.dnd,
             shard_id=shard_id

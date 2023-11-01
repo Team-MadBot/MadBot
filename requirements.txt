@@ -2,6 +2,6 @@ discord.py
 jishaku
 python_dotenv
 pymongo
-git+https://codeberg.org/Starrysparklez/pynepcord/
+git+https://codeberg.org/Starrysparklez/pynepcord/ # comment this if codeberg is blocked in your country and VPN is disabled
 git+https://github.com/boticord/boticordpy/
 dacite

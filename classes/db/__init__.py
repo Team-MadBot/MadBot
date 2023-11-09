@@ -1,7 +1,7 @@
 import pymongo
 
 client = pymongo.MongoClient()
-db = client.madbot
+mongo_db = client.madbot
 
 from . import blacklist
 from . import marries

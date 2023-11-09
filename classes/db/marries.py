@@ -1,6 +1,6 @@
 import time
 
-from . import db
+from . import mongo_db as db
 
 from typing import (
     Optional,

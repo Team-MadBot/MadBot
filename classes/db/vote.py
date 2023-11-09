@@ -1,4 +1,4 @@
-from . import db
+from . import mongo_db as db
 
 def add_voter(user_id: int) -> bool:
     """

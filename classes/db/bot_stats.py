@@ -1,4 +1,4 @@
-from . import db
+from . import mongo_db as db
 
 def get_bot_stats() -> dict:
     coll = db.bot_stats

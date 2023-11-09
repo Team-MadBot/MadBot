@@ -1,8 +1,8 @@
 MadBot
 ============
 .. image:: https://discord.com/api/guilds/981247575451639888/embed.png
-   :target: https://discord.gg/DvYPRm939R
-   :alt: Приглашение на Discord сервер поддержки.
+  :target: https://discord.gg/DvYPRm939R
+  :alt: Приглашение на Discord сервер поддержки.
 Исходный код MadBot. Вы можете помогать созданию бота, используя Pull Requests.
 
 Настройка:
@@ -19,7 +19,8 @@ MadBot
 
 Помощь в разработке:
 ------------
-См. `CONTRIBUTING.rst <https://github.com/MadCat9958/MadBotPublic/blob/main/CONTRIBUTING.rst>`__.
+.. :strike:`См. \`CONTRIBUTING.rst <https://github.com/MadCat9958/MadBotPublic/blob/main/CONTRIBUTING.rst>\`.__`
+Лучше не лезьте. Мы сами не знаем, что будем делать с ботом, а Ваш труд может оказаться напрасным. Зацените лучше ветку v2 и посоветуйте, как ее улучшить.
 
 Changelog:
 ------------

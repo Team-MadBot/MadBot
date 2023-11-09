@@ -3,9 +3,9 @@ import pymongo
 client = pymongo.MongoClient()
 mongo_db = client.madbot
 
-from . import blacklist
-from . import marries
-from . import premium
-from . import autorole
-from . import shutted_cmds
-from . import vote
+from .blacklist import *
+from .marries import *
+from .premium import *
+from .autorole import *
+from .shutted_cmds import *
+from .vote import *

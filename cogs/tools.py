@@ -1,28 +1,55 @@
 # -*- coding: utf-8 -*-
-import discord, datetime, sys, typing, requests, config, boticordpy, numexpr, qrcode, os
-from boticordpy import BoticordClient
+import discord
+import datetime
+import sys
+import typing
+import requests
+import config
+import numexpr
+import qrcode
+import os
+
 from base64 import b64decode, b64encode
 from asyncio import sleep, TimeoutError
-from discord import Forbidden, app_commands
+from discord import Forbidden, app_commands, ui
+from fluent.runtime import FluentLocalization, FluentResourceLoader
 from discord.app_commands import Choice
 from discord.ext import commands
+from typing import Optional
+
+from classes.checks import isPremium, isPremiumServer
+from classes import db
+from classes import checks
 from config import *
 
-def cooldown_check(interaction: discord.Interaction):
-    return None if interaction.user.id == settings['owner_id'] else app_commands.Cooldown(1, 300)
+
+def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
+    if (isPremium(interaction.client, interaction.user.id) != 'None' or
+            isPremiumServer(interaction.client, interaction.guild)):
+        return None
+    return app_commands.Cooldown(1, 3.0)
+
+
+def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
+    if (isPremium(interaction.client, interaction.user.id) != 'None' or
+            isPremiumServer(interaction.client, interaction.guild)):
+        return app_commands.Cooldown(1, 2.0)
+    return app_commands.Cooldown(1, 10.0)
+
 
 class Tools(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-        @app_commands.check(is_shutted_down)
-        @app_commands.check(is_in_blacklist)
+        @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+        @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
         class Base64(app_commands.Group):
             """[Полезности] (Де-)кодирует указанный текст в Base64."""
 
             @app_commands.command(description="[Полезности] Кодирует указанный текст в Base64.")
-            @app_commands.check(is_in_blacklist)
-            @app_commands.check(is_shutted_down)
+            @app_commands.checks.dynamic_cooldown(default_cooldown)
+            @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+            @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
             @app_commands.describe(text="Текст для кодировки")
             async def encode(self, interaction: discord.Interaction, text: str):
                 config.used_commands += 1
@@ -42,8 +69,9 @@ class Tools(commands.Cog):
                 await interaction.response.send_message(embed=embed, ephemeral=True)
 
             @app_commands.command(description="[Полезности] Декодирует Base64 в текст.")
-            @app_commands.check(is_in_blacklist)
-            @app_commands.check(is_shutted_down)
+            @app_commands.checks.dynamic_cooldown(default_cooldown)
+            @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+            @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
             @app_commands.describe(text="Текст для декодировки")
             async def decode(self, interaction: discord.Interaction, text: str):
                 config.used_commands += 1
@@ -66,8 +94,8 @@ class Tools(commands.Cog):
         class QrCode(app_commands.Group):
             """[Полезности] Создание/чтение QR-кода."""
             @app_commands.command(description='[Полезности] Создать QR-код.')
-            @app_commands.check(is_in_blacklist)
-            @app_commands.check(is_shutted_down)
+            @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+            @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
             @app_commands.describe(text="Зашифрованный текст")
             async def create(self, interaction: discord.Interaction, text: str):
                 config.used_commands += 1
@@ -89,21 +117,26 @@ class Tools(commands.Cog):
                 os.remove(f'{interaction.user.id}.png')
         
         self.bot.tree.add_command(Base64())
-        self.bot.tree.add_command(QrCode())
+        # self.bot.tree.add_command(QrCode())
+    
+    async def cog_load(self):
+        thanks_users = {
+            754719910256574646: "Второй разработчик бота и лучший бета-тестер. Написал некоторые команды развлечений "
+            "и помог выявить более 20-ти багов. Один из спонсоров бота.",
+            777140702747426817: "Помимо его работы саппортом, он часто апает бота, чем помогает в распространении его. "
+            "Один из первых спонсоров бота."
+        }
+        self.thanks_user = {}
+        for tu in thanks_users:
+            u = await self.bot.fetch_user(tu)
+            self.thanks_user[str(u)] = thanks_users[tu]
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author == self.bot.user or message.author.id in blacklist:
+        if message.author == self.bot.user or checks.is_in_blacklist(message.author.id):
             return
 
-        if message.channel.id == settings['github_channel']:
-            await sleep(10) # Задержка, чтобы можно было успеть удалить сообщение.
-            try:
-                await message.publish()
-            except:
-                pass
-
-        if message.content.startswith("/"):
+        if message.content.startswith("/") and not message.author.bot:
             embed = discord.Embed(title="Команда введена неправильно!", color=discord.Color.red(), description="У бота `/` является не префиксом, а вызовом слеш-команд. Полностью очистите строку сообщений, поставьте `/` и выберите команду из списка.")
             await message.reply(embed=embed, delete_after=20)
         
@@ -117,7 +150,7 @@ class Tools(commands.Cog):
         if 'debug' in message.content:
             return
 
-        if message.content.startswith(f"<@!{self.bot.user.id}>") or message.content.startswith(f"<@{self.bot.user.id}>"):
+        if message.content == f"<@!{self.bot.user.id}>" or message.content == f"<@{self.bot.user.id}>":
             embed=discord.Embed(title="Привет! Рад, что я тебе чем-то нужен!", color=discord.Color.orange(), description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.")
             await message.reply(embed=embed, mention_author=False)
     
@@ -129,9 +162,12 @@ class Tools(commands.Cog):
             except:
                 pass
             try:
-                member = await interaction.guild.fetch_member(interaction.user.id)
+                try:
+                    member = await interaction.guild.fetch_member(interaction.user.id)
+                except: 
+                    return
                 role = interaction.guild.get_role(role_id)
-                if role == None:
+                if role is None:
                     return
                 if role_id in [role.id for role in member.roles]:
                     try:
@@ -175,9 +211,12 @@ class Tools(commands.Cog):
                 except:
                     pass
                 try:
-                    member = await interaction.guild.fetch_member(interaction.user.id)
+                    try: 
+                        member = await interaction.guild.fetch_member(interaction.user.id)
+                    except: 
+                        return
                     role = interaction.guild.get_role(role_id)
-                    if role == None:
+                    if role is None:
                         return
                     if role_id in [role.id for role in member.roles]:
                         try:
@@ -208,14 +247,10 @@ class Tools(commands.Cog):
                 color=discord.Color.green()
             )
             embed.add_field(name="Изменения:", value=changes)
-            embed2 = discord.Embed(
-                title="Внимание!",
-                color=discord.Color.red(),
-                description="Поддержка бота прекращена! Данный функционал скоро станет недоступным! Подробнее: https://t.me/MadCat9958/187"
-            )
             await interaction.followup.send(embed=embed)
         elif not(interaction.response.is_done()) and interaction.type == discord.InteractionType.component:
-            await sleep(2)
+            await sleep(4)
+            if interaction.response.is_done(): return
             embed = discord.Embed(
                 title="Ошибка",
                 color=discord.Color.red(),
@@ -227,89 +262,70 @@ class Tools(commands.Cog):
                 pass
 
     @app_commands.command(description="[Полезности] Показывает изменения в текущей версии.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(ver="Версия бота")
     @app_commands.choices(ver=[
         Choice(name="Актуальная", value="actual"),
-        Choice(name='0.10.1', value='0101'),
-        Choice(name="0.10", value='010'),
-        Choice(name="0.9", value="09"),
-        Choice(name="0.8", value="08"),
-        Choice(name="0.7", value='07'),
-        Choice(name="0.6", value='06'),
-        Choice(name="0.5", value="05"),
-        Choice(name="0.4", value="04"),
-        Choice(name="0.3.9", value="039"),
-        Choice(name="0.3.8", value="038"),
-        Choice(name="0.3.7", value="037"),
-        Choice(name="0.3.6", value="036")
+        Choice(name="1.1.1", value='111'),
+        Choice(name="1.1", value='11'),
+        Choice(name='1.0', value='10')
     ])
     async def version(self, interaction: discord.Interaction, ver: Choice[str] = None):
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/version`"
         embed = None
-        if ver != None:
+        if ver is not None:
             ver = ver.name
-        if ver == None or ver == '0.10.1' or ver == "Актуальная":
-            updated_at = datetime.datetime(2022, 6, 6, 18, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.10.1`', color=discord.Color.orange(), timestamp=updated_at, description=f"1) Фиксы багов с `/autorole`.\n2) Косметические изменения `/botinfo`.\n3) Новая категория - Реакции.\n4) Изменение вида `/autorole`.\n5) Экстренные изменения из-за приближения лимита серверов.\n6) Ответ пользователю на неработающий компонент.")
+        if ver is None or ver == settings['curr_version'] or ver == "Актуальная":
+            updated_at = datetime.datetime(2023, 5, 29, 22, 0, 0, 0)
+            embed=discord.Embed(
+                title=f'Версия `1.1.1`', 
+                color=discord.Color.orange(), 
+                timestamp=updated_at, 
+                description=(
+                    f"Это баг-фикс версия, которая содержит лишь исправления багов (нового функционала нет).\n\n"
+                    f"- `/userinfo` - работает и отображает актуальную информацию о пользователе (кроме статуса), поддержка \"Pomelo\".\n"
+                    f"- `/avatar` - показ серверного аватара.\n"
+                    f"- `/serverinfo` - снова работает и показывает владельца сервера, а также исправлено несовпадение дизайна.\n"
+                    f"- `/debug` - бот теперь правильно отображает, является ли инициатор команды владельцем сервера.\n"
+                    f"- SDC - отправка статистики.\n"
+                    f"- Библиотеки - переход снова на альфа-версию discord.py (для реализации работы с Pomelo).\n"
+                    f"- Политика конфиденциальности - обновлены пункты 1.2, 1.2.1, 3, 4. Просьба ознакомиться с изменениями."
+                )
+            )
             embed.set_footer(text="Обновлено:")
-        if ver == "0.10":
-            updated_at = datetime.datetime(2022, 5, 31, 17, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.10`', color=discord.Color.orange(), timestamp=updated_at, description=f"> 1) Добавление `/russian-roulette` и `/duel`.\n> 2) Использование кнопок-ссылок в `/botinfo`.\n> 3) Добавлена страница бота на Boticord в `/botinfo`.\n> 4) Добавлено угадывание числа (`/number`).\n> 5) Улучшение статистики `/botinfo`.\n> 6) При ошибке, кнопки сообщения будут убраны.\n> 7) Предосторожности в `/weather`.\n> 8) Добавлена команда `/autorole` для настройки ролей на нажатие кнопок.\n> 9) Добавлена команда `/dice`.\n> 10) Изменение сообщения о кулдауне.")
+        if ver == '1.1':
+            updated_at = datetime.datetime(2022, 12, 4, 14, 0, 0, 0)
+            embed=discord.Embed(
+                title=f'Версия `1.1`', 
+                color=discord.Color.orange(), 
+                timestamp=updated_at, 
+                description=(
+                    f"`1.` Свадьбы. Подробнее: `/help` > Свадьбы.\n"
+                    f"`2.` Статистика. На данный момент, она может не обновляться. В ближайшее время она начнет обновляться.\n"
+                    f"`3.` Обновление `/kiss`. Если целоваться при наличии брака, будет измененное сообщение."
+                    f"`4.` Премиум. Теперь в бота будут постепенно добавляться премиум возможности. Одна из них: принудительная свадьба и развод. Управление подпиской: `/premium`.\n"
+                )
+            )
             embed.set_footer(text="Обновлено:")
-        if ver == '0.9':
-            updated_at = datetime.datetime(2022, 5, 25, 21, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.9`', color=discord.Color.orange(), timestamp=updated_at, description=f"> 1) Исправление бага со счётом команд в `/botinfo`.\n> 2) Добавлены полезная команда `/stopwatch`.\n> 3) Добавлена развлекательная команда `/knb`, `/coin`.\n> 4) Команда `/base64` теперь - группа.\n> 5) Добавлена команда `/debug` для получения сведений о боте.\n> 6) Команда `/idea` теперь в кулдауне (раз в 5 минут).\n> 7) Учет embed'ов и файлов в док-вах в контекстных меню.\n> 8) Добавлена обратная связь через `/help`. ~~Конец `/idea`?~~\n> 9) Новый значок - помощник разработчика.\n> 10) Добавлена игра `/tic-tac-toe`. Спасибо, F_Artamon#7588.\n> 11) Добавлена игра `/hangman`.")
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.8':
-            updated_at = datetime.datetime(2022, 5, 17, 20, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.8`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Требование права на просмотр журнала аудита в `/getaudit`.\n> 2) Показ кол-во участников в сети в `/serverinfo`.\n> 3) Изменение вида `/serverinfo`.\n> 4) Добавление Select Menu в `/userinfo` и `/serverinfo`.\n> 5) Команды могут быть отключены владельцем бота.\n> 6) Добавлено новое развлечение: `/doors`.\n> 7) Использование кнопок и форм вместо реакций и сообщений.\n> 8) Добавлена команда `/weather`.\n> 9) Иногда, бот будет показывать свою версию в статусе.\n> 10) Добавлена команда `/ball`.\n> 11) Обновлен дизайн `/botinfo` и `/help`.')
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.7':
-            updated_at = datetime.datetime(2022, 5, 8, 20, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.7`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Исправлена команда `/base64`.\n> 2) Обновлен дизайн `/botinfo` и `/avatar`.\n> 3) Запрос на смену ника при отсутствии права на изменение никнейма в `/nick`.\n> 4) Небольшое дополнение команды `/nsfw`.\n> 5) Авто-постинг новостей из <#953175109135376394>.\n> 6) Показ типа операционной системы, на которой запущен бот, в `/botinfo`.\n> 7) Показ списка ролей сервера в `/serverinfo`.\n> 8) Теперь приветственное сообщение будет присылаться в ЛС добавившему бота, если это возможно.\n> 9) Команда `/outages` снова работает.\n> 10) При правильном ответе, бот пишет время ответа в `/math`.\n> 11) Добавлена команда `/clearoff`.')
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.6':
-            updated_at = datetime.datetime(2022, 5, 5, 20, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.6`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Исправление обхода проверки иерархии, используя `/banoff`.\n> 2) Добавлены контекстные меню модерации.\n> 3) Добавлены команды `/kiss` и `/hit`.\n> 4) Для поцелуя необходимо получить разрешение от второго участника.\n> 5) Добавлена первая развлекательная команда: `/math`.\n> 6) Улучшение системы мониторинга бота.\n> 7) Поддержка ввода эмодзи в `/getemoji`.\n> 8) Фильтрация гифок в `/slap`. Не хочу случайно получить бан.\n> 9) Коллаборация `/clear` и `/clearfrom`.\n> 10) Добавлен счетчик обработанных команд в `/botinfo`.\n> 11) В заголовке `/serverinfo` отображается количество ботов.\n> 12) Куча исправлений.')
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.5':
-            updated_at = datetime.datetime(2022, 4, 18, 19, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.5`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Добавлена команда `/banoff`.\n> 2) Добавлены команды реакций.\n> 3) Добавлены контекстные меню. Со временем их будет больше.\n> 4) Бот оповещает участника о выдаче участнику наказания.\n> 5) Добавлена команда `/getemoji`.\n> 6) Добавлены команды `/dog` и `/cat`.\n> 7) В `/botinfo` появился показ версий Python и discord.py, а так же показ кол-ва обработанных команд.\n> 8) Добавлена команда `/nsfw`. Применение объяснять не надо (так ведь?).\n> 9) В тестовом режиме добавлена команда `/base64`. Шифрует она только латиницу.\n> 10) Теперь в `/clearfrom` можно очищать сообщения любых участников.')
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.4':
-            updated_at = datetime.datetime(2022, 3, 27, 19, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.4 [ОБТ]`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Исправлена команда `/serverinfo`.\n> 2) Добавлено поле "Запущено" в `/botinfo`.\n> 3) Добавлено поле "Статус" в `/userinfo`.\n> 4) Исправлена возможность выдать наказание участнику, чья роль выше либо равна роли модератора.\n> 5) Теперь надо выбирать размер аватара вместо ручного ввода в команде `/avatar`.\n> 6) Обновлена ссылка на поддержку бота в его "обо мне".\n> 7) Добавлены значки "Bug Hunter" и "Bug Terminator". Подробнее: `/badgeinfo`.\n> 8) Теперь нельзя сбрасывать ник ботам. Не спрашивайте, почему.\n> 9) Теперь пинг (который без лишнего нуля) виден в статусе бота.\n> 10) Уточнение в `/clearfrom`.\n> 11) Добавлена команда `/unban` (спустя полгода с добавления команды `/ban`).\n> 12) Добавлена команда `/idea` для публикации идей в канал <#957688771200053379>.')
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.3.9':
-            updated_at = datetime.datetime(2022, 3, 17, 19, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.3.9 [ОБТ]`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Добавлены команды `/resetnick`, `/clone` и `/nick`.\n> 2) Команда `/cooldown` переименована в `/slowmode`.\n> 3) Для команд модерации добавлено обязательное указание причины.\n> 4) При ошибках в командах модерации показывается тип ошибки.\n> 5) Добавлена команда `/errors` для самостоятельного решения ошибок.\n> 6) Немного изменено оформление "обо мне" бота.\n> 7) Ошибки будут логироваться в канале логов бота на сервере поддержки. Это сделано для быстрого обнаружения проблемы и исправления её.\n> 8) При использовании команды `/nick` и отсутствии прав на изменение ника, бот запросит подтверждение изменения ника у администраторов.')
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.3.8':
-            updated_at = datetime.datetime(2022, 3, 7, 19, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `0.3.8 [ОБТ]`', color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Переезд на `discord.py v2.0`.\n> 2) Исправлена проблема с вводом причины в `/timeout`.\n> 3) Удалена команда `/beauty`.\n> 4) Исправлена возможность ввести значение ниже `1` в `/clear` и `/clearfrom`.\n> 5) Возможность посмотреть изменения в предыдущих версиях в `/version`.\n> 6) Теперь в `/userinfo` показывается по умолчанию серверная аватарка (если есть).\n> 7) При наличии **стандартного** баннера, он будет виден в `/userinfo`.\n> 8) Можно выбрать тип аватара (серверный либо стандартный) в `/avatar`.')
-            embed.set_footer(text="Обновлено:")
-        if ver == "0.3.7":
-            updated_at = datetime.datetime(2022, 3, 4, 18, 0, 0, 0)
-            embed=discord.Embed(title="Версия `0.3.7 [ОБТ]`", color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Добавлены значки в `/userinfo` и `/serverinfo`.\n> 2) Добавлена команда `/badgeinfo` для ознакомления со значками.\n> 3) Исправлен баг с неактуальной ссылкой на поддержку в `/botinfo`.\n> 4) Добавлена возможность просмотра последней использованной команды бота в `/botinfo`.\n> 5) Пользователи теперь могут попасть в чёрный список бота.\n> 6) [BETA] Появилась возможность проверить, находится ли участник в чёрном списке бота.\n> 7) Можно узнать о боте, упомянув его.\n> 8) В случае, если вы будете использовать `/` как префикс бота, он вам сделает предупреждение.\n> 9) Добавлена команда `/help` для первичного ознакомления с ботом.')
-            embed.set_footer(text="Обновлено:")
-        if ver == '0.3.6':
-            updated_at = datetime.datetime(2022, 2, 17, 9, 0, 0, 0)
-            embed=discord.Embed(title="Версия `0.3.6 [ОБТ]`", color=discord.Color.orange(), timestamp=updated_at, description=f'> 1) Добавлены таймштампы в `/serverinfo` и `/userinfo`.\n> 2) Добавлено поле "Присоединился" в `/userinfo`.\n> 3) Теперь видно, когда бот перезапускается в его статусе.\n> 4) Изменена аватарка.\n> 5) Изменен порядок аргументов по умолчанию в `/clearfrom`.\n> 6) Добавлена "Защита от дурака" в `/avatar` при вводе параметра `size`.\n> 7) Добавлено поле "Кол-во участников" в `/botinfo`.')
+        if ver == '1.0':
+            updated_at = datetime.datetime(2022, 7, 31, 15, 0, 0, 0)
+            embed=discord.Embed(title=f'Версия `1.0`', color=discord.Color.orange(), timestamp=updated_at, description=f"1) Фиксы многих багов.\n2) Поддержка ограничения длины аргументов в слеш-командах.\n3) Переезд кастомизации эмбеда в формы (`/buttonrole`).\n4) Небольшие изменения дизайна.\n5) Можно указать цвет для эмбеда в `/buttonrole`.")
             embed.set_footer(text="Обновлено:")
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="errors", description="[Полезности] Список ошибок и решения их")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def errors(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -322,35 +338,45 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="help", description="[Полезности] Показывает основную информацию о боте.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def help(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/help`"
         commands = self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)
-        mod_commands = ""
+        #mod_commands = ""
         tools_commands = ""
         ent_commands = ""
         react_commands = ""
+        stats_commands = ""
+        marry_commands = ""
+        premium_commands = ""
         for command in commands:
             if command.description.startswith("[Модерация]"):
-                mod_commands += f"`/{command.name}` - {command.description.removeprefix('[Модерация]')}\n"
+                mod_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Модерация]')}\n"
             if command.description.startswith("[Полезности]"):
-                tools_commands += f"`/{command.name}` - {command.description.removeprefix('[Полезности]')}\n"
+                tools_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Полезности]')}\n"
             if command.description.startswith("[Развлечения]") or command.description.startswith("[NSFW]"):
-                ent_commands += f"`/{command.name}` - {command.description.removeprefix('[Развлечения]').removeprefix('[NSFW]')}\n"
+                ent_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Развлечения]').removeprefix('[NSFW]')}\n"
             if command.description.startswith("[Реакции]"):
-                react_commands += f"`/{command.name}` - {command.description.removeprefix('[Реакции]')}\n"
+                react_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Реакции]')}\n"
+            if command.description.startswith("[Статистика]"):
+                stats_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Статистика]')}\n"
+            if command.description.startswith("[Свадьбы]"):
+                marry_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Свадьбы]')}\n"
+            if command.qualified_name.startswith("premium"):
+                premium_commands += f"`/{command.qualified_name}` - {command.description}\n"
 
-        moderation = discord.Embed(
-            title=f"{self.bot.user.name} - Модерация", 
-            color=discord.Color.orange(), 
-            description=mod_commands
-        )
+        #moderation = discord.Embed(
+        #    title=f"{self.bot.user.name} - Модерация", 
+        #    color=discord.Color.orange(), 
+        #    description=mod_commands
+        #)
         tools = discord.Embed(
             title=f"{self.bot.user.name} - Полезности",
             color=discord.Color.orange(), 
@@ -366,29 +392,50 @@ class Tools(commands.Cog):
             color=discord.Color.orange(),
             description=react_commands
         )
+        stats = discord.Embed(
+            title=f"{self.bot.user.name} - Свадьбы",
+            color=discord.Color.orange(),
+            description=stats_commands
+        )
+        marry = discord.Embed(
+            title=f"{self.bot.user.name} - Статистика",
+            color=discord.Color.orange(),
+            description=marry_commands
+        )
+        premium = discord.Embed(
+            title=f"{self.bot.user.name} - Премиум",
+            color=discord.Color.orange(),
+            description=premium_commands
+        )
         embed = discord.Embed(
             title=f"{self.bot.user.name} - Главная", 
             color=discord.Color.orange(), 
             description=f"""Спасибо за использование {self.bot.user.name}! Я использую слеш-команды, поэтому для настройки доступа к ним можно использовать настройки Discord.
             
-            **Что я умею?**
-            - **Развлекать**. Если Вам скучно, то посмотрите, как можно развлечься.
-            - **Модерировать**. Я напишу причину и предоставлю доказательства нарушения нарушителю при использовании команд модерации.
-            - **Реагировать**. Хотите показать свои эмоции? Пожалуйста!
-            - **Прочее**. Узнать погоду, подсчитать пример или получить аватар пользователя можно в одном боте!
+**Что я умею?**
+- **Развлекать**. Если Вам скучно, то посмотрите, как можно развлечься.
+- **Реагировать**. Хотите показать свои эмоции? Пожалуйста!
+- **Прочее**. Узнать погоду, подсчитать пример или получить аватар пользователя можно в одном боте!
             
-            Выберите катерогию команд для их просмотра.""")
-        embed.add_field(name="Поддержка:", value=settings['support_invite'], inline=False)
-        embed.add_field(name="Пригласить:", value=f"[Тык](https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands)", inline=False)
+Выберите категорию команд для их просмотра.""")
+        embed.add_field(
+            name="Поддержать разработку",
+            value=f"""Поддержка - не всегда означает необходимость платить. Если у Вас нету денег, просто оцените бота на Boticord и SDC Monitoring. Так Вы поможете продвинуть бота. Можете ещё написать свой отзыв - обязательно прочтем и учтем.
             
+**СКОРО:** Если у Вас есть деньги, Вы можете связаться с разработчиком для покупки MadBot Premium. Так мы сможет продолжать разработку, а Вы получите уникальные функции."""
+        )
+
         class DropDownCommands(discord.ui.Select):
             def __init__(self):
                 options = [
                     discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
-                    discord.SelectOption(label="Модерация", value="moderation", description="Команды модерации.", emoji="🛑"),
+                    #discord.SelectOption(label="Модерация", value="moderation", description="Команды модерации.", emoji="🛑"),
                     discord.SelectOption(label="Полезности", value="tools", description="Полезные команды.", emoji="⚒️"),
                     discord.SelectOption(label="Развлечения", value="entartaiment", description="Развлекательные команды.", emoji="🎉"),
-                    discord.SelectOption(label="Реакции", value="reactions", description="Команды реакций.", emoji="🎭")
+                    discord.SelectOption(label="Реакции", value="reactions", description="Команды реакций.", emoji="🎭"),
+                    discord.SelectOption(label="Статистика", value="stats", description="Настройка статистики сервера.", emoji="📊"),
+                    discord.SelectOption(label="Свадьбы", value="marry", description="Женитесь и разводитесь.", emoji="❤️"),
+                    discord.SelectOption(label="Премиум", value="premium", description="Управление премиум-подпиской.", emoji="👑")
                 ]
                 super().__init__(placeholder="Команды", options=options)
             
@@ -396,31 +443,42 @@ class Tools(commands.Cog):
                 if interaction.user.id != viewinteract.user.id:
                     if self.values[0] == "embed":
                         return await viewinteract.response.send_message(embed=embed, ephemeral=True)
-                    elif self.values[0] == "moderation":
-                        return await viewinteract.response.send_message(embed=moderation, ephemeral=True)
+                    #elif self.values[0] == "moderation":
+                    #    return await viewinteract.response.send_message(embed=moderation, ephemeral=True)
                     elif self.values[0] == "tools":
                         return await viewinteract.response.send_message(embed=tools, ephemeral=True)
                     elif self.values[0] == "reactions":
                         return await viewinteract.response.send_message(embed=reactions, ephemeral=True)
-                    else:
+                    elif self.values[0] == "entartaiment":
                         return await viewinteract.response.send_message(embed=entartaiment, ephemeral=True)
+                    elif self.values[0] == "marry":
+                        return await viewinteract.response.send_message(embed=marry, ephemeral=True)
+                    elif self.values[0] == "premium":
+                        return await viewinteract.response.send_message(embed=premium, ephemeral=True)
+                    else:
+                        return await viewinteract.response.send_message(embed=stats, ephemeral=True)
                 if self.values[0] == "embed":
                     await viewinteract.response.edit_message(embed=embed)
-                elif self.values[0] == "moderation":
-                    await viewinteract.response.edit_message(embed=moderation)
+                #elif self.values[0] == "moderation":
+                #    await viewinteract.response.edit_message(embed=moderation)
                 elif self.values[0] == "tools":
                     await viewinteract.response.edit_message(embed=tools)
                 elif self.values[0] == "reactions":
                     return await viewinteract.response.edit_message(embed=reactions)
+                elif self.values[0] == "entartaiment":
+                    return await viewinteract.response.edit_message(embed=entartaiment)
+                elif self.values[0] == "marry":
+                    return await viewinteract.response.edit_message(embed=marry)
+                elif self.values[0] == "premium":
+                    return await viewinteract.response.edit_message(embed=premium)
                 else:
-                    await viewinteract.response.edit_message(embed=entartaiment)
+                    return await viewinteract.response.edit_message(embed=stats)
 
         class DropDownHelp(discord.ui.Select):
             def __init__(self):
                 options = [
                     discord.SelectOption(label="Я нашел баг!", value="bugreport", description="Заполните форму, и мы исправим баг как можно скорее!", emoji='🐞'),
-                    discord.SelectOption(label="У меня вопрос!", value="question", description="Заполните форму, и вам ответят на вопрос!", emoji='❓'),
-                    discord.SelectOption(label="У меня идея!", value='idea', description="Заполните форму, и ваша идея будет рассмотрена!", emoji="💡")
+                    discord.SelectOption(label="У меня вопрос!", value="question", description="Заполните форму, и вам ответят на вопрос!", emoji='❓')
                 ]
                 super().__init__(placeholder='Обратная связь', options=options)
 
@@ -479,59 +537,44 @@ class Tools(commands.Cog):
                                         embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ответ отправлен пользователю.")
                                         await ansinteract.response.send_message(embed=embed, ephemeral=True)
                                     q_embed.add_field(name=f"Ответ от {ansinteract.user}:", value=str(self.answer))
-                                    await buttinteract.edit_original_message(embed=q_embed, view=None)
+                                    await buttinteract.edit_original_response(embed=q_embed, view=None)
                                 
                             await buttinteract.response.send_modal(AnswerQuestion(self.main))
 
                     await log_channel.send(embed=q_embed, view=Buttons(self.main))
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Вопрос успешно отправлен!")
                     await viewinteract.response.send_message(embed=embed, ephemeral=True)
-                
-            class SendIdea(discord.ui.Modal, title="Предложить идею"):
-                main = discord.ui.TextInput(label='Суть идеи:', max_length=50, placeholder="Удалить конфликты.")
-                description = discord.ui.TextInput(label="Идея:", max_length=2048, placeholder="Сделать так, чтобы везде был мир.", style=discord.TextStyle.long)
-                links = discord.ui.TextInput(label="Ссылки:", max_length=1024, placeholder="https://imgur.com/RiCkROLl", required=False)
-
-                async def on_submit(self, viewinteract: discord.Interaction):
-                    idea_embed = discord.Embed(title=str(self.main), color=discord.Color.orange(), description=str(self.description), timestamp=discord.utils.utcnow())
-                    idea_embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar)
-                    if str(self.links) != '':
-                        idea_embed.add_field(name="Ссылки:", value=str(self.links))
-                    channel = viewinteract.client.get_channel(settings['idea_channel'])
-                    message = await channel.send(embed=idea_embed)
-                    await message.add_reaction("✅")
-                    await message.add_reaction("💤")
-                    await message.add_reaction("❌")
-                    embed = discord.Embed(title='Успешно!', color=discord.Color.green(), description="Идея отправлена в канал")
-                    embed.add_field(name="ВНИМАНИЕ:", value="В случае, если идея является некорректной, Вам будет выдан ЧС бота!")
-                    await viewinteract.response.send_message(embed=embed, ephemeral=True)
 
             async def callback(self, viewinteract: discord.Interaction):
-                if viewinteract.user.id in blacklist:
+                if checks.is_in_blacklist(viewinteract.user.id):
                     embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
                     embed.set_thumbnail(url=interaction.user.avatar.url)
                     return await viewinteract.response.send_message(embed=embed, ephemeral=True)
-                embed = discord.Embed(
-                    title="Внимание!",
-                    color=discord.Color.red(),
-                    description="Поддержка бота прекращена! Обратная связь невозможна!\n\nПодробнее: https://t.me/MadCat9958/187"
-                )
-                await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                modals = {
+                    'bugreport': self.BugReport(),
+                    'question': self.AskQuestion()
+                }
+                await viewinteract.response.send_modal(modals[self.values[0]])
            
         class DropDownView(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)
                 self.add_item(DropDownCommands())
                 self.add_item(DropDownHelp())
+                self.add_item(discord.ui.Button(label="Поддержка", url=settings['support_invite']))
+                self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
+                self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url=f"https://boticord.top/bot/{settings['app_id']}", emoji="<:bc:947181639384051732>"))
+                self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url=f"https://bots.server-discord.com/{settings['app_id']}", emoji="<:favicon:981586173204000808>"))
 
         await interaction.response.send_message(embed=embed, view=DropDownView())
 
     @app_commands.command(name="ping", description="[Полезности] Проверка бота на работоспособность")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def ping(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -540,16 +583,17 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="userinfo", description="[Полезности] Показывает информацию о пользователе")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member='Участник')
     async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
+        if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -558,9 +602,7 @@ class Tools(commands.Cog):
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
         config.lastcommand = "`/userinfo`"
         badges = ''
-        guild = self.bot.get_guild(interaction.guild.id)
-        if member == None:
-            member = interaction.user
+        if member is None: member = interaction.user
         else:
             try:
                 member = await interaction.guild.fetch_member(member.id)
@@ -569,14 +611,32 @@ class Tools(commands.Cog):
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
         
-        embed = discord.Embed(color=member.color, description=f"[Скачать]({member.display_avatar.replace(static_format='png', size=2048)})")
+        try:
+            member = await interaction.guild.fetch_member(member.id)
+        except:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description=(
+                    "Странно, но нам не удалось найти Вас как участника этого сервера. Так быть не должно. "
+                    "Обратитесь в поддержку по ссылке в \"обо мне\" бота или по кнопке в `/help` или `/botinfo`."
+                )
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        member_color = member.color
+        if member_color.value == 0:
+            member_color = discord.Color.orange()
+        
+        embed = discord.Embed(color=member_color, description=f"[Скачать]({member.display_avatar.replace(static_format='png', size=2048)})")
         embed.set_author(name=f"Аватар {member}")
         embed.set_image(url=member.display_avatar.replace(static_format="png", size=2048))
         embed.set_footer(text=f"Формат: png | Размер: 2048 | Тип аватара: Серверный.")
 
-        member_color = member.color
-        if member.id in blacklist:
+        if checks.is_in_blacklist(member.id):
             badges += '<:ban:946031802634612826> '
+        if isPremium(self.bot, member.id) != 'None':
+            badges += '<a:premium:988735181546475580> '
         if member.is_timed_out():
             badges += '<:timeout:950702768782458893> '
         if member.id == settings['owner_id']:
@@ -593,22 +653,31 @@ class Tools(commands.Cog):
             badges += '<:verified:946057332389978152> '
         if member.bot:
             badges += '<:bot:946064625525465118> '
-        member = guild.get_member(member.id)
         emb: discord.Embed
-        if member.nick == None:
-            emb = discord.Embed(title=f"`{member.name}#{member.discriminator}` {badges}", color=member.color)
+        global_name = member.global_name or member.name
+        username = str(member)
+        if member.nick is None:
+            emb = discord.Embed(
+                title=f"`{global_name} "
+                f"({username})` {badges}", 
+                color=member_color
+            )
         else:
-            emb = discord.Embed(title=f"`{member.name}#{member.discriminator}` | `{member.nick}` {badges}", color=member.color)
+            emb = discord.Embed(
+                title=f"`{global_name} "
+                f"({username})` | `{member.nick}` {badges}", 
+                color=member_color
+            )
         emb.add_field(name="Упоминание:", value=member.mention, inline=False)
-        """if member.status == discord.Status.online:
-            emb.add_field(name="Статус:", value="🟢 В сети", inline=False)
-        elif member.status == discord.Status.idle:
-            emb.add_field(name="Статус:", value="🌙 Нет на месте", inline=False)
-        elif member.status == discord.Status.dnd:
-            emb.add_field(name="Статус:", value="🔴 Не беспокоить", inline=False)
-        else:
-            emb.add_field(name="Статус:", value="🔘 Не в сети", inline=False)"""
-        emb.add_field(name="Статус:", value="`Недоступен`", inline=False)
+        if self.bot.intents.presences:
+            if member.status == discord.Status.online:
+                emb.add_field(name="Статус:", value="🟢 В сети", inline=False)
+            elif member.status == discord.Status.idle:
+                emb.add_field(name="Статус:", value="🌙 Нет на месте", inline=False)
+            elif member.status == discord.Status.dnd:
+                emb.add_field(name="Статус:", value="🔴 Не беспокоить", inline=False)
+            else:
+                emb.add_field(name="Статус:", value="🔘 Не в сети", inline=False)
         emb.add_field(name="Ссылка на профиль:", value=f"[Тык](https://discord.com/users/{member.id})", inline=False)
         if member.bot:
             emb.add_field(name="Бот?:", value="Да", inline=False)
@@ -623,11 +692,11 @@ class Tools(commands.Cog):
         emb.add_field(name="Присоединился:", value=f"{discord.utils.format_dt(member.joined_at, 'D')} ({discord.utils.format_dt(member.joined_at, 'R')})", inline=False)
         emb.set_thumbnail(url=member.display_avatar.replace(static_format="png", size=1024))
         member = await self.bot.fetch_user(member.id)
-        if member.banner != None:
+        if member.banner is not None:
             emb.set_image(url=member.banner.url)
         emb.set_footer(text=f'ID: {member.id}')
 
-        if member.banner != None:
+        if member.banner is not None:
             banner = discord.Embed(color=member_color, description=f"[Скачать]({member.banner.url})")
             banner.set_author(name=f"Баннер {member}")
             banner.set_image(url=member.banner.url)
@@ -659,8 +728,9 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=emb, view=View())
 
     @app_commands.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(
         member='Участник, чью аватарку вы хотите получить', 
         format="Формат изображения", 
@@ -690,69 +760,88 @@ class Tools(commands.Cog):
             Choice(name="Серверная", value='server')
         ]
     )
-    async def avatar(self, interaction: discord.Interaction, member: discord.User = None, format: Choice[str] = "png", size: Choice[int] = 2048, type: Choice[str] = 'server'):
+    async def avatar(
+        self, 
+        interaction: discord.Interaction, 
+        member: discord.User = None, 
+        format: Choice[str] = "png", 
+        size: Choice[int] = 2048, 
+        type: Choice[str] = 'standart'
+    ):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
+        if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/avatar`"
-        if member == None:
-            member = interaction.user
-        if format != 'png':
-            format = format.value
-        if size != 2048:
-            size = size.value
-        if type != 'server':
-            type = type.value
-        user_avatar = member.display_avatar
-        if member.avatar != None:
-            user_avatar = member.avatar
-        embed = discord.Embed(color=member.color, description=f"[Скачать]({user_avatar.replace(static_format=format, size=size)})")
+        if member is None: member = interaction.user
+        try:
+            member: discord.Member = await interaction.guild.fetch_member(member.id)
+        except:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Данная команда работает только на участниках этого сервера"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if format != 'png': format = format.value
+        if size != 2048: size = size.value
+        if type != 'standart': type = type.value
+        user_avatar = member.avatar or member.default_avatar
+        if type == 'server': 
+            if member.guild_avatar is None:
+                return await interaction.response.send_message(
+                    embed=discord.Embed(
+                        title="Ошибка!",
+                        color=discord.Color.red(),
+                        description="Пользователь не имеет серверного аватара."
+                    ),
+                    ephemeral=True
+                )
+            user_avatar = member.guild_avatar
+        embed = discord.Embed(
+            color=member.color if not member.color == discord.Color.default() else discord.Color.orange(),
+            description=f"[Скачать]({user_avatar.replace(static_format=format, size=size)})"
+        )
         embed.set_author(name=f"Аватар {member}")
         embed.set_image(url=user_avatar.replace(static_format=format, size=size))
-        if type == "server":
-            type = "Серверный"
-        else:
-            type = "Стандартный"
-        embed.set_footer(text=f"Запросил: {interaction.user.name}#{interaction.user.discriminator} | Формат: {format} | Размер: {size} | Тип аватара: {type}")
+        type = "Серверный" if type == "server" else "Стандартный"
+        embed.set_footer(text=f"Запросил: {str(interaction.user)} | Формат: {format} | Размер: {size} | Тип аватара: {type}")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="serverinfo", description="[Полезности] Информация о сервере")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def serverinfo(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
+        if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/serverinfo`"
         badges = ''
-        if interaction.guild.id in blacklist:
+        if checks.is_in_blacklist(interaction.guild.id):
             badges += '<:ban:946031802634612826> '
         if interaction.guild.id in verified:
             badges += '<:verified:946057332389978152> '
+        if isPremiumServer(self.bot, interaction.guild):
+            badges += '<a:premium:988735181546475580> '
         if interaction.guild.id in beta_testers:
             badges += '<:beta:946063731819937812> '
-        bots = 0
-        for member in interaction.guild.members:
-            if member.bot:
-                bots += 1
-        """online = len(list(filter(lambda x: x.status == discord.Status.online, interaction.guild.members)))
-        idle = len(list(filter(lambda x: x.status == discord.Status.idle, interaction.guild.members)))
-        dnd = len(list(filter(lambda x: x.status == discord.Status.dnd, interaction.guild.members)))
-        offline = len(list(filter(lambda x: x.status == discord.Status.offline, interaction.guild.members)))"""
-        embed = discord.Embed(title=f"{interaction.guild.name} {badges}", color=discord.Color.orange())
-        embed.add_field(name="Владелец:", value=interaction.guild.owner.mention, inline=True)
+        embed = discord.Embed(
+            title=f"{interaction.guild.name} {badges}", 
+            color=discord.Color.orange()
+        )
+        embed.add_field(name="Владелец:", value=f"<@!{interaction.guild.owner_id}>", inline=True)
         if interaction.guild.default_notifications == "all_messages":
             embed.add_field(name="Стандартный режим получения уведомлений:", value="Все сообщения", inline=True)
         else:
@@ -762,7 +851,6 @@ class Tools(commands.Cog):
         embed.add_field(name="Текстовых каналов:", value=len(interaction.guild.text_channels), inline=True)
         embed.add_field(name="Голосовых каналов:", value=len(interaction.guild.voice_channels), inline=True)
         embed.add_field(name="Трибун:", value=len(interaction.guild.stage_channels), inline=True)
-        embed.add_field(name="Участники:", value=f"**Всего:** {interaction.guild.member_count}.\n**Участники:** {interaction.guild.member_count - bots}.\n**Боты:** {bots}.", inline=True)
         embed.add_field(name="Кол-во эмодзи:", value=f"{len(interaction.guild.emojis)}/{interaction.guild.emoji_limit * 2}", inline=True)
         temp = interaction.guild.verification_level
         if temp == discord.VerificationLevel.none:
@@ -776,38 +864,35 @@ class Tools(commands.Cog):
         elif temp == discord.VerificationLevel.highest:
             embed.add_field(name="Уровень проверки:", value="Очень высокий", inline=True)
         embed.add_field(name="Дата создания:", value=f"{discord.utils.format_dt(interaction.guild.created_at, 'D')} ({discord.utils.format_dt(interaction.guild.created_at, 'R')})", inline=True)
-        if interaction.guild.rules_channel != None:
+        if interaction.guild.rules_channel is not None:
             embed.add_field(name="Канал с правилами:", value=interaction.guild.rules_channel.mention)
         else:
             embed.add_field(name="Канал с правилами:", value="Недоступно (сервер не является сервером сообщества)")
+        embed.add_field(name="Веток:", value=f"{len(interaction.guild.threads)}")
         roles = ""
         counter = 0
         guild_roles = await interaction.guild.fetch_roles()
+        guild_roles = list(guild_roles)
+        guild_roles.sort(key=lambda x: x.position, reverse=True)
         for role in guild_roles:
-            if counter == 0:
-                counter += 1
-                continue
-            if counter <= 15:
-                roles += f"{role.mention}, "
+            if counter <= 15: roles += f"{role.mention}, "
             else:
                 roles += f"и ещё {len(guild_roles) - 16}..."
                 break
             counter += 1
         embed.add_field(name=f"Роли ({len(interaction.guild.roles) - 1}):", value=roles)
-        if interaction.guild.icon != None:
-            embed.set_thumbnail(url=interaction.guild.icon.replace(static_format="png", size=1024))
-        if interaction.guild.banner != None:
-            embed.set_image(url=interaction.guild.banner.replace(static_format="png"))
+        if interaction.guild.icon is not None: embed.set_thumbnail(url=interaction.guild.icon.replace(static_format="png", size=1024))
+        if interaction.guild.banner is not None: embed.set_image(url=interaction.guild.banner.replace(static_format="png"))
         embed.set_footer(text=f"ID: {interaction.guild.id}")
 
-        if interaction.guild.banner != None:
+        if interaction.guild.banner is not None:
             banner = discord.Embed(color=discord.Color.orange(), description=f"[Скачать]({interaction.guild.banner.url})")
             banner.set_author(name=f"Баннер {interaction.guild.name}")
             banner.set_image(url=interaction.guild.banner.url)
         else:
             banner = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У сервера отсутствует баннер!")
 
-        if interaction.guild.icon != None:
+        if interaction.guild.icon is not None:
             icon = discord.Embed(color=discord.Color.orange(), description=f"[Скачать]({interaction.guild.icon.url})")
             icon.set_author(name=f"Аватар {interaction.guild.name}")
             icon.set_image(url=interaction.guild.icon.url)
@@ -839,10 +924,11 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed, view=View())
 
     @app_commands.command(name="botinfo", description="[Полезности] Информация о боте")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def botinfo(self, interaction: discord.Interaction):
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -852,16 +938,16 @@ class Tools(commands.Cog):
         embed.add_field(name="ID разработчика:", value=f"`{settings['owner_id']}`")
         embed.add_field(name="ID бота:", value=f"`{self.bot.user.id}`")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text=f"©️ 2021 - 2022 {self.bot.user.name}")
+        embed.set_footer(text=f"©️ 2021 - 2023 MadBot. Все права защищены.")
 
         stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())
         stats.add_field(name="Пинг:", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
         stats.add_field(name="Запущен:", value=f"<t:{started_at}:R>")
-        stats.add_field(name="Кол-во серверов:", value=len(self.bot.guilds))
-        stats.add_field(name="Кол-во участников:", value=len(self.bot.users))
+        stats.add_field(name="Кол-во серверов:", value=f"{len(self.bot.guilds):,}")
+        stats.add_field(name="Кол-во участников:", value=f"{len(self.bot.users):,}")
         stats.add_field(name="Последняя использованная команда:", value=config.lastcommand)
-        stats.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input))}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message))}")
-        stats.add_field(name="Обработано команд:", value=config.used_commands)
+        stats.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)):,}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message)):,}")
+        stats.add_field(name="Обработано команд:", value=f"{config.used_commands:,}")
         stats.set_thumbnail(url=self.bot.user.display_avatar.url)
         stats.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 
@@ -885,13 +971,17 @@ class Tools(commands.Cog):
         thanks = discord.Embed(
             title = f"{self.bot.user.name} - Благодарности",
             color = discord.Color.orange(),
-            description="Этим людям я очень благодарен. Благодаря им, MadBot поднимался и улучшался."
+            description="Этим людям я очень благодарен. Благодаря им, MadBot поднимается и улучшается."
         )
-        thanks.add_field(name="A LIGHT PERSON#7588", value="Второй разработчик бота и лучший бета-тестер. Написал некоторые команды развлечений и помог выявить более 10-ти багов.", inline=False)
-        thanks.add_field(name="зайка#8418", value="Именно этот человек заполнял форму на получение верификации. Благодаря ему, бот мог получить верификацию.", inline=False)
-        thanks.add_field(name="milka#5557", value="Помимо его работы саппортом, он часто апал бота, чем помогал в распространении его.", inline=False)
         thanks.set_thumbnail(url=self.bot.user.display_avatar.url)
         thanks.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+
+        for tu in self.thanks_user:
+            thanks.add_field(
+                name=tu,
+                value=self.thanks_user[tu],
+                inline=False
+            )
 
         embeds = {
             'embed': embed,
@@ -914,17 +1004,16 @@ class Tools(commands.Cog):
                 if interaction.user != viewinteract.user:
                     return await viewinteract.response.send_message(embed=embeds[self.values[0]], ephemeral=True)
                 else:
-                    await interaction.edit_original_message(embed=embeds[self.values[0]])
+                    await interaction.edit_original_response(embed=embeds[self.values[0]])
                     await viewinteract.response.defer()
 
         class View(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)
                 self.add_item(discord.ui.Button(label="Поддержка", url=settings['support_invite']))
-                self.add_item(discord.ui.Button(label="Сообщество (чат)", url=settings['comm_invite']))
                 self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
-                self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url="https://boticord.top/bot/madbot", emoji="<:bc:947181639384051732>"))
-                self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url="https://bots.server-discord.com/880911386916577281", emoji="<:favicon:981586173204000808>"))
+                self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url=f"https://boticord.top/bot/{settings['app_id']}", emoji="<:bc:947181639384051732>"))
+                self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url=f"https://bots.server-discord.com/{settings['app_id']}", emoji="<:favicon:981586173204000808>"))
                 self.add_item(DropDown())
 
         await interaction.response.send_message(embed=embed, view=View())
@@ -932,35 +1021,37 @@ class Tools(commands.Cog):
         config.used_commands += 1
 
     @app_commands.command(name="badgeinfo", description="[Полезности] Информация о значках пользователей и серверов в боте.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def badgeinfo(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/badgeinfo`"
         embed=discord.Embed(title="Виды значков:", color=discord.Color.orange())
-        embed.add_field(name="Значки пользователя:", value=f"<:ban:946031802634612826> - пользователь забанен в системе бота.\n<:timeout:950702768782458893> - пользователь получил тайм-аут на сервере.\n<:botdev:977645046188871751> - разработчик бота.\n<:code:946056751646638180> - помощник разработчика.\n<:support:946058006641143858> - поддержка бота.\n<:bug_hunter:955497457020715038> - охотник на баги (обнаружил и сообщил о 3-х и более багах).\n<:bug_terminator:955891723152801833> - уничтожитель багов (обнаружил и сообщил о 10-ти и более багах).\n<:verified:946057332389978152> - верифицированный пользователь.\n<:bot:946064625525465118> - участник является ботом.", inline=False)
-        embed.add_field(name="Значки сервера:", value=f"<:verified:946057332389978152> - верифицированный сервер.\n<:ban:946031802634612826> - сервер забанен в системе бота.\n<:beta:946063731819937812> - сервер, имеющий доступ к бета-командам.", inline=False)
+        embed.add_field(name="Значки пользователя:", value=f"<:ban:946031802634612826> - пользователь забанен в системе бота.\n<a:premium:988735181546475580> - пользователь имеет MadBot Premium.\n<:timeout:950702768782458893> - пользователь получил тайм-аут на сервере.\n<:botdev:977645046188871751> - разработчик бота.\n<:code:946056751646638180> - помощник разработчика.\n<:support:946058006641143858> - поддержка бота.\n<:bug_hunter:955497457020715038> - охотник на баги (обнаружил и сообщил о 3-х и более багах).\n<:bug_terminator:955891723152801833> - уничтожитель багов (обнаружил и сообщил о 10-ти и более багах).\n<:verified:946057332389978152> - верифицированный пользователь.\n<:bot:946064625525465118> - участник является ботом.", inline=False)
+        embed.add_field(name="Значки сервера:", value=f"<:verified:946057332389978152> - верифицированный сервер.\n<a:premium:988735181546475580> - сервер имеет MadBot Premium.\n<:ban:946031802634612826> - сервер забанен в системе бота.\n<:beta:946063731819937812> - сервер, имеющий доступ к бета-командам.", inline=False)
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name='outages', description="[Полезности] Показывает актуальные сбои в работе бота.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def outages(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/outages`'
-        channel = await self.bot.fetch_channel(settings['outages'])
+        channel = self.bot.get_channel(settings['outages'])
         outage = None
         async for message in channel.history(limit=1):
             outage = message
-        if message.content.find("<:outage_fixed:958778052136042616>") == -1:
+        if message.content.find("<:outage_fixed:958778052136042616>") == -1 and message.content is not None:
             embed = discord.Embed(title="Обнаружено сообщение о сбое!", color=discord.Color.red(), description=outage.content, timestamp=outage.created_at)
             embed.set_author(name=outage.author, icon_url=outage.author.display_avatar.url)
             embed.set_footer(text="Актуально на")
@@ -971,21 +1062,37 @@ class Tools(commands.Cog):
             await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="nick", description="[Полезности] Изменяет ваш ник.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника")
     async def nick(self, interaction: discord.Interaction, argument: str = None):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
+        if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if not self.bot.intents.members:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="На данный момент, команда недоступна."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = "`/nick`"
-        if argument != None:
+        bot_member = await interaction.guild.fetch_member(self.bot.user.id)
+        if not bot_member.guild_permissions.manage_nicknames or bot_member.top_role < interaction.user.top_role:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Бот не может изменить Вам никнейм!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if argument is not None:
             if len(argument) > 32:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1000,17 +1107,14 @@ class Tools(commands.Cog):
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
             else:
                 embed = None
-                if argument != None:
+                if argument is not None:
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=discord.utils.utcnow())
                 else:
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
                 await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
             string = None
-            if argument == None:
-                string = "Вы желаете сбросить никнейм."
-            else:
-                string = f"Ваш желаемый ник: `{argument}`."
+            string = "Вы желаете сбросить никнейм." if argument is None else f"Ваш желаемый ник: `{argument}`."
             embed = discord.Embed(title="Запрос разрешения", color=discord.Color.orange(), description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\n{string}")
             embed.set_footer(text="Время ожидания: 5 минут.")
             
@@ -1027,16 +1131,16 @@ class Tools(commands.Cog):
                             await interaction.user.edit(nick=argument, reason=f"Одобрено // {viewinteract.user}")
                         except Forbidden:
                             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`.")
-                            return await interaction.edit_original_message(embed=embed, view=None)
+                            return await interaction.edit_original_response(embed=embed, view=None)
                         else:
                             embed = None
-                            if argument != None:
+                            if argument is not None:
                                 embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=discord.utils.utcnow())
                                 embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
                             else:
                                 embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=discord.utils.utcnow())
                                 embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
-                            await interaction.edit_original_message(embed=embed, view=None)
+                            await interaction.edit_original_response(embed=embed, view=None)
                     else:
                         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управлять никнеймами` для использования кнопки!")
                         return await viewinteract.response.send_message(embed=embed, ephemeral=True)
@@ -1047,52 +1151,61 @@ class Tools(commands.Cog):
                         self.value = False
                         embed = discord.Embed(title="Отказ", color=discord.Color.red(), description="Вам отказано в смене ника!")
                         embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
-                        return await interaction.edit_original_message(embed=embed, view=None)
+                        return await interaction.edit_original_response(embed=embed, view=None)
                     else:
                         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управлять никнеймами` для использования кнопки!")
                         return await viewinteract.response.send_message(embed=embed, ephemeral=True)
             
             await interaction.response.send_message(embed=embed, view=NickButtons())
             await NickButtons().wait()
-            if NickButtons().value == None:
+            if NickButtons().value is None:
                 embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
-                await interaction.edit_original_message(embed=embed, view=None)
-
-    @app_commands.command(name="idea", description="[Полезности] Предложить идею для бота.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
-    @app_commands.checks.dynamic_cooldown(cooldown_check)
-    @app_commands.describe(title="Суть идеи", description="Описание идеи", attachment="Изображение для показа идеи")
-    async def idea(self, interaction: discord.Interaction, title: str, description: str, attachment: typing.Optional[discord.Attachment]):
-        config.used_commands += 1
-        if interaction.user.id in blacklist:
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/idea`'
-        idea_embed = discord.Embed(title=title, color=discord.Color.orange(), description=description, timestamp=discord.utils.utcnow())
-        idea_embed.set_author(name=interaction.user, icon_url=interaction.user.display_avatar)
-        if attachment != None:
-            idea_embed.set_image(url=attachment.url)
-        channel = self.bot.get_channel(settings['idea_channel'])
-        message = await channel.send(embed=idea_embed)
-        await message.add_reaction("✅")
-        await message.add_reaction("💤")
-        await message.add_reaction("❌")
-        embed = discord.Embed(title='Успешно!', color=discord.Color.green(), description="Идея отправлена в канал")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.edit_original_response(embed=embed, view=None)
 
     @app_commands.command(name="getemoji", description="[Полезности] Выдает эмодзи картинкой.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(emoji_name="Название, ID либо сам эмодзи.", is_registry="Стоит ли учитывать регистр имени?")
     async def getemoji(self, interaction: discord.Interaction, emoji_name: str, is_registry: bool = False):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/getemoji`'
+        if emoji_name.startswith("<") and emoji_name.endswith(">"):
+            emoji_id = int(emoji_name.removesuffix(">").split(":")[2])
+            emoji = self.bot.get_emoji(emoji_id)
+            if emoji is None:
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description="Данный эмодзи не обнаружен! Убедитесь, что бот есть на сервере, на котором есть эмодзи!"
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+            embed = discord.Embed(title="🤪 Информация об эмодзи", color=discord.Color.orange(), description=f"[Скачать]({emoji.url})")
+            embed.add_field(name="Название:", value=f"```\n{emoji.name}```")
+            embed.add_field(name="Вид без форматирования:", value=f"```\n{str(emoji)}```")
+            embed.set_footer(text=f"ID: {emoji.id}")
+            embed.set_thumbnail(url=emoji.url)
+            return await interaction.response.send_message(embed=embed)
+        if emoji_name.isdigit():
+            emoji_id = int(emoji_name)
+            emoji = self.bot.get_emoji(emoji_id)
+            if emoji is None:
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description="Данный эмодзи не обнаружен! Убедитесь, что бот есть на сервере, на котором есть эмодзи!"
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+            embed = discord.Embed(title="🤪 Информация об эмодзи", color=discord.Color.orange(), description=f"[Скачать]({emoji.url})")
+            embed.add_field(name="Название:", value=f"```\n{emoji.name}```")
+            embed.add_field(name="Вид без форматирования:", value=f"```\n{str(emoji)}```")
+            embed.set_footer(text=f"ID: {emoji.id}")
+            embed.set_thumbnail(url=emoji.url)
+            return await interaction.response.send_message(embed=embed)
         embeds = []
         for emoji in interaction.guild.emojis:
             x = emoji.name
@@ -1117,76 +1230,89 @@ class Tools(commands.Cog):
                     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет доступа к файлу эмодзи.\nТип ошибки: `Forbidden`.")
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Эмодзи с данным именем не был обнаружен!\nТип ошибки: `NotFound`.")
-        if len(embeds) == 0:
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if not len(embeds): return await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.response.send_message(embeds=embeds)
 
     @app_commands.command(name="send", description="[Полезности] Отправляет сообщение в канал от имени вебхука")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(message="Сообщение, которое будет отправлено")
-    async def send(self, interaction: discord.Interaction, message: str):
+    async def send(self, interaction: discord.Interaction, message: app_commands.Range[str, None, 2000]):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
+        if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if isinstance(interaction.channel, discord.Thread):
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Данная команда недоступна в ветках!"
+            )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/send`'
         if interaction.channel.permissions_for(interaction.guild.get_member(self.bot.user.id)).manage_webhooks == False:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права на управление вебхуками!\nТип ошибки: `Forbidden`.")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         webhook = None
         webhooks = await interaction.channel.webhooks()
         for hook in webhooks:
             if hook.name == "MadWebHook":
                 webhook = hook
                 break
-        if webhook == None:
-            webhook = await interaction.channel.create_webhook(name="MadWebHook")
-        await webhook.send(message, username=interaction.user.name, avatar_url=interaction.user.display_avatar.url)
+        if webhook is None: webhook = await interaction.channel.create_webhook(name="MadWebHook")
+        await webhook.send(
+            message, 
+            username=interaction.user.display_name, 
+            avatar_url=interaction.user.display_avatar.url,
+            allowed_mentions=discord.AllowedMentions.none()
+        )
         embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Сообщение успешно отправлено!")
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="getaudit", description="[Полезности] Получает информацию о кол-ве модерационных действий пользователя.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, чьё кол-во действий вы хотите увидить")
     async def getaudit(self, interaction: discord.Interaction, member: discord.User):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
+        if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/getaudit`'
         if interaction.user.guild_permissions.view_audit_log:
-            member_bot = await interaction.guild.fetch_member(self.bot.user.id)
-            if member_bot.guild_permissions.view_audit_log == False:
+            member_bot = interaction.guild.get_member(self.bot.user.id)
+            if not member_bot.guild_permissions.view_audit_log:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет доступа к журналу аудита!\nТип ошибки: `Forbidden`.")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
             embed = discord.Embed(title="В процессе...", color=discord.Color.yellow(), description=f"Собираем действия участника {member.mention}...")
             await interaction.response.send_message(embed=embed)
             entries = [entry async for entry in interaction.guild.audit_logs(limit=None, user=member)]
             embed = discord.Embed(title="Готово!", color=discord.Color.green(), description=f"Бот смог насчитать `{len(entries)}` действий от участника {member.mention}.")
-            await interaction.edit_original_message(embed=embed)
+            await interaction.edit_original_response(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `просмотр журнала аудита` для выполнения этой команды!")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="weather", description="[Полезности] Узнать погоду в городе.")
     @app_commands.describe(city="Город, где надо узнать погоду")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def weather(self, interaction: discord.Interaction, city: str):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1199,11 +1325,11 @@ class Tools(commands.Cog):
         if response.status_code > 400:
             if json['message'] == "city not found":
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Город не найден!")
-                return await interaction.edit_original_message(embed=embed)
+                return await interaction.edit_original_response(embed=embed)
             else:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`")
                 print(f"{json['cod']}: {json['message']}")
-                return await interaction.edit_original_message(embed=embed)
+                return await interaction.edit_original_response(embed=embed)
         else:
             embed = discord.Embed(title=f"Погода в {json['name']}", color=discord.Color.orange(), description=f"{json['weather'][0]['description']}", url=f"https://openweathermap.org/city/{json['id']}")
             embed.add_field(name="Температура:", value=f"{int(json['main']['temp'])}°С ({int(json['main']['temp_min'])}°С / {int(json['main']['temp_max'])}°С)")
@@ -1214,14 +1340,15 @@ class Tools(commands.Cog):
             embed.add_field(name="Рассвет/Закат:", value=f"<t:{json['sys']['sunrise']}> / <t:{json['sys']['sunset']}>")
             embed.set_footer(text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе.")
             embed.set_thumbnail(url=f"http://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png")
-            await interaction.edit_original_message(embed=embed)
+            await interaction.edit_original_response(embed=embed)
     
     @app_commands.command(name="stopwatch", description="[Полезности] Секундомер.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def stopwatch(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1248,12 +1375,12 @@ class Tools(commands.Cog):
         await interaction.response.send_message(embed=embed, view=Button(start))
 
     @app_commands.command(name="debug", description="[Полезности] Запрос основной информации о боте.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
-    @app_commands.checks.dynamic_cooldown(cooldown_check)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.checks.dynamic_cooldown(lambda i: app_commands.Cooldown(1, 300.0))
     async def debug(self, interaction: discord.Interaction):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1279,13 +1406,15 @@ class Tools(commands.Cog):
             return ans
 
         embed = discord.Embed(title="Отладка", color=discord.Color.orange())
+        bot_member = await interaction.guild.fetch_member(self.bot.user.id)
+        user = await interaction.guild.fetch_member(interaction.user.id)
         embed.add_field(
             name="Права бота",
-            value=get_permissions(interaction.guild.get_member(self.bot.user.id).guild_permissions)
+            value=get_permissions(bot_member.guild_permissions)
         )
         embed.add_field(
             name="Права в этом канале",
-            value=get_permissions(interaction.channel.permissions_for(interaction.guild.get_member(self.bot.user.id)))
+            value=get_permissions(interaction.channel.permissions_for(bot_member))
         )
         embed.add_field(
             name="Информация о сервере",
@@ -1295,8 +1424,8 @@ class Tools(commands.Cog):
             )
         )
         ans = ''
-        ans += f"✅ Создатель\n" if interaction.user.id == interaction.guild.owner.id else f"❌ Создатель\n"
-        ans += f"✅ Администратор\n" if interaction.user.guild_permissions.administrator else f"❌ Администратор\n"
+        ans += f"✅ Создатель\n" if interaction.guild.owner_id == interaction.user.id else f"❌ Создатель\n"
+        ans += f"✅ Администратор\n" if user.guild_permissions.administrator else f"❌ Администратор\n"
         embed.add_field(
             name="Информация о пользователе",
             value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{ans}`"
@@ -1305,10 +1434,9 @@ class Tools(commands.Cog):
         message = await channel.send(embed=embed)
         await interaction.response.send_message(content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url}",embed=embed)
 
-    @app_commands.command(name="autorole", description="[Полезности] Настроить выдачу ролей по нажатию кнопки.")
+    @app_commands.command(name="buttonrole", description="[Полезности] Настроить выдачу ролей по нажатию кнопки.")
+    @app_commands.checks.dynamic_cooldown(hard_cooldown)
     @app_commands.describe(
-        title='Название эмбеда',
-        description='Содержание эмбеда',
         role1='Роль для выдачи', 
         role2='Роль для выдачи',
         role3='Роль для выдачи',
@@ -1331,15 +1459,15 @@ class Tools(commands.Cog):
         role20='Роль для выдачи',
         role21='Роль для выдачи',
         role22='Роль для выдачи',
-        role23='Роль для выдачи'
+        role23='Роль для выдачи',
+        role24='Роль для выдачи',
+        role25='Роль для выдачи'
     )
-    @app_commands.check(is_shutted_down)
-    @app_commands.check(is_in_blacklist)
-    async def autorole(
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    async def buttonrole(
         self, 
-        interaction: discord.Interaction, 
-        title: str,
-        description: str,
+        interaction: discord.Interaction,
         role1: discord.Role, 
         role2: typing.Optional[discord.Role],
         role3: typing.Optional[discord.Role],
@@ -1362,26 +1490,22 @@ class Tools(commands.Cog):
         role20: typing.Optional[discord.Role],
         role21: typing.Optional[discord.Role],
         role22: typing.Optional[discord.Role],
-        role23: typing.Optional[discord.Role]
+        role23: typing.Optional[discord.Role],
+        role24: typing.Optional[discord.Role],
+        role25: typing.Optional[discord.Role]
     ):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.PartialMessageable):
+        if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True) 
-        config.lastcommand = '`/autorole`'
+        config.lastcommand = '`/buttonrole`'
         if interaction.user.guild_permissions.manage_roles:
-            embed = discord.Embed(
-                title="Внимание!",
-                color=discord.Color.red(),
-                description="Поддержка бота прекращена! Данный функционал больше недоступен! Подробнее: https://t.me/MadCat9958/187"
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-            bot_member = await interaction.guild.fetch_member(self.bot.user.id)
+            bot_member = interaction.guild.get_member(self.bot.user.id)
             if not(bot_member.guild_permissions.manage_roles):
                 embed = discord.Embed(
                     title="Ошибка!",
@@ -1389,12 +1513,15 @@ class Tools(commands.Cog):
                     description="Бот не имеет права `управлять ролями`, что необходимо для работы команды!"
                 )
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
+            title = ""
+            description = ""
+            color = discord.Color.orange()
             roles = [
                 role1, role2, role3, role4, role5,
                 role6, role7, role8, role9, role10,
                 role11, role12, role13, role14, role15,
                 role16, role17, role18, role19, role20,
-                role21, role22, role23
+                role21, role22, role23, role24, role25
             ]
             class View(discord.ui.View):
                 def __init__(self):
@@ -1403,7 +1530,7 @@ class Tools(commands.Cog):
             options = []
             for role in roles:
                 role: discord.Role
-                if role != None:
+                if role is not None:
                     if role.position == 0:
                         embed = discord.Embed(
                             title="Ошибка!",
@@ -1418,7 +1545,7 @@ class Tools(commands.Cog):
                             description=f"Роль {role.mention} выше роли бота, поэтому бот не сможет выдать её кому-либо."
                         )
                         return await interaction.response.send_message(embed=embed, ephemeral=True)
-                    if role.is_bot_managed():
+                    if not role.is_assignable():
                         embed = discord.Embed(
                             title="Ошибка!", 
                             color=discord.Color.red(),
@@ -1449,6 +1576,32 @@ class Tools(commands.Cog):
                         options=options
                     )
                 )
+            
+            class Input(discord.ui.Modal, title="Кастомизация эмбеда"):
+                main = discord.ui.TextInput(label="Заголовок эмбеда:", max_length=256)
+                description = discord.ui.TextInput(label="Описание:", max_length=4000, style=discord.TextStyle.long)
+                color = discord.ui.TextInput(label="Цвет (по умолчанию - оранжевый):", min_length=7, max_length=7, required=False, placeholder="#FFFFFF")
+                async def on_submit(self, viewinteract: discord.Interaction) -> None:
+                    nonlocal title, description, color
+                    await viewinteract.response.defer()
+                    title = str(self.main)
+                    description = str(self.description)
+                    if str(self.color) != "": color = str(self.color)
+            modal = Input()
+            await interaction.response.send_modal(modal)
+            await modal.wait()
+            if modal.main is None or modal.description is None: return
+            if isinstance(color, str):
+                try:
+                    color = discord.Color.from_str(color)
+                except:
+                    embed = discord.Embed(
+                        title="Ошибка!",
+                        color=discord.Color.red(),
+                        description="Цвет введён неверно!"
+                    )
+                    return await interaction.followup.send(embed=embed, ephemeral=True)
+
             class AcceptRules(discord.ui.View):
                 def __init__(self, bot: commands.Bot):
                     super().__init__(timeout=60)
@@ -1461,7 +1614,7 @@ class Tools(commands.Cog):
                     self.value = True
                     embed = discord.Embed(
                         title=title,
-                        color=discord.Color.orange(),
+                        color=color,
                         description=description
                     )
                     embed.set_footer(text=f"Создал: {interaction.user}", icon_url=interaction.user.display_avatar.url)
@@ -1491,26 +1644,34 @@ class Tools(commands.Cog):
                 description=f"Мы, простые разработчики бота, просим не использовать в кастомизированном эмбеде что-либо, нарушающее правила Discord. В противном случае, Ваш сервер и Ваш аккаунт будут занесены в черный список бота.\nВы согласны с требованиями?"
             )
             waiting = AcceptRules(bot=self.bot)
-            await interaction.response.send_message(embed=embed, ephemeral=True, view=waiting)
+            msg_bot = await interaction.followup.send(embed=embed, ephemeral=True, view=waiting)
             await waiting.wait()
-            if waiting.value == None:
+            if waiting.value is None:
                 embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
-                await interaction.edit_original_message(embed=embed, view=None)
+                await msg_bot.edit(embed=embed, view=None)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управлять ролями` для использования команды!")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="calc", description="[Полезности] Калькулятор в Discord.")
-    @app_commands.check(is_in_blacklist)
-    @app_commands.check(is_shutted_down)
+    @app_commands.checks.dynamic_cooldown(default_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(problem="Пример для решения")
-    async def calc(self, interaction: discord.Interaction, problem: str):
+    async def calc(self, interaction: discord.Interaction, problem: app_commands.Range[str, None, 30]):
         config.used_commands += 1
-        if interaction.user.id in blacklist:
+        if checks.is_in_blacklist(interaction.user.id):
             embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         config.lastcommand = '`/calc`'
+        if "**" in problem:
+            embed = discord.Embed(
+                title='Ошибка!',
+                color=discord.Color.red(),
+                description="Использование степени запрещено!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         try:
             answer = numexpr.evaluate(problem)
         except ZeroDivisionError:
@@ -1518,6 +1679,13 @@ class Tools(commands.Cog):
                 title="Ошибка!", 
                 color=discord.Color.red(),
                 description="Расскажу-ка тебе секрет. На ноль делить нельзя."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        except:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Пример введён некорректно!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
@@ -1529,6 +1697,150 @@ class Tools(commands.Cog):
             embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
             await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="autorole", description="Настроить выдачу одной роли при входе на сервер")
+    @app_commands.describe(role="Роль для выдачи. Не указывайте её для удаления.")
+    @app_commands.checks.dynamic_cooldown(hard_cooldown)
+    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    async def autorole(self, interaction: discord.Interaction, role: typing.Optional[discord.Role]):
+        config.used_commands += 1
+        loader = FluentResourceLoader("locales/{locale}")
+        l10n = FluentLocalization(["ru"], ["main.ftl", "texts.ftl", "commands.ftl"], loader)
+        if checks.is_in_blacklist(interaction.user.id):
+            bl_desc = l10n.format_value("blacklist_description")
+            embed=discord.Embed(
+                title=l10n.format_value("blacklist_title"), 
+                color=discord.Color.red(), 
+                description=f"{bl_desc} {settings['support_invite']}", 
+                timestamp=datetime.datetime.utcnow()
+            )
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if interaction.guild is None:
+            embed = discord.Embed(title=l10n.format_value("error_title"), color=discord.Color.red(), description=l10n.format_value("guild_only_error"))
+            embed.set_thumbnail(url=interaction.user.avatar.url)
+            return await interaction.response.send_message(embed=embed, ephemeral=True) 
+        if not self.bot.intents.members:
+            embed = discord.Embed(
+                title=l10n.format_value("error_title"),
+                color=discord.Color.red(),
+                description=l10n.format_value("intents_are_not_enabled")
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        config.lastcommand = '`/calc`'
+        if interaction.user.guild_permissions.manage_guild:
+            role_info = db.get_guild_autorole(interaction.guild.id)
+            if role is None:
+                if role_info is None:
+                    embed = discord.Embed(
+                        title=l10n.format_value("error_title"),
+                        color=discord.Color.red(),
+                        description=l10n.format_value("autorole_no_active_role")
+                    )
+                    return await interaction.response.send_message(embed=embed, ephemeral=True)
+                class Buttons(ui.View):
+                    def __init__(self):
+                        super().__init__(timeout=180)
+                        self.value = None
+
+                    @ui.button(label=l10n.format_value("yes"), style=discord.ButtonStyle.green)
+                    async def yes(self, viewinteract: discord.Interaction, button: ui.Button):
+                        if viewinteract.user.id != interaction.user.id:
+                            return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
+                        await viewinteract.response.defer()
+                        self.value = True
+                        self.stop()
+
+                    @ui.button(label=l10n.format_value("no"), style=discord.ButtonStyle.red)
+                    async def no(self, viewinteract: discord.Interaction, button: ui.Button):
+                        if viewinteract.user.id != interaction.user.id:
+                            return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
+                        await viewinteract.response.defer()
+                        self.value = True
+                        self.stop()
+
+                embed = discord.Embed(
+                    title=l10n.format_value("autorole_confirm_title"),
+                    color=discord.Color.orange(),
+                    description=l10n.format_value("autorole_confirm_deletion", {"role": f"<@&{role_info}>"})
+                )
+                view = Buttons()
+                await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                await view.wait()
+                if view.value is None:
+                    embed = discord.Embed(
+                        title=l10n.format_value("time_exceeded"),
+                        color=discord.Color.red()
+                    )
+                    return await interaction.edit_original_response(embed=embed, view=None)
+                if not view.value:
+                    return await interaction.delete_original_response()
+                db.delete_guild_autorole(interaction.guild.id)
+                embed = discord.Embed(
+                    title=l10n.format_value("success"),
+                    color=discord.Color.green(),
+                    description=l10n.format_value("autorole_deletion_success", {"role": f"<@&{role_info}>"})
+                )
+                return await interaction.edit_original_response(embed=embed, view=None)
+            if role_info is None:
+                db.add_guild_autorole(interaction.guild.id, role.id)
+                embed = discord.Embed(
+                    title=l10n.format_value("success"),
+                    color=discord.Color.green(),
+                    description=l10n.format_value("autorole_add_success", {"role": f"<@&{role.id}>"})
+                )
+                return await interaction.response.send_message(embed=embed)
+            class Buttons(ui.View):
+                def __init__(self):
+                    super().__init__(timeout=180)
+                    self.value = None
+
+                @ui.button(label=l10n.format_value("yes"), style=discord.ButtonStyle.green)
+                async def yes(self, viewinteract: discord.Interaction, button: ui.Button):
+                    if viewinteract.user.id != interaction.user.id:
+                        return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
+                    await viewinteract.response.defer()
+                    self.value = True
+                    self.stop()
+
+                @ui.button(label=l10n.format_value("no"), style=discord.ButtonStyle.red)
+                async def no(self, viewinteract: discord.Interaction, button: ui.Button):
+                    if viewinteract.user.id != interaction.user.id:
+                        return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
+                    await viewinteract.response.defer()
+                    self.value = True
+                    self.stop()
+
+            embed = discord.Embed(
+                title=l10n.format_value("autorole_confirm_title"),
+                color=discord.Color.orange(),
+                description=l10n.format_value("autorole_confirm_update", {"role1": f"<@&{role_info}>", "role2": f"<@&{role.id}>"})
+            )
+            view = Buttons()
+            await interaction.response.send_message(embed=embed, view=view)
+            await view.wait()
+            if view.value is None:
+                embed = discord.Embed(
+                    title=l10n.format_value("time_exceeded"),
+                    color=discord.Color.red()
+                )
+                return await interaction.edit_original_response(embed=embed, view=None)
+            if not view.value:
+                return await interaction.delete_original_response()
+            db.update_guild_autorole(interaction.guild.id, role.id)
+            embed = discord.Embed(
+                title=l10n.format_value("success"),
+                color=discord.Color.green(),
+                description=l10n.format_value("autorole_update_success", {"role1": f"<@&{role_info}>", "role2": f"<@&{role.id}>"})
+            )
+            return await interaction.edit_original_response(embed=embed, view=None)
+        else:
+            embed = discord.Embed(
+                title=l10n.format_value("error_title"),
+                color=discord.Color.red(),
+                description=l10n.format_value("perms_required_error", {"perm": l10n.format_value("perms_manage_server").lower()})            
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(Tools(bot))

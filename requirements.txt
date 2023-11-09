@@ -2,9 +2,11 @@ discord.py
 pypresence
 PyNaCl
 aiohttp
-translate
 requests
-typing
 boticordpy
 numexpr
 qrcode
+pymongo
+fluent.runtime
+jishaku
+python_dotenv

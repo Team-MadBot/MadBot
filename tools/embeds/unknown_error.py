@@ -1,0 +1,21 @@
+import discord
+import datetime
+
+class UnknownError(discord.Embed):
+    def __init__(self):
+        super().__init__(
+            color=discord.Color.red(),
+            title="Неизвестная ошибка!",
+            description=(
+                "Произошла неизвестная ошибка. Пожалуйста, напишите в поддержку со следующей информацией:\n\n"
+                "> `1.` Команда, которую Вы использовали.\n"
+                "> `2.` Аргументы, указанные в команде (если они конфиденциальные - не указывайте)\n"
+                "> `3.` Ссылка из команды `/debug`.\n"
+                "> `4.` Данный скриншот."
+            ),
+            timestamp=datetime.datetime.now()
+        )
+        super().add_field(
+            name="Информация об ошибке (для понимания проблемы)",
+            value=f"Время ошибки (МСК): **{datetime.datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}**"
+        )

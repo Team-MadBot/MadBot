@@ -1,5 +1,7 @@
 import discord
+
 from discord.ext import commands
+
 from config import *
 
 def guild_sort(guild: discord.Guild):

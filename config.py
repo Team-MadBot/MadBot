@@ -1,75 +1,110 @@
-"""
-config.py. Данные со значениями должны быть обязательно указаны.
-Списки снизу можно дополнять своими данными.
-"""
-import discord,time
+import discord
+import time
+import os
+
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+client = MongoClient()
+
+load_dotenv()
 
 settings = {
     'min_members': 10,
-    'token': 'TOKEN',
-    'app_id': 880911386916577281, # Application ID вашего бота.
-    'key': 'Ключ some-random-api.ml',
-    'weather_key': 'Ключ openweathermap.org',
-    'boticord_key': 'Ключ от boticord API',
-    'sdc_key': 'Ключ от сдук API',
-    'support_invite': 'https://discord.gg/uWVTTbb9q6', # Ссылка на сервер поддержки.
-    'comm_invite': 'https://discord.gg/8AxMvXjynQ',
-    'owner_id': 560529834325966858, # ID владельца.
-    'supp_guild': 914181806285279232, # Сервер поддержки.
-    'log_channel': 924241555697594380, # Канал логирования.
-    'report_channel': 977581205778231396, # Канал для вопросов/баг-репортов.
-    'debug_channel': 977492340459581460, # Канал для debug-сообщений.
-    'perm_scope': 1375329414359, # Permission Integer.
-    'outages': 950427940338958387, # ID канала с оповещениями о сбоях.
-    'github_channel': 953175109135376394, # ID канала обновлений репозитория.
-    'idea_channel': 957688771200053379, # ID канала, в который будут публиковаться идеи.
-    'curr_version': "0.10.1" # Текущая версия MadBot.
+    'token': os.environ.get("TOKEN"),
+    'app_id': int(os.environ.get("APP_ID")),
+    'key': os.environ.get("SRA_TOKEN"),
+    'weather_key': os.environ.get("WEATHER_TOKEN"),
+    'sdc_key': os.environ.get("SDC_TOKEN"),
+    'nc_token': os.environ.get("NC_TOKEN"),
+    'support_invite': os.environ.get("SUPPORT_INVITE_URL"),
+    'owner_id': int(os.environ.get("OWNER_ID")),
+    'supp_guild': int(os.environ.get("SUPPORT_GUILD_ID")),
+    'comm_guild': int(os.environ.get("COMMUNITY_GUILD_ID")),
+    'log_channel': int(os.environ.get("LOG_CHANNEL_ID")),
+    'report_channel': int(os.environ.get("REPORT_CHANNEL_ID")),
+    'debug_channel': int(os.environ.get("DEBUG_CHANNEL_ID")),
+    'perm_scope': int(os.environ.get("PERM_SCOPE")),
+    'outages': int(os.environ.get("OUTAGES_CHANNEL_ID")),
+    'prem_user': int(os.environ.get("PREMIUM_USER_ROLE_ID")),
+    'prem_server': int(os.environ.get("PREMIUM_SERVER_ROLE_ID")),
+    'bc_api_ver': int(os.environ.get("BC_API_VER")),
+    'bc_hook_url': os.environ.get("BC_WEBHOOK_URL"),
+    'bcv2_token': os.environ.get("BC_TOKEN"),
+    'unbelieva_token': os.environ.get("UNBELIEVA_TOKEN"),
+    'risticks_token': os.environ.get("RISTICKS_TOKEN"),
+    'curr_version': os.environ.get("CURRENT_VERSION")
 }
 
 started_at = int( # Время запуска бота. Не изменять.
-    time.mktime(
-        discord.utils.utcnow().timetuple()
-    )
+    time.time()
 ) 
 lastcommand = "Ещё ни разу команды не использовались."
 used_commands = 0 # Счетчик использованных команд. Не трогать.
 
 cogs = [ # Список cog'ов.
+    "cogs.use_logging",
     "cogs.entartaiment",
-    "cogs.moderation",
     "cogs.tools",
     "cogs.reactions",
-    "cogs.limiter"
+    "cogs.stats",
+    "cogs.premium",
+    "cogs.marries",
+    "cogs.sdc_api",
+    "cogs.shards_log",
+    # "cogs.bc_api",
+    # "cogs.bc_remind",
+    # "cogs.bc_up",
+    # "cogs.moderation",
+    "jishaku"
 ]
 
-blacklist = [ # ID сервера/участника, который в ЧС бота.
-    
+blacklist = [ # done
+    670322143543951367,
+    823593030253674496,
+    992539399927640124,
+    986989653229994004,
+    895027718842884106,
+    1019612041083883541,
+    1036216648090275860,
+    1028223525049348106,
+    1082919094837334057
 ]
-supports = [ # ID сотрудников поддержки.
-    
+supports = [
+    560529834325966858,
+    754719910256574646,
+    777140702747426817,
+    615938723535912970
 ]
-verified = [ # ID верифицированных серверов/участников.
-    
+verified = [
+    560529834325966858,
+    903661712903921715,
+    942667891701071892,
+    754719910256574646,
+    880911386916577281,
+    958427702879215697,
+    914181806285279232,
+    981247575451639888,
+    777140702747426817
 ]
-beta_testers = [ # ID серверов, учавствующих в бета-тесте.
-    
+beta_testers = [
+    914181806285279232,
+    796449686986424340,
+    942667891701071892,
+    721118036807123094
 ]
-bug_hunters = [ # ID баг-хантеров.
-    
+bug_hunters = [
+    560529834325966858,
+    754719910256574646
 ]
-bug_terminators = [ # ID баг-терминаторов.
-    
-]
-testserver = [ # Тестовые сервера в формате discord.Object(id=ID).
-     
-]
-shutted_down = [ # Названия слеш-команд, которые должны быть отключены.
-
+bug_terminators = [
+    560529834325966858,
+    754719910256574646
 ]
 coders = [ # Помощники разработчика.
-    
+    560529834325966858,
+    754719910256574646
 ]
-
 
 slap_gifs = [ # Гифки шлёпа.
     "https://cdn.discordapp.com/attachments/707201738255368194/847553281852702770/tenor_1.gif",
@@ -100,9 +135,3 @@ hit_gifs = [ # Гифки удара.
     "https://cdn.discordapp.com/attachments/956616897363869796/967842756875673710/hit-anime.gif",
     "https://cdn.discordapp.com/attachments/956616897363869796/967842757148278864/hit-head-anime.gif"
 ]
-
-def is_in_blacklist(interaction: discord.Interaction):
-    return interaction.user.id not in blacklist
-
-def is_shutted_down(interaction: discord.Interaction):
-    return interaction.command.name not in shutted_down

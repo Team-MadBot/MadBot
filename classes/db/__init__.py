@@ -9,4 +9,3 @@ from .premium import *
 from .autorole import *
 from .shutted_cmds import *
 from .vote import *
-from .bot_stats import *

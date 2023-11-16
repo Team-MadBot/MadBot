@@ -940,15 +940,14 @@ class Tools(commands.Cog):
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_footer(text=f"©️ 2021 - 2023 MadBot. Все права защищены.")
 
-        bot_stats = db.get_bot_stats()
         stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())
         stats.add_field(name="Пинг:", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
         stats.add_field(name="Запущен:", value=f"<t:{started_at}:R>")
         stats.add_field(name="Кол-во серверов:", value=f"{len(self.bot.guilds):,}")
         stats.add_field(name="Кол-во участников:", value=f"{len(self.bot.users):,}")
-        stats.add_field(name="Последняя использованная команда:", value=bot_stats['last_command'])
+        stats.add_field(name="Последняя использованная команда:", value=config.lastcommand)
         stats.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)):,}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message)):,}")
-        stats.add_field(name="Обработано команд:", value=f"{bot_stats['used_commands']:,}")
+        stats.add_field(name="Обработано команд:", value=f"{config.used_commands:,}")
         stats.set_thumbnail(url=self.bot.user.display_avatar.url)
         stats.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
 

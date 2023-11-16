@@ -18,7 +18,15 @@ class MigrateDB(commands.Cog):
                 None
             )
         await message.edit(
-            content=f"# Миграция\n[*{len(blacklist)} перенесено*] Мигрирование чёрного списка\n[**Не реализовано!!!**] Мигрирование верифицированных"
+            content=f"# Миграция\n[*{len(blacklist)} перенесено*] Мигрирование чёрного списка\n"
+            "[**В процессе...**] Мигрирование статистики бота\n"
+            "[В очереди] Мигрирование верифицированных"
+        )
+        db.create_bot_stats(lastcommand, used_commands)
+        await message.edit(
+            content=f"# Миграция\n[*{len(blacklist)} перенесено*] Мигрирование чёрного списка\n"
+            "[*Перенесено*] Мигрирование статистики бота\n"
+            "[**Не реализовано!!!**] Мигрирование верифицированных"
         )
 
 async def setup(bot: commands.AutoShardedBot):

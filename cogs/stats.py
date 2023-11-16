@@ -79,6 +79,8 @@ class Stats(commands.Cog):
             description="Пожалуйста, выберите, какую статистику Вы хотите видеть."
         )
 
+
+
         class Select(ui.Select):
             db = self.db
             coll = self.coll
@@ -134,13 +136,22 @@ class Stats(commands.Cog):
                 for value in values:
                     message = "%count%"
                     stat = 0
-                    bot = 0
-                    voices = 0
-                    for voice in viewinteract.guild.voice_channels:
-                        voices += len(voice.voice_states)
-                    for member in viewinteract.guild.members:
-                        if member.bot: bot += 1
-                    if value == 'online':
+                    voices = sum(
+                        len(voice.voice_states)
+                        for voice in viewinteract.guild.voice_channels
+                    )
+                    bot = sum(bool(member.bot)
+                          for member in viewinteract.guild.members)
+                    if value == 'bots':
+                        message = "Ботов: %count%"
+                        stat = bot
+                    elif value == 'emojis':
+                        message = "Эмодзи: %count%"
+                        stat = len(viewinteract.guild.emojis)
+                    elif value == 'members':
+                        message = "Участников: %count%"
+                        stat = viewinteract.guild.member_count
+                    elif value == 'online':
                         message = "Онлайн: %count%"
                         stat = (
                                 len(list(
@@ -150,11 +161,12 @@ class Stats(commands.Cog):
                                 + len(
                             list(filter(lambda x: x.status == discord.Status.dnd, viewinteract.guild.members)))
                         )
-                    if value == 'members': message = "Участников: %count%"; stat = viewinteract.guild.member_count
-                    if value == 'people': message = "Людей: %count%"; stat = viewinteract.guild.member_count - bot
-                    if value == 'bots': message = "Ботов: %count%"; stat = bot
-                    if value == 'emojis': message = "Эмодзи: %count%"; stat = len(viewinteract.guild.emojis)
-                    if value == 'voice': message = "В войсах: %count%"; stat = voices
+                    elif value == 'people':
+                        message = "Людей: %count%"
+                        stat = viewinteract.guild.member_count - bot
+                    elif value == 'voice':
+                        message = "В войсах: %count%"
+                        stat = voices
                     try:
                         channel = await viewinteract.guild.create_voice_channel(
                             name=message.replace("%count%", str(stat)), position=0,
@@ -176,6 +188,7 @@ class Stats(commands.Cog):
                 )
                 await viewinteract.followup.send(embed=embed)
                 await interaction.edit_original_response(view=None)
+
 
         class View(ui.View):
             def __init__(self):

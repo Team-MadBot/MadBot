@@ -21,6 +21,7 @@ from classes.checks import isPremium, isPremiumServer
 from classes import db
 from classes import checks
 from config import *
+from contextlib import suppress
 
 
 def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
@@ -41,6 +42,8 @@ class Tools(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+
+
         @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
         @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
         class Base64(app_commands.Group):
@@ -58,7 +61,7 @@ class Tools(commands.Cog):
                 ans = text.encode("utf8")
                 ans = b64encode(ans)
                 ans = str(ans).removeprefix("b'")
-                ans = str(ans).removesuffix("'")
+                ans = ans.removesuffix("'")
                 if len(text) > 1024 or len(ans) > 1024:
                     embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange(), description=f"**Исходный текст:**\n{text}")
                     embed1 = discord.Embed(title="Полученный текст:", color=discord.Color.orange(), description=ans)
@@ -79,7 +82,7 @@ class Tools(commands.Cog):
                 try:
                     ans = b64decode(text)
                     ans = ans.decode("utf8")
-                except:
+                except Exception:
                     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Невозможно расшифровать строку!")
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
                 if len(text) > 1024 or len(ans) > 1024:
@@ -90,7 +93,8 @@ class Tools(commands.Cog):
                 embed.add_field(name="Исходный текст:", value=text, inline=False)
                 embed.add_field(name="Полученный текст:", value=ans)
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
+
         class QrCode(app_commands.Group):
             """[Полезности] Создание/чтение QR-кода."""
             @app_commands.command(description='[Полезности] Создать QR-код.')
@@ -115,7 +119,7 @@ class Tools(commands.Cog):
                 await interaction.followup.send(embed=embed, file=file)
                 await sleep(5)
                 os.remove(f'{interaction.user.id}.png')
-        
+
         self.bot.tree.add_command(Base64())
         # self.bot.tree.add_command(QrCode())
     
@@ -139,7 +143,7 @@ class Tools(commands.Cog):
         if message.content.startswith("/") and not message.author.bot:
             embed = discord.Embed(title="Команда введена неправильно!", color=discord.Color.red(), description="У бота `/` является не префиксом, а вызовом слеш-команд. Полностью очистите строку сообщений, поставьте `/` и выберите команду из списка.")
             await message.reply(embed=embed, delete_after=20)
-        
+
         if message.author.id == 963819843142946846: # Триггер на сообщения мониторинга.
             await sleep(3)
             if message.content == "mad.debug ping":
@@ -150,18 +154,19 @@ class Tools(commands.Cog):
         if 'debug' in message.content:
             return
 
-        if message.content == f"<@!{self.bot.user.id}>" or message.content == f"<@{self.bot.user.id}>":
+        if message.content in [
+            f"<@!{self.bot.user.id}>",
+            f"<@{self.bot.user.id}>",
+        ]:
             embed=discord.Embed(title="Привет! Рад, что я тебе чем-то нужен!", color=discord.Color.orange(), description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.")
             await message.reply(embed=embed, mention_author=False)
     
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
         if interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 2 and interaction.data['custom_id'].isdigit():
-            try:
+            with suppress(Exception):
                 role_id = int(interaction.data['custom_id'])
-            except:
-                pass
-            try:
+            with suppress(Exception):
                 try:
                     member = await interaction.guild.fetch_member(interaction.user.id)
                 except: 
@@ -200,17 +205,13 @@ class Tools(commands.Cog):
                         description=f"Роль {role.mention} успешно добавлена!"
                     )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-            except:
-                pass
         elif interaction.type == discord.InteractionType.component and interaction.data['component_type'] == 3 and interaction.data['values'][0].isdigit():
             await interaction.response.defer(thinking=True, ephemeral=True)
             changes = ""
             for value in interaction.data['values']:
-                try:
+                with suppress(Exception):
                     role_id = int(value)
-                except:
-                    pass
-                try:
+                with suppress(Exception):
                     try: 
                         member = await interaction.guild.fetch_member(interaction.user.id)
                     except: 
@@ -240,8 +241,6 @@ class Tools(commands.Cog):
                             )
                             return await interaction.response.send_message(embed=embed, ephemeral=True)
                         changes += f"Роль {role.mention} успешно добавлена!\n"
-                except:
-                    pass
             embed = discord.Embed(
                 title="Выбор ролей:",
                 color=discord.Color.green()
@@ -256,10 +255,8 @@ class Tools(commands.Cog):
                 color=discord.Color.red(),
                 description="Похоже, данный компонент больше не работает. Вызовите команду для получения этого компонента снова!"
             )
-            try:
+            with suppress(Exception):
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-            except:
-                pass
 
     @app_commands.command(description="[Полезности] Показывает изменения в текущей версии.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
@@ -283,10 +280,10 @@ class Tools(commands.Cog):
             ver = ver.name
         if ver is None or ver == settings['curr_version'] or ver == "Актуальная":
             updated_at = datetime.datetime(2023, 5, 29, 22, 0, 0, 0)
-            embed=discord.Embed(
-                title=f'Версия `1.1.1`', 
-                color=discord.Color.orange(), 
-                timestamp=updated_at, 
+            embed = discord.Embed(
+                title='Версия `1.1.1`',
+                color=discord.Color.orange(),
+                timestamp=updated_at,
                 description=(
                     f"Это баг-фикс версия, которая содержит лишь исправления багов (нового функционала нет).\n\n"
                     f"- `/userinfo` - работает и отображает актуальную информацию о пользователе (кроме статуса), поддержка \"Pomelo\".\n"
@@ -296,26 +293,31 @@ class Tools(commands.Cog):
                     f"- SDC - отправка статистики.\n"
                     f"- Библиотеки - переход снова на альфа-версию discord.py (для реализации работы с Pomelo).\n"
                     f"- Политика конфиденциальности - обновлены пункты 1.2, 1.2.1, 3, 4. Просьба ознакомиться с изменениями."
-                )
+                ),
             )
             embed.set_footer(text="Обновлено:")
         if ver == '1.1':
             updated_at = datetime.datetime(2022, 12, 4, 14, 0, 0, 0)
-            embed=discord.Embed(
-                title=f'Версия `1.1`', 
-                color=discord.Color.orange(), 
-                timestamp=updated_at, 
+            embed = discord.Embed(
+                title='Версия `1.1`',
+                color=discord.Color.orange(),
+                timestamp=updated_at,
                 description=(
                     f"`1.` Свадьбы. Подробнее: `/help` > Свадьбы.\n"
                     f"`2.` Статистика. На данный момент, она может не обновляться. В ближайшее время она начнет обновляться.\n"
                     f"`3.` Обновление `/kiss`. Если целоваться при наличии брака, будет измененное сообщение."
                     f"`4.` Премиум. Теперь в бота будут постепенно добавляться премиум возможности. Одна из них: принудительная свадьба и развод. Управление подпиской: `/premium`.\n"
-                )
+                ),
             )
             embed.set_footer(text="Обновлено:")
         if ver == '1.0':
             updated_at = datetime.datetime(2022, 7, 31, 15, 0, 0, 0)
-            embed=discord.Embed(title=f'Версия `1.0`', color=discord.Color.orange(), timestamp=updated_at, description=f"1) Фиксы многих багов.\n2) Поддержка ограничения длины аргументов в слеш-командах.\n3) Переезд кастомизации эмбеда в формы (`/buttonrole`).\n4) Небольшие изменения дизайна.\n5) Можно указать цвет для эмбеда в `/buttonrole`.")
+            embed = discord.Embed(
+                title='Версия `1.0`',
+                color=discord.Color.orange(),
+                timestamp=updated_at,
+                description=f"1) Фиксы многих багов.\n2) Поддержка ограничения длины аргументов в слеш-командах.\n3) Переезд кастомизации эмбеда в формы (`/buttonrole`).\n4) Небольшие изменения дизайна.\n5) Можно указать цвет для эмбеда в `/buttonrole`.",
+            )
             embed.set_footer(text="Обновлено:")
         await interaction.response.send_message(embed=embed)
     
@@ -804,7 +806,7 @@ class Tools(commands.Cog):
                 )
             user_avatar = member.guild_avatar
         embed = discord.Embed(
-            color=member.color if not member.color == discord.Color.default() else discord.Color.orange(),
+            color=discord.Color.orange() if member.color == discord.Color.default() else member.color,
             description=f"[Скачать]({user_avatar.replace(static_format=format, size=size)})"
         )
         embed.set_author(name=f"Аватар {member}")
@@ -1093,10 +1095,9 @@ class Tools(commands.Cog):
                 description="Бот не может изменить Вам никнейм!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if argument is not None:
-            if len(argument) > 32:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if argument is not None and len(argument) > 32:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.user.guild_permissions.change_nickname:
             if interaction.user.id == interaction.guild.owner.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может изменять никнейм владельцу сервера!")

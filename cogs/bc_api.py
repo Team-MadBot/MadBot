@@ -162,7 +162,7 @@ class Boticord(commands.Cog):
             )
 
         embed = discord.Embed(
-            title=f"Спасибо за ап бота!",
+            title="Спасибо за ап бота!",
             color=discord.Color.orange(),
             description=f"В награду, Вам выдано **1,500 серверных монет**. Если Вы не получили монет - "
             "напишите в <#981547296275705927>.\n\n"

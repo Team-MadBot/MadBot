@@ -22,7 +22,7 @@ class Logging(commands.Cog):
     
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
-        if not interaction.type == discord.InteractionType.application_command: return
+        if interaction.type != discord.InteractionType.application_command: return
         logging.info(
             f"[SLASH USAGE] - '{interaction.user}' ({interaction.user.id}): '/{interaction.command.qualified_name}'"
         )

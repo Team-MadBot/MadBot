@@ -204,12 +204,19 @@ class Moderation(commands.Cog):
             if message.author.top_role.position >= member_bot.top_role.position or interaction.guild.owner.id == message.author.id or member_bot.guild_permissions.ban_members == False:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права на бан данного участника!\nТип ошибки: `Forbidden`.")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
+
+
             class InputText(discord.ui.Modal, title="Выдача наказания"):
                 reason = discord.ui.TextInput(label="Укажите причину", style=discord.TextStyle.paragraph, placeholder="Бунтует", required=True, max_length=430)
                 delete_message_days = discord.ui.TextInput(label="Удалить историю сообщений", style=discord.TextStyle.short, placeholder="0-7", max_length=1, required=False)
                 async def on_submit(self, viewinteract: discord.Interaction):
-                    delete_message_days = 0 if str(self.delete_message_days) == None or not(str(self.delete_message_days).isdigit()) else int(str(self.delete_message_days))
+                    delete_message_days = (
+                        0
+                        if str(self.delete_message_days) is None
+                        or not (str(self.delete_message_days).isdigit())
+                        else int(str(self.delete_message_days))
+                    )
                     if str(self.delete_message_days) != None and str(self.delete_message_days).isdigit() and int(str(self.delete_message_days)) > 7:
                         delete_message_days = 7
                     proofs = message.content
@@ -233,7 +240,8 @@ class Moderation(commands.Cog):
                         embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
                     await message.author.ban(delete_message_days=delete_message_days, reason=f"{self.reason} // {interaction.user.name}")
                     return await viewinteract.response.send_message(embed=embed)
-            
+
+
             await interaction.response.send_modal(InputText())
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `банить участников` для использования команды!")
@@ -478,7 +486,9 @@ class Moderation(commands.Cog):
             if (message.author.top_role.position >= interaction.user.top_role.position or interaction.guild.owner.id == message.author.id) and interaction.guild.owner.id != interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
+
+
             class InputText(discord.ui.Modal, title="Выдача наказания"):
                 until = discord.ui.TextInput(label="Срок выдачи наказания (в минутах)", style=discord.TextStyle.short, required=True, placeholder="0 - 40320", max_length=5)
                 reason = discord.ui.TextInput(label="Причина", style=discord.TextStyle.paragraph, placeholder="Бунтует", required=True, max_length=430)
@@ -519,16 +529,16 @@ class Moderation(commands.Cog):
                             except:
                                 embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
                             return await viewinteract.response.send_message(embed=embed)
-                        if self.until == None:
-                            embed = discord.Embed(title=f'С участника снят тайм-аут на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=discord.utils.utcnow())
-                            embed.add_field(name="Участник:", value=f"{message.author.mention}")
-                            embed.add_field(name="Модератор:", value=f"{interaction.user.mention}")
-                            embed.add_field(name="Причина:", value=self.reason)
-                            try:
-                                await message.author.send(embed=embed)
-                            except:
-                                embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
-                            return await viewinteract.response.send_message(embed=embed)
+                        embed = discord.Embed(title=f'С участника снят тайм-аут на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=discord.utils.utcnow())
+                        embed.add_field(name="Участник:", value=f"{message.author.mention}")
+                        embed.add_field(name="Модератор:", value=f"{interaction.user.mention}")
+                        embed.add_field(name="Причина:", value=self.reason)
+                        try:
+                            await message.author.send(embed=embed)
+                        except:
+                            embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
+                        return await viewinteract.response.send_message(embed=embed)
+
 
             await interaction.response.send_modal(InputText())
         else:

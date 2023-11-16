@@ -195,7 +195,7 @@ class Marries(commands.Cog):
         embed = discord.Embed(
             title="Развод - Завершено!",
             color=discord.Color.green(),
-            description=f"Вы успешно развелись. Надеемся, все будет хорошо..."
+            description="Вы успешно развелись. Надеемся, все будет хорошо..."
         )
         await interaction.edit_original_response(embed=embed, view=None)
     
@@ -265,14 +265,10 @@ class Marries(commands.Cog):
             )
             embed.set_footer(text="Используйте команду /marry для предложения заключения брака.")
             return await interaction.response.send_message(embed=embed)
-        description = ""
-        count = 1
-        for marry in marries:
-            description += (
-                f"`{count}.` <@!{marry['user_id']}> и <@!{marry['married_id']}>.\n"
-                f"Дата заключения брака: <t:{marry['dt']}> (<t:{marry['dt']}:R>).\n\n"
-            )
-            count += 1
+        description = "".join(
+            f"`{count}.` <@!{marry['user_id']}> и <@!{marry['married_id']}>.\nДата заключения брака: <t:{marry['dt']}> (<t:{marry['dt']}:R>).\n\n"
+            for count, marry in enumerate(marries, start=1)
+        )
         embed = discord.Embed(
             title="Браки сервера:",
             color=discord.Color.orange(),

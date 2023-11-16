@@ -38,7 +38,7 @@ except:
 else:
     RPC.connect()
     RPC.update(
-        state=f"Бот запущен.",
+        state="Бот запущен.",
         details="Работа над ботом.",
         start=time.time(),
         large_image="mad_cat_new_avatar",
@@ -182,11 +182,8 @@ class MyBot(commands.AutoShardedBot):
     async def is_owner(self, user: discord.User) -> bool:
         if checks.is_in_blacklist(user.id):
             return False
-        
-        if user.id in coders:
-            return True
 
-        return await super().is_owner(user)
+        return True if user.id in coders else await super().is_owner(user)
 
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
@@ -325,7 +322,7 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
         embed = discord.Embed(
             title="Ошибка!",
             color=discord.Color.red(),
-            description=f"Вы видите это сообщение, потому что бот не имеет прав для совершения действия!"
+            description="Вы видите это сообщение, потому что бот не имеет прав для совершения действия!"
         )
         try:
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -338,7 +335,9 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
             description="Введены слишком большие числа! Введите числа поменьше!"
         )
         return await interaction.response.send_message(embed=embed, ephemeral=True)
-    if interaction.command.name == "calc" and (isinstance(error, SyntaxError) or isinstance(error, KeyError)):
+    if interaction.command.name == "calc" and (
+        isinstance(error, (SyntaxError, KeyError))
+    ):
         embed = discord.Embed(
             title="Ошибка!",
             color=discord.Color.red(),

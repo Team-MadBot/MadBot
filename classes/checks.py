@@ -28,7 +28,7 @@ def isPremiumServer(bot: commands.Bot, guild: discord.Guild) -> bool:
     db = client.premium
     coll = db.guild
     isPrem = coll.find_one({'guild_id': str(guild.id)})
-    if isPrem is not None and isPremium(bot, isPrem['user_id']) == None: coll.delete_one({'user_id': isPrem['user_id']})
+    if isPrem is not None and isPremium(bot, isPrem['user_id']) is None: coll.delete_one({'user_id': isPrem['user_id']})
     return isPrem is not None and isPremium(bot, isPrem['user_id']) != 'None'
 
 def is_in_blacklist(resource_id: int) -> bool:

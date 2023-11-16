@@ -36,8 +36,7 @@ def get_premium_guids(user_id: int) -> Optional[dict]:
     """
     db = client.premium
     coll = db.guild
-    prem = coll.find({'user_id': str(user_id)})
-    return prem
+    return coll.find({'user_id': str(user_id)})
 
 def get_premium_guild_info(guild_id: int) -> Optional[list]:
     """
@@ -48,8 +47,7 @@ def get_premium_guild_info(guild_id: int) -> Optional[list]:
     """
     db = client.premium
     coll = db.guild
-    prem = coll.find_one({'guild_id': str(guild_id)})
-    return prem
+    return coll.find_one({'guild_id': str(guild_id)})
 
 def take_guild_premium(guild_id: int) -> bool:
     """

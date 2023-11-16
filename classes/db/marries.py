@@ -39,8 +39,10 @@ def marry(guild_id: int, user_id: int, married_id: int) -> bool:
     - `married_id` - ID of the second user.
     """
     coll = db.marries
-    marries = coll.find_one({'guild_id': guild_id, "$or": [{'user_id': user_id, 'user_id': married_id}], "$or": [{'married_id': married_id, 'married_id': user_id}]})
-    if marries: return False
+    if marries := coll.find_one(
+        {'guild_id': guild_id, "$or": [{'married_id': user_id}]}
+    ):
+        return False
     coll.insert_one({"guild_id": guild_id, "user_id": user_id, "married_id": married_id, 'dt': round(time.time())})
     return True
 

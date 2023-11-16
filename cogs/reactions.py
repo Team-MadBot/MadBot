@@ -187,7 +187,7 @@ class Reactions(commands.Cog):
         json = resp.json()
         if resp.status_code == 200:
             description = ''
-            if member == None:
+            if member is None:
                 description = f"{interaction.user.mention} подмигнул(-а)."
             else:
                 description = f"{interaction.user.mention} подмигнул(-а) {member.mention}."
@@ -275,6 +275,8 @@ class Reactions(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя поцеловать самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
+
+
         class KissButtons(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=120)
@@ -286,7 +288,13 @@ class Reactions(commands.Cog):
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
                     marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
                     marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
-                    if marry is not None and ((marry['user_id'] == viewinteract.user.id or marry['user_id'] == interaction.user.id) and (marry['married_id'] == viewinteract.user.id or marry['married_id'] == interaction.user.id)):
+                    if (
+                        marry is not None
+                        and marry['user_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                        and marry['married_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                    ):
                         description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
@@ -313,6 +321,7 @@ class Reactions(commands.Cog):
                     return await interaction.edit_original_response(embed=embed, view=None)
                 else:
                     await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+
 
         view = KissButtons()
         embed = discord.Embed(title="Ожидание...", color=discord.Color.orange(), description=f"{interaction.user.mention}, необходимо получить согласие на поцелуй от {member.mention}\nВремя ограничено!")
@@ -342,6 +351,8 @@ class Reactions(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя поцеловать самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
+
+
         class KissButtons(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=120)
@@ -353,7 +364,13 @@ class Reactions(commands.Cog):
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
                     marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
                     marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
-                    if marry is not None and ((marry['user_id'] == viewinteract.user.id or marry['user_id'] == interaction.user.id) and (marry['married_id'] == viewinteract.user.id or marry['married_id'] == interaction.user.id)):
+                    if (
+                        marry is not None
+                        and marry['user_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                        and marry['married_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                    ):
                         description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
@@ -380,6 +397,7 @@ class Reactions(commands.Cog):
                     return await interaction.edit_original_response(embed=embed, view=None)
                 else:
                     await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+
 
         view = KissButtons()
         embed = discord.Embed(title="Ожидание...", color=discord.Color.orange(), description=f"{interaction.user.mention}, необходимо получить согласие на поцелуй от {member.mention}\nВремя ограничено!")

@@ -173,7 +173,7 @@ class Premium(commands.Cog):
                     description="Данная команда в разработке."
                 )
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-                class Button(ui.View):
+                """class Button(ui.View):
                     def __init__(self):
                         super().__init__(timeout=180)
                         self.value = None
@@ -229,7 +229,7 @@ class Premium(commands.Cog):
                 class PayMethod(ui.View):
                     def __init__(self):
                         super().__init__(timeout=180)
-                        
+                        """
 
         self.bot.tree.add_command(Premium())
     

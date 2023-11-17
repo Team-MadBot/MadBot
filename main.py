@@ -10,7 +10,6 @@ import aiohttp
 
 from discord import app_commands, Forbidden
 from discord.ext import commands
-from pypresence import Presence
 from asyncio import sleep
 
 from classes import db
@@ -20,32 +19,6 @@ from classes.checks import isPremium, isPremiumServer
 from config import *
 
 intents = discord.Intents.default()
-
-btns = [
-    {
-        "label": "Добавить бота",
-        "url": f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"
-    },
-    {
-        "label": "Поддержка бота",
-        "url": settings['support_invite']
-    }
-]
-try:
-    RPC = Presence(f"{settings['app_id']}")  # Discord Rich Presence. Будет видно при запуске бота.
-except:
-    pass
-else:
-    RPC.connect()
-    RPC.update(
-        state="Бот запущен.",
-        details="Работа над ботом.",
-        start=time.time(),
-        large_image="mad_cat_new_avatar",
-        large_text="MadBot - запущен",
-        buttons=btns
-    )
-
 
 class MyBot(commands.AutoShardedBot):
     def __init__(self):

@@ -314,28 +314,55 @@ class Moderation(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(seconds="Кол-во секунд. Укажите 0 для снятия.", reason='Причина установки медленного режима')
-    async def slowmode(self, interaction: discord.Interaction, seconds: app_commands.Range[int, 0, 21600], reason: str = "Отсутствует"):
+    async def slowmode(
+        self, 
+        interaction: discord.Interaction, 
+        seconds: app_commands.Range[int, 0, 21600], 
+        reason: app_commands.Range[str, None, 512] = "Отсутствует"
+    ):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        if not interaction.channel.permissions_for(interaction.user).manage_channels:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="Вы не имеете права `управление каналом` для использования этой команды!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
         delay = seconds
-        if interaction.channel.permissions_for(interaction.user).manage_channels:
-            reason = reason[:460] + (reason[460:] and '..')
-            try:
-                await interaction.channel.edit(reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}", slowmode_delay=delay)
-            except:
-                embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"У бота отсутствует право на управление данным каналом!\nТип ошибки: `Forbidden`")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            else:
-                embed = None
-                if seconds>0:
-                    embed=discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Медленный режим успешно установлен на `{seconds}` секунд.", timestamp=datetime.datetime.now())
-                else:
-                    embed=discord.Embed(title="Успешно!", color=discord.Color.green(), description="Медленный режим успешно снят.", timestamp=datetime.datetime.now())
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+        try:
+            await interaction.channel.edit(
+                reason=f"{reason} // {interaction.user}", 
+                slowmode_delay=delay
+            )
+        except Forbidden:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description=f"У бота отсутствует право на управление данным каналом!\n"
+                "Тип ошибки: `Forbidden`"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управление каналом` для использования этой команды!")
+            embed = None
+            if seconds > 0:
+                embed = discord.Embed(
+                    title="Успешно!", 
+                    color=discord.Color.green(), 
+                    description=f"Медленный режим успешно установлен на `{seconds}` секунд.", 
+                    timestamp=datetime.datetime.now()
+                )
+            else:
+                embed = discord.Embed(
+                    title="Успешно!", 
+                    color=discord.Color.green(), 
+                    description="Медленный режим успешно снят.", 
+                    timestamp=datetime.datetime.now()
+                )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="timeout", description="[Модерация] Отправляет участника подумать о своем поведении")
@@ -346,53 +373,118 @@ class Moderation(commands.Cog):
         minutes="Кол-во минут, на которые будет выдан тайм-аут.", 
         reason="Причина выдачи наказания."
     )
-    async def timeout(self, interaction: discord.Interaction, member: discord.User, minutes: app_commands.Range[int, 0, 40320], reason: str):
+    async def timeout(
+        self, 
+        interaction: discord.Interaction, 
+        member: discord.User, 
+        minutes: app_commands.Range[int, 0, 40320], 
+        reason: app_commands.Range[str, None, 512]
+    ):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.guild.get_member(member.id) is None:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
-            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        try:
+            member: discord.Member = await interaction.guild.fetch_member(member.id)
+        except NotFound:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Указанный пользователь не найден в этом сервере!"
+            )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.user.guild_permissions.moderate_members:
-            if (member.top_role.position >= interaction.user.top_role.position or interaction.guild.owner.id == member.id) and interaction.guild.owner.id != interaction.user.id:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            until = datetime.datetime.now() + datetime.timedelta(minutes=minutes)
-            reason = reason[:460] + (reason[460:] and '..')
-            if minutes == 0:
-                until = None
+        
+        member_bot = interaction.guild.me
+
+        if not interaction.user.guild_permissions.moderate_members:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="У вас отсутствует право `управление участниками` для использования команды!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        if (member.top_role.position >= member_bot.top_role.position or 
+                member.guild_permissions.administrator or
+                not member_bot.guild_permissions.moderate_members):
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Бот не может замутить данного пользователя!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        if ((member.top_role.position >= interaction.user.top_role.position or 
+                interaction.guild.owner_id == member.id) and 
+                interaction.guild.owner_id != interaction.user.id):
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        until = datetime.datetime.now() + datetime.timedelta(minutes=minutes) if minutes > 0 else None
+        try:
+            await member.edit(
+                timed_out_until=until, 
+                reason=f"{reason} // {interaction.user}"
+            )
+        except:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description=f"Не удалось выдать участнику тайм-аут. Убедитесь в наличии прав на управление участниками "
+                "у бота и попробуйте снова!\nТип ошибки: `Forbidden`"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if minutes > 0:    
+            embed = discord.Embed(
+                title=f'Участник отправлен в тайм-аут на сервере {interaction.guild.name}!', 
+                color=discord.Color.red(), 
+                timestamp=datetime.datetime.now()
+            ).add_field(
+                name="Участник:", 
+                value=f"{member.mention} ({member.id})",
+            ).add_field(
+                name="Модератор:", 
+                value=f"{interaction.user.mention} ({interaction.user.id})"
+            ).add_field(
+                name="Срок:", 
+                value=f"{minutes:,} минут"
+            ).add_field(
+                name="Причина:", 
+                value=dutils.escape_markdown(reason)
+            )
             try:
-                await member.edit(timed_out_until=until, reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}")
+                await member.send(embed=embed)
             except:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось выдать участнику тайм-аут. Убедитесь в наличии прав на управление участниками у бота и попробуйте снова!\nТип ошибки: `Forbidden`")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            else:
-                if minutes > 0:    
-                    embed = discord.Embed(title=f'Участник отправлен в тайм-аут на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=datetime.datetime.now())
-                    embed.add_field(name="Участник:", value=f"{member.mention}",)
-                    embed.add_field(name="Модератор:", value=f"{interaction.user.mention}")
-                    embed.add_field(name="Срок:", value=f"{minutes} минут")
-                    embed.add_field(name="Причина:", value=reason)
-                    try:
-                        await member.send(embed=embed)
-                    except:
-                        embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
-                    return await interaction.response.send_message(embed=embed)
-                if minutes == 0:
-                    embed = discord.Embed(title=f'С участника снят тайм-аут на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=datetime.datetime.now())
-                    embed.add_field(name="Участник:", value=f"{member.mention}")
-                    embed.add_field(name="Модератор:", value=f"{interaction.user.mention}")
-                    embed.add_field(name="Причина:", value=reason)
-                    try:
-                        await member.send(embed=embed)
-                    except:
-                        embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
-                    return await interaction.response.send_message(embed=embed)
-        else:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управление участниками` для использования команды!")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+                embed.set_footer(
+                    text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"
+                )
+            return await interaction.response.send_message(embed=embed)
+
+        embed = discord.Embed(
+            title=f'С участника снят тайм-аут на сервере {interaction.guild.name}!', 
+            color=discord.Color.red(), 
+            timestamp=datetime.datetime.now()
+        ).add_field(
+            name="Участник:", 
+            value=f"{member.mention} ({member.id})"
+        ).add_field(
+            name="Модератор:", 
+            value=f"{interaction.user.mention} ({interaction.user.id})"
+        ).add_field(
+            name="Причина:", 
+            value=dutils.escape_markdown(reason)
+        )
+        try:
+            await member.send(embed=embed)
+        except:
+            embed.set_footer(
+                text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"
+            )
+        return await interaction.response.send_message(embed=embed)
     
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))

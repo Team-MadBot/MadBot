@@ -14,7 +14,7 @@
 ## Требования
 
 См. [requirements.txt](https://github.com/MadCat9958/MadBotPublic/blob/main/requirements.txt/).
-Минимальная версия **Python**: `3.10`.
+Минимальная версия **Python**: `3.10` (это связано с использованием `|` вместо `typing.Union` и `match`).
 
 ## Помощь в разработке
 

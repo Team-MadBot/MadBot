@@ -38,9 +38,7 @@ settings = {
 
 started_at = int( # Время запуска бота. Не изменять.
     time.time()
-) 
-lastcommand = "Ещё ни разу команды не использовались."
-used_commands = 0 # Счетчик использованных команд. Не трогать.
+)
 
 cogs = [ # Список cog'ов.
     "cogs.use_logging",

@@ -171,8 +171,6 @@ class BoticordBotUp(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.checks.cooldown(1, 5.0)
     async def bump_bot(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        config.lastcommand = "`/up`"
         await interaction.response.defer(ephemeral=True, thinking=True)
 
         resp, resp_json = await self.get_captcha(interaction.user.id)

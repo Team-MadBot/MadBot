@@ -21,12 +21,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def cat(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/cat`'
         resp = requests.get(f"https://some-random-api.com/animal/cat?key={settings['key']}")
         json = resp.json()
         if resp.status_code == 200:
@@ -41,12 +35,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def dog(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/dog`'
         resp = requests.get(f"https://some-random-api.com/animal/dog?key={settings['key']}")
         json = resp.json()
         if resp.status_code == 200:
@@ -61,12 +49,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def math_cmd(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/math`'
         choice = ['+','-']
         tosolve = f"{random.randint(9,99)} {random.choice(choice)} {random.randint(9,99)}"
         answer = eval(tosolve)
@@ -131,15 +113,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def doors(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/doors`'
-
-
-
         class DoorsButtons(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=15)
@@ -208,12 +181,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(question="Вопрос, адресованный шару.")
     async def ball(self, interaction: discord.Interaction, question: app_commands.Range[str, None, 1024]):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/ball`'
         answers = [
             "Бесспорно",
             "Предрешено",
@@ -248,18 +215,12 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
     async def knb(self, interaction: discord.Interaction, member: discord.User = None):
-        config.used_commands += 1
         if member is None:
             member = self.bot.user
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/knb`'
 
         if interaction.user.id == member.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
@@ -440,16 +401,10 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
     async def tictac(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/tic-tac-toe`'
 
         if interaction.user.id == member.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
@@ -616,16 +571,10 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def hangman(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/hangman`'
 
         if interaction.user.id == member.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
@@ -848,12 +797,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def coin(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/coin`'
         ans = choice(["Орёл", "Решка"])
         sel = 'a' if ans == "Решка" else ""
         embed = discord.Embed(title="Бросить монетку", color=discord.Color.orange(), description=f"Вам выпал{sel}: `{ans}`.")
@@ -865,12 +808,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def rr(self, interaction: discord.Interaction, count: app_commands.Range[int, 1, 5] = 1):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/russian-roulette`'
         shoot = random.randint(0,6)
         if shoot <= count:
             embed = discord.Embed(
@@ -893,16 +830,10 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
     async def duel(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/duel`'
         if interaction.user.id == member.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1080,11 +1011,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def whatsnumber(self, interaction: discord.Interaction, member: discord.User = None):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -1096,7 +1022,6 @@ class Entartaiment(commands.Cog):
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/number`'
         if member == None:
             number = random.randint(1,10)
         else:
@@ -1266,11 +1191,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, с которым вы хотите поиграть")
     async def dice(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -1282,7 +1202,7 @@ class Entartaiment(commands.Cog):
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/dice`'
+        
         if interaction.user.id == member.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя играть с самим собой!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1363,9 +1283,6 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, с которым Вы хотите поиграть.")
     async def tol(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        config.lastcommand = '/tol'
-        
         if member.bot:
             embed = discord.Embed(
                 title="Ошибка!",

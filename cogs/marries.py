@@ -19,16 +19,11 @@ class Marries(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, с которым Вы хотите пожениться.")
     async def marry(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/marry`"
+
         user_id = interaction.user.id
         member_id = member.id
         
@@ -129,16 +124,11 @@ class Marries(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def dibvorce(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/divorce`"
+        
         user_id = interaction.user.id
         
         marry = db.get_marries(interaction.guild.id, user_id)
@@ -204,16 +194,11 @@ class Marries(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, чей брак Вы хотите посмотреть.")
     async def marry_info(self, interaction: discord.Interaction, member: discord.User = None):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/marry-info`"
+        
         user_id = interaction.user.id if member is None else member.id
 
         marry = db.get_marries(interaction.guild.id, user_id)
@@ -246,16 +231,11 @@ class Marries(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def marries(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/marries`"
+        
         marries = db.get_all_marries(interaction.guild.id)
         if marries is None:
             embed = discord.Embed(
@@ -280,18 +260,16 @@ class Marries(commands.Cog):
     @app_commands.command(name="marry-people", description="[Свадьбы] Поженить принудительно пару.")
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.describe(member="Участник, которого Вы хотите поженить.", member2="Участник, с кем Вы хотите поженить первого участника.")
+    @app_commands.describe(
+        member="Участник, которого Вы хотите поженить.", 
+        member2="Участник, с кем Вы хотите поженить первого участника."
+    )
     async def marry_people(self, interaction: discord.Interaction, member: discord.User, member2: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/marry-people`"
+        
         if not interaction.user.guild_permissions.manage_guild:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -346,16 +324,10 @@ class Marries(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого Вы хотите развести.")
     async def divorce_people(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/divorce-people`"
         if not interaction.user.guild_permissions.manage_guild:
             embed = discord.Embed(
                 title="Ошибка!",

@@ -55,8 +55,6 @@ class Tools(commands.Cog):
             @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
             @app_commands.describe(text="Текст для кодировки")
             async def encode(self, interaction: discord.Interaction, text: app_commands.Range[str, None, 1024]):
-                config.used_commands += 1
-                config.lastcommand = '`/base64 encode`'
                 ans = b64encode(text.encode()).decode()
                 if len(text) > 1024 or len(ans) > 1024:
                     embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange(), description=f"**Исходный текст:**\n{text}")
@@ -73,8 +71,6 @@ class Tools(commands.Cog):
             @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
             @app_commands.describe(text="Текст для декодировки")
             async def decode(self, interaction: discord.Interaction, text: str):
-                config.used_commands += 1
-                config.lastcommand = '`/base64 decode`'
                 try:
                     ans = b64decode(text).decode()
                 except Exception:
@@ -97,8 +93,6 @@ class Tools(commands.Cog):
             @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
             @app_commands.describe(text="Зашифрованный текст")
             async def create(self, interaction: discord.Interaction, text: str):
-                config.used_commands += 1
-                config.lastcommand = "/create"
                 await interaction.response.defer(thinking=True, ephemeral=True)
                 qr = qrcode.QRCode()
                 qr.add_data(text)
@@ -265,11 +259,6 @@ class Tools(commands.Cog):
         Choice(name='1.0', value='10')
     ])
     async def version(self, interaction: discord.Interaction, ver: Choice[str] = None):
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/version`"
         embed = None
         if ver is not None:
             ver = ver.name
@@ -321,12 +310,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def errors(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/errors`"
         embed = discord.Embed(title="Ошибки бота:", color=discord.Color.orange())
         embed.add_field(name="Ошибка: Forbidden", value="Бот не может совершить действие. Убедитесь, что бот имеет право(-а) на совершение действия.", inline=False)
         embed.add_field(name="Ошибка: NotFound", value="Боту не удалось найти объект (пользователя, сервер и т.д.).", inline=False)
@@ -339,12 +322,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def help(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/help`"
         commands = self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)
         #mod_commands = ""
         tools_commands = ""
@@ -571,11 +548,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member='Участник')
     async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.display_avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
@@ -583,7 +555,6 @@ class Tools(commands.Cog):
         if isinstance(member, discord.User):
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Пользователь должен находиться на сервере для использования команды на нём!")
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
-        config.lastcommand = "`/userinfo`"
         badges = ''
         if member is None: member = interaction.user
         else:
@@ -751,16 +722,10 @@ class Tools(commands.Cog):
         size: Choice[int] = 2048, 
         type: Choice[str] = 'standart'
     ):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/avatar`"
         if member is None: member = interaction.user
         try:
             member: discord.Member = await interaction.guild.fetch_member(member.id)
@@ -801,16 +766,10 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def serverinfo(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/serverinfo`"
         badges = ''
         if checks.is_in_blacklist(interaction.guild.id):
             badges += '<:ban:946031802634612826> '
@@ -1001,20 +960,12 @@ class Tools(commands.Cog):
                 self.add_item(DropDown())
 
         await interaction.response.send_message(embed=embed, view=View())
-        config.lastcommand = "`/botinfo`"
-        config.used_commands += 1
 
     @app_commands.command(name="badgeinfo", description="[Полезности] Информация о значках пользователей и серверов в боте.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def badgeinfo(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/badgeinfo`"
         embed=discord.Embed(title="Виды значков:", color=discord.Color.orange())
         embed.add_field(name="Значки пользователя:", value=f"<:ban:946031802634612826> - пользователь забанен в системе бота.\n<a:premium:988735181546475580> - пользователь имеет MadBot Premium.\n<:timeout:950702768782458893> - пользователь получил тайм-аут на сервере.\n<:botdev:977645046188871751> - разработчик бота.\n<:code:946056751646638180> - помощник разработчика.\n<:support:946058006641143858> - поддержка бота.\n<:bug_hunter:955497457020715038> - охотник на баги (обнаружил и сообщил о 3-х и более багах).\n<:bug_terminator:955891723152801833> - уничтожитель багов (обнаружил и сообщил о 10-ти и более багах).\n<:verified:946057332389978152> - верифицированный пользователь.\n<:bot:946064625525465118> - участник является ботом.", inline=False)
         embed.add_field(name="Значки сервера:", value=f"<:verified:946057332389978152> - верифицированный сервер.\n<a:premium:988735181546475580> - сервер имеет MadBot Premium.\n<:ban:946031802634612826> - сервер забанен в системе бота.\n<:beta:946063731819937812> - сервер, имеющий доступ к бета-командам.", inline=False)
@@ -1025,12 +976,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def outages(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/outages`'
         channel = self.bot.get_channel(settings['outages'])
         outage = None
         async for message in channel.history(limit=1):
@@ -1051,11 +996,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника")
     async def nick(self, interaction: discord.Interaction, argument: str = None):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -1067,7 +1007,6 @@ class Tools(commands.Cog):
                 description="На данный момент, команда недоступна."
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/nick`"
         bot_member = await interaction.guild.fetch_member(self.bot.user.id)
         if not bot_member.guild_permissions.manage_nicknames or bot_member.top_role < interaction.user.top_role:
             embed = discord.Embed(
@@ -1151,12 +1090,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(emoji_name="Название, ID либо сам эмодзи.", is_registry="Стоит ли учитывать регистр имени?")
     async def getemoji(self, interaction: discord.Interaction, emoji_name: str, is_registry: bool = False):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/getemoji`'
         if emoji_name.startswith("<") and emoji_name.endswith(">"):
             emoji_id = int(emoji_name.removesuffix(">").split(":")[2])
             emoji = self.bot.get_emoji(emoji_id)
@@ -1222,11 +1155,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(message="Сообщение, которое будет отправлено")
     async def send(self, interaction: discord.Interaction, message: app_commands.Range[str, None, 2000]):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -1238,7 +1166,6 @@ class Tools(commands.Cog):
                 description="Данная команда недоступна в ветках!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/send`'
         if interaction.channel.permissions_for(interaction.guild.get_member(self.bot.user.id)).manage_webhooks == False:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права на управление вебхуками!\nТип ошибки: `Forbidden`.")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1264,16 +1191,10 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, чьё кол-во действий вы хотите увидить")
     async def getaudit(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/getaudit`'
         if interaction.user.guild_permissions.view_audit_log:
             member_bot = interaction.guild.get_member(self.bot.user.id)
             if not member_bot.guild_permissions.view_audit_log:
@@ -1294,12 +1215,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def weather(self, interaction: discord.Interaction, city: str):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/weather`'
         city = city.replace(' ', '%20')
         embed = discord.Embed(title="Поиск...", color=discord.Color.yellow(), description="Ищем ваш город...")
         await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1330,12 +1245,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def stopwatch(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/stopwatch`'
         embed = discord.Embed(title="Секундомер", color=discord.Color.orange(), description=f"Время пошло!\nСекундомер запущен {discord.utils.format_dt(datetime.datetime.now(), 'R')}")
         embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)\
 
@@ -1362,13 +1271,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.checks.dynamic_cooldown(lambda i: app_commands.Cooldown(1, 300.0))
     async def debug(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/debug`'
-
         def get_permissions(perms: discord.Permissions):
             ans = ""
             ans += f"✅ Отправка сообщений\n" if perms.send_messages else f"❌ Отправка сообщений\n"
@@ -1477,16 +1379,10 @@ class Tools(commands.Cog):
         role24: typing.Optional[discord.Role],
         role25: typing.Optional[discord.Role]
     ):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True) 
-        config.lastcommand = '`/buttonrole`'
         if interaction.user.guild_permissions.manage_roles:
             bot_member = interaction.guild.get_member(self.bot.user.id)
             if not(bot_member.guild_permissions.manage_roles):
@@ -1642,12 +1538,6 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(problem="Пример для решения")
     async def calc(self, interaction: discord.Interaction, problem: app_commands.Range[str, None, 30]):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/calc`'
         if "**" in problem:
             embed = discord.Embed(
                 title='Ошибка!',
@@ -1686,19 +1576,8 @@ class Tools(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def autorole(self, interaction: discord.Interaction, role: typing.Optional[discord.Role]):
-        config.used_commands += 1
         loader = FluentResourceLoader("locales/{locale}")
         l10n = FluentLocalization(["ru"], ["main.ftl", "texts.ftl", "commands.ftl"], loader)
-        if checks.is_in_blacklist(interaction.user.id):
-            bl_desc = l10n.format_value("blacklist_description")
-            embed=discord.Embed(
-                title=l10n.format_value("blacklist_title"), 
-                color=discord.Color.red(), 
-                description=f"{bl_desc} {settings['support_invite']}", 
-                timestamp=datetime.datetime.now()
-            )
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title=l10n.format_value("error_title"), color=discord.Color.red(), description=l10n.format_value("guild_only_error"))
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -1710,7 +1589,6 @@ class Tools(commands.Cog):
                 description=l10n.format_value("intents_are_not_enabled")
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/calc`'
         if interaction.user.guild_permissions.manage_guild:
             role_info = db.get_guild_autorole(interaction.guild.id)
             if role is None:

@@ -24,11 +24,6 @@ class Moderation(commands.Cog):
         member: discord.User, 
         reason: app_commands.Range[str, None, 512]
     ):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -42,7 +37,6 @@ class Moderation(commands.Cog):
                 description="Участник должен находиться на сервере для использования команды!"
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/kick`"
 
         member_bot = interaction.guild.me # пашет без интентов, так что живём.
         
@@ -123,16 +117,10 @@ class Moderation(commands.Cog):
         reason: app_commands.Range[str, None, 512], 
         delete_message_days: app_commands.Range[int, 0, 7] = 0
     ):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/ban`"
         
         member_bot = interaction.guild.me # пашет без интентов, так что живём.
         
@@ -213,17 +201,11 @@ class Moderation(commands.Cog):
         member: app_commands.Range[str, 18, 19], 
         reason: app_commands.Range[str, None, 512]
     ):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/unban`'
-
+        
         if not interaction.user.guild_permissions.ban_members:
             embed = discord.Embed(
                 title='Ошибка!',
@@ -280,58 +262,63 @@ class Moderation(commands.Cog):
     @app_commands.command(name="clear", description="[Модерация] Очистка сообщений")
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.describe(radius='Радиус, в котором будут очищаться сообщения.', member="Участник, чьи сообщения будут очищены.")
-    async def clear(self, interaction: discord.Interaction, radius: app_commands.Range[int, 1, 1000], member: discord.User = None):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+    @app_commands.describe(
+        radius='Радиус, в котором будут очищаться сообщения.', 
+        member="Участник, чьи сообщения будут очищены."
+    )
+    async def clear(
+        self, 
+        interaction: discord.Interaction, 
+        radius: app_commands.Range[int, 1, 1000], 
+        member: discord.User = None
+    ):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/clear`"
-        if interaction.channel.permissions_for(interaction.user).manage_messages:
-            deleted = None
-            def check(m):
-                return True
-            if member != None:
-                def check(m):
-                    return m.author.id == member.id
-            trying = discord.Embed(title="В процессе...", color=discord.Color.gold(), description="Сообщения очищаются, ожидайте...", timestamp=datetime.datetime.now())
-            trying.set_footer(text=f"{interaction.user.name}#{interaction.user.discriminator}")
-            await interaction.response.send_message(embed=trying, ephemeral=True) 
-            try:
-                deleted = await interaction.channel.purge(limit=radius, check=check)
-            except Forbidden:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f'Не удалось очистить `{radius} сообщений`. Возможно, я не имею право на управление сообщениями.\nТип ошибки: `Forbidden`', timestamp=datetime.datetime.now())
-                return await interaction.edit_original_response(embeds=[embed])
-            else:
-                from_member = '.'
-                if member != None:
-                    from_member = f" от участника {member.mention}."
-                embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Мною очищено `{len(deleted)}` сообщений в этом канале{from_member}", timestamp=datetime.datetime.now())
-                return await interaction.edit_original_response(embeds=[embed])
-        else:
-            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управление сообщениями` на использование команды!")
+        
+        if not interaction.channel.permissions_for(interaction.user).manage_messages:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="Вы не имеете права `управление сообщениями` на использование команды!"
+            )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        try:
+            deleted = await interaction.channel.purge(
+                limit=radius, 
+                check=lambda m: m.author == member or member is None
+            )
+        except Forbidden:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description=f'Не удалось очистить `{radius} сообщений`. Возможно, я не имею право на управление сообщениями.\n"
+                "Тип ошибки: `Forbidden`', 
+                timestamp=datetime.datetime.now()
+            )
+            return await interaction.followup.send(embed=embed)
+        else:
+            from_member = '.' if member is None else f" от участника {member.mention}."
+            embed = discord.Embed(
+                title="Успешно!", 
+                color=discord.Color.green(), 
+                description=f"Мною очищено `{len(deleted)}` сообщений в этом канале{from_member}", 
+                timestamp=datetime.datetime.now()
+            )
+            return await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="slowmode", description="[Модерация] Установить медленный режим в данном канале. Введите 0 для отключения.")
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(seconds="Кол-во секунд. Укажите 0 для снятия.", reason='Причина установки медленного режима')
     async def slowmode(self, interaction: discord.Interaction, seconds: app_commands.Range[int, 0, 21600], reason: str = "Отсутствует"):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/slowmode`"
         delay = seconds
         if interaction.channel.permissions_for(interaction.user).manage_channels:
             reason = reason[:460] + (reason[460:] and '..')
@@ -354,13 +341,12 @@ class Moderation(commands.Cog):
     @app_commands.command(name="timeout", description="[Модерация] Отправляет участника подумать о своем поведении")
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.describe(member="Участник, которому нужно выдать тайм-аут", minutes="Кол-во минут, на которые будет выдан тайм-аут.", reason="Причина выдачи наказания.")
+    @app_commands.describe(
+        member="Участник, которому нужно выдать тайм-аут", 
+        minutes="Кол-во минут, на которые будет выдан тайм-аут.", 
+        reason="Причина выдачи наказания."
+    )
     async def timeout(self, interaction: discord.Interaction, member: discord.User, minutes: app_commands.Range[int, 0, 40320], reason: str):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -369,7 +355,6 @@ class Moderation(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/timeout`"
         if interaction.user.guild_permissions.moderate_members:
             if (member.top_role.position >= interaction.user.top_role.position or interaction.guild.owner.id == member.id) and interaction.guild.owner.id != interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!")
@@ -412,16 +397,10 @@ class Moderation(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def context_timeout(self, interaction: discord.Interaction, message: discord.Message):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/timeout`"
         if interaction.user.guild_permissions.moderate_members:
             if isinstance(message.author, discord.User):
                 embed = discord.Embed(
@@ -497,11 +476,6 @@ class Moderation(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(delete_original="Удалять ли клонируемый канал?", reason="Причина клонирования")
     async def clone(self, interaction: discord.Interaction, reason: str, delete_original: bool = False):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -513,7 +487,6 @@ class Moderation(commands.Cog):
                 description="Данная команда недоступна в ветках!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/clone`"
         if interaction.user.guild_permissions.manage_channels:
             cloned = None
             reason = reason[:460] + (reason[460:] and '..')
@@ -538,11 +511,6 @@ class Moderation(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого надо попросить сменить ник", reason="Причина сброса ника")
     async def resetnick(self, interaction: discord.Interaction, member: discord.User, reason: str):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -551,7 +519,6 @@ class Moderation(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/resetnick`"
         if interaction.user.guild_permissions.manage_nicknames:
             reason = reason[:460] + (reason[460:] and '..')
             if member.top_role.position >= interaction.user.top_role.position and interaction.guild.owner.id != interaction.user.id:

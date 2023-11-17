@@ -565,20 +565,6 @@ class Tools(commands.Cog):
 
         await interaction.response.send_message(embed=embed, view=DropDownView())
 
-    @app_commands.command(name="ping", description="[Полезности] Проверка бота на работоспособность")
-    @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    async def ping(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/ping`"
-        embed = discord.Embed(color=discord.Color.dark_red(), title=self.bot.user.name, description=f'⚠ **ПОНГ!!!**\n⏳ Задержка: `{int(round(self.bot.latency, 3)*1000)}ms`.')
-        await interaction.response.send_message(embed=embed)
-
     @app_commands.command(name="userinfo", description="[Полезности] Показывает информацию о пользователе")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))

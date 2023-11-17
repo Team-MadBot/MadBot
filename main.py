@@ -483,7 +483,7 @@ async def debug(ctx: commands.Context):
                                     try:
                                         if int(str(self.ans)) == guild.id:
                                             return await modalinteract.response.send_message(
-                                                f"Название: {guild.name}, владелец: {guild.owner.mention}, ID: {guild.id}, участников: {guild.member_count}",
+                                                f"Название: {guild.name}, владелец: <@{guild.owner_id}>, ID: {guild.id}, участников: {guild.member_count}",
                                                 ephemeral=True)
                                     except:
                                         pass

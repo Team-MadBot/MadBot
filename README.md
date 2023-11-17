@@ -16,6 +16,8 @@
 См. [requirements.txt](https://github.com/MadCat9958/MadBotPublic/blob/main/requirements.txt/).
 Минимальная версия **Python**: `3.10` (это связано с использованием `|` вместо `typing.Union` и `match`).
 
+**Рекомендуется** использовать ОС на основе GNU/Linux. Работа на остальных операционных системах не протестирована и не гарантирована!
+
 ## Помощь в разработке
 
 ~~См. [`CONTRIBUTING.rst`](https://github.com/MadCat9958/MadBotPublic/blob/main/CONTRIBUTING.rst).~~

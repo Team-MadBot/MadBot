@@ -52,6 +52,7 @@ cogs = [ # Список cog'ов.
     "cogs.marries",
     "cogs.sdc_api",
     "cogs.shards_log",
+    "cogs.events.interaction"
     # "cogs.bc_api",
     # "cogs.bc_remind",
     # "cogs.bc_up",

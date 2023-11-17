@@ -7,6 +7,8 @@ class NoPerms(discord.Embed):
             color=discord.Color.red(),
             title="Ошибка!",
             description=f"Вам необходимо право на `{perm}` для использования команды."
+        ).set_image(
+            url="https://http.cat/403"
         )
 
 class UnknownError(discord.Embed):
@@ -22,8 +24,9 @@ class UnknownError(discord.Embed):
                 "> `4.` Данный скриншот."
             ),
             timestamp=datetime.datetime.now()
-        )
-        super().add_field(
+        ).add_field(
             name="Информация об ошибке (для понимания проблемы)",
             value=f"Время ошибки (МСК): **{datetime.datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}**"
+        ).set_image(
+            url="https://http.cat/400"
         )

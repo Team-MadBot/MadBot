@@ -587,8 +587,10 @@ async def debug(ctx: commands.Context):
 
                     @discord.ui.button(label="Черный список")
                     async def blacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                        # TODO
-                        await viewinteract.response.send_message(f"Забаненные: {blacklist}", ephemeral=True)
+                        await viewinteract.response.send_message(
+                            f"Забаненные: {', '.join(i['resource_id'] for i in db.get_all_blacklist())}", 
+                            ephemeral=True
+                        )
 
                     @discord.ui.button(label="Убрать из ЧС")
                     async def removeblacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):

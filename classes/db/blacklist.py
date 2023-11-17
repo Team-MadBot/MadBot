@@ -1,6 +1,10 @@
 from . import mongo_db as db
 
-from typing import Optional
+from typing import Optional, List
+
+def get_all_blacklist() -> List[dict]:
+    coll = db.blacklist
+    return list(coll.find())
 
 def get_blacklist(resource_id: int) -> Optional[dict]:
     coll = db.blacklist

@@ -54,14 +54,10 @@ class Tools(commands.Cog):
             @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
             @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
             @app_commands.describe(text="Текст для кодировки")
-            async def encode(self, interaction: discord.Interaction, text: str):
+            async def encode(self, interaction: discord.Interaction, text: app_commands.Range[str, None, 1024]):
                 config.used_commands += 1
                 config.lastcommand = '`/base64 encode`'
-                text = text[:1020] + (text[1020:] and '..')
-                ans = text.encode("utf8")
-                ans = b64encode(ans)
-                ans = str(ans).removeprefix("b'")
-                ans = ans.removesuffix("'")
+                ans = b64encode(text.encode()).decode()
                 if len(text) > 1024 or len(ans) > 1024:
                     embed = discord.Embed(title="Зашифровка:", color=discord.Color.orange(), description=f"**Исходный текст:**\n{text}")
                     embed1 = discord.Embed(title="Полученный текст:", color=discord.Color.orange(), description=ans)
@@ -80,8 +76,7 @@ class Tools(commands.Cog):
                 config.used_commands += 1
                 config.lastcommand = '`/base64 decode`'
                 try:
-                    ans = b64decode(text)
-                    ans = ans.decode("utf8")
+                    ans = b64decode(text).decode()
                 except Exception:
                     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Невозможно расшифровать строку!")
                     return await interaction.response.send_message(embed=embed, ephemeral=True)

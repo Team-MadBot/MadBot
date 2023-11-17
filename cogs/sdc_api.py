@@ -32,6 +32,8 @@ class SDC_API(commands.Cog):
         else:
             data = await resp.read()
             print(data)
+        if not session.closed:
+            await session.close()
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(SDC_API(bot))

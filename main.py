@@ -211,7 +211,7 @@ class MyBot(commands.AutoShardedBot):
                 description="Владелец бота занёс этот сервер либо его владельца в чёрный список! "
                 f"Бот покинет этот сервер. Если вы считаете, что это ошибка, обратитесь в поддержку: "
                 f"{settings['support_invite']}, либо напишите владельцу лично на e-mail: `madcat9958@gmail.com`.",
-                timestamp=datetime.datetime.utcnow()
+                timestamp=datetime.datetime.now()
             ).set_thumbnail(url=guild.icon_url)
             try:
                 await guild.channels[0].send(embed=embed)
@@ -294,7 +294,7 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
                 color=discord.Color.red(),
                 description=f"Разработчик бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, "
                 f"обратитесь в поддержку: {settings['support_invite']}",
-                timestamp=datetime.datetime.utcnow()
+                timestamp=datetime.datetime.now()
             ).add_field(
                 name="ID разработчика:",
                 value=blacklist_info['moderator_id']
@@ -346,7 +346,7 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
         return await interaction.response.send_message(embed=embed, ephemeral=True)
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
                           description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```",
-                          timestamp=discord.utils.utcnow())
+                          timestamp=datetime.datetime.now())
     channel = bot.get_channel(settings['log_channel'])
     await channel.send(
         f"[ОШИБКА!]: Инициатор: `{interaction.user}`\n```\nOn command '{interaction.command.name}'\n{error}```")
@@ -524,10 +524,12 @@ async def debug(ctx: commands.Context):
                                     )
                                 guild = bot.get_guild(int(str(self.ans)))
                                 if guild != None:
-                                    embed = discord.Embed(title="Ваш сервер занесён в чёрный список бота!",
-                                                          color=discord.Color.red(),
-                                                          description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {settings['support_invite']}",
-                                                          timestamp=datetime.datetime.utcnow())
+                                    embed = discord.Embed(
+                                        title="Ваш сервер занесён в чёрный список бота!",
+                                        color=discord.Color.red(),
+                                        description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {settings['support_invite']}",
+                                        timestamp=datetime.datetime.now()
+                                    )
                                     embed.set_thumbnail(url=guild.icon_url)
                                     db.add_blacklist(
                                         guild.owner.id,

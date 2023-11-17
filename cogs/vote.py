@@ -64,7 +64,7 @@ class VoteCog(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def vote(self, interaction: discord.Interaction):
-        if (discord.utils.utcnow() - interaction.user.created_at).days < 60:
+        if (datetime.datetime.now() - interaction.user.created_at).days < 60:
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),

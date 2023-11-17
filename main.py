@@ -10,7 +10,6 @@ import aiohttp
 
 from discord import app_commands, Forbidden
 from discord.ext import commands
-from pypresence import Presence
 from asyncio import sleep
 
 from classes import db
@@ -21,44 +20,27 @@ from config import *
 
 intents = discord.Intents.default()
 
-btns = [
-    {
-        "label": "Добавить бота",
-        "url": f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"
-    },
-    {
-        "label": "Поддержка бота",
-        "url": settings['support_invite']
-    }
-]
-try:
-    RPC = Presence(f"{settings['app_id']}")  # Discord Rich Presence. Будет видно при запуске бота.
-except:
-    pass
-else:
-    RPC.connect()
-    RPC.update(
-        state="Бот запущен.",
-        details="Работа над ботом.",
-        start=time.time(),
-        large_image="mad_cat_new_avatar",
-        large_text="MadBot - запущен",
-        buttons=btns
-    )
-
-
 class MyBot(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=intents,
                          application_id=settings['app_id'])
+    
+    async def load_cogs(self):  # Либо pylance сошёл с ума, или он должен быть здесь :sweat_smile:
+        for path, _, files in os.walk('cogs'):
+            for file in files:
+                if not file.endswith(".py"): continue
+                egg = os.path.join(path, file)
+                try:
+                    await self.load_extension(egg.replace(os.sep, '.')[:-3])
+                except commands.NoEntryPointError:
+                    pass
+                except Exception as e:
+                    print(f"При загрузке модуля {egg} произошла ошибка: {e}")
+                    traceback.print_exc()
 
     async def setup_hook(self):
-        for ext in cogs:
-            try:
-                await self.load_extension(ext)
-            except Exception as err:
-                print(f"Не удалось подключить {ext}!\n{err}")
-                traceback.print_exc()
+        await self.load_extension('jishaku')
+        await self.load_cogs()
 
         await bot.tree.sync()
 
@@ -81,82 +63,6 @@ class MyBot(commands.AutoShardedBot):
                 print(f"Бот вышел из {guild.name} ({guild.id})")
         
         print(f"Авторизация успешна! {bot.user} готов к работе!")
-
-        async def update_stats():
-            db = client.stats
-            coll = db.guilds
-            while True:
-                guilds = coll.find()
-                for guild in guilds:
-                    if guild['next_update'] > time.time(): continue
-                    for channel_id in guild['channels']:
-                        channel = self.get_channel(int(channel_id['id']))
-                        if channel is None: continue
-                        # if not isPremiumServer(self, channel.guild): continue
-                        stat = 0
-                        bots = 0
-                        voices = 0
-                        for voice in channel.guild.voice_channels:
-                            voices += len(voice.voice_states)
-                        for member in channel.guild.members:
-                            if member.bot: bots += 1
-                        if channel_id['type'] == 'online':
-                            stat = (
-                                    len(list(
-                                        filter(lambda x: x.status == discord.Status.online, channel.guild.members)))
-                                    + len(
-                                list(filter(lambda x: x.status == discord.Status.idle, channel.guild.members)))
-                                    + len(list(filter(lambda x: x.status == discord.Status.dnd, channel.guild.members)))
-                            )
-                        if channel_id['type'] == 'members': stat = channel.guild.member_count
-                        if channel_id['type'] == 'people': stat = channel.guild.member_count - bots
-                        if channel_id['type'] == 'bots': stat = bots
-                        if channel_id['type'] == 'emojis': stat = len(channel.guild.emojis)
-                        if channel_id['type'] == 'voice': stat = voices
-                        try:
-                            await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
-                        except Exception as e:
-                            print(e)
-                    coll.update_one({'id': guild['id']}, {'$set': {'next_update': round(time.time()) + 600}})
-                await sleep(1)
-        
-        async def remind_up():
-            db = client.madbot
-            coll = db.reminder
-            while True:
-                users = coll.find()
-                for user in users:
-                    if user["next_bump"] > time.time(): continue
-                    if user["reminded"] or not user["enabled"]: continue
-                    bc_wh = discord.Webhook.from_url(
-                        settings['bc_hook_url'], 
-                        session=aiohttp.ClientSession(),
-                        client=self,
-                        bot_token=settings['token']
-                    )
-                    view = LinktoBoticord(self.user.id)
-                    embed = discord.Embed(
-                        title="Напоминание о повышении!",
-                        color=discord.Color.orange(),
-                        description="Нажмите на кнопку ниже для перехода на страницу бота "
-                        "либо используйте команду `/up` в <@1000051258679373914> (может не работать, "
-                        "если уровень буста на Boticord ниже третьего)."
-                    ).set_thumbnail(
-                        url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
-                    )
-                    coll.update_one(
-                        {"user_id": user['user_id']},
-                        {
-                            "$set": {
-                                'reminded': True
-                            }
-                        }
-                    )
-                    await bc_wh.send(f"<@{user['user_id']}>, время апнуть MadBot на Boticord!", embed=embed, view=view)
-                await sleep(1)
-
-        asyncio.get_running_loop().create_task(update_stats())
-        asyncio.get_running_loop().create_task(remind_up())
 
         embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(),
                               description=f"Пинг: `{int(round(bot.latency, 3) * 1000)}ms`\nВерсия: `{settings['curr_version']}`")

@@ -8,7 +8,11 @@ from boticordpy import BotiCordWebsocket
 from typing import Callable
 
 class BoticordWS(BotiCordWebsocket):
-    """Custom Boticord Websocket based on boticordpy's Websocket."""
+    """Client for interacting with the Boticord API via websocket.
+
+    Handles connecting, sending requests, and receiving responses 
+    via the Boticord websocket API.
+    """
 
     def __init__(self, token: str):
         super().__init__(token)
@@ -19,12 +23,23 @@ class BoticordWS(BotiCordWebsocket):
         self._logger = logging.getLogger("boticord.websocket")
     
     async def _send_ping(self) -> None:
+        """Sends a ping event to keep the websocket connection alive.
+        Sends a ping event every 45 seconds if the connection is still open.
+        """
         if self.not_closed:
             await asyncio.sleep(45)
             if not self.not_closed or not self.ws: return
             await self.ws.send_json({"event": "ping"})
     
     async def _handle_data(self, data):
+        """Handles incoming data from the websocket.
+        
+        Parses the data and dispatches events based on the event type.
+        Logs any errors received.
+
+        Args:
+            data (str): The raw JSON data received.
+        """
         await super()._handle_data(data)
         data = json.loads(data)
 

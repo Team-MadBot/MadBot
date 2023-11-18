@@ -17,23 +17,22 @@ class UpdateStatsCog(commands.Cog):
     async def update_stats(self):
         db = client.stats
         coll = db.guilds
-        while True:
-            guilds = coll.find()
-            for guild in guilds:
-                if guild['next_update'] > time.time(): continue
-                for channel_id in guild['channels']:
-                    channel = self.bot.get_channel(int(channel_id['id']))
-                    assert isinstance(channel, discord.abc.GuildChannel)
-                    discord_guild = channel.guild
-                    assert discord_guild.member_count is not None
+        guilds = coll.find()
+        for guild in guilds:
+            if guild['next_update'] > time.time(): continue
+            for channel_id in guild['channels']:
+                channel = self.bot.get_channel(int(channel_id['id']))
+                assert isinstance(channel, discord.abc.GuildChannel)
+                discord_guild = channel.guild
+                assert discord_guild.member_count is not None
 
-                    if channel is None: continue
-                    stat = self.get_stat(channel_id['type'], discord_guild)
-                    try:
-                        await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
-                    except Exception as e:
-                        print(e)
-                coll.update_one({'id': guild['id']}, {'$set': {'next_update': round(time.time()) + 600}})
+                if channel is None: continue
+                stat = self.get_stat(channel_id['type'], discord_guild)
+                try:
+                    await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
+                except Exception as e:
+                    print(e)
+            coll.update_one({'id': guild['id']}, {'$set': {'next_update': round(time.time()) + 600}})
     
     def get_stat(self, channel_type: str, guild: discord.Guild):
         assert guild.member_count is not None

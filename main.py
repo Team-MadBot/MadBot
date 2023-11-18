@@ -53,35 +53,22 @@ class MyBot(commands.AutoShardedBot):
 
     async def on_ready(self):
         global started_at
-        logs = bot.get_channel(settings['log_channel'])  # Канал логов.
+        logs = self.get_channel(settings['log_channel'])  # Канал логов.
         
-        for guild in bot.guilds:
+        for guild in self.guilds:
             if checks.is_in_blacklist(guild.id) or checks.is_in_blacklist(guild.owner_id):
                 await guild.leave()
                 print(f"Бот вышел из {guild.name} ({guild.id})")
         
-        print(f"Авторизация успешна! {bot.user} готов к работе!")
+        print(f"Авторизация успешна! {self.user} готов к работе!")
 
-        embed = discord.Embed(title="Бот перезапущен!", color=discord.Color.red(),
-                              description=f"Пинг: `{int(round(bot.latency, 3) * 1000)}ms`\nВерсия: `{settings['curr_version']}`")
+        embed = discord.Embed(
+            title="Бот перезапущен!", 
+            color=discord.Color.red(),
+            description=f"Пинг: `{int(round(self.latency, 3) * 1000)}ms`\n"
+            f"Версия: `{settings['curr_version']}`"
+        )
         await logs.send(embed=embed)
-        while True:
-            guilds_count = len(self.guilds)
-            rounded_count = round(guilds_count / 1000, 1)
-            irounded_count = round(guilds_count / 1000)
-            for shard in range(len(self.shards)):
-                try:
-                    await bot.change_presence(
-                        activity=discord.CustomActivity(
-                            name=f"Шард {shard} | "
-                            f"{rounded_count if irounded_count != rounded_count else irounded_count}k серверов"
-                        ),
-                        status=discord.Status.dnd, 
-                        shard_id=shard
-                    )
-                except:
-                    pass
-            await sleep(60)
     
     async def is_owner(self, user: discord.User) -> bool:
         if checks.is_in_blacklist(user.id):

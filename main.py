@@ -42,8 +42,6 @@ class MyBot(commands.AutoShardedBot):
         await self.load_extension('jishaku')
         await self.load_cogs()
 
-        await bot.tree.sync()
-
     async def on_connect(self):
         await bot.change_presence(
             status=discord.Status.idle, 

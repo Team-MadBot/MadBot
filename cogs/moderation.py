@@ -295,8 +295,8 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!", 
                 color=discord.Color.red(), 
-                description=f'Не удалось очистить `{radius} сообщений`. Возможно, я не имею право на управление сообщениями.\n"
-                "Тип ошибки: `Forbidden`', 
+                description=f"Не удалось очистить `{radius} сообщений`. Возможно, я не имею право на управление сообщениями.\n"
+                "Тип ошибки: `Forbidden`", 
                 timestamp=datetime.datetime.now()
             )
             return await interaction.followup.send(embed=embed)

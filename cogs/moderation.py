@@ -321,8 +321,11 @@ class Moderation(commands.Cog):
         reason: app_commands.Range[str, None, 512] = "Отсутствует"
     ):
         if interaction.guild is None:
-            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="Извините, но данная команда недоступна в личных сообщениях!"
+            ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
         if not interaction.channel.permissions_for(interaction.user).manage_channels:
@@ -486,91 +489,22 @@ class Moderation(commands.Cog):
             )
         return await interaction.response.send_message(embed=embed)
     
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    async def context_timeout(self, interaction: discord.Interaction, message: discord.Message):
-        if interaction.guild is None:
-            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.user.guild_permissions.moderate_members:
-            if isinstance(message.author, discord.User):
-                embed = discord.Embed(
-                    title="Ошибка!",
-                    color=discord.Color.red(),
-                    description="Участник должен находиться на сервере для выдачи наказания!"
-                )
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            if (message.author.top_role.position >= interaction.user.top_role.position or interaction.guild.owner.id == message.author.id) and interaction.guild.owner.id != interaction.user.id:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-
-            class InputText(discord.ui.Modal, title="Выдача наказания"):
-                until = discord.ui.TextInput(label="Срок выдачи наказания (в минутах)", style=discord.TextStyle.short, required=True, placeholder="0 - 40320", max_length=5)
-                reason = discord.ui.TextInput(label="Причина", style=discord.TextStyle.paragraph, placeholder="Бунтует", required=True, max_length=430)
-                async def on_submit(self, viewinteract: discord.Interaction):
-                    if not(str(self.until).isdigit()):
-                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Причина должна быть численная!")
-                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
-                    if int(str(self.until)) > 40320:
-                        self.until = 40320
-                    if int(str(self.until)) == 0:
-                        self.until = None
-                    self.minutes = datetime.datetime.now() + datetime.timedelta(minutes=int(str(self.until)))
-                    try:
-                        await message.author.edit(timed_out_until=self.minutes, reason=f"{self.reason} // {interaction.user.name}#{interaction.user.discriminator}")
-                    except:
-                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось выдать участнику тайм-аут. Убедитесь в наличии прав на управление участниками у бота и попробуйте снова!\nТип ошибки: `Forbidden`")
-                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
-                    else:
-                        if self.until is not None:
-                            proofs = message.content
-                            if message.embeds != None:
-                                for emb in message.embeds:
-                                    if bool(emb):
-                                        proofs += "embed:\n"
-                                        proofs += f"title={emb.title}\n" if emb.title != None else ''
-                                        proofs += f"description={emb.description[:896] + (emb.description[896:] and '..')}" if emb.description != None else ''
-                            if message.attachments != None:
-                                for attach in message.attachments:
-                                    proofs += f'\n{attach.url}'
-                            embed = discord.Embed(title=f'Участник отправлен в тайм-аут на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=datetime.datetime.now())
-                            embed.add_field(name="Участник:", value=f"{message.author.mention}")
-                            embed.add_field(name="Модератор:", value=f"{interaction.user.mention}")
-                            embed.add_field(name="Срок:", value=f"{self.until} минут")
-                            embed.add_field(name="Причина:", value=self.reason)
-                            embed.add_field(name="Доказательства:", value=f"||{proofs}||")
-                            try:
-                                await message.author.send(embed=embed)
-                            except:
-                                embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
-                            return await viewinteract.response.send_message(embed=embed)
-                        embed = discord.Embed(title=f'С участника снят тайм-аут на сервере {interaction.guild.name}!', color=discord.Color.red(), timestamp=datetime.datetime.now())
-                        embed.add_field(name="Участник:", value=f"{message.author.mention}")
-                        embed.add_field(name="Модератор:", value=f"{interaction.user.mention}")
-                        embed.add_field(name="Причина:", value=self.reason)
-                        try:
-                            await message.author.send(embed=embed)
-                        except:
-                            embed.set_footer(text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!")
-                        return await viewinteract.response.send_message(embed=embed)
-
-
-            await interaction.response.send_modal(InputText())
-        else:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управление участниками` для использования команды!")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-    
     @app_commands.command(name='clone', description="[Модерация] Клонирует чат.")
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(delete_original="Удалять ли клонируемый канал?", reason="Причина клонирования")
-    async def clone(self, interaction: discord.Interaction, reason: str, delete_original: bool = False):
+    async def clone(
+        self, 
+        interaction: discord.Interaction, 
+        reason: app_commands.Range[str, None, 512], 
+        delete_original: bool = False
+    ):
         if interaction.guild is None:
-            embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="Извините, но данная команда недоступна в личных сообщениях!"
+            ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if isinstance(interaction.channel, discord.Thread):
             embed = discord.Embed(
@@ -579,65 +513,121 @@ class Moderation(commands.Cog):
                 description="Данная команда недоступна в ветках!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.user.guild_permissions.manage_channels:
-            cloned = None
-            reason = reason[:460] + (reason[460:] and '..')
-            try:
-                cloned = await interaction.channel.clone(reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}")
-            except Forbidden:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет право `управление каналами` для совершения действия!\nТип ошибки: `Forbidden`")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-            else:
-                await cloned.move(after=discord.Object(id=interaction.channel.id), reason=f"Клонирование // {interaction.user.name}#{interaction.user.discriminator}")
-                embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Канал успешно клонирован!")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                if delete_original:
-                    await sleep(10)
-                    await interaction.channel.delete(reason=f"Использование команды // {interaction.user.name}#{interaction.user.discriminator}")
-        else:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управление каналами` для использования команды.")
+        if not interaction.user.guild_permissions.manage_channels:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="У вас отсутствует право `управление каналами` для использования команды."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        try:
+            cloned = await interaction.channel.clone(reason=f"{reason} // {interaction.user}")
+        except Forbidden:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description=f"Бот не имеет право `управление каналами` для совершения действия!\n"
+                "Тип ошибки: `Forbidden`"
+            )
             await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            await cloned.move(
+                after=discord.Object(id=interaction.channel.id), 
+                reason=f"Клонирование // {interaction.user}"
+            )
+            embed = discord.Embed(
+                title="Успешно!", 
+                color=discord.Color.green(), 
+                description="Канал успешно клонирован!"
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            if delete_original:
+                await sleep(10)
+                await interaction.channel.delete(
+                    reason=f"Использование команды // {interaction.user}"
+                )
 
     @app_commands.command(name="resetnick", description="[Модерация] Просит участника поменять ник")
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого надо попросить сменить ник", reason="Причина сброса ника")
-    async def resetnick(self, interaction: discord.Interaction, member: discord.User, reason: str):
+    async def resetnick(
+        self, 
+        interaction: discord.Interaction, 
+        member: discord.User, 
+        reason: app_commands.Range[str, None, 512]
+    ):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.guild.get_member(member.id) is None:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
-            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        
+        try:
+            member = await interaction.guild.fetch_member(member.id)
+        except NotFound:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="Участник должен находиться на сервере для использования команды!"
+            ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.user.guild_permissions.manage_nicknames:
-            reason = reason[:460] + (reason[460:] and '..')
-            if member.top_role.position >= interaction.user.top_role.position and interaction.guild.owner.id != interaction.user.id:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не можете управлять никнеймами участников, чья роль выше либо равна вашей!")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            if member.bot:
-                embed = discord.Embed(title="Не понял", color=discord.Color.red(), description="Нельзя сбросить ник боту.")
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            try:
-                await member.edit(nick="Смените ник", reason=f"{reason} // {interaction.user.name}#{interaction.user.discriminator}")
-            except Forbidden:
-                embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"У бота отсутствует право `управлять никнеймами` для совершения действия!\nТип ошибки: `Forbidden`")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-            else:
-                embed = discord.Embed(title=f"Никнейм сброшен на сервере {interaction.guild.name}!", color=discord.Color.red())
-                embed.add_field(name="Участник:", value=member.mention)
-                embed.add_field(name="Модератор:", value=interaction.user.mention)
-                embed.add_field(name="Причина:", value=reason)
-                try:
-                    await member.send(embed=embed)
-                except:
-                    embed.set_footer(text="Участник закрыл доступ к личным сообщениям, поэтому не был оповещён.")
-                await interaction.response.send_message(embed=embed)
-        else:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="У вас отсутствует право `управлять никнеймами` для использования команды.")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-
+        
+        if not interaction.user.guild_permissions.manage_nicknames:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="У вас отсутствует право `управлять никнеймами` для использования команды."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        if member.top_role.position >= interaction.user.top_role.position and interaction.guild.owner_id != interaction.user.id:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description="Вы не можете управлять никнеймами участников, чья роль выше либо равна вашей!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if member.bot:
+            embed = discord.Embed(
+                title="Не понял", 
+                color=discord.Color.red(), 
+                description="Нельзя сбросить ник боту."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        try:
+            await member.edit(
+                nick="Смените ник", 
+                reason=f"{reason} // {interaction.user}"
+            )
+        except Forbidden:
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(), 
+                description=f"У бота отсутствует право `управлять никнеймами` для совершения действия!"
+                "\nТип ошибки: `Forbidden`"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        embed = discord.Embed(
+            title=f"Никнейм сброшен на сервере {interaction.guild.name}!", 
+            color=discord.Color.red()
+        ).add_field(
+            name="Участник:", 
+            value=f"{member.mention} ({member.id})"
+        ).add_field(
+            name="Модератор:", 
+            value=f"{interaction.user.mention} ({interaction.user.id})"
+        ).add_field(
+            name="Причина:", 
+            value=dutils.escape_markdown(reason)
+        )
+        try:
+            await member.send(embed=embed)
+        except:
+            embed.set_footer(text="Участник закрыл доступ к личным сообщениям, поэтому не был оповещён.")
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Moderation(bot))

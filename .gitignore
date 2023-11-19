@@ -5,3 +5,4 @@
 .env
 test.py
 .vscode
+*.log

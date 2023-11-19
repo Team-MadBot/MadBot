@@ -7,6 +7,7 @@ from discord import ui
 
 from classes import checks
 from classes.db import is_voted, add_voter
+from config import settings
 
 class ConfirmVote(ui.View):
     def __init__(self, webhook: discord.Webhook):
@@ -56,7 +57,7 @@ class VoteCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
         self.webhook = discord.Webhook.from_url(
-            "https://discord.com/api/webhooks/1127555690211323934/AXrl_YvRixJFmP_EkAtnU_NdhMuxfmOlQO2jThCXbC1TUEZNC_yQoYgHAZJ_WpRXtsBO",
+            settings['vote_hook_url'],
             session=aiohttp.ClientSession()
         )
     

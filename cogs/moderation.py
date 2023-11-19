@@ -1,6 +1,7 @@
 import discord
 import datetime
 import config
+import logging
 
 from discord import app_commands, Forbidden, NotFound
 from asyncio import sleep
@@ -9,6 +10,8 @@ from discord import utils as dutils
 
 from config import *
 from classes import checks
+
+logger = logging.getLogger('discord')
 
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -631,4 +634,4 @@ class Moderation(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Moderation(bot))
-    print('Cog "Moderation" запущен!')
+    logger.info('Cog "Moderation" запущен!')

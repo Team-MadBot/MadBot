@@ -1,4 +1,5 @@
 import discord
+import logging
 
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +10,8 @@ from classes import checks
 from classes import db
 
 from classes.checks import isPremium, isPremiumServer
+
+logger = logging.getLogger('discord')
 
 class Premium(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -235,4 +238,4 @@ class Premium(commands.Cog):
     
 async def setup(bot: commands.Bot):
     await bot.add_cog(Premium(bot))
-    print('Cog "Premium" запущен!')
+    logger.info('Cog "Premium" запущен!')

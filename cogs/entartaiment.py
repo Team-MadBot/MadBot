@@ -3,6 +3,7 @@ import datetime
 import requests
 import random
 import config
+import logging
 
 from asyncio import sleep
 from discord import app_commands
@@ -12,6 +13,8 @@ from typing import List
 
 from config import *
 from classes import checks
+
+logger = logging.getLogger('discord')
 
 class Entartaiment(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -1481,4 +1484,4 @@ class Entartaiment(commands.Cog):
             
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))
-    print('Cog "Entartaiment" запущен!')
+    logger.info('Cog "Entartaiment" запущен!')

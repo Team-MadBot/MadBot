@@ -174,8 +174,6 @@ class BoticordBotUp(commands.Cog):
         await interaction.response.defer(ephemeral=True, thinking=True)
 
         resp, resp_json = await self.get_captcha(interaction.user.id)
-        print(resp_json)
-        print(resp.status)
 
         if resp.status == 403:
             embed = discord.Embed(
@@ -296,8 +294,6 @@ class BoticordBotUp(commands.Cog):
             user_id=interaction.user.id,
             answer=view.value
         )
-        print(resp_json)
-        print(resp.status)
 
         if not resp.ok:
             embed = discord.Embed(

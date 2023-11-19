@@ -1,11 +1,15 @@
 import discord
 import aiohttp
+import logging
 
 from discord.ext import commands
+
+logger = logging.getLogger('discord')
 
 class ShardLog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
+        # ОЙ БЛЯЯЯЯ
         self.WEBHOOK = "https://discord.com/api/webhooks/1096122874420547706/A764y4AlWYzy23zMTYt-yoYv8OewxNVpIogdTYcP27WqO1tNF1VuGKH34YSq7ef_6sAD"
     
     @commands.Cog.listener()
@@ -34,4 +38,4 @@ class ShardLog(commands.Cog):
 
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(ShardLog(bot))
-    print('Cog "ShardLog" запущен!')
+    logger.info('Cog "ShardLog" запущен!')

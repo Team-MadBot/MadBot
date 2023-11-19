@@ -1,6 +1,7 @@
 import discord
 import config
 import datetime
+import logging
 
 from discord.ext import commands
 from discord import app_commands
@@ -11,6 +12,7 @@ from classes.checks import isPremiumServer, isPremium
 from classes import checks
 from config import *
 
+logger = logging.getLogger('discord')
 
 def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
     if (isPremium(interaction.client, interaction.user.id) != 'None' or
@@ -506,4 +508,4 @@ class Stats(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Stats(bot))
-    print("Cog \"Stats\" запущен!")
+    logger.info("Cog \"Stats\" запущен!")

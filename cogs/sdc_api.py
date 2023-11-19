@@ -1,7 +1,10 @@
 import aiohttp
+import logging
 
 from discord.ext import commands, tasks
 from config import settings
+
+logger = logging.getLogger('discord')
 
 class SDC_API(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
@@ -28,13 +31,13 @@ class SDC_API(commands.Cog):
             data=body
         )
         if resp.ok:
-            print("Статистика на SDC обновлена!")
+            logger.info("Статистика на SDC обновлена!")
         else:
             data = await resp.read()
-            print(data)
+            logger.error(data)
         if not session.closed:
             await session.close()
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(SDC_API(bot))
-    print("Cog \"SDC API\" запущен!")
+    logger.info("Cog \"SDC API\" запущен!")

@@ -12,6 +12,8 @@ import logging
 from discord import app_commands, Forbidden
 from discord.ext import commands
 from asyncio import sleep
+from contextlib import suppress
+from logging.handlers import RotatingFileHandler
 
 from classes import db
 from classes import checks
@@ -19,13 +21,20 @@ from cogs.bc_api import LinktoBoticord
 from classes.checks import isPremium, isPremiumServer
 from config import *
 
+logging.getLogger("discord").addHandler(RotatingFileHandler(
+    filename="discord.log",
+    encoding="utf-8",
+    maxBytes=32 * 1024 * 1024,
+    backupCount=10,
+))
+
 intents = discord.Intents.default()
+logger = logging.getLogger('discord')
 
 class MyBot(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=intents,
                          application_id=settings['app_id'])
-        logging.getLogger('discord')
     
     async def load_cogs(self):  # Либо pylance сошёл с ума, или он должен быть здесь :sweat_smile:
         for path, _, files in os.walk('cogs'):
@@ -37,8 +46,8 @@ class MyBot(commands.AutoShardedBot):
                 except commands.NoEntryPointError:
                     pass
                 except Exception as e:
-                    print(f"При загрузке модуля {egg} произошла ошибка: {e}")
-                    traceback.format_exc()
+                    logger.error(f"При загрузке модуля {egg} произошла ошибка: {e}")
+                    logger.error(traceback.format_exc())
 
     async def setup_hook(self):
         await self.load_extension('jishaku')
@@ -51,7 +60,7 @@ class MyBot(commands.AutoShardedBot):
                 name="Перезагрузка..."
             )
         )
-        print("Соединено! Авторизация...")
+        logger.info("Соединено! Авторизация...")
 
     async def on_ready(self):
         global started_at
@@ -60,9 +69,9 @@ class MyBot(commands.AutoShardedBot):
         for guild in self.guilds:
             if checks.is_in_blacklist(guild.id) or checks.is_in_blacklist(guild.owner_id):
                 await guild.leave()
-                print(f"Бот вышел из {guild.name} ({guild.id})")
+                logger.info(f"Бот вышел из {guild.name} ({guild.id})")
         
-        print(f"Авторизация успешна! {self.user} готов к работе!")
+        logger.info(f"Авторизация успешна! {self.user} готов к работе!")
 
         embed = discord.Embed(
             title="Бот перезапущен!", 
@@ -83,18 +92,14 @@ class MyBot(commands.AutoShardedBot):
             return
         if isinstance(error, commands.NotOwner):
             return await ctx.reply("https://http.cat/403")
-        try:
+        with suppress(Exception):
             await ctx.message.add_reaction("❌")
             message = await ctx.message.reply(content=f"```\n{error}```")
-        except:
-            pass
-        print(error)
+        logger.error(error)
         await sleep(30)
-        try:
+        with suppress(Exception):
             await message.delete()
             await ctx.message.delete()
-        except:
-            pass
 
     async def on_guild_join(self, guild: discord.Guild):
         if checks.is_in_blacklist(guild.id) or checks.is_in_blacklist(guild.owner_id):
@@ -111,7 +116,7 @@ class MyBot(commands.AutoShardedBot):
             except:
                 pass
             await guild.leave()
-            print(f"Бот вышел из {guild.name} ({guild.id})")
+            logger.info(f"Бот вышел из {guild.name} ({guild.id})")
         else:
             await sleep(1)
             embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}",
@@ -247,7 +252,7 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
         await interaction.response.send_message(embed=embed, ephemeral=True)
     except discord.errors.InteractionResponded:
         await interaction.edit_original_response(embeds=[embed], view=None)
-    traceback.print_exception(error)
+    logger.error(traceback.format_exc(error))
 
 
 @bot.command()
@@ -566,7 +571,7 @@ async def debug(ctx: commands.Context):
                     @discord.ui.button(label="Перезапустить", style=discord.ButtonStyle.green)
                     async def restart(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         await viewinteract.response.send_message("Перезапускаемся...", ephemeral=True)
-                        print(f"{viewinteract.user} инициировал перезагрузку!")
+                        logger.info(f"{viewinteract.user} инициировал перезагрузку!")
                         await bot.change_presence(status=discord.Status.idle,
                                                   activity=discord.Game(name="Перезагрузка..."))
                         await sleep(2)
@@ -615,7 +620,7 @@ async def debug(ctx: commands.Context):
                             try:
                                 await bot.reload_extension(ext)
                             except Exception as e:
-                                print(f"Не удалось перезагрузить {ext}!\n{e}")
+                                logger.error(f"Не удалось перезагрузить {ext}!\n{e}")
                         await bot.tree.sync()
                         await viewinteract.response.send_message("Коги перезапущены!", ephemeral=True)
 
@@ -663,5 +668,5 @@ async def debug(ctx: commands.Context):
         channel = bot.get_channel(settings['log_channel'])
         await channel.send(embed=embed)
 
-print("Подключение к Discord...")
+logger.info("Подключение к Discord...")
 bot.run(settings['token'])

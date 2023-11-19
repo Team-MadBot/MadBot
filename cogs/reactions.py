@@ -4,6 +4,7 @@ import datetime
 import requests
 import random
 import aiohttp
+import logging
 
 from discord.ext import commands
 from discord import app_commands
@@ -11,6 +12,8 @@ from discord import app_commands
 from classes import db
 from classes import checks
 from config import *
+
+logger = logging.getLogger('discord')
 
 class Reactions(commands.Cog):
     def __init__(self, bot):
@@ -413,4 +416,4 @@ class Reactions(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Reactions(bot))
-    print("Cog \"Reactions\" запущен!")
+    logger.info("Cog \"Reactions\" запущен!")

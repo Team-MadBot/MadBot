@@ -1,18 +1,15 @@
 import discord
-import aiohttp
 import time
 
 from discord.ext import commands
 from discord.ext import tasks
 
-from cogs.bc_api import LinktoBoticord
-from config import client, settings
+from config import client
 
 class UpdateStatsCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
     
-
     @tasks.loop(seconds=30)
     async def update_stats(self):
         db = client.stats
@@ -42,6 +39,7 @@ class UpdateStatsCog(commands.Cog):
             case 'members':
                 return guild.member_count
             case 'people':
+                guild.max_members
                 return guild.member_count - len(list(filter(lambda x: x.bot, guild.members)))
             case 'bots':
                 return len(list(filter(lambda x: x.bot, guild.members)))

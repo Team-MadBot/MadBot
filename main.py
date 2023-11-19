@@ -7,6 +7,7 @@ import os
 import sys
 import asyncio
 import aiohttp
+import logging
 
 from discord import app_commands, Forbidden
 from discord.ext import commands
@@ -24,6 +25,7 @@ class MyBot(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=intents,
                          application_id=settings['app_id'])
+        logging.getLogger('discord')
     
     async def load_cogs(self):  # Либо pylance сошёл с ума, или он должен быть здесь :sweat_smile:
         for path, _, files in os.walk('cogs'):
@@ -36,7 +38,7 @@ class MyBot(commands.AutoShardedBot):
                     pass
                 except Exception as e:
                     print(f"При загрузке модуля {egg} произошла ошибка: {e}")
-                    traceback.print_exc()
+                    traceback.format_exc()
 
     async def setup_hook(self):
         await self.load_extension('jishaku')

@@ -402,20 +402,24 @@ async def debug(ctx: commands.Context):
                     @discord.ui.button(label="В черный список", style=discord.ButtonStyle.primary)
                     async def addblacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         class Input(discord.ui.Modal, title="Debug - в чёрный список"):
-                            ans = discord.ui.TextInput(label="ID участника/сервера:", min_length=18, max_length=19)
+                            resource_id = discord.ui.TextInput(label="ID участника/сервера:", min_length=18, max_length=19)
+                            until = discord.ui.TextInput(label="Срок чёрного списка (в днях):", required=False)
+                            reason = discord.ui.TextInput(label="Причина:", required=False)
 
                             async def on_submit(self, modalinteract: discord.Interaction):
                                 if not db.add_blacklist(
-                                    int(str(self.ans)),
-                                    modalinteract.user.id,
-                                    None,
-                                    None
+                                    resource_id=int(str(self.resource_id)),
+                                    moderator_id=modalinteract.user.id,
+                                    until=None if self.until.value is None else round(
+                                        time.time() + int(self.until.value) * 60 * 60 * 24
+                                    ), # проверки покинули чат; если кому не лень - делайте
+                                    reason=self.reason.value
                                 ):
                                     return await modalinteract.response.send_message(
-                                        f"Ресурс с ID `{int(str(self.ans))}` уже занесён в ЧС!",
+                                        f"Ресурс с ID `{int(str(self.resource_id))}` уже занесён в ЧС!",
                                         ephemeral=True
                                     )
-                                guild = bot.get_guild(int(str(self.ans)))
+                                guild = bot.get_guild(int(str(self.resource_id)))
                                 if guild != None:
                                     embed = discord.Embed(
                                         title="Ваш сервер занесён в чёрный список бота!",
@@ -425,20 +429,25 @@ async def debug(ctx: commands.Context):
                                     )
                                     embed.set_thumbnail(url=guild.icon_url)
                                     db.add_blacklist(
-                                        guild.owner.id,
-                                        modalinteract.user.id,
-                                        f"Владелец сервера с ID {guild.id}, который занесён в чёрный список",
-                                        None
+                                        resource_id=guild.owner.id,
+                                        moderator_id=modalinteract.user.id,
+                                        reason=f"Владелец сервера с ID {guild.id}, который занесён в чёрный список\n"
+                                        f"Указанная причина: {self.reason.value or 'Не указана'}",
+                                        until=None if self.until.value is None else round(
+                                            time.time() + int(self.until.value) * 60 * 60 * 24
+                                        ),
                                     )
                                     try:
                                         await guild.owner.send(embed=embed)
                                     except:
                                         pass
                                     await guild.leave()
-                                await modalinteract.response.send_message(f"`{str(self.ans)}` занесен в черный список!",
-                                                                          ephemeral=True)
+                                await modalinteract.response.send_message(
+                                    f"`{str(self.resource_id)}` занесен в черный список!",
+                                    ephemeral=True
+                                )
                                 await sleep(30)
-                                if int(str(self.ans)) == settings['owner_id']:
+                                if int(str(self.resource_id)) == settings['owner_id']:
                                     db.remove_blacklist(settings['owner_id'])
 
                         await viewinteract.response.send_modal(Input())

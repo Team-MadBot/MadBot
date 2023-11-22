@@ -888,7 +888,7 @@ class Tools(commands.Cog):
         stats.add_field(name="Запущен:", value=f"<t:{started_at}:R>")
         stats.add_field(name="Кол-во серверов:", value=f"{len(self.bot.guilds):,}")
         stats.add_field(name="Кол-во участников:", value=f"{len(self.bot.users):,}")
-        stats.add_field(name="Последняя использованная команда:", value=bot_stats['last_command'])
+        stats.add_field(name="Последняя использованная команда:", value=bot_stats['last_command'] or "Ещё ни разу команды не использовались")
         stats.add_field(name="Кол-во команд/контекстных меню:", value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)):,}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message)):,}")
         stats.add_field(name="Обработано команд:", value=f"{bot_stats['used_commands']:,}")
         stats.set_thumbnail(url=self.bot.user.display_avatar.url)

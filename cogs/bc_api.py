@@ -281,6 +281,7 @@ class Boticord(commands.Cog):
     @send_stats.before_loop
     async def wait_before_loop(self):
         await self.bot.wait_until_ready()
-
+"""
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(Boticord(bot))
+"""

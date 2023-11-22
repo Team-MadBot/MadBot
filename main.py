@@ -435,7 +435,7 @@ async def debug(ctx: commands.Context):
                                         moderator_id=modalinteract.user.id,
                                         reason=f"Владелец сервера с ID {guild.id}, который занесён в чёрный список\n"
                                         f"Указанная причина: {reason_input or 'Не указана'}",
-                                        until=None if self.until.value is '' else round(
+                                        until=None if self.until.value == '' else round(
                                             time.time() + int(until_input) * 60 * 60 * 24
                                         ),
                                     )

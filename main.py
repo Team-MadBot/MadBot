@@ -408,7 +408,7 @@ async def debug(ctx: commands.Context):
 
                             async def on_submit(self, modalinteract: discord.Interaction):
                                 until_input = self.until.value if self.until.value != '' else 0
-                                reason_input = self.reason.value if self.reaason.value != '' else None
+                                reason_input = self.reason.value if self.reason.value != '' else None
                                 if not db.add_blacklist(
                                     resource_id=int(str(self.resource_id)),
                                     moderator_id=modalinteract.user.id,

@@ -30,7 +30,7 @@ class UpdatePresenceCog(commands.Cog):
                     shard_id=shard
                 )
     
-    @update_presence.before_loop()
+    @update_presence.before_loop
     async def before_update_presence(self):
         await self.bot.wait_until_ready()
 

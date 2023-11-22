@@ -407,13 +407,15 @@ async def debug(ctx: commands.Context):
                             reason = discord.ui.TextInput(label="Причина:", required=False)
 
                             async def on_submit(self, modalinteract: discord.Interaction):
+                                until_input = self.until.value if self.until.value != '' else 0
+                                reason_input = self.reason.value if self.reaason.value != '' else None
                                 if not db.add_blacklist(
                                     resource_id=int(str(self.resource_id)),
                                     moderator_id=modalinteract.user.id,
-                                    until=None if self.until.value is None else round(
-                                        time.time() + int(self.until.value) * 60 * 60 * 24
+                                    until=None if self.until.value == '' else round(
+                                        time.time() + int(until_input) * 60 * 60 * 24
                                     ), # проверки покинули чат; если кому не лень - делайте
-                                    reason=self.reason.value
+                                    reason=reason_input
                                 ):
                                     return await modalinteract.response.send_message(
                                         f"Ресурс с ID `{int(str(self.resource_id))}` уже занесён в ЧС!",
@@ -432,9 +434,9 @@ async def debug(ctx: commands.Context):
                                         resource_id=guild.owner.id,
                                         moderator_id=modalinteract.user.id,
                                         reason=f"Владелец сервера с ID {guild.id}, который занесён в чёрный список\n"
-                                        f"Указанная причина: {self.reason.value or 'Не указана'}",
-                                        until=None if self.until.value is None else round(
-                                            time.time() + int(self.until.value) * 60 * 60 * 24
+                                        f"Указанная причина: {reason_input or 'Не указана'}",
+                                        until=None if self.until.value is '' else round(
+                                            time.time() + int(until_input) * 60 * 60 * 24
                                         ),
                                     )
                                     try:

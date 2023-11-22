@@ -193,7 +193,7 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
                 value=blacklist_info['moderator_id']
             ).add_field(
                 name="Причина занесения в ЧС:",
-                value=blacklist_info['reason'] or "Не указана (скорее всего, ЧС выдан до обновления)"
+                value=blacklist_info['reason'] or "Не указана" 
             ).add_field(
                 name="ЧС закончится:",
                 value="Никогда" if blacklist_info['until'] is None else f"<t:{blacklist_info['until']}:R> (<t:{blacklist_info['until']}>)"

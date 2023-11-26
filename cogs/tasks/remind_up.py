@@ -6,7 +6,8 @@ from discord.ext import commands
 from discord.ext import tasks
 
 from cogs.bc_api import LinktoBoticord
-from config import client, settings
+from config import settings
+from classes import db
 
 class RemindUpCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
@@ -20,9 +21,7 @@ class RemindUpCog(commands.Cog):
 
     @tasks.loop(seconds=1)
     async def remind_up(self):
-        db = client.madbot
-        coll = db.reminder
-        users = coll.find()
+        users = db.get_users()
         for user in users:
             if user["next_bump"] > time.time(): continue
             if user["reminded"] or not user["enabled"]: continue
@@ -43,13 +42,9 @@ class RemindUpCog(commands.Cog):
             ).set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
-            coll.update_one(
-                {"user_id": user['user_id']},
-                {
-                    "$set": {
-                        'reminded': True
-                    }
-                }
+            db.update_user(
+                user_id=user['user_id'],
+                reminded=True
             )
             await bc_wh.send(f"<@{user['user_id']}>, время апнуть MadBot на Boticord!", embed=embed, view=view)
     

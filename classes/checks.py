@@ -1,7 +1,9 @@
 import discord
+
 from discord.ext import commands
+
 from config import *
-from classes import db as mongo_db # костылю
+from classes import db
 
 def isPremium(bot: commands.Bot, user_id: int) -> str:
     """Checks if a user is a premium user of the bot.
@@ -13,9 +15,7 @@ def isPremium(bot: commands.Bot, user_id: int) -> str:
     Returns:
         str: The premium type if the user is premium, else 'None'.
     """
-    db = client.premium
-    coll = db.user
-    isPrem = coll.find_one({'user_id': str(user_id)})
+    isPrem = db.get_premium_user(user_id=user_id)
     if isPrem is None: isPrem = {'type': 'None'}
     return isPrem['type']
 
@@ -29,10 +29,8 @@ def isPremiumServer(bot: commands.Bot, guild: discord.Guild) -> bool:
     Returns:
         bool: True if the guild has premium, False otherwise.
     """
-    db = client.premium
-    coll = db.guild
-    isPrem = coll.find_one({'guild_id': str(guild.id)})
-    if isPrem is not None and isPremium(bot, isPrem['user_id']) is None: coll.delete_one({'user_id': isPrem['user_id']})
+    isPrem = db.get_premium_guild_info(guild_id=guild.id)
+    if isPrem is not None and isPremium(bot, isPrem['user_id']) is None: db.take_guild_premium(guild_id=guild.id)
     return isPrem is not None and isPremium(bot, isPrem['user_id']) != 'None'
 
 def is_in_blacklist(resource_id: int) -> bool:
@@ -44,7 +42,7 @@ def is_in_blacklist(resource_id: int) -> bool:
     Returns:
         bool: True if the resource ID is in the blacklist, False otherwise.
     """
-    return bool(mongo_db.get_blacklist(resource_id))
+    return bool(db.get_blacklist(resource_id))
 
 
 def is_shutted_down(command: str) -> bool:
@@ -56,4 +54,4 @@ def is_shutted_down(command: str) -> bool:
     Returns:
         bool: True if the command is shut down, False otherwise.
     """
-    return bool(mongo_db.get_shutted_command(command))
+    return bool(db.get_shutted_command(command))

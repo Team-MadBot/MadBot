@@ -9,3 +9,4 @@ from .premium import *
 from .autorole import *
 from .shutted_cmds import *
 from .bot_stats import *
+from .reminder import *

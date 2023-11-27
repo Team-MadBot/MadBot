@@ -3,8 +3,7 @@ import discord
 import datetime
 import sys
 import typing
-import requests
-import config
+import aiohttp
 import numexpr
 import qrcode
 import os
@@ -1218,10 +1217,12 @@ class Tools(commands.Cog):
         city = city.replace(' ', '%20')
         embed = discord.Embed(title="Поиск...", color=discord.Color.yellow(), description="Ищем ваш город...")
         await interaction.response.send_message(embed=embed, ephemeral=True)
-        response = requests.get(f"http://api.openweathermap.org/data/2.5/weather?q={city}&APPID={settings['weather_key']}&units=metric&lang=ru")
-        json = response.json()
-        if response.status_code > 400:
-            if json['message'] == "city not found":
+        response = await aiohttp.ClientSession().get(
+            "https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={settings['weather_key']}&units=metric&lang=ru"
+        )
+        json = await response.json()
+        if response.status > 400:
+            if json.get('message', "") == "city not found":
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Город не найден!")
                 return await interaction.edit_original_response(embed=embed)
             else:

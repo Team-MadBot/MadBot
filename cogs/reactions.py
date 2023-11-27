@@ -1,7 +1,5 @@
 import discord
-import config
-import datetime
-import requests
+import aiohttp
 import random
 import aiohttp
 
@@ -56,9 +54,9 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя обнять самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: обнятие", color=discord.Color.orange(), description=f"{interaction.user.mention} обнял(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -79,9 +77,9 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя обнять самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: обнятие", color=discord.Color.orange(), description=f"{interaction.user.mention} обнял(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -104,9 +102,9 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя погладить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: погладить", color=discord.Color.orange(), description=f"{interaction.user.mention} погладил(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -127,9 +125,9 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя погладить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: погладить", color=discord.Color.orange(), description=f"{interaction.user.mention} погладил(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -153,9 +151,9 @@ class Reactions(commands.Cog):
             if member.id == interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя подмигнуть самому себе!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             description = ''
             if member is None:
                 description = f"{interaction.user.mention} подмигнул(-а)."
@@ -182,9 +180,9 @@ class Reactions(commands.Cog):
             if member.id == interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя подмигнуть самому себе!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: подмигивание", color=discord.Color.orange(), description=f"{interaction.user.mention} подмигнул(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)

@@ -1,7 +1,6 @@
 discord.py
 PyNaCl
 aiohttp
-requests
 boticordpy
 numexpr
 qrcode

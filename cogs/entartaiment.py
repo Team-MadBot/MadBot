@@ -1,8 +1,7 @@
 import discord
 import datetime
-import requests
+import aiohttp
 import random
-import config
 
 from asyncio import sleep
 from discord import app_commands
@@ -21,9 +20,9 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def cat(self, interaction: discord.Interaction):
-        resp = requests.get(f"https://some-random-api.com/animal/cat?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/cat?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Мяу!", color=discord.Color.orange())
             embed.set_image(url=json['image'])
             await interaction.response.send_message(embed=embed)
@@ -35,9 +34,9 @@ class Entartaiment(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def dog(self, interaction: discord.Interaction):
-        resp = requests.get(f"https://some-random-api.com/animal/dog?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/dog?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Гав!", color=discord.Color.orange())
             embed.set_image(url=json['image'])
             await interaction.response.send_message(embed=embed)

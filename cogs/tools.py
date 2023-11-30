@@ -4,6 +4,7 @@ import datetime
 import sys
 import typing
 import aiohttp
+from discord.utils import MISSING
 import numexpr
 import qrcode
 import os
@@ -1322,63 +1323,11 @@ class Tools(commands.Cog):
 
     @app_commands.command(name="buttonrole", description="[Полезности] Настроить выдачу ролей по нажатию кнопки.")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.describe(
-        role1='Роль для выдачи', 
-        role2='Роль для выдачи',
-        role3='Роль для выдачи',
-        role4='Роль для выдачи',
-        role5='Роль для выдачи',
-        role6='Роль для выдачи',
-        role7='Роль для выдачи',
-        role8='Роль для выдачи',
-        role9='Роль для выдачи',
-        role10='Роль для выдачи',
-        role11='Роль для выдачи',
-        role12='Роль для выдачи',
-        role13='Роль для выдачи',
-        role14='Роль для выдачи',
-        role15='Роль для выдачи',
-        role16='Роль для выдачи',
-        role17='Роль для выдачи',
-        role18='Роль для выдачи',
-        role19='Роль для выдачи',
-        role20='Роль для выдачи',
-        role21='Роль для выдачи',
-        role22='Роль для выдачи',
-        role23='Роль для выдачи',
-        role24='Роль для выдачи',
-        role25='Роль для выдачи'
-    )
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def buttonrole(
         self, 
-        interaction: discord.Interaction,
-        role1: discord.Role, 
-        role2: typing.Optional[discord.Role],
-        role3: typing.Optional[discord.Role],
-        role4: typing.Optional[discord.Role],
-        role5: typing.Optional[discord.Role],
-        role6: typing.Optional[discord.Role],
-        role7: typing.Optional[discord.Role],
-        role8: typing.Optional[discord.Role],
-        role9: typing.Optional[discord.Role],
-        role10: typing.Optional[discord.Role],
-        role11: typing.Optional[discord.Role],
-        role12: typing.Optional[discord.Role],
-        role13: typing.Optional[discord.Role],
-        role14: typing.Optional[discord.Role],
-        role15: typing.Optional[discord.Role],
-        role16: typing.Optional[discord.Role],
-        role17: typing.Optional[discord.Role],
-        role18: typing.Optional[discord.Role],
-        role19: typing.Optional[discord.Role],
-        role20: typing.Optional[discord.Role],
-        role21: typing.Optional[discord.Role],
-        role22: typing.Optional[discord.Role],
-        role23: typing.Optional[discord.Role],
-        role24: typing.Optional[discord.Role],
-        role25: typing.Optional[discord.Role]
+        interaction: discord.Interaction
     ):
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -1393,16 +1342,49 @@ class Tools(commands.Cog):
                     description="Бот не имеет права `управлять ролями`, что необходимо для работы команды!"
                 )
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
+            
+            roles = []
+            class SelectButton(discord.ui.RoleSelect):
+                def __init__(self):
+                    super().__init__(
+                        placeholder="Выберите роли для выдачи", 
+                        min_values=1, 
+                        max_values=25
+                    )
+                
+                async def callback(self, viewinteract: discord.Interaction):
+                    if not viewinteract.user.id == interaction.user.id:
+                        return await viewinteract.response.send_message(
+                            "Не для тебя менюшка!", ephemeral=True
+                        )
+                    nonlocal roles, interaction # знаю, костыль, но решу этот вопрос потом.
+                    roles = self.values
+                    interaction = viewinteract
+            
+            class SelectButtonView(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=180)
+                    self.add_item(SelectButton())
+            
+            embed = discord.Embed(
+                title="Выдача ролей - Выбор",
+                color=discord.Color.orange(),
+                description="Пожалуйста, выберите до 25 ролей, которые бот будет выдавать пользователям"
+            )
+            view = SelectButtonView()
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+            await view.wait()
+
+            if roles == []:
+                embed = discord.Embed(
+                    title="Время вышло!",
+                    color=discord.Color.red()
+                )
+                return await interaction.edit_original_response(embed=embed, view=None)
+
             title = ""
             description = ""
             color = discord.Color.orange()
-            roles = [
-                role1, role2, role3, role4, role5,
-                role6, role7, role8, role9, role10,
-                role11, role12, role13, role14, role15,
-                role16, role17, role18, role19, role20,
-                role21, role22, role23, role24, role25
-            ]
             class View(discord.ui.View):
                 def __init__(self):
                     super().__init__(timeout=None)
@@ -1410,7 +1392,7 @@ class Tools(commands.Cog):
             options = []
             for role in roles:
                 role: discord.Role
-                if role is not None:
+                if role is not None: # вроде бы, ненужная дичь
                     if role.position == 0:
                         embed = discord.Embed(
                             title="Ошибка!",
@@ -1443,8 +1425,8 @@ class Tools(commands.Cog):
                 view.add_item(
                     discord.ui.Button(
                         style=discord.ButtonStyle.green, 
-                        label=role1.name,
-                        custom_id=str(role1.id)
+                        label=roles[0].name,
+                        custom_id=str(roles[0].id)
                     )
                 )
             else:

@@ -11,7 +11,7 @@ class SDC_API(commands.Cog):
     def cog_unload(self):
         self.sdc_stats.cancel()
 
-    @tasks.loop(seconds=300.0)
+    @tasks.loop(seconds=1800.0)
     async def sdc_stats(self):
         headers = {
             'Authorization': settings['sdc_key']

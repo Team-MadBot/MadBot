@@ -49,14 +49,16 @@ class ButtonRole(commands.Cog):
                         return await viewinteract.response.send_message(
                             "Не для тебя менюшка!", ephemeral=True
                         )
-                    nonlocal roles, interaction # знаю, костыль, но решу этот вопрос потом.
-                    roles = self.values
-                    interaction = viewinteract
+                    self.view.roles = self.values
+                    self.view.interaction = viewinteract
+                    self.view.stop()
             
             class SelectButtonView(discord.ui.View):
                 def __init__(self):
                     super().__init__(timeout=180)
                     self.add_item(SelectButton())
+                    self.roles = []
+                    self.interaction = None
             
             embed = discord.Embed(
                 title="Выдача ролей - Выбор",
@@ -67,12 +69,18 @@ class ButtonRole(commands.Cog):
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
             await view.wait()
 
-            if roles == []:
+            if view.roles == []:
                 embed = discord.Embed(
                     title="Время вышло!",
                     color=discord.Color.red()
                 )
                 return await interaction.edit_original_response(embed=embed, view=None)
+            
+            assert isinstance(view.interaction, discord.Interaction)
+            assert isinstance(view.roles, list)
+
+            selectinteract = view.interaction
+            roles = view.roles
 
             title = ""
             description = ""
@@ -91,21 +99,21 @@ class ButtonRole(commands.Cog):
                             color=discord.Color.red(),
                             description="Ты кому собираешься выдавать @everyone?)"
                         )
-                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                        return await selectinteract.response.send_message(embed=embed, ephemeral=True)
                     if bot_member.top_role <= role:
                         embed = discord.Embed(
                             title="Ошибка!",
                             color=discord.Color.red(),
                             description=f"Роль {role.mention} выше роли бота, поэтому бот не сможет выдать её кому-либо."
                         )
-                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                        return await selectinteract.response.send_message(embed=embed, ephemeral=True)
                     if not role.is_assignable():
                         embed = discord.Embed(
                             title="Ошибка!", 
                             color=discord.Color.red(),
                             description=f"Роль {role.mention} является ролью интеграции, поэтому выдать её кому-либо нельзя!"
                         )
-                        return await interaction.response.send_message(embed=embed, ephemeral=True)
+                        return await selectinteract.response.send_message(embed=embed, ephemeral=True)
                     options.append(
                         discord.SelectOption(
                             label=f"{role.name}",
@@ -142,7 +150,7 @@ class ButtonRole(commands.Cog):
                     description = str(self.description)
                     if str(self.color) != "": color = str(self.color)
             modal = Input()
-            await interaction.response.send_modal(modal)
+            await selectinteract.response.send_modal(modal)
             await modal.wait()
             if modal.main is None or modal.description is None: return
             if isinstance(color, str):

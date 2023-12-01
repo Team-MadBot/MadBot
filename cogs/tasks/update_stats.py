@@ -12,7 +12,7 @@ class UpdateStatsCog(commands.Cog):
     
     @tasks.loop(seconds=30)
     async def update_stats(self):
-        db = client.stats
+        db = client.stats # TODO
         coll = db.guilds
         guilds = coll.find()
         for guild in guilds:

@@ -76,10 +76,10 @@ class Moderation(commands.Cog):
             timestamp=datetime.datetime.now()
         ).add_field(
             name="Участник",
-            value=f"{member.mention} ({member.id})"
+            value=f"{member.mention}\n({member.id})"
         ).add_field(
             name="Модератор",
-            value=f"{interaction.user.mention} ({interaction.user.id})"
+            value=f"{interaction.user.mention}\n({interaction.user.id})"
         ).add_field(
             name="Причина",
             value=dutils.escape_markdown(reason)
@@ -160,10 +160,10 @@ class Moderation(commands.Cog):
             timestamp=datetime.datetime.now()
         ).add_field(
             name="Участник",
-            value=f"{member.mention} ({member.id})"
+            value=f"{member.mention}\n({member.id})"
         ).add_field(
             name="Модератор",
-            value=f"{interaction.user.mention} ({interaction.user.id})"
+            value=f"{interaction.user.mention}\n({interaction.user.id})"
         ).add_field(
             name="Причина",
             value=dutils.escape_markdown(reason)
@@ -249,10 +249,10 @@ class Moderation(commands.Cog):
                 timestamp=datetime.datetime.now()
             ).add_field(
                 name="Участник:", 
-                value=f"{member.mention} ({member.id})"
+                value=f"{member.mention}\n({member.id})"
             ).add_field(
                 name="Модератор:", 
-                value=f"{interaction.user.mention} ({interaction.user.id})"
+                value=f"{interaction.user.mention}\n({interaction.user.id})"
             ).add_field(
                 name="Причина:", 
                 value=dutils.escape_markdown(reason)
@@ -615,10 +615,10 @@ class Moderation(commands.Cog):
             color=discord.Color.red()
         ).add_field(
             name="Участник:", 
-            value=f"{member.mention} ({member.id})"
+            value=f"{member.mention}\n({member.id})"
         ).add_field(
             name="Модератор:", 
-            value=f"{interaction.user.mention} ({interaction.user.id})"
+            value=f"{interaction.user.mention}\n({interaction.user.id})"
         ).add_field(
             name="Причина:", 
             value=dutils.escape_markdown(reason)

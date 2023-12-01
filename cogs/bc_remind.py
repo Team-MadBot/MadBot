@@ -90,4 +90,4 @@ class BoticordRemind(commands.GroupCog, group_name="remind"):
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.AutoShardedBot):
-    await bot.add_cog(BoticordRemind(bot))
+    await bot.add_cog(BoticordRemind())

@@ -8,3 +8,4 @@ pymongo
 fluent.runtime
 jishaku
 python_dotenv
+distro

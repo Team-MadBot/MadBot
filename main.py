@@ -5,8 +5,6 @@ import time
 import datetime
 import os
 import sys
-import asyncio
-import aiohttp
 import logging
 
 from discord import app_commands, Forbidden
@@ -35,7 +33,7 @@ class MyBot(commands.AutoShardedBot):
                 try:
                     await self.load_extension(egg.replace(os.sep, '.')[:-3])
                 except commands.NoEntryPointError:
-                    pass
+                    pass # сделать логирование для debug режима (потому что можно обосраться и гадать часами, почему ког не загружается)
                 except Exception as e:
                     print(f"При загрузке модуля {egg} произошла ошибка: {e}")
                     traceback.format_exc()

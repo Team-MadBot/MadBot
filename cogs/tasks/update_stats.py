@@ -4,7 +4,7 @@ import time
 from discord.ext import commands
 from discord.ext import tasks
 
-from config import client
+from classes import db
 
 class UpdateStatsCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
@@ -12,9 +12,7 @@ class UpdateStatsCog(commands.Cog):
     
     @tasks.loop(seconds=30)
     async def update_stats(self):
-        db = client.stats # TODO
-        coll = db.guilds
-        guilds = coll.find()
+        guilds = db.get_guilds_stats()
         for guild in guilds:
             if guild['next_update'] > time.time(): continue
             for channel_id in guild['channels']:
@@ -29,7 +27,10 @@ class UpdateStatsCog(commands.Cog):
                     await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
                 except Exception as e:
                     print(e)
-            coll.update_one({'id': guild['id']}, {'$set': {'next_update': round(time.time()) + 600}})
+            db.update_guild_stats(
+                guild_id=guild['id'],
+                next_update=int(time.time()) + 600
+            )
     
     def get_stat(self, channel_type: str, guild: discord.Guild):
         assert guild.member_count is not None

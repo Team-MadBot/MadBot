@@ -1,6 +1,4 @@
 import discord
-import config
-import datetime
 
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +7,7 @@ from typing import Optional
 
 from classes.checks import isPremiumServer, isPremium
 from classes import checks
+from classes import db
 from config import *
 
 
@@ -29,28 +28,17 @@ def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Coo
 class Stats(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.client = client
-        self.db = self.client.stats
-        self.coll = self.db.guilds
 
     @app_commands.command(name="stats-setup", description="[Статистика] Настройка статистики")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def stats_setup(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(),
-                                  description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}",
-                                  timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
                                   description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/stats-setup`"
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -65,7 +53,7 @@ class Stats(commands.Cog):
                 description="Данная команда доступна только премиум серверам!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)"""
-        guild = self.coll.find_one({'id': str(interaction.guild.id)})
+        guild = db.get_guild_stats(guild_id=interaction.guild.id)
         if guild is not None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -80,9 +68,6 @@ class Stats(commands.Cog):
         )
 
         class Select(ui.Select):
-            db = self.db
-            coll = self.coll
-
             def __init__(self):
                 options = [
                     discord.SelectOption(
@@ -134,13 +119,22 @@ class Stats(commands.Cog):
                 for value in values:
                     message = "%count%"
                     stat = 0
-                    bot = 0
-                    voices = 0
-                    for voice in viewinteract.guild.voice_channels:
-                        voices += len(voice.voice_states)
-                    for member in viewinteract.guild.members:
-                        if member.bot: bot += 1
-                    if value == 'online':
+                    voices = sum(
+                        len(voice.voice_states)
+                        for voice in viewinteract.guild.voice_channels
+                    )
+                    bot = sum(bool(member.bot)
+                          for member in viewinteract.guild.members)
+                    if value == 'bots':
+                        message = "Ботов: %count%"
+                        stat = bot
+                    elif value == 'emojis':
+                        message = "Эмодзи: %count%"
+                        stat = len(viewinteract.guild.emojis)
+                    elif value == 'members':
+                        message = "Участников: %count%"
+                        stat = viewinteract.guild.member_count
+                    elif value == 'online':
                         message = "Онлайн: %count%"
                         stat = (
                                 len(list(
@@ -150,11 +144,12 @@ class Stats(commands.Cog):
                                 + len(
                             list(filter(lambda x: x.status == discord.Status.dnd, viewinteract.guild.members)))
                         )
-                    if value == 'members': message = "Участников: %count%"; stat = viewinteract.guild.member_count
-                    if value == 'people': message = "Людей: %count%"; stat = viewinteract.guild.member_count - bot
-                    if value == 'bots': message = "Ботов: %count%"; stat = bot
-                    if value == 'emojis': message = "Эмодзи: %count%"; stat = len(viewinteract.guild.emojis)
-                    if value == 'voice': message = "В войсах: %count%"; stat = voices
+                    elif value == 'people':
+                        message = "Людей: %count%"
+                        stat = viewinteract.guild.member_count - bot
+                    elif value == 'voice':
+                        message = "В войсах: %count%"
+                        stat = voices
                     try:
                         channel = await viewinteract.guild.create_voice_channel(
                             name=message.replace("%count%", str(stat)), position=0,
@@ -167,8 +162,11 @@ class Stats(commands.Cog):
                         )
                         return await viewinteract.followup.send(embed=embed)
                     channels.append({'type': value, 'id': str(channel.id), 'text': message})
-                self.coll.insert_one(
-                    {'id': str(viewinteract.guild.id), 'next_update': round(time.time()) + 600, 'channels': channels})
+                db.add_guild_stats(
+                    guild_id=viewinteract.guild.id,
+                    next_update=int(time.time()) + 600,
+                    channels=channels
+                )
                 embed = discord.Embed(
                     title="Успешно!",
                     color=discord.Color.green(),
@@ -176,6 +174,7 @@ class Stats(commands.Cog):
                 )
                 await viewinteract.followup.send(embed=embed)
                 await interaction.edit_original_response(view=None)
+
 
         class View(ui.View):
             def __init__(self):
@@ -185,32 +184,31 @@ class Stats(commands.Cog):
         await interaction.response.send_message(embed=embed, view=View(), ephemeral=True)
 
     async def es_autocomplete(self, interaction: discord.Interaction, current: str):
-        channels = self.coll.find_one({'id': str(interaction.guild.id)}, {'channels': 1, '_id': 0})
-        channels = channels['channels']
+        channels = db.get_guild_stats(
+            guild_id=interaction.guild.id, 
+            channels=1, 
+            _id=0
+        )['channels']
         return [app_commands.Choice(name=channel['text'].replace("%count%", ''), value=str(channel['id'])) for channel
                 in channels if current.lower() in channel['type']]
 
-    @app_commands.command(name='stats-edit',
-                          description="[Статистика] Изменение названия канала, добавление или удаление одного из каналов")
+    @app_commands.command(
+        name='stats-edit',
+        description="[Статистика] Изменение названия канала, добавление или удаление одного из каналов"
+    )
     @app_commands.autocomplete(channel=es_autocomplete)
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(channel="Канал, который Вы хотите изменить или удалить.")
     async def edit_stats(self, interaction: discord.Interaction, channel: Optional[str]):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(),
-                                  description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}",
-                                  timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
-                                  description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(),
+                description="Извините, но данная команда недоступна в личных сообщениях!"
+            ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/stats-edit`"
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -225,7 +223,7 @@ class Stats(commands.Cog):
                 description="Ваш сервер не имеет премиум подписки!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)"""
-        guild = self.coll.find_one({'id': str(interaction.guild.id)})
+        guild = db.get_guild_stats(guild_id=interaction.guild.id)
         if guild is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -235,8 +233,7 @@ class Stats(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if channel is not None:
             channel: discord.abc.GuildChannel = self.bot.get_channel(int(channel))
-            channels: list = self.coll.find_one({'id': str(interaction.guild.id)}, {'_id': 0, 'channels': 1})[
-                'channels']
+            channels: list = guild['channels']
             channel_it: dict = None
             text = ''
             for ch in channels:
@@ -267,11 +264,10 @@ class Stats(commands.Cog):
                                     description="Необходимо указать `%count%`, которое будет показывать боту, куда ставить число со статистикой."
                                 )
                                 return await minteract.response.send_message(embed=embed, ephemeral=True)
-                            coll = client.stats.guilds
                             channels.remove(channel_it)
                             channel_it['text'] = str(self.txt)
                             channels.append(channel_it)
-                            coll.update_one({'id': str(minteract.guild.id)}, {'$set': {'channels': channels}})
+                            db.update_guild_stats(guild_id=minteract.guild.id, channels=channels)
                             embed = discord.Embed(
                                 title="Успешно!",
                                 color=discord.Color.green(),
@@ -284,15 +280,15 @@ class Stats(commands.Cog):
                 @ui.button(label="Удалить", style=discord.ButtonStyle.red)
                 async def delete(self, viewinteract: discord.Interaction, button: ui.Button):
                     channels.remove(channel_it)
-                    coll = client.stats.guilds
-                    coll.update_one({'id': str(viewinteract.guild.id)}, {'$set': {'channels': channels}})
+                    db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
                     try:
                         await channel.delete()
                     except:
                         embed = discord.Embed(
                             title="Ошибка!",
                             color=discord.Color.red(),
-                            description="Бот не имеет права на `управление каналами`, которое нужно для бота."
+                            description="Бот не имеет права на `управление каналами`, которое нужно для бота.\n"
+                            "Обратите внимание: канал, который Вы хотели удалить, больше не будет обновляться."
                         )
                         return await viewinteract.response.send_message(embed=embed, ephemeral=True)
                     embed = discord.Embed(
@@ -313,9 +309,6 @@ class Stats(commands.Cog):
         )
 
         class Select(ui.Select):
-            db = self.db
-            coll = self.coll
-
             def __init__(self):
                 options = [
                     discord.SelectOption(
@@ -358,7 +351,7 @@ class Stats(commands.Cog):
                     )
                 ]
                 if interaction.client.intents.members and interaction.client.intents.presences: options = intent_options + options
-                channels = self.coll.find_one({'id': str(interaction.guild.id)})['channels']
+                channels = db.get_guild_stats(guild_id=interaction.guild.id)['channels']
                 for channel in channels:
                     for option in options:
                         if option.value == channel['type']: options.remove(option)
@@ -367,7 +360,7 @@ class Stats(commands.Cog):
             async def callback(self, viewinteract: discord.Interaction):
                 await viewinteract.response.defer(thinking=True, ephemeral=True)
                 values = self.values
-                channels = self.coll.find_one({'id': str(viewinteract.guild.id)})['channels']
+                channels = db.get_guild_stats(guild_id=viewinteract.guild.id)['channels']
                 for value in values:
                     message = "%count%"
                     stat = 0
@@ -404,7 +397,7 @@ class Stats(commands.Cog):
                         )
                         return await viewinteract.followup.send(embed=embed)
                     channels.append({'type': value, 'id': str(channel.id), 'text': message})
-                self.coll.update_one({'id': str(viewinteract.guild.id)}, {'$set': {'channels': channels}})
+                db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
                 embed = discord.Embed(
                     title="Успешно!",
                     color=discord.Color.green(),
@@ -425,19 +418,13 @@ class Stats(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def stats_delete(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(),
-                                  description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}",
-                                  timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
-                                  description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(),
+                description="Извините, но данная команда недоступна в личных сообщениях!"
+            ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/stats-delete`"
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -445,7 +432,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        doc = self.coll.find_one({'id': str(interaction.guild.id)})
+        doc = db.get_guild_stats(guild_id=interaction.guild.id)
         if doc is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -466,7 +453,7 @@ class Stats(commands.Cog):
                     description="Бот не имеет права на `управление каналами`, которое нужно для бота."
                 )
                 return await interaction.followup.send(embed=embed)
-        self.coll.delete_one({'id': str(interaction.guild.id)})
+        db.delete_guild_stats(guild_id=interaction.guild.id)
         embed = discord.Embed(
             title="Успешно!",
             color=discord.Color.green(),
@@ -479,19 +466,13 @@ class Stats(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def stats_info(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed = discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(),
-                                  description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}",
-                                  timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
-            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
-                                  description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed = discord.Embed(
+                title="Ошибка!", 
+                color=discord.Color.red(),
+                description="Извините, но данная команда недоступна в личных сообщениях!"
+            ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = "`/stats-info`"
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -499,7 +480,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        doc = self.coll.find_one({'id': str(interaction.guild.id)})
+        doc = db.get_guild_stats(guild_id=interaction.guild.id)
         if doc is None:
             embed = discord.Embed(
                 title="Ошибка!",

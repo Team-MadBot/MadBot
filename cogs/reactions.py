@@ -1,7 +1,5 @@
 import discord
-import config
-import datetime
-import requests
+import aiohttp
 import random
 import aiohttp
 
@@ -46,25 +44,19 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого вы хотите обнять")
     async def hug(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/hug`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота обнять нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя обнять самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: обнятие", color=discord.Color.orange(), description=f"{interaction.user.mention} обнял(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -75,25 +67,19 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def context_hug(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/hug`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота обнять нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя обнять самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: обнятие", color=discord.Color.orange(), description=f"{interaction.user.mention} обнял(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -106,25 +92,19 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого вы хотите погладить")
     async def pat(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/pat`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота погладить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя погладить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: погладить", color=discord.Color.orange(), description=f"{interaction.user.mention} погладил(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -135,25 +115,19 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def context_pat(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/pat`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота погладить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя погладить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: погладить", color=discord.Color.orange(), description=f"{interaction.user.mention} погладил(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -166,16 +140,10 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которому вы хотите подмигнуть.")
     async def wink(self, interaction: discord.Interaction, member: discord.User = None):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/wink`'
         if member != None:
             if member.bot:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но боту подмигнуть нельзя")
@@ -183,11 +151,11 @@ class Reactions(commands.Cog):
             if member.id == interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя подмигнуть самому себе!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             description = ''
-            if member == None:
+            if member is None:
                 description = f"{interaction.user.mention} подмигнул(-а)."
             else:
                 description = f"{interaction.user.mention} подмигнул(-а) {member.mention}."
@@ -201,16 +169,10 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def context_wink(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/wink`'
         if member != None:
             if member.bot:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но боту подмигнуть нельзя")
@@ -218,9 +180,9 @@ class Reactions(commands.Cog):
             if member.id == interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя подмигнуть самому себе!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = requests.get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
-        json = resp.json()
-        if resp.status_code == 200:
+        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
+        json = await resp.json()
+        if resp.status == 200:
             embed = discord.Embed(title="Реакция: подмигивание", color=discord.Color.orange(), description=f"{interaction.user.mention} подмигнул(-а) {member.mention}.")
             embed.set_image(url=json['link'])
             await interaction.response.send_message(embed=embed)
@@ -233,16 +195,10 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого вы хотите отлупить.")
     async def slap(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/slap`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота отлупить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -258,22 +214,18 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого вы хотите поцеловать.")
     async def kiss(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/kiss`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота поцеловать нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя поцеловать самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 
         class KissButtons(discord.ui.View):
             def __init__(self):
@@ -286,7 +238,13 @@ class Reactions(commands.Cog):
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
                     marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
                     marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
-                    if marry is not None and ((marry['user_id'] == viewinteract.user.id or marry['user_id'] == interaction.user.id) and (marry['married_id'] == viewinteract.user.id or marry['married_id'] == interaction.user.id)):
+                    if (
+                        marry is not None
+                        and marry['user_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                        and marry['married_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                    ):
                         description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
@@ -313,6 +271,7 @@ class Reactions(commands.Cog):
                     return await interaction.edit_original_response(embed=embed, view=None)
                 else:
                     await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+
 
         view = KissButtons()
         embed = discord.Embed(title="Ожидание...", color=discord.Color.orange(), description=f"{interaction.user.mention}, необходимо получить согласие на поцелуй от {member.mention}\nВремя ограничено!")
@@ -325,22 +284,18 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def context_kiss(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/kiss`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота поцеловать нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя поцеловать самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 
         class KissButtons(discord.ui.View):
             def __init__(self):
@@ -353,7 +308,13 @@ class Reactions(commands.Cog):
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
                     marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
                     marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
-                    if marry is not None and ((marry['user_id'] == viewinteract.user.id or marry['user_id'] == interaction.user.id) and (marry['married_id'] == viewinteract.user.id or marry['married_id'] == interaction.user.id)):
+                    if (
+                        marry is not None
+                        and marry['user_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                        and marry['married_id']
+                        in [viewinteract.user.id, interaction.user.id]
+                    ):
                         description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
@@ -380,6 +341,7 @@ class Reactions(commands.Cog):
                     return await interaction.edit_original_response(embed=embed, view=None)
                 else:
                     await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
+
 
         view = KissButtons()
         embed = discord.Embed(title="Ожидание...", color=discord.Color.orange(), description=f"{interaction.user.mention}, необходимо получить согласие на поцелуй от {member.mention}\nВремя ограничено!")
@@ -394,16 +356,10 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.describe(member="Участник, которого вы хотите ударить.")
     async def hit(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/hit`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота ударить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -417,16 +373,10 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     async def context_hit(self, interaction: discord.Interaction, member: discord.User):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/hit`'
         if member.bot:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но бота ударить нельзя")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -441,16 +391,10 @@ class Reactions(commands.Cog):
     @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
     @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
     async def sad(self, interaction: discord.Interaction):
-        config.used_commands += 1
-        if checks.is_in_blacklist(interaction.user.id):
-            embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=interaction.user.avatar.url)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        config.lastcommand = '`/sad`'
         headers = {
             "Authorization": settings['nc_token']
         }

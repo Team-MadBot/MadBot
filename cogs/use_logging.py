@@ -2,27 +2,28 @@ import logging
 import discord
 
 from discord.ext import commands
+from logging.handlers import RotatingFileHandler
 
 class Logging(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
     
     def cog_load(self):
-        logging.basicConfig(
-            filename="commands.log", 
-            encoding='utf-8', 
-            level=logging.INFO,
-            format="%(asctime)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
-        )
-        logging.disable(0)
+        logging.getLogger("discord").addHandler(RotatingFileHandler(
+            filename="discord.log",
+            encoding="utf-8",
+            maxBytes=32 * 1024 * 1024,
+            backupCount=10,
+        ))
+        self.logger = logging.getLogger("discord")
     
     def cog_unload(self):
-        logging.disable()
+        self.logger.removeHandler(self.logger.handlers[-1])
     
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
-        if not interaction.type == discord.InteractionType.application_command: return
+        if interaction.type != discord.InteractionType.application_command: return
+        assert interaction.command is not None
         logging.info(
             f"[SLASH USAGE] - '{interaction.user}' ({interaction.user.id}): '/{interaction.command.qualified_name}'"
         )

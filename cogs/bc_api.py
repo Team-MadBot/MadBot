@@ -6,13 +6,15 @@ import time
 import config
 
 from boticordpy import BoticordClient
-from classes.bc_websocket import BoticordWS
-from config import settings
 from discord.ext import commands, tasks
 from discord import utils as dutils
 from discord import ui
 from contextlib import suppress
 from asyncio import sleep
+
+from classes.bc_websocket import BoticordWS
+from config import settings
+from classes import db
 
 class LinktoBoticord(ui.View):
     def __init__(self, bot_id: int):
@@ -43,10 +45,8 @@ class SetReminderButton(ui.Button):
     async def callback(self, interaction: discord.Interaction):
         if interaction.user.id != self.user_id:
             return await interaction.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-        db = config.client.madbot
-        coll = db.reminder
         
-        user = coll.find_one({"user_id": str(self.user_id)})
+        user = db.get_user(self.user_id)
         if user is not None and user['enabled']:
             embed = discord.Embed(
                 title="Напоминание о повышении",
@@ -60,23 +60,17 @@ class SetReminderButton(ui.Button):
                 ephemeral=True
             )
         elif user is not None:
-            coll.update_one(
-                {"user_id": str(self.user_id)},
-                {
-                    "$set": {
-                        "enabled": True
-                    }
-                }
+            db.update_user(
+                user_id=self.user_id,
+                enabled=True
             )
         else:
-            coll.insert_one(
-                {
-                    "user_id": str(self.user_id),
-                    "enabled": True,
-                    "next_bump": self.upped_at + 3600 * 6,
-                    "reminded": False,
-                    "up_count": 1
-                }
+            db.add_user(
+                user_id=self.user_id,
+                enabled=True,
+                next_bump=self.upped_at + 3600 * 6,
+                reminded=False,
+                up_count=1
             )
         
         embed = discord.Embed(
@@ -133,36 +127,30 @@ class Boticord(commands.Cog):
         next_up = round(time.time()) + 3600 * 6
         view = LinktoBoticord(bot_id=self.bot.user.id)
 
-        coll = config.client.madbot.reminder
-        db_user = coll.find_one({"user_id": str(user.id)})
+        db_user = db.get_user(user_id=user.id)
         view.add_item(SetReminderButton(user.id, disabled=db_user is not None))
 
         if db_user is not None:
-            coll.update_one(
-                {"user_id": str(user.id)},
-                {
-                    "$set": {
-                        "next_bump": next_up,
-                        "reminded": False
-                    },
-                    "$inc": {
-                        "up_count": 1
-                    }
-                }
+            db.update_user(
+                user_id=user.id,
+                next_bump=next_up,
+                reminded=False
+            )
+            db.increment_user(
+                user_id=user.id,
+                up_count=1
             )
         else:
-            coll.insert_one(
-                {
-                    "user_id": str(user.id),
-                    "next_bump": next_up,
-                    "reminded": False,
-                    "enabled": False,
-                    "up_count": 1
-                }
+            db.add_user(
+                user_id=user.id,
+                next_bump=next_up,
+                reminded=False,
+                enabled=False,
+                up_count=1
             )
 
         embed = discord.Embed(
-            title=f"Спасибо за ап бота!",
+            title="Спасибо за ап бота!",
             color=discord.Color.orange(),
             description=f"В награду, Вам выдано **1,500 серверных монет**. Если Вы не получили монет - "
             "напишите в <#981547296275705927>.\n\n"
@@ -281,6 +269,7 @@ class Boticord(commands.Cog):
     @send_stats.before_loop
     async def wait_before_loop(self):
         await self.bot.wait_until_ready()
-
+"""
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(Boticord(bot))
+"""

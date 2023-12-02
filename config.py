@@ -2,10 +2,7 @@ import discord
 import time
 import os
 
-from pymongo import MongoClient
 from dotenv import load_dotenv
-
-client = MongoClient()
 
 load_dotenv()
 
@@ -40,9 +37,7 @@ settings = {
 
 started_at = int( # Время запуска бота. Не изменять.
     time.time()
-) 
-lastcommand = "Ещё ни разу команды не использовались."
-used_commands = 0 # Счетчик использованных команд. Не трогать.
+)
 
 cogs = [ # Список cog'ов.
     "cogs.use_logging",
@@ -54,6 +49,7 @@ cogs = [ # Список cog'ов.
     "cogs.marries",
     "cogs.sdc_api",
     "cogs.shards_log",
+    "cogs.events.interaction",
     # "cogs.bc_api",
     # "cogs.bc_remind",
     # "cogs.bc_up",

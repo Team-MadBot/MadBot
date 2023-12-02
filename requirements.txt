@@ -1,8 +1,6 @@
 discord.py
-pypresence
 PyNaCl
 aiohttp
-requests
 boticordpy
 numexpr
 qrcode
@@ -10,3 +8,4 @@ pymongo
 fluent.runtime
 jishaku
 python_dotenv
+distro

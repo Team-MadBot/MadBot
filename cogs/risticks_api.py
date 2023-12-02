@@ -58,7 +58,7 @@ class RisticksAPI(commands.Cog):
         json = {
             'owner_id': str(owner_id),
             'name': name,
-            'icon': None if not icon else icon.key,
+            'icon': icon.key if icon else None,
             'members': members,
             'status': status,
             'invite': invite
@@ -100,7 +100,7 @@ class RisticksAPI(commands.Cog):
             guild_id=guild.id,
             owner_id=guild.owner_id,
             name=guild.name,
-            icon=None if not guild.icon else guild.icon.key,
+            icon=guild.icon.key if guild.icon else None,
             members=guild.member_count,
             status=True
         )

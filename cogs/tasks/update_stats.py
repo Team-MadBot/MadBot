@@ -10,7 +10,7 @@ class UpdateStatsCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
     
-    @tasks.loop(seconds=30)
+    @tasks.loop(seconds=1)
     async def update_stats(self):
         guilds = db.get_guilds_stats()
         for guild in guilds:

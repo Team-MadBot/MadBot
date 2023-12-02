@@ -2,6 +2,11 @@ from . import client
 
 from typing import Optional
 
+def get_premium_user(user_id: int) -> Optional[dict]:
+    db = client.premium
+    coll = db.user
+    return coll.find_one({'user_id': str(user_id)})
+
 def give_premium(user_id: int, type: str) -> bool:
     """
     Gives premium for a user.

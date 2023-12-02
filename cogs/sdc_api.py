@@ -14,9 +14,8 @@ class SDC_API(commands.Cog):
     def cog_unload(self):
         self.sdc_stats.cancel()
 
-    @tasks.loop(seconds=300.0)
+    @tasks.loop(seconds=1800.0)
     async def sdc_stats(self):
-        await self.bot.wait_until_ready()
         headers = {
             'Authorization': settings['sdc_key']
         }
@@ -24,19 +23,22 @@ class SDC_API(commands.Cog):
             'servers': len(self.bot.guilds),
             'shards': len(self.bot.shards) 
         }
-        session = aiohttp.ClientSession()
-        resp = await session.post(
-            f"https://api.server-discord.com/v2/bots/{self.bot.user.id}/stats",
-            headers=headers,
-            data=body
-        )
-        if resp.ok:
-            logger.info("Статистика на SDC обновлена!")
-        else:
-            data = await resp.read()
-            logger.error(data)
-        if not session.closed:
-            await session.close()
+
+        async with aiohttp.ClientSession() as session:
+            resp = await session.post(
+                f"https://api.server-discord.com/v2/bots/{self.bot.user.id}/stats",
+                headers=headers,
+                data=body
+            )
+            if resp.ok:
+                print("Статистика на SDC обновлена!")
+            else:
+                data = await resp.read()
+                print(data)
+    
+    @sdc_stats.before_loop
+    async def before_stats_update(self):
+        await self.bot.wait_until_ready()
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(SDC_API(bot))

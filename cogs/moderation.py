@@ -79,10 +79,10 @@ class Moderation(commands.Cog):
             timestamp=datetime.datetime.now()
         ).add_field(
             name="Участник",
-            value=f"{member.mention} ({member.id})"
+            value=f"{member.mention}\n({member.id})"
         ).add_field(
             name="Модератор",
-            value=f"{interaction.user.mention} ({interaction.user.id})"
+            value=f"{interaction.user.mention}\n({interaction.user.id})"
         ).add_field(
             name="Причина",
             value=dutils.escape_markdown(reason)
@@ -163,10 +163,10 @@ class Moderation(commands.Cog):
             timestamp=datetime.datetime.now()
         ).add_field(
             name="Участник",
-            value=f"{member.mention} ({member.id})"
+            value=f"{member.mention}\n({member.id})"
         ).add_field(
             name="Модератор",
-            value=f"{interaction.user.mention} ({interaction.user.id})"
+            value=f"{interaction.user.mention}\n({interaction.user.id})"
         ).add_field(
             name="Причина",
             value=dutils.escape_markdown(reason)
@@ -252,10 +252,10 @@ class Moderation(commands.Cog):
                 timestamp=datetime.datetime.now()
             ).add_field(
                 name="Участник:", 
-                value=f"{member.mention} ({member.id})"
+                value=f"{member.mention}\n({member.id})"
             ).add_field(
                 name="Модератор:", 
-                value=f"{interaction.user.mention} ({interaction.user.id})"
+                value=f"{interaction.user.mention}\n({interaction.user.id})"
             ).add_field(
                 name="Причина:", 
                 value=dutils.escape_markdown(reason)
@@ -430,13 +430,13 @@ class Moderation(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        until = datetime.datetime.now() + datetime.timedelta(minutes=minutes) if minutes > 0 else None
+        until = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=minutes) if minutes > 0 else None
         try:
             await member.edit(
                 timed_out_until=until, 
                 reason=f"{reason} // {interaction.user}"
             )
-        except:
+        except Forbidden:
             embed = discord.Embed(
                 title="Ошибка!", 
                 color=discord.Color.red(), 
@@ -451,10 +451,10 @@ class Moderation(commands.Cog):
                 timestamp=datetime.datetime.now()
             ).add_field(
                 name="Участник:", 
-                value=f"{member.mention} ({member.id})",
+                value=f"{member.mention}\n({member.id})",
             ).add_field(
                 name="Модератор:", 
-                value=f"{interaction.user.mention} ({interaction.user.id})"
+                value=f"{interaction.user.mention}\n({interaction.user.id})"
             ).add_field(
                 name="Срок:", 
                 value=f"{minutes:,} минут"
@@ -476,10 +476,10 @@ class Moderation(commands.Cog):
             timestamp=datetime.datetime.now()
         ).add_field(
             name="Участник:", 
-            value=f"{member.mention} ({member.id})"
+            value=f"{member.mention}\n({member.id})"
         ).add_field(
             name="Модератор:", 
-            value=f"{interaction.user.mention} ({interaction.user.id})"
+            value=f"{interaction.user.mention}\n({interaction.user.id})"
         ).add_field(
             name="Причина:", 
             value=dutils.escape_markdown(reason)
@@ -618,10 +618,10 @@ class Moderation(commands.Cog):
             color=discord.Color.red()
         ).add_field(
             name="Участник:", 
-            value=f"{member.mention} ({member.id})"
+            value=f"{member.mention}\n({member.id})"
         ).add_field(
             name="Модератор:", 
-            value=f"{interaction.user.mention} ({interaction.user.id})"
+            value=f"{interaction.user.mention}\n({interaction.user.id})"
         ).add_field(
             name="Причина:", 
             value=dutils.escape_markdown(reason)

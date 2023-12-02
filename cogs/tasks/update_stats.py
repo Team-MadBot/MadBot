@@ -5,7 +5,7 @@ import logging
 from discord.ext import commands
 from discord.ext import tasks
 
-from config import client
+from classes import db
 
 logger = logging.getLogger('discord')
 
@@ -13,11 +13,15 @@ class UpdateStatsCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
     
-    @tasks.loop(seconds=30)
+    async def cog_load(self):
+        self.update_stats.start()
+
+    async def cog_unload(self):
+        self.update_stats.cancel()
+    
+    @tasks.loop(seconds=1)
     async def update_stats(self):
-        db = client.stats
-        coll = db.guilds
-        guilds = coll.find()
+        guilds = db.get_guilds_stats()
         for guild in guilds:
             if guild['next_update'] > time.time(): continue
             for channel_id in guild['channels']:
@@ -32,7 +36,11 @@ class UpdateStatsCog(commands.Cog):
                     await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
                 except Exception as e:
                     logger.error(e)
-            coll.update_one({'id': guild['id']}, {'$set': {'next_update': round(time.time()) + 600}})
+                    print(e)
+            db.update_guild_stats(
+                guild_id=guild['id'],
+                next_update=int(time.time()) + 600
+            )
     
     def get_stat(self, channel_type: str, guild: discord.Guild):
         assert guild.member_count is not None
@@ -42,14 +50,13 @@ class UpdateStatsCog(commands.Cog):
             case 'members':
                 return guild.member_count
             case 'people':
-                guild.max_members
                 return guild.member_count - len(list(filter(lambda x: x.bot, guild.members)))
             case 'bots':
                 return len(list(filter(lambda x: x.bot, guild.members)))
             case 'emojis':
                 return len(guild.emojis)
             case 'voice':
-                return len(guild.voice_channels)
+                return sum(len(c.voice_states) for c in guild.voice_channels)
     
     @update_stats.before_loop
     async def before_update_stats(self):

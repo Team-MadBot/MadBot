@@ -35,7 +35,8 @@ class ShardLog(commands.Cog):
             )
             await webhook.send(embed=embed)
             await session.close()
-
+"""
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(ShardLog(bot))
     logger.info('Cog "ShardLog" запущен!')
+"""

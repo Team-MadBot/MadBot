@@ -29,6 +29,10 @@ class UpdatePresenceCog(commands.Cog):
                     status=discord.Status.dnd, 
                     shard_id=shard
                 )
+    
+    @update_presence.before_loop
+    async def before_update_presence(self):
+        await self.bot.wait_until_ready()
 
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(UpdatePresenceCog(bot))

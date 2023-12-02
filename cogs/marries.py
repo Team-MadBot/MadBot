@@ -1,6 +1,7 @@
 import discord
 import config
 import datetime
+import logging
 
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +10,8 @@ from classes import db
 
 from classes import checks
 from config import *
+
+logger = logging.getLogger('discord')
 
 class Marries(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -370,4 +373,4 @@ class Marries(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Marries(bot))
-    print("Cog \"Marries\" запущен!")
+    logger.info("Cog \"Marries\" запущен!")

@@ -4,6 +4,7 @@ import traceback
 import datetime
 import time
 import config
+import logging
 
 from boticordpy import BoticordClient
 from discord.ext import commands, tasks
@@ -11,6 +12,8 @@ from discord import utils as dutils
 from discord import ui
 from contextlib import suppress
 from asyncio import sleep
+
+logger = logging.getLogger('discord')
 
 from classes.bc_websocket import BoticordWS
 from config import settings
@@ -260,11 +263,11 @@ class Boticord(commands.Cog):
                 users=len(self.bot.users)
             )
         except Exception as e:
-            print("Статистика на Boticord НЕ ОБНОВЛЕНА!!! (V2)")
-            traceback.print_exc()
-            print("============ AutoPost ============")
+            logger.error("Статистика на Boticord НЕ ОБНОВЛЕНА!!! (V2)")
+            logger.error(traceback.format_exc())
+            logger.error("============ AutoPost ============")
         else:
-            print("Статистика на Boticord обновлена! (V2)")
+            logger.info("Статистика на Boticord обновлена! (V2)")
     
     @send_stats.before_loop
     async def wait_before_loop(self):

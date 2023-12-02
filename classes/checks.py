@@ -5,7 +5,7 @@ from discord.ext import commands
 from config import *
 from classes import db
 
-def isPremium(bot: commands.Bot, user_id: int) -> str:
+def isPremium(bot: commands.AutoShardedBot, user_id: int) -> str:
     """Checks if a user is a premium user of the bot.
 
     Args:
@@ -19,7 +19,7 @@ def isPremium(bot: commands.Bot, user_id: int) -> str:
     if isPrem is None: isPrem = {'type': 'None'}
     return isPrem['type']
 
-def isPremiumServer(bot: commands.Bot, guild: discord.Guild) -> bool:
+def isPremiumServer(bot: commands.AutoShardedBot, guild: discord.Guild) -> bool:
     """Checks if a Discord guild has premium status.
 
     Args:

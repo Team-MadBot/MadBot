@@ -4,6 +4,7 @@ import datetime
 import typing
 import aiohttp
 import numexpr
+import logging
 
 from discord import Forbidden, app_commands, ui
 from fluent.runtime import FluentLocalization, FluentResourceLoader
@@ -14,6 +15,8 @@ from classes.checks import isPremium, isPremiumServer
 from classes import db
 from classes import checks
 from config import *
+
+logger = logging.getLogger('discord')
 
 
 def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
@@ -282,7 +285,7 @@ class Tools(commands.Cog):
                 return await interaction.edit_original_response(embed=embed)
             else:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`")
-                print(f"{json['cod']}: {json['message']}")
+                logger.error(f"{json['cod']}: {json['message']}")
                 return await interaction.edit_original_response(embed=embed)
         else:
             embed = discord.Embed(title=f"Погода в {json['name']}", color=discord.Color.orange(), description=f"{json['weather'][0]['description']}", url=f"https://openweathermap.org/city/{json['id']}")
@@ -548,4 +551,4 @@ class Tools(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Tools(bot))
-    print('Cog "Tools" запущен!')
+    logger.info('Cog "Tools" запущен!')

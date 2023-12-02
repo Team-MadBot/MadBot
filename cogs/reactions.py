@@ -2,6 +2,7 @@ import discord
 import aiohttp
 import random
 import aiohttp
+import logging
 
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +10,8 @@ from discord import app_commands
 from classes import db
 from classes import checks
 from config import *
+
+logger = logging.getLogger('discord')
 
 class Reactions(commands.Cog):
     def __init__(self, bot):
@@ -245,7 +248,7 @@ class Reactions(commands.Cog):
                         and marry['married_id']
                         in [viewinteract.user.id, interaction.user.id]
                     ):
-                        description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
+                        description = fr"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
                     elif marry1 is not None and (marry1['user_id'] == interaction.user.id or marry1['married_id'] == interaction.user.id):
@@ -315,7 +318,7 @@ class Reactions(commands.Cog):
                         and marry['married_id']
                         in [viewinteract.user.id, interaction.user.id]
                     ):
-                        description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
+                        description = fr"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
                     elif marry1 is not None and (marry1['user_id'] == interaction.user.id or marry1['married_id'] == interaction.user.id):
@@ -411,4 +414,4 @@ class Reactions(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Reactions(bot))
-    print("Cog \"Reactions\" запущен!")
+    logger.info("Cog \"Reactions\" запущен!")

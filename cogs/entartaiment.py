@@ -2,6 +2,8 @@ import discord
 import datetime
 import aiohttp
 import random
+import logging
+import time
 
 from asyncio import sleep
 from discord import app_commands
@@ -11,6 +13,8 @@ from typing import List
 
 from config import *
 from classes import checks
+
+logger = logging.getLogger('discord')
 
 class Entartaiment(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -653,15 +657,17 @@ class Entartaiment(commands.Cog):
                             description=f"Слово загадано!\nСлово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}`"
                         )
 
-                        def man(hangman: str):
-                            if hangman == "Пусто": return "ツ" 
-                            if hangman == "ツ": return "(ツ)"
-                            if hangman == "(ツ)": return "_(ツ)"
-                            if hangman == "_(ツ)": return "_(ツ)_"
-                            if hangman == "_(ツ)_": return "\_(ツ)_"
-                            if hangman == "\_(ツ)_": return "\_(ツ)_/"
-                            if hangman == "\_(ツ)_/": return "¯\_(ツ)_/"
-                            if hangman == "¯\_(ツ)_/": return "¯\_(ツ)_/¯"
+                        man_lst = (
+                            "Пусто",
+                            "ツ",
+                            "(ツ)",
+                            "_(ツ)",
+                            "_(ツ)_",
+                            r"\_(ツ)_",
+                            r"\_(ツ)_/",
+                            r"¯\_(ツ)_/",
+                            r"¯\_(ツ)_/¯"
+                        )
 
                         class Answer(discord.ui.View):
                             def __init__(self):
@@ -684,8 +690,8 @@ class Entartaiment(commands.Cog):
                                         tryes += 1
                                         if word.find(letter) == -1:
                                             fails += 1
-                                            hangman = man(hangman=hangman)
-                                            if str(hangman) == "¯\_(ツ)_/¯":
+                                            hangman = man_lst[fails]
+                                            if str(hangman) == r"¯\_(ツ)_/¯":
                                                 embed = discord.Embed(
                                                     title="Виселица - Поражение",
                                                     color=discord.Color.red(),
@@ -1480,4 +1486,4 @@ class Entartaiment(commands.Cog):
             
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))
-    print('Cog "Entartaiment" запущен!')
+    logger.info('Cog "Entartaiment" запущен!')

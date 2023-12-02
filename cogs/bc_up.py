@@ -165,8 +165,6 @@ class BoticordBotUp(commands.Cog):
         await interaction.response.defer(ephemeral=True, thinking=True)
 
         resp, resp_json = await self.get_captcha(interaction.user.id)
-        print(resp_json)
-        print(resp.status)
 
         if resp.status == 403:
             embed = discord.Embed(
@@ -174,7 +172,7 @@ class BoticordBotUp(commands.Cog):
                 color=discord.Color.red(),
                 description="Боту необходимо иметь 3 уровень буста на сайте. Вы можете помочь в этом, "
                 "совершив покупку буста [здесь](https://boticord.top/boost) и выдав его на странице бота, "
-                "нажав на кнопку перехода на страницу бота снизу \:)"
+                r"нажав на кнопку перехода на страницу бота снизу \:)"
             ).set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
@@ -278,8 +276,6 @@ class BoticordBotUp(commands.Cog):
             user_id=interaction.user.id,
             answer=view.value
         )
-        print(resp_json)
-        print(resp.status)
 
         if not resp.ok:
             embed = discord.Embed(

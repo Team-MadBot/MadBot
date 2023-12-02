@@ -37,22 +37,8 @@ started_at = int( # Время запуска бота. Не изменять.
     time.time()
 )
 
-cogs = [ # Список cog'ов.
-    "cogs.use_logging",
-    "cogs.entartaiment",
-    "cogs.tools",
-    "cogs.reactions",
-    "cogs.stats",
-    "cogs.premium",
-    "cogs.marries",
-    "cogs.sdc_api",
-    "cogs.shards_log",
-    "cogs.events.interaction",
-    # "cogs.bc_api",
-    # "cogs.bc_remind",
-    # "cogs.bc_up",
-    # "cogs.moderation",
-    "jishaku"
+cogs_ignore = [ # список игнорируемовых (?) cog'ов.
+   
 ]
 
 blacklist = [ # done

@@ -172,7 +172,7 @@ class BoticordBotUp(commands.Cog):
                 color=discord.Color.red(),
                 description="Боту необходимо иметь 3 уровень буста на сайте. Вы можете помочь в этом, "
                 "совершив покупку буста [здесь](https://boticord.top/boost) и выдав его на странице бота, "
-                "нажав на кнопку перехода на страницу бота снизу \:)"
+                r"нажав на кнопку перехода на страницу бота снизу \:)"
             ).set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )

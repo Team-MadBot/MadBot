@@ -6,6 +6,7 @@ import datetime
 import os
 import sys
 import logging
+import config
 
 from discord import app_commands, Forbidden
 from discord.ext import commands
@@ -17,7 +18,7 @@ from classes import db
 from classes import checks
 from cogs.bc_api import LinktoBoticord
 from classes.checks import isPremium, isPremiumServer
-from config import *
+
 
 logging.getLogger("discord").addHandler(RotatingFileHandler(
     filename="discord.log",
@@ -31,14 +32,18 @@ logger = logging.getLogger('discord')
 
 class MyBot(commands.AutoShardedBot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('mad.'), intents=intents,
-                         application_id=settings['app_id'])
+        super().__init__(
+            command_prefix=commands.when_mentioned_or('mad.'), 
+            intents=intents,
+            application_id=config.settings['app_id']
+        )
     
-    async def load_cogs(self):  # Либо pylance сошёл с ума, или он должен быть здесь :sweat_smile:
+    async def load_cogs(self):
         for path, _, files in os.walk('cogs'):
             for file in files:
                 if not file.endswith(".py"): continue
                 egg = os.path.join(path, file)
+                if egg in config.cogs_ignore: continue
                 try:
                     await self.load_extension(egg.replace(os.sep, '.')[:-3])
                 except commands.NoEntryPointError:
@@ -48,7 +53,8 @@ class MyBot(commands.AutoShardedBot):
                     logger.error(traceback.format_exc())
 
     async def setup_hook(self):
-        await self.load_extension('jishaku')
+        with suppress(commands.NoEntryPointError):
+            await self.load_extension('jishaku')
         await self.load_cogs()
 
     async def on_connect(self):
@@ -62,9 +68,11 @@ class MyBot(commands.AutoShardedBot):
 
     async def on_ready(self):
         global started_at
-        logs = self.get_channel(settings['log_channel'])  # Канал логов.
+        logs = self.get_channel(config.settings['log_channel'])  # Канал логов.
+        assert isinstance(logs, discord.TextChannel)
         
         for guild in self.guilds:
+            assert guild.owner_id is not None
             if checks.is_in_blacklist(guild.id) or checks.is_in_blacklist(guild.owner_id):
                 await guild.leave()
                 logger.info(f"Бот вышел из {guild.name} ({guild.id})")
@@ -75,7 +83,7 @@ class MyBot(commands.AutoShardedBot):
             title="Бот перезапущен!", 
             color=discord.Color.red(),
             description=f"Пинг: `{int(round(self.latency, 3) * 1000)}ms`\n"
-            f"Версия: `{settings['curr_version']}`"
+            f"Версия: `{config.settings['curr_version']}`"
         )
         await logs.send(embed=embed)
     
@@ -83,7 +91,7 @@ class MyBot(commands.AutoShardedBot):
         if checks.is_in_blacklist(user.id):
             return False
 
-        return True if user.id in coders else await super().is_owner(user)
+        return True if user.id in config.coders else await super().is_owner(user)
 
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
@@ -92,35 +100,33 @@ class MyBot(commands.AutoShardedBot):
             return await ctx.reply("https://http.cat/403")
         with suppress(Exception):
             await ctx.message.add_reaction("❌")
-            message = await ctx.message.reply(content=f"```\n{error}```")
+            await ctx.message.reply(content=f"```\n{error}```", delete_after=30)
+            await ctx.message.delete(delay=30)
         logger.error(error)
-        await sleep(30)
-        with suppress(Exception):
-            await message.delete()
-            await ctx.message.delete()
 
     async def on_guild_join(self, guild: discord.Guild):
+        assert guild.owner_id is not None
         if checks.is_in_blacklist(guild.id) or checks.is_in_blacklist(guild.owner_id):
             embed = discord.Embed(
                 title="Данный сервер либо владелец сервера занесен(-ы) в чёрный список бота!",
                 color=discord.Color.red(),
                 description="Владелец бота занёс этот сервер либо его владельца в чёрный список! "
                 f"Бот покинет этот сервер. Если вы считаете, что это ошибка, обратитесь в поддержку: "
-                f"{settings['support_invite']}, либо напишите владельцу лично на e-mail: `madcat9958@gmail.com`.",
+                f"{config.settings['support_invite']}, либо напишите владельцу лично на e-mail: `madcat9958@gmail.com`.",
                 timestamp=datetime.datetime.now()
-            ).set_thumbnail(url=guild.icon_url)
-            try:
-                await guild.channels[0].send(embed=embed)
-            except:
-                pass
+            ).set_thumbnail(url=guild.icon.url if guild.icon is not None else None)
+            with suppress(Exception):
+                await [c for c in guild.channels if isinstance(c, discord.TextChannel)][0].send(embed=embed)
             await guild.leave()
             logger.info(f"Бот вышел из {guild.name} ({guild.id})")
         else:
             await sleep(1)
+            assert bot.user is not None
+            assert bot.user.avatar is not None
             embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}",
                                   color=discord.Color.orange(),
                                   description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Номер сервера: `{len(bot.guilds)}`.")
-            embed.add_field(name="Поддержка:", value=settings['support_invite'])
+            embed.add_field(name="Поддержка:", value=config.settings['support_invite'])
             embed.set_thumbnail(url=bot.user.avatar.url)
             """adder = None
             try:
@@ -146,7 +152,8 @@ class MyBot(commands.AutoShardedBot):
                 embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
             if guild.icon != None:
                 embed.set_thumbnail(url=guild.icon.url)
-            log_channel = bot.get_channel(settings['log_channel'])
+            log_channel = bot.get_channel(config.settings['log_channel'])
+            assert isinstance(log_channel, discord.TextChannel)
             await log_channel.send(embed=embed)
             await bot.tree.sync()
 
@@ -159,7 +166,8 @@ class MyBot(commands.AutoShardedBot):
             embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
         if guild.icon is not None:
             embed.set_thumbnail(url=guild.icon.url)
-        log_channel = bot.get_channel(settings['log_channel'])
+        log_channel = bot.get_channel(config.settings['log_channel'])
+        assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
         if isPremiumServer(self, guild):
             db.take_guild_premium(guild.id)
@@ -167,14 +175,17 @@ class MyBot(commands.AutoShardedBot):
     async def on_member_join(self, member: discord.Member):
         if not member.bot and self.intents.members:
             role = db.get_guild_autorole(member.guild.id)
-            await member.add_roles(member.guild.get_role(int(role)), reason="Автороль")
-
+            assert role is not None
+            autorole = member.guild.get_role(role)
+            assert autorole is not None
+            await member.add_roles(autorole, reason="Автороль")
 
 bot = MyBot()
 
 
 @bot.tree.error
 async def on_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    assert interaction.command is not None
     if isinstance(error, app_commands.CommandOnCooldown):
         embed = discord.Embed(
             title="Ошибка!", 
@@ -185,11 +196,13 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
     if isinstance(error, app_commands.CheckFailure):
         if checks.is_in_blacklist(interaction.user.id):
             blacklist_info = db.get_blacklist(interaction.user.id)
+            assert blacklist_info is not None
+            assert interaction.user.avatar is not None
             embed = discord.Embed(
                 title="Вы занесены в чёрный список бота!",
                 color=discord.Color.red(),
                 description=f"Разработчик бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, "
-                f"обратитесь в поддержку: {settings['support_invite']}",
+                f"обратитесь в поддержку: {config.settings['support_invite']}",
                 timestamp=datetime.datetime.now()
             ).add_field(
                 name="ID разработчика:",
@@ -243,19 +256,20 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
     embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
                           description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```",
                           timestamp=datetime.datetime.now())
-    channel = bot.get_channel(settings['log_channel'])
+    channel = bot.get_channel(config.settings['log_channel'])
+    assert isinstance(channel, discord.TextChannel)
     await channel.send(
         f"[ОШИБКА!]: Инициатор: `{interaction.user}`\n```\nOn command '{interaction.command.name}'\n{error}```")
     try:
         await interaction.response.send_message(embed=embed, ephemeral=True)
     except discord.errors.InteractionResponded:
         await interaction.edit_original_response(embeds=[embed], view=None)
-    logger.error(traceback.format_exc(error))
+    logger.error(traceback.format_exception(type(error), error, error.__traceback__))
 
 
 @bot.command()
 async def debug(ctx: commands.Context):
-    if ctx.author.id in coders or ctx.author.id == settings['owner_id']:
+    if ctx.author.id in config.coders or ctx.author.id == config.settings['owner_id']:
         class Button(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=30)
@@ -301,7 +315,7 @@ async def debug(ctx: commands.Context):
                         async def checkleaves(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                             counter = 0
                             for guild in bot.guilds:
-                                if guild.member_count < settings['min_members']: counter += 1
+                                if guild.member_count < config.settings['min_members']: counter += 1
                             await viewinteract.response.send_message(f"Кол-во серверов: `{counter}`", ephemeral=True)
 
                         @discord.ui.button(label="Загрузить обновление", style=discord.ButtonStyle.blurple)
@@ -315,10 +329,10 @@ async def debug(ctx: commands.Context):
                                 user_id = discord.ui.TextInput(label="ID пользователя", min_length=18, max_length=19)
 
                                 async def on_submit(self, modalinteract: discord.Interaction):
-                                    if isPremium(bot, int(str(self.user_id))) != 'None':
+                                    if isPremium(bot, int(self.user_id.value)) != 'None':
                                         return await modalinteract.response.send_message(
                                             "У пользователя уже есть премиум!", ephemeral=True)
-                                    db.give_premium(user_id=str(self.user_id), type="server")
+                                    db.give_premium(user_id=int(self.user_id.value), type="server")
                                     await modalinteract.response.send_message("Успешно!", ephemeral=True)
 
                             await viewinteract.response.send_modal(Input())
@@ -332,7 +346,7 @@ async def debug(ctx: commands.Context):
                                     if isPremium(bot, int(str(self.user_id))) != 'None':
                                         return await modalinteract.response.send_message(
                                             "У пользователя уже есть премиум!", ephemeral=True)
-                                    db.give_premium(user_id=str(self.user_id), type="user")
+                                    db.give_premium(user_id=int(self.user_id.value), type="user")
                                     await modalinteract.response.send_message("Успешно!", ephemeral=True)
 
                             await viewinteract.response.send_modal(Input())
@@ -346,7 +360,7 @@ async def debug(ctx: commands.Context):
                                     if isPremium(bot, int(str(self.user_id))) == 'None':
                                         return await modalinteract.response.send_message("У пользователя нет премиума!",
                                                                                          ephemeral=True)
-                                    db.take_premium(user_id=str(self.user_id))
+                                    db.take_premium(user_id=int(self.user_id.value))
                                     await modalinteract.response.send_message("Успешно!", ephemeral=True)
 
                             await viewinteract.response.send_modal(Input())
@@ -429,10 +443,12 @@ async def debug(ctx: commands.Context):
                                     embed = discord.Embed(
                                         title="Ваш сервер занесён в чёрный список бота!",
                                         color=discord.Color.red(),
-                                        description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {settings['support_invite']}",
+                                        description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {config.settings['support_invite']}",
                                         timestamp=datetime.datetime.now()
                                     )
-                                    embed.set_thumbnail(url=guild.icon_url)
+                                    assert guild.icon is not None
+                                    assert guild.owner is not None
+                                    embed.set_thumbnail(url=guild.icon.url)
                                     db.add_blacklist(
                                         resource_id=guild.owner.id,
                                         moderator_id=modalinteract.user.id,
@@ -452,8 +468,8 @@ async def debug(ctx: commands.Context):
                                     ephemeral=True
                                 )
                                 await sleep(30)
-                                if int(str(self.resource_id)) == settings['owner_id']:
-                                    db.remove_blacklist(settings['owner_id'])
+                                if int(str(self.resource_id)) == config.settings['owner_id']:
+                                    db.remove_blacklist(config.settings['owner_id'])
 
                         await viewinteract.response.send_modal(Input())
 
@@ -463,32 +479,32 @@ async def debug(ctx: commands.Context):
                             ans = discord.ui.TextInput(label="ID участника/сервера:", min_length=18, max_length=19)
 
                             async def on_submit(self, modalinteract: discord.Interaction):
-                                verified.append(int(str(self.ans)))
+                                config.verified.append(int(str(self.ans)))
                                 await modalinteract.response.send_message(f"`{str(self.ans)}` верифицирован(-а)",
                                                                           ephemeral=True)
 
                         await viewinteract.response.send_modal(Input())
 
                     @discord.ui.button(label="Выдать значок саппорта",
-                                       disabled=not (ctx.author.id == settings['owner_id']))
+                                       disabled=not (ctx.author.id == config.settings['owner_id']))
                     async def support(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         class Input(discord.ui.Modal, title="Debug - в саппорты"):
                             ans = discord.ui.TextInput(label="ID участника:", min_length=18, max_length=19)
 
                             async def on_submit(self, modalinteract: discord.Interaction):
-                                supports.append(int(str(self.ans)))
+                                config.supports.append(int(str(self.ans)))
                                 await modalinteract.response.send_message(f"`{str(self.ans)}` теперь - саппорт",
                                                                           ephemeral=True)
 
                         await viewinteract.response.send_modal(Input())
 
-                    @discord.ui.button(label="Добавить кодера", disabled=not (ctx.author.id == settings['owner_id']))
+                    @discord.ui.button(label="Добавить кодера", disabled=not (ctx.author.id == config.settings['owner_id']))
                     async def coder(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         class Input(discord.ui.Modal, title="Debug - в кодеры"):
                             ans = discord.ui.TextInput(label="ID участника:", min_length=18, max_length=19)
 
                             async def on_submit(self, modalinteract: discord.Interaction):
-                                coders.append(int(str(self.ans)))
+                                config.coders.append(int(str(self.ans)))
                                 await modalinteract.response.send_message(f"`{str(self.ans)}` теперь - кодер",
                                                                           ephemeral=True)
 
@@ -512,7 +528,7 @@ async def debug(ctx: commands.Context):
 
                         await viewinteract.response.send_modal(Input())
 
-                    @discord.ui.button(label="Покинуть сервер", disabled=not (ctx.author.id == settings['owner_id']))
+                    @discord.ui.button(label="Покинуть сервер", disabled=not (ctx.author.id == config.settings['owner_id']))
                     async def leaveserver(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         class Input(discord.ui.Modal, title="Debug - выход из сервера"):
                             ans = discord.ui.TextInput(label="ID сервера:", max_length=19, min_length=18)
@@ -534,12 +550,13 @@ async def debug(ctx: commands.Context):
                         await viewinteract.edit_original_response(content="Команды синхронизированы!")
 
                     @discord.ui.button(label='Смена ника', style=discord.ButtonStyle.green,
-                                       disabled=not (ctx.author.id == settings['owner_id']))
+                                       disabled=not (ctx.author.id == config.settings['owner_id']))
                     async def changename(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         class Input(discord.ui.Modal, title="Debug - смена ника"):
                             ans = discord.ui.TextInput(label="Новый ник:", min_length=2, max_length=32)
 
                             async def on_submit(self, modalinteract: discord.Interaction):
+                                assert bot.user is not None
                                 try:
                                     await bot.user.edit(username=str(self.ans))
                                 except Exception as e:
@@ -557,13 +574,14 @@ async def debug(ctx: commands.Context):
                             async def on_submit(self, modalinteract: discord.Interaction):
                                 await modalinteract.response.send_message(
                                     f"Начинаем печатать {str(self.ans)} секунд...", ephemeral=True)
+                                assert isinstance(modalinteract.channel, discord.TextChannel)
                                 async with modalinteract.channel.typing():
                                     await sleep(int(str(self.ans)))
 
                         await viewinteract.response.send_modal(Input())
 
                     @discord.ui.button(label="Выполнить команду", style=discord.ButtonStyle.green,
-                                       disabled=not (ctx.author.id == settings['owner_id']))
+                                       disabled=not (ctx.author.id == config.settings['owner_id']))
                     async def sudo(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         class Input(discord.ui.Modal, title="Debug - выполнение команды"):
                             ans = discord.ui.TextInput(label="Команда:", style=discord.TextStyle.long)
@@ -587,7 +605,7 @@ async def debug(ctx: commands.Context):
                         os.execv(sys.executable, ['python'] + sys.argv)
 
                     @discord.ui.button(label="Выключить", style=discord.ButtonStyle.danger,
-                                       disabled=not (ctx.author.id == settings['owner_id']))
+                                       disabled=not (ctx.author.id == config.settings['owner_id']))
                     async def stop(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                         await viewinteract.response.send_message("Выключение...", ephemeral=True)
                         await bot.change_presence(status=discord.Status.idle,
@@ -625,11 +643,7 @@ async def debug(ctx: commands.Context):
 
                     @discord.ui.button(label="Перезагрузка когов", style=discord.ButtonStyle.red)
                     async def reloadcogs(self, viewinteract: discord.Interaction, button: discord.ui.Button):
-                        for ext in cogs:
-                            try:
-                                await bot.reload_extension(ext)
-                            except Exception as e:
-                                logger.error(f"Не удалось перезагрузить {ext}!\n{e}")
+                        await bot.load_cogs()
                         await bot.tree.sync()
                         await viewinteract.response.send_message("Коги перезапущены!", ephemeral=True)
 
@@ -674,8 +688,10 @@ async def debug(ctx: commands.Context):
     elif not checks.is_in_blacklist(ctx.author.id):
         embed = discord.Embed(title="Попытка использования debug-команды!", color=discord.Color.red())
         embed.add_field(name="Пользователь:", value=f'{ctx.author.mention} (`{ctx.author}`)')
-        channel = bot.get_channel(settings['log_channel'])
+        channel = bot.get_channel(config.settings['log_channel'])
+        assert isinstance(channel, discord.TextChannel)
         await channel.send(embed=embed)
 
-logger.info("Подключение к Discord...")
-bot.run(settings['token'])
+if __name__ == '__main__':
+    logger.info("Подключение к Discord...")
+    bot.run(config.settings['token'])

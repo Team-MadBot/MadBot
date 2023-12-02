@@ -657,15 +657,17 @@ class Entartaiment(commands.Cog):
                             description=f"Слово загадано!\nСлово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}`"
                         )
 
-                        def man(hangman: str):
-                            if hangman == "Пусто": return "ツ" 
-                            if hangman == "ツ": return "(ツ)"
-                            if hangman == "(ツ)": return "_(ツ)"
-                            if hangman == "_(ツ)": return "_(ツ)_"
-                            if hangman == "_(ツ)_": return "\_(ツ)_"
-                            if hangman == "\_(ツ)_": return "\_(ツ)_/"
-                            if hangman == "\_(ツ)_/": return "¯\_(ツ)_/"
-                            if hangman == "¯\_(ツ)_/": return "¯\_(ツ)_/¯"
+                        man_lst = (
+                            "Пусто",
+                            "ツ",
+                            "(ツ)",
+                            "_(ツ)",
+                            "_(ツ)_",
+                            r"\_(ツ)_",
+                            r"\_(ツ)_/",
+                            r"¯\_(ツ)_/",
+                            r"¯\_(ツ)_/¯"
+                        )
 
                         class Answer(discord.ui.View):
                             def __init__(self):
@@ -688,8 +690,8 @@ class Entartaiment(commands.Cog):
                                         tryes += 1
                                         if word.find(letter) == -1:
                                             fails += 1
-                                            hangman = man(hangman=hangman)
-                                            if str(hangman) == "¯\_(ツ)_/¯":
+                                            hangman = man_lst[fails]
+                                            if str(hangman) == r"¯\_(ツ)_/¯":
                                                 embed = discord.Embed(
                                                     title="Виселица - Поражение",
                                                     color=discord.Color.red(),

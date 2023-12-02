@@ -27,6 +27,8 @@ settings = {
     'prem_server': int(os.environ.get("PREMIUM_SERVER_ROLE_ID")),
     'bc_api_ver': int(os.environ.get("BC_API_VER")),
     'bc_hook_url': os.environ.get("BC_WEBHOOK_URL"),
+    'shard_log_hook_url': os.environ.get("SHARD_LOG_WEBHOOK_URL"),
+    'vote_hook_url': os.environ.get("VOTE_WEBHOOK_URL"),
     'bcv2_token': os.environ.get("BC_TOKEN"),
     'unbelieva_token': os.environ.get("UNBELIEVA_TOKEN"),
     'risticks_token': os.environ.get("RISTICKS_TOKEN"),

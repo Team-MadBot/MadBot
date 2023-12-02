@@ -52,7 +52,7 @@ class UpdateStatsCog(commands.Cog):
             case 'emojis':
                 return len(guild.emojis)
             case 'voice':
-                return sum([len(c.voice_states) for c in guild.voice_channels])
+                return sum(len(c.voice_states) for c in guild.voice_channels)
     
     @update_stats.before_loop
     async def before_update_stats(self):

@@ -46,14 +46,13 @@ class UpdateStatsCog(commands.Cog):
             case 'members':
                 return guild.member_count
             case 'people':
-                guild.max_members
                 return guild.member_count - len(list(filter(lambda x: x.bot, guild.members)))
             case 'bots':
                 return len(list(filter(lambda x: x.bot, guild.members)))
             case 'emojis':
                 return len(guild.emojis)
             case 'voice':
-                return len(guild.voice_channels)
+                return len([x.voice_states for x in guild.voice_channels])
     
     @update_stats.before_loop
     async def before_update_stats(self):

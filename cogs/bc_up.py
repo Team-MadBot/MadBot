@@ -1,6 +1,5 @@
 import discord
 import aiohttp
-import config
 import base64
 import datetime
 import time

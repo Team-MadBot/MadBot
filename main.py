@@ -110,7 +110,11 @@ class MadBot(commands.AutoShardedBot):
                 timestamp=datetime.datetime.now()
             ).set_thumbnail(url=guild.icon.url if guild.icon is not None else None)
             with suppress(Exception):
-                await [c for c in guild.channels if isinstance(c, discord.TextChannel)][0].send(embed=embed)
+                await next(
+                    c for c in guild.channels if isinstance(
+                        c, discord.TextChannel
+                    ) and c.permissions_for(guild.me).send_messages
+                ).send(embed=embed)
             await guild.leave()
             logger.info(f"Бот вышел из {guild.name} ({guild.id})")
         else:

@@ -56,7 +56,7 @@ class MadBot(commands.AutoShardedBot):
         await self.load_cogs()
 
     async def on_connect(self):
-        await bot.change_presence(
+        await self.change_presence(
             status=discord.Status.idle, 
             activity=discord.CustomActivity(
                 name="Перезагрузка..."
@@ -119,24 +119,24 @@ class MadBot(commands.AutoShardedBot):
             logger.info(f"Бот вышел из {guild.name} ({guild.id})")
         else:
             await sleep(1)
-            assert bot.user is not None
-            assert bot.user.avatar is not None
+            assert self.user is not None
+            assert self.user.avatar is not None
             embed = discord.Embed(
-                title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}",
+                title=f"Спасибо за добавление {self.user.name} на сервер {guild.name}",
                 color=discord.Color.orange(),
-                description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Номер сервера: `{len(bot.guilds)}`."
+                description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Номер сервера: `{len(self.guilds)}`."
             ).add_field(
                 name="Поддержка:", 
                 value=config.settings['support_invite']
             ).set_thumbnail(
-                url=bot.user.avatar.url
+                url=self.user.avatar.url
             )
-            
+
             if self.intents.members:
                 adder = guild.owner
                 try:
                     async for entry in guild.audit_logs(limit=5, action=discord.AuditLogAction.bot_add):
-                        if entry.target.id == bot.user.id:
+                        if entry.target.id == self.user.id:
                             adder = entry.user
                 except discord.Forbidden:
                     embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.")
@@ -155,10 +155,9 @@ class MadBot(commands.AutoShardedBot):
                 embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
             if guild.icon is not None:
                 embed.set_thumbnail(url=guild.icon.url)
-            log_channel = bot.get_channel(config.settings['log_channel'])
+            log_channel = self.get_channel(config.settings['log_channel'])
             assert isinstance(log_channel, discord.TextChannel)
             await log_channel.send(embed=embed)
-            await bot.tree.sync()
 
     async def on_guild_remove(self, guild: discord.Guild):
         embed = discord.Embed(title='Минус сервер(((', color=discord.Color.red())
@@ -169,7 +168,7 @@ class MadBot(commands.AutoShardedBot):
             embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
         if guild.icon is not None:
             embed.set_thumbnail(url=guild.icon.url)
-        log_channel = bot.get_channel(config.settings['log_channel'])
+        log_channel = self.get_channel(config.settings['log_channel'])
         assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
         if isPremiumServer(self, guild):

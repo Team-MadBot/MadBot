@@ -27,7 +27,7 @@ logging.getLogger("discord").addHandler(RotatingFileHandler(
 intents = discord.Intents.default()
 logger = logging.getLogger('discord')
 
-class MyBot(commands.AutoShardedBot):
+class MadBot(commands.AutoShardedBot):
     def __init__(self, migrate_db: bool = False):
         super().__init__(
             command_prefix=commands.when_mentioned_or('mad.'), 
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
     logger.info("Подключение к Discord...")
-    bot = MyBot()
+    bot = MadBot()
     bot.run(
         config.settings['token'],
         log_level=logging.DEBUG if args.debug_mode else logging.INFO,

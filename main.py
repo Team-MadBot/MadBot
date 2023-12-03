@@ -148,7 +148,7 @@ class MadBot(commands.AutoShardedBot):
             embed.add_field(name="ID сервера:", value=f"`{guild.id}`")
             if self.intents.members:
                 embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
-            if guild.icon != None:
+            if guild.icon is not None:
                 embed.set_thumbnail(url=guild.icon.url)
             log_channel = bot.get_channel(config.settings['log_channel'])
             assert isinstance(log_channel, discord.TextChannel)

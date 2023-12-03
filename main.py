@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import traceback
 import discord
-import time
 import datetime
 import os
-import sys
+import argparse
 import logging
 import config
 
-from discord import app_commands, Forbidden
 from discord.ext import commands
 from asyncio import sleep
 from contextlib import suppress
@@ -16,8 +14,7 @@ from logging.handlers import RotatingFileHandler
 
 from classes import db
 from classes import checks
-from cogs.bc_api import LinktoBoticord
-from classes.checks import isPremium, isPremiumServer
+from classes.checks import isPremiumServer
 
 
 logging.getLogger("discord").addHandler(RotatingFileHandler(
@@ -31,12 +28,13 @@ intents = discord.Intents.default()
 logger = logging.getLogger('discord')
 
 class MyBot(commands.AutoShardedBot):
-    def __init__(self):
+    def __init__(self, migrate_db: bool = False):
         super().__init__(
             command_prefix=commands.when_mentioned_or('mad.'), 
             intents=intents,
             application_id=config.settings['app_id']
         )
+        self.migrate_db = migrate_db
     
     async def load_cogs(self):
         for path, _, files in os.walk('cogs'):
@@ -180,92 +178,26 @@ class MyBot(commands.AutoShardedBot):
             assert autorole is not None
             await member.add_roles(autorole, reason="Автороль")
 
-bot = MyBot()
-
-
-@bot.tree.error
-async def on_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-    assert interaction.command is not None
-    if isinstance(error, app_commands.CommandOnCooldown):
-        embed = discord.Embed(
-            title="Ошибка!", 
-            color=discord.Color.red(),
-            description=f"Задержка на команду `/{interaction.command.qualified_name}`! Попробуйте <t:{round(time.time() + error.retry_after)}:R>!"
-        )
-        return await interaction.response.send_message(embed=embed, ephemeral=True)
-    if isinstance(error, app_commands.CheckFailure):
-        if checks.is_in_blacklist(interaction.user.id):
-            blacklist_info = db.get_blacklist(interaction.user.id)
-            assert blacklist_info is not None
-            assert interaction.user.avatar is not None
-            embed = discord.Embed(
-                title="Вы занесены в чёрный список бота!",
-                color=discord.Color.red(),
-                description=f"Разработчик бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, "
-                f"обратитесь в поддержку: {config.settings['support_invite']}",
-                timestamp=datetime.datetime.now()
-            ).add_field(
-                name="ID разработчика:",
-                value=blacklist_info['moderator_id']
-            ).add_field(
-                name="Причина занесения в ЧС:",
-                value=blacklist_info['reason'] or "Не указана" 
-            ).add_field(
-                name="ЧС закончится:",
-                value="Никогда" if blacklist_info['until'] is None else f"<t:{blacklist_info['until']}:R> (<t:{blacklist_info['until']}>)"
-            ).set_thumbnail(
-                url=interaction.user.avatar.url
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if checks.is_shutted_down(interaction.command.name):
-            embed = discord.Embed(title="Команда отключена!", color=discord.Color.red(),
-                                  description="Владелец бота временно отключил эту команду! Попробуйте позже!")
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-    if str(error).startswith("Failed to convert"):
-        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
-                              description="Данная команда недоступна в личных сообщениях!")
-        return await interaction.response.send_message(embed=embed, ephemeral=True)
-    if isinstance(error, discord.NotFound):
-        return
-    if isinstance(error, Forbidden):
-        embed = discord.Embed(
-            title="Ошибка!",
-            color=discord.Color.red(),
-            description="Вы видите это сообщение, потому что бот не имеет прав для совершения действия!"
-        )
-        try:
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-        except:
-            return await interaction.edit_original_response(embed=embed)
-    if isinstance(error, OverflowError):
-        embed = discord.Embed(
-            title="Ошибка!",
-            color=discord.Color.red(),
-            description="Введены слишком большие числа! Введите числа поменьше!"
-        )
-        return await interaction.response.send_message(embed=embed, ephemeral=True)
-    if interaction.command.name == "calc" and (
-        isinstance(error, (SyntaxError, KeyError))
-    ):
-        embed = discord.Embed(
-            title="Ошибка!",
-            color=discord.Color.red(),
-            description="Введён некорректный пример!"
-        )
-        return await interaction.response.send_message(embed=embed, ephemeral=True)
-    embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
-                          description=f"Произошла неизвестная ошибка! Обратитесь в поддержку со скриншотом ошибки!\n```\n{error}```",
-                          timestamp=datetime.datetime.now())
-    channel = bot.get_channel(config.settings['log_channel'])
-    assert isinstance(channel, discord.TextChannel)
-    await channel.send(
-        f"[ОШИБКА!]: Инициатор: `{interaction.user}`\n```\nOn command '{interaction.command.name}'\n{error}```")
-    try:
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-    except discord.errors.InteractionResponded:
-        await interaction.edit_original_response(embeds=[embed], view=None)
-    logger.error(traceback.format_exception(type(error), error, error.__traceback__))
-
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--debug-mode",
+        help="Should bot run with logging.DEBUG level?",
+        action="store_true",
+        default=False,
+        dest="debug_mode"
+    )
+    parser.add_argument(
+        "--migrate-db",
+        help="Should bot migrate DB before startup?",
+        action="store_true",
+        default=False,
+        dest="migrate_db"
+    )
+    args = parser.parse_args()
     logger.info("Подключение к Discord...")
-    bot.run(config.settings['token'])
+    bot = MyBot()
+    bot.run(
+        config.settings['token'],
+        log_level=logging.DEBUG if args.debug_mode else logging.INFO,
+    )

@@ -4,6 +4,8 @@ import time
 from discord.ext import commands
 from discord.ext import tasks
 
+from contextlib import suppress
+
 from classes import db
 
 class UpdateStatsCog(commands.Cog):
@@ -22,17 +24,18 @@ class UpdateStatsCog(commands.Cog):
         for guild in guilds:
             if guild['next_update'] > time.time(): continue
             for channel_id in guild['channels']:
-                channel = self.bot.get_channel(int(channel_id['id']))
-                assert isinstance(channel, discord.abc.GuildChannel)
-                discord_guild = channel.guild
-                assert discord_guild.member_count is not None
+                with suppress(Exception):
+                    channel = self.bot.get_channel(int(channel_id['id']))
+                    assert isinstance(channel, discord.abc.GuildChannel)
+                    discord_guild = channel.guild
+                    assert discord_guild.member_count is not None
 
-                if channel is None: continue
-                stat = self.get_stat(channel_id['type'], discord_guild)
-                try:
-                    await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
-                except Exception as e:
-                    print(e)
+                    if channel is None: continue
+                    stat = self.get_stat(channel_id['type'], discord_guild)
+                    try:
+                        await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
+                    except Exception as e:
+                        print(e)
             db.update_guild_stats(
                 guild_id=guild['id'],
                 next_update=int(time.time()) + 600

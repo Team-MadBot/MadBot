@@ -121,27 +121,32 @@ class MadBot(commands.AutoShardedBot):
             await sleep(1)
             assert bot.user is not None
             assert bot.user.avatar is not None
-            embed = discord.Embed(title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}",
-                                  color=discord.Color.orange(),
-                                  description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Номер сервера: `{len(bot.guilds)}`.")
-            embed.add_field(name="Поддержка:", value=config.settings['support_invite'])
-            embed.set_thumbnail(url=bot.user.avatar.url)
-            """adder = None
-            try:
-                async for entry in guild.audit_logs(limit=5, action=discord.AuditLogAction.bot_add):
-                    if entry.target.id == bot.user.id:
-                        adder = entry.user
-            except Forbidden:
+            embed = discord.Embed(
+                title=f"Спасибо за добавление {bot.user.name} на сервер {guild.name}",
+                color=discord.Color.orange(),
+                description=f"Перед использованием убедитесь, что слеш-команды включены у вас на сервере. Номер сервера: `{len(bot.guilds)}`."
+            ).add_field(
+                name="Поддержка:", 
+                value=config.settings['support_invite']
+            ).set_thumbnail(
+                url=bot.user.avatar.url
+            )
+            
+            if self.intents.members:
                 adder = guild.owner
-                embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.")
-            try:
-                await adder.send(embed=embed)
-            except:
-                if guild.system_channel != None:
-                    try:
-                        await guild.system_channel.send(embed=embed)
-                    except:
-                        pass"""
+                try:
+                    async for entry in guild.audit_logs(limit=5, action=discord.AuditLogAction.bot_add):
+                        if entry.target.id == bot.user.id:
+                            adder = entry.user
+                except discord.Forbidden:
+                    embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.")
+                try:
+                    await adder.send(embed=embed)
+                except:
+                    if guild.system_channel != None:
+                        with suppress(Exception):
+                            await guild.system_channel.send(embed=embed)
+            
             embed = discord.Embed(title="Новый сервер!", color=discord.Color.green())
             embed.add_field(name="Название:", value=f"`{guild.name}`")
             embed.add_field(name="Владелец:", value=f"<@{guild.owner_id}>")

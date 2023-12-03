@@ -203,5 +203,5 @@ if __name__ == '__main__':
     bot = MadBot()
     bot.run(
         config.settings['token'],
-        log_level=logging.DEBUG if args.debug_mode else logging.INFO,
+        log_level=logging.DEBUG if args.debug_mode else logging.INFO
     )

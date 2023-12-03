@@ -85,10 +85,7 @@ class MadBot(commands.AutoShardedBot):
         await logs.send(embed=embed)
     
     async def is_owner(self, user: discord.User) -> bool:
-        if checks.is_in_blacklist(user.id):
-            return False
-
-        return True if user.id in config.coders else await super().is_owner(user)
+        return False if checks.is_in_blacklist(user.id) else True if user.id in config.coders else await super().is_owner(user)
 
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):

@@ -551,4 +551,3 @@ class Tools(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Tools(bot))
-    logger.info('Cog "Tools" запущен!')

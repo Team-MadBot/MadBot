@@ -1,6 +1,5 @@
 import discord
 import datetime
-import config
 import logging
 
 from discord import app_commands, Forbidden, NotFound
@@ -634,4 +633,3 @@ class Moderation(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Moderation(bot))
-    logger.info('Cog "Moderation" запущен!')

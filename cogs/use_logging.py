@@ -2,7 +2,6 @@ import logging
 import discord
 
 from discord.ext import commands
-from logging.handlers import RotatingFileHandler
 
 logger = logging.getLogger('discord')
 
@@ -20,4 +19,4 @@ class Logging(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Logging(bot))
-    logger.info("Cog \"Logging\" запущен!")
+

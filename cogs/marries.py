@@ -1,6 +1,4 @@
 import discord
-import config
-import datetime
 import logging
 
 from discord.ext import commands
@@ -373,4 +371,3 @@ class Marries(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Marries(bot))
-    logger.info("Cog \"Marries\" запущен!")

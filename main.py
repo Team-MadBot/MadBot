@@ -49,8 +49,34 @@ class MadBot(commands.AutoShardedBot):
                 except Exception as e:
                     logger.error(f"При загрузке модуля {egg} произошла ошибка: {e}")
                     logger.error(traceback.format_exc())
+                else:
+                    logger.info(f"Модуль {egg} успешно загружен.")
+
+    async def db_migration(self):
+        logging.debug("Начинаю миграцию чёрного списка...")
+        for resource in config.blacklist:
+            db.add_blacklist(
+                resource_id=resource,
+                moderator_id=config.settings['owner_id'],
+                reason=None,
+                until=None
+            )
+            logging.debug(f"Пользователь с ID {resource} занесён в новый чёрный список.")
+        logging.debug("Чёрный список перенесён!")
+        logging.debug("Создание документа статистики бота...")
+        db.create_bot_stats()
+        logging.debug("Статистика бота создана!")
 
     async def setup_hook(self):
+        if self.migrate_db:
+            logging.info("При запуске была указана необходимость миграции. Бот выполнит её перед полным запуском.")
+            try:
+                await self.db_migration()
+            except Exception:
+                logger.error("Во время миграции произошла ошибка: " + traceback.format_exc())
+                logger.warning("Миграция не была проведена успешно! Некоторый функционал бота может работать некорректно!")
+            else:
+                logger.info("Миграция прошла успешно!")
         with suppress(commands.NoEntryPointError):
             await self.load_extension('jishaku')
         await self.load_cogs()
@@ -200,7 +226,7 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
     logger.info("Подключение к Discord...")
-    bot = MadBot()
+    bot = MadBot(migrate_db=args.migrate_db)
     bot.run(
         config.settings['token'],
         log_level=logging.DEBUG if args.debug_mode else logging.INFO

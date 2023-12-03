@@ -508,4 +508,3 @@ class Stats(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Stats(bot))
-    logger.info("Cog \"Stats\" запущен!")

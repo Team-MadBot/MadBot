@@ -43,4 +43,3 @@ class SDC_API(commands.Cog):
 
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(SDC_API(bot))
-    logger.info("Cog \"SDC API\" запущен!")

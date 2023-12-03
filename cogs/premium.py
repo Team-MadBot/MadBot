@@ -238,4 +238,3 @@ class Premium(commands.Cog):
     
 async def setup(bot: commands.Bot):
     await bot.add_cog(Premium(bot))
-    logger.info('Cog "Premium" запущен!')

@@ -1486,4 +1486,3 @@ class Entartaiment(commands.Cog):
             
 async def setup(bot: commands.Bot):
     await bot.add_cog(Entartaiment(bot))
-    logger.info('Cog "Entartaiment" запущен!')

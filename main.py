@@ -45,7 +45,7 @@ class MyBot(commands.AutoShardedBot):
                 try:
                     await self.load_extension(egg.replace(os.sep, '.')[:-3])
                 except commands.NoEntryPointError:
-                    pass # сделать логирование для debug режима (потому что можно обосраться и гадать часами, почему ког не загружается)
+                    logger.debug(f"Модуль {egg} не имеет точки входа, поэтому он не был загружен.")
                 except Exception as e:
                     logger.error(f"При загрузке модуля {egg} произошла ошибка: {e}")
                     logger.error(traceback.format_exc())

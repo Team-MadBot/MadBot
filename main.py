@@ -65,7 +65,6 @@ class MadBot(commands.AutoShardedBot):
         logger.info("Соединено! Авторизация...")
 
     async def on_ready(self):
-        global started_at
         logs = self.get_channel(config.settings['log_channel'])  # Канал логов.
         assert isinstance(logs, discord.TextChannel)
         

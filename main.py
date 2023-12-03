@@ -53,7 +53,7 @@ class MadBot(commands.AutoShardedBot):
                     logger.info(f"Модуль {egg} успешно загружен.")
 
     async def db_migration(self):
-        logging.debug("Начинаю миграцию чёрного списка...")
+        logger.debug("Начинаю миграцию чёрного списка...")
         for resource in config.blacklist:
             db.add_blacklist(
                 resource_id=resource,
@@ -61,15 +61,15 @@ class MadBot(commands.AutoShardedBot):
                 reason=None,
                 until=None
             )
-            logging.debug(f"Пользователь с ID {resource} занесён в новый чёрный список.")
-        logging.debug("Чёрный список перенесён!")
-        logging.debug("Создание документа статистики бота...")
+            logger.debug(f"Пользователь с ID {resource} занесён в новый чёрный список.")
+        logger.debug("Чёрный список перенесён!")
+        logger.debug("Создание документа статистики бота...")
         db.create_bot_stats()
-        logging.debug("Статистика бота создана!")
+        logger.debug("Статистика бота создана!")
 
     async def setup_hook(self):
         if self.migrate_db:
-            logging.info("При запуске была указана необходимость миграции. Бот выполнит её перед полным запуском.")
+            logger.info("При запуске была указана необходимость миграции. Бот выполнит её перед полным запуском.")
             try:
                 await self.db_migration()
             except Exception:

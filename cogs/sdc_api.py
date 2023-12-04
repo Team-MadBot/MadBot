@@ -32,10 +32,10 @@ class SDC_API(commands.Cog):
                 data=body
             )
             if resp.ok:
-                logger.info("Статистика на SDC обновлена!") # put logging HERe
+                logger.info("Статистика на SDC обновлена!")
             else:
                 data = await resp.read()
-                logger.error("Статистика на SDC НЕ ОБНОВЛЕНА!:\n" + data.decode()) # put logging HERe
+                logger.error("Статистика на SDC НЕ ОБНОВЛЕНА!:\n" + data.decode())
     
     @sdc_stats.before_loop
     async def before_stats_update(self):

@@ -26,16 +26,16 @@ class SDC_API(commands.Cog):
 
         assert self.bot.user is not None, "Bot user is None!"
         async with aiohttp.ClientSession() as session:
-            resp = await session.post(
+            async with session.post(
                 f"https://api.server-discord.com/v2/bots/{self.bot.user.id}/stats",
                 headers=headers,
                 data=body
-            )
-            if resp.ok:
-                logger.info("Статистика на SDC обновлена!")
-            else:
-                data = await resp.read()
-                logger.error("Статистика на SDC НЕ ОБНОВЛЕНА!:\n" + data.decode())
+            ) as resp:
+                if resp.ok:
+                    logger.info("Статистика на SDC обновлена!")
+                else:
+                    data = await resp.read()
+                    logger.error("Статистика на SDC НЕ ОБНОВЛЕНА!:\n" + data.decode())
     
     @sdc_stats.before_loop
     async def before_stats_update(self):

@@ -4,7 +4,7 @@ aiohttp
 boticordpy
 numexpr
 qrcode
-pymongo
+motor
 fluent.runtime
 jishaku
 python_dotenv

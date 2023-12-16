@@ -9,10 +9,10 @@ from classes import db
 
 class BoticordRemind(commands.GroupCog, group_name="remind"):
     @app_commands.command(name="info", description="Информация о напоминании")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def remind_info(self, interaction: discord.Interaction):
-        user = db.get_user(user_id=interaction.user.id)
+        user = await db.get_user(user_id=interaction.user.id)
         user_next_bump = None if user is None else user['next_bump']
         is_enabled = "Включено" if user is not None and user['enabled'] else "Отключено"
         up_count = 0 if user is None else user['up_count']
@@ -35,9 +35,9 @@ class BoticordRemind(commands.GroupCog, group_name="remind"):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="disable", description="Отключение напоминания о повышении")
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def disable_remind(self, interaction: discord.Interaction):
-        user = db.get_user(user_id=interaction.user.id)
+        user = await db.get_user(user_id=interaction.user.id)
         if user is None or not user['enabled']:
             embed = discord.Embed(
                 title="Напоминание о повышении - Ошибка!",
@@ -47,7 +47,7 @@ class BoticordRemind(commands.GroupCog, group_name="remind"):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        db.update_user(user_id=interaction.user.id, enabled=False)
+        await db.update_user(user_id=interaction.user.id, enabled=False)
         embed = discord.Embed(
             title="Напоминание о повышении - Успешно!",
             color=discord.Color.green(),
@@ -57,10 +57,10 @@ class BoticordRemind(commands.GroupCog, group_name="remind"):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="enable", description="Включить напоминания о повышении")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def enable_remind(self, interaction: discord.Interaction):
-        user = db.get_user(user_id=interaction.user.id)
+        user = await db.get_user(user_id=interaction.user.id)
         if user is not None and user['enabled']:
             embed = discord.Embed(
                 title="Напоминание о повышении - Ошибка!",
@@ -69,13 +69,13 @@ class BoticordRemind(commands.GroupCog, group_name="remind"):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         elif user is None:
-            db.add_user(
+            await db.add_user(
                 user_id=interaction.user.id,
                 reminded=True, 
                 enabled=True
             )
         else:
-            db.update_user(user_id=interaction.user.id, enabled=True)
+            await db.update_user(user_id=interaction.user.id, enabled=True)
         
         embed = discord.Embed(
             title="Напоминание о повышении - Успешно!",

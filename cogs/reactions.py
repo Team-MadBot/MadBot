@@ -2,6 +2,7 @@ import discord
 import aiohttp
 import random
 import aiohttp
+import logging
 
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +10,8 @@ from discord import app_commands
 from classes import db
 from classes import checks
 from config import *
+
+logger = logging.getLogger('discord')
 
 class Reactions(commands.Cog):
     def __init__(self, bot):
@@ -40,8 +43,8 @@ class Reactions(commands.Cog):
         self.bot.tree.add_command(self.ctx_wink)
     
     @app_commands.command(name="hug", description="[Реакции] Обнять участника")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите обнять")
     async def hug(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -64,8 +67,8 @@ class Reactions(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def context_hug(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -88,8 +91,8 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="pat", description="[Реакции] Погладить участника")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите погладить")
     async def pat(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -112,8 +115,8 @@ class Reactions(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def context_pat(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -136,8 +139,8 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="wink", description="[Реакции] Подмигнуть. Можно и участнику.")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которому вы хотите подмигнуть.")
     async def wink(self, interaction: discord.Interaction, member: discord.User = None):
         if interaction.guild is None:
@@ -166,8 +169,8 @@ class Reactions(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def context_wink(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -191,8 +194,8 @@ class Reactions(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="slap", description="[Реакции] Лупит пользователя.")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите отлупить.")
     async def slap(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -210,8 +213,8 @@ class Reactions(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="kiss", description="[Реакции] Поцеловать участника")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите поцеловать.")
     async def kiss(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -236,8 +239,8 @@ class Reactions(commands.Cog):
             async def accepted(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user == member:
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
-                    marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
-                    marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
+                    marry = await db.get_marries(viewinteract.guild.id, viewinteract.user.id)
+                    marry1 = await db.get_marries(viewinteract.guild.id, interaction.user.id)
                     if (
                         marry is not None
                         and marry['user_id']
@@ -245,7 +248,7 @@ class Reactions(commands.Cog):
                         and marry['married_id']
                         in [viewinteract.user.id, interaction.user.id]
                     ):
-                        description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
+                        description = fr"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
                     elif marry1 is not None and (marry1['user_id'] == interaction.user.id or marry1['married_id'] == interaction.user.id):
@@ -281,8 +284,8 @@ class Reactions(commands.Cog):
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             await interaction.edit_original_response(embed=embed, view=None)
 
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def context_kiss(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -306,8 +309,8 @@ class Reactions(commands.Cog):
             async def accepted(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user == member:
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
-                    marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
-                    marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
+                    marry = await db.get_marries(viewinteract.guild.id, viewinteract.user.id)
+                    marry1 = await db.get_marries(viewinteract.guild.id, interaction.user.id)
                     if (
                         marry is not None
                         and marry['user_id']
@@ -315,7 +318,7 @@ class Reactions(commands.Cog):
                         and marry['married_id']
                         in [viewinteract.user.id, interaction.user.id]
                     ):
-                        description = f"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
+                        description = fr"{interaction.user.mention} и {member.mention} целуются. Как мило \<3."
                     elif marry is not None and (marry['user_id'] == viewinteract.user.id or marry['married_id'] == viewinteract.user.id):
                         description = f"{viewinteract.user.mention} поцеловал(-а) {interaction.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
                     elif marry1 is not None and (marry1['user_id'] == interaction.user.id or marry1['married_id'] == interaction.user.id):
@@ -352,8 +355,8 @@ class Reactions(commands.Cog):
             await interaction.edit_original_response(embed=embed, view=None)
 
     @app_commands.command(name="hit", description="[Реакции] Ударить участника")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите ударить.")
     async def hit(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -370,8 +373,8 @@ class Reactions(commands.Cog):
         embed.set_image(url=random.choice(hit_gifs))
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def context_hit(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -388,8 +391,8 @@ class Reactions(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="sad", description="[Реакции] Погрустить")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def sad(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -411,4 +414,3 @@ class Reactions(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Reactions(bot))
-    print("Cog \"Reactions\" запущен!")

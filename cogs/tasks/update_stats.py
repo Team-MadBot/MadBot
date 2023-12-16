@@ -1,5 +1,6 @@
 import discord
 import time
+import logging
 
 from discord.ext import commands
 from discord.ext import tasks
@@ -7,6 +8,9 @@ from discord.ext import tasks
 from contextlib import suppress
 
 from classes import db
+from contextlib import suppress
+
+logger = logging.getLogger('discord')
 
 class UpdateStatsCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
@@ -20,8 +24,7 @@ class UpdateStatsCog(commands.Cog):
     
     @tasks.loop(seconds=1)
     async def update_stats(self):
-        guilds = db.get_guilds_stats()
-        for guild in guilds:
+        async for guild in db.get_guilds_stats():
             if guild['next_update'] > time.time(): continue
             for channel_id in guild['channels']:
                 with suppress(Exception):
@@ -35,8 +38,8 @@ class UpdateStatsCog(commands.Cog):
                     try:
                         await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
                     except Exception as e:
-                        print(e)
-            db.update_guild_stats(
+                        logger.error(e)
+            await db.update_guild_stats(
                 guild_id=guild['id'],
                 next_update=int(time.time()) + 600
             )

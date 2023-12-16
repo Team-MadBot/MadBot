@@ -1,6 +1,6 @@
 from . import mongo_db
 
-def add_user(
+async def add_user(
     *,
     user_id: int,
     enabled: bool = False,
@@ -8,7 +8,7 @@ def add_user(
     reminded: bool = False,
     up_count: int = 0
 ):
-    mongo_db.reminder.insert_one(
+    await mongo_db.reminder.insert_one(
         {
             "user_id": str(user_id),
             "enabled": enabled,
@@ -18,28 +18,28 @@ def add_user(
         }
     )
 
-def get_user(user_id: int):
-    return mongo_db.reminder.find_one({"user_id": str(user_id)})
+async def get_user(user_id: int):
+    return await mongo_db.reminder.find_one({"user_id": str(user_id)})
 
 def get_users(**kwargs):
-    return list(mongo_db.reminder.find(kwargs))
+    return mongo_db.reminder.find(kwargs)
 
-def increment_user(
+async def increment_user(
     user_id: int,
     **kwargs
 ):
-    mongo_db.reminder.update_one(
+    await mongo_db.reminder.update_one(
         {"user_id": str(user_id)},
         {
             "$inc": kwargs
         }
     )
 
-def update_user(
+async def update_user(
     user_id: int,
     **kwargs
 ):
-    mongo_db.reminder.update_one(
+    await mongo_db.reminder.update_one(
         {"user_id": str(user_id)},
         {
             "$set": kwargs

@@ -1,25 +1,25 @@
 from . import mongo_db as db
 
-from typing import Optional, List
+from typing import Optional
 
-def get_all_blacklist() -> List[dict]:
+def get_all_blacklist():
     coll = db.blacklist
-    return list(coll.find())
+    return coll.find()
 
-def get_blacklist(resource_id: int) -> Optional[dict]:
+async def get_blacklist(resource_id: int) -> Optional[dict]:
     coll = db.blacklist
-    return coll.find_one({"resource_id": str(resource_id)})
+    return await coll.find_one({"resource_id": str(resource_id)})
 
-def add_blacklist(
+async def add_blacklist(
     resource_id: int, 
     moderator_id: int,
     reason: Optional[str] = None,
     until: Optional[int] = None
 ) -> bool:
     coll = db.blacklist
-    if get_blacklist(resource_id): # no dublicates
+    if await get_blacklist(resource_id): # no dublicates
         return False
-    coll.insert_one(
+    await coll.insert_one(
         {
             "resource_id": str(resource_id),
             "moderator_id": str(moderator_id),
@@ -29,7 +29,7 @@ def add_blacklist(
     )
     return True
 
-def remove_blacklist(resource_id: int) -> bool:
+async def remove_blacklist(resource_id: int) -> bool:
     coll = db.blacklist
-    coll.delete_one({"resource_id": str(resource_id)})
+    await coll.delete_one({"resource_id": str(resource_id)})
     return True

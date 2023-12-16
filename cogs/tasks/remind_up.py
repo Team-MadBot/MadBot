@@ -21,8 +21,7 @@ class RemindUpCog(commands.Cog):
 
     @tasks.loop(seconds=1)
     async def remind_up(self):
-        users = db.get_users()
-        for user in users:
+        async for user in db.get_users():
             if user["next_bump"] > time.time(): continue
             if user["reminded"] or not user["enabled"]: continue
             bc_wh = discord.Webhook.from_url(
@@ -42,7 +41,7 @@ class RemindUpCog(commands.Cog):
             ).set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
-            db.update_user(
+            await db.update_user(
                 user_id=user['user_id'],
                 reminded=True
             )

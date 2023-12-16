@@ -2,7 +2,7 @@ from . import mongo_db as db
 
 from typing import Optional
 
-def get_guild_autorole(guild_id: int) -> Optional[int]:
+async def get_guild_autorole(guild_id: int) -> Optional[int]:
     """
     Gets info about autorole in the guild.
 
@@ -13,11 +13,11 @@ def get_guild_autorole(guild_id: int) -> Optional[int]:
     - ID of the role, if any.
     """
     coll = db.autorole
-    autorole = coll.find_one({'guild_id': str(guild_id)})
+    autorole = await coll.find_one({'guild_id': str(guild_id)})
     if autorole is not None: autorole = int(autorole['role_id'])
     return autorole
 
-def add_guild_autorole(guild_id: int, role_id: int) -> bool:
+async def add_guild_autorole(guild_id: int, role_id: int) -> bool:
     """
     Adds autorole to the guild.
 
@@ -26,10 +26,10 @@ def add_guild_autorole(guild_id: int, role_id: int) -> bool:
     - `role_id` - ID of the role.
     """
     coll = db.autorole
-    coll.insert_one({'guild_id': str(guild_id), 'role_id': str(role_id)})
+    await coll.insert_one({'guild_id': str(guild_id), 'role_id': str(role_id)})
     return True
 
-def delete_guild_autorole(guild_id: int) -> bool:
+async def delete_guild_autorole(guild_id: int) -> bool:
     """
     Deletes autorole from the guild.
 
@@ -37,10 +37,10 @@ def delete_guild_autorole(guild_id: int) -> bool:
     - `guild_id` - ID of the guild.
     """
     coll = db.autorole
-    coll.delete_one({'guild_id': str(guild_id)})
+    await coll.delete_one({'guild_id': str(guild_id)})
     return True
 
-def update_guild_autorole(guild_id: int, role_id: int) -> bool:
+async def update_guild_autorole(guild_id: int, role_id: int) -> bool:
     """
     Updates autorole in the guild.
 
@@ -49,10 +49,10 @@ def update_guild_autorole(guild_id: int, role_id: int) -> bool:
     - `role_id` - ID of the new role.
     """
     coll = db.autorole
-    coll.update_one({'guild_id': str(guild_id)}, {"$set": {'role_id': str(role_id)}})
+    await coll.update_one({'guild_id': str(guild_id)}, {"$set": {'role_id': str(role_id)}})
     return True
 
-def get_all_autoroles() -> Optional[bool]:
+def get_all_autoroles():
     """
     Gets all autoroles, if any.
     """

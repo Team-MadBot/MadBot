@@ -21,8 +21,8 @@ class UserInfo(commands.Cog):
 
     @app_commands.command(name="userinfo", description="[Полезности] Показывает информацию о пользователе")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member='Участник')
     async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):
         if interaction.guild is None:
@@ -64,9 +64,9 @@ class UserInfo(commands.Cog):
         embed.set_image(url=member.display_avatar.replace(static_format="png", size=2048))
         embed.set_footer(text=f"Формат: png | Размер: 2048 | Тип аватара: Серверный.")
 
-        if checks.is_in_blacklist(member.id):
+        if await checks.is_in_blacklist(member.id):
             badges += '<:ban:946031802634612826> '
-        if isPremium(self.bot, member.id) != 'None':
+        if await isPremium(self.bot, member.id) != 'None':
             badges += '<a:premium:988735181546475580> '
         if member.is_timed_out():
             badges += '<:timeout:950702768782458893> '

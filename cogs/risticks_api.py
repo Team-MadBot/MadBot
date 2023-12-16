@@ -3,13 +3,16 @@ import aiohttp
 import traceback
 import time
 import datetime
+import logging
 
 from discord.ext import commands
 from discord import app_commands
 from config import settings
 
+logger = logging.getLogger('discord')
+
 class RisticksAPI(commands.Cog):
-    RISTICKS_LOGO_URL = "https://cdn.discordapp.com/attachments/956616897363869796/1132780455075258398/f16881a431f94ec8eb4ffc946320ed3a.png"
+    RISTICKS_LOGO_URL = "https://i.imgur.com/nMMTavR.png"
 
     NO_GUILD_ERROR = discord.Embed(
         title="Ошибка!",
@@ -124,7 +127,7 @@ class RisticksAPI(commands.Cog):
         try:
             resp = await self._bump(interaction.guild.id, interaction.user.id)
         except:
-            traceback.print_exc()
+            logger.error(traceback.format_exc())
             return await interaction.followup.send(
                 embed=self.UNKNOWN_RISTICKS_ERROR
             )
@@ -135,7 +138,7 @@ class RisticksAPI(commands.Cog):
             )
 
         if resp.get("code") is None or resp.get("code") >= 400:
-            print(resp)
+            logger.debug(resp)
             return await interaction.followup.send(
                 embed=self.UNKNOWN_RISTICKS_ERROR
             )

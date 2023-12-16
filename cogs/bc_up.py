@@ -44,7 +44,7 @@ class SetReminderButton(ui.Button):
         if interaction.user.id != self.user_id:
             return await interaction.response.send_message("Не для тебя кнопочка!", ephemeral=True)
         
-        user = db.get_user(user_id=self.user_id)
+        user = await db.get_user(user_id=self.user_id)
         if user is not None and user['enabled']:
             embed = discord.Embed(
                 title="Напоминание о повышении",
@@ -58,12 +58,12 @@ class SetReminderButton(ui.Button):
                 ephemeral=True
             )
         elif user is not None:
-            db.update_user(
+            await db.update_user(
                 user_id=self.user_id,
                 enabled=True
             )
         else:
-            db.add_user(
+            await db.add_user(
                 user_id=self.user_id,
                 enabled=True,
                 next_bump=self.upped_at + 3600 * 6,
@@ -158,15 +158,13 @@ class BoticordBotUp(commands.Cog):
             return [resp, json]
         
     @app_commands.command(name="up", description="[Boticord] Апнуть бота на мониторинге")
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.checks.cooldown(1, 5.0)
     async def bump_bot(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
 
         resp, resp_json = await self.get_captcha(interaction.user.id)
-        print(resp_json)
-        print(resp.status)
 
         if resp.status == 403:
             embed = discord.Embed(
@@ -174,7 +172,7 @@ class BoticordBotUp(commands.Cog):
                 color=discord.Color.red(),
                 description="Боту необходимо иметь 3 уровень буста на сайте. Вы можете помочь в этом, "
                 "совершив покупку буста [здесь](https://boticord.top/boost) и выдав его на странице бота, "
-                "нажав на кнопку перехода на страницу бота снизу \:)"
+                r"нажав на кнопку перехода на страницу бота снизу \:)"
             ).set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
@@ -197,15 +195,15 @@ class BoticordBotUp(commands.Cog):
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
             await interaction.followup.send(embed=embed, ephemeral=True)
-            db_user = db.get_user(user_id=interaction.user.id)
+            db_user = await db.get_user(user_id=interaction.user.id)
             if db_user is not None:
-                db.update_user(
+                await db.update_user(
                     user_id=interaction.user.id,
                     next_bump=next_bump,
                     reminded=False
                 )
             else:
-                db.add_user(
+                await db.add_user(
                     user_id=interaction.user.id,
                     next_bump=next_bump
                 )
@@ -278,8 +276,6 @@ class BoticordBotUp(commands.Cog):
             user_id=interaction.user.id,
             answer=view.value
         )
-        print(resp_json)
-        print(resp.status)
 
         if not resp.ok:
             embed = discord.Embed(
@@ -326,21 +322,21 @@ class BoticordBotUp(commands.Cog):
         next_up = round(time.time()) + 3600 * 6
         view = LinktoBoticord(bot_id=self.bot.user.id)
 
-        db_user = db.get_user(user_id=user.id)
+        db_user = await db.get_user(user_id=user.id)
         view.add_item(SetReminderButton(user.id, disabled=db_user is not None))
 
         if db_user is not None:
-            db.update_user(
+            await db.update_user(
                 user_id=user.id,
                 next_bump=next_up,
                 reminded=False
             )
-            db.increment_user(
+            await db.increment_user(
                 user_id=user.id,
                 up_count=1
             )
         else:
-            db.add_user(
+            await db.add_user(
                 user_id=user.id,
                 next_bump=next_up,
                 up_count=1

@@ -10,7 +10,7 @@ class PingTrigger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author == self.bot.user or checks.is_in_blacklist(message.author.id):
+        if message.author == self.bot.user or await checks.is_in_blacklist(message.author.id):
             return
 
         if message.content in [

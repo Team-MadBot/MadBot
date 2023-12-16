@@ -16,7 +16,7 @@ def isPremium(bot: commands.AutoShardedBot, user_id: int) -> str:
     Returns:
         str: The premium type if the user is premium, else 'None'.
     """
-    isPrem = asyncio.run(db.get_premium_user(user_id=user_id))
+    isPrem = asyncio.get_event_loop().run_until_complete(db.get_premium_user(user_id=user_id))
     if isPrem is None: isPrem = {'type': 'None'}
     return isPrem['type']
 
@@ -30,8 +30,10 @@ def isPremiumServer(bot: commands.AutoShardedBot, guild: discord.Guild) -> bool:
     Returns:
         bool: True if the guild has premium, False otherwise.
     """
-    isPrem = asyncio.run(db.get_premium_guild_info(guild_id=guild.id))
-    if isPrem is not None and isPremium(bot, isPrem['user_id']) is None: asyncio.run(db.take_guild_premium(guild_id=guild.id))
+    isPrem = asyncio.get_event_loop().run_until_complete(db.get_premium_guild_info(guild_id=guild.id))
+    if isPrem is not None and isPremium(bot, isPrem['user_id']) is None: asyncio.get_event_loop().run_until_complete(
+        db.take_guild_premium(guild_id=guild.id)
+    )
     return isPrem is not None and isPremium(bot, isPrem['user_id']) != 'None'
 
 def is_in_blacklist(resource_id: int) -> bool:
@@ -43,7 +45,7 @@ def is_in_blacklist(resource_id: int) -> bool:
     Returns:
         bool: True if the resource ID is in the blacklist, False otherwise.
     """
-    return bool(asyncio.run(db.get_blacklist(resource_id)))
+    return bool(asyncio.get_event_loop().run_until_complete(db.get_blacklist(resource_id)))
 
 
 def is_shutted_down(command: str) -> bool:
@@ -55,4 +57,4 @@ def is_shutted_down(command: str) -> bool:
     Returns:
         bool: True if the command is shut down, False otherwise.
     """
-    return bool(asyncio.run(db.get_shutted_command(command)))
+    return bool(asyncio.get_event_loop().run_until_complete(db.get_shutted_command(command)))

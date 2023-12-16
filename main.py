@@ -225,6 +225,7 @@ if __name__ == '__main__':
         dest="migrate_db"
     )
     args = parser.parse_args()
+    config.settings['debug_mode'] = args.debug_mode
     logger.info("Подключение к Discord...")
     bot = MadBot(migrate_db=args.migrate_db)
     bot.run(

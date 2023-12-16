@@ -2,12 +2,12 @@ from . import client
 
 from typing import Optional
 
-def get_premium_user(user_id: int) -> Optional[dict]:
+async def get_premium_user(user_id: int) -> Optional[dict]:
     db = client.premium
     coll = db.user
-    return coll.find_one({'user_id': str(user_id)})
+    return await coll.find_one({'user_id': str(user_id)})
 
-def give_premium(user_id: int, type: str) -> bool:
+async def give_premium(user_id: int, type: str) -> bool:
     """
     Gives premium for a user.
 
@@ -17,10 +17,10 @@ def give_premium(user_id: int, type: str) -> bool:
     """
     db = client.premium
     coll = db.user
-    coll.insert_one({'user_id': str(user_id), 'type': type})
+    await coll.insert_one({'user_id': str(user_id), 'type': type})
     return True
 
-def take_premium(user_id: int) -> bool:
+async def take_premium(user_id: int) -> bool:
     """
     Takes premium from the user.
 
@@ -29,7 +29,7 @@ def take_premium(user_id: int) -> bool:
     """
     db = client.premium
     coll = db.user
-    coll.delete_one({'user_id': str(user_id)})
+    await coll.delete_one({'user_id': str(user_id)})
     return True
 
 def get_premium_guids(user_id: int) -> Optional[dict]:
@@ -43,7 +43,7 @@ def get_premium_guids(user_id: int) -> Optional[dict]:
     coll = db.guild
     return coll.find({'user_id': str(user_id)})
 
-def get_premium_guild_info(guild_id: int) -> Optional[list]:
+async def get_premium_guild_info(guild_id: int) -> Optional[list]:
     """
     Gets info about premium server.
 
@@ -52,9 +52,9 @@ def get_premium_guild_info(guild_id: int) -> Optional[list]:
     """
     db = client.premium
     coll = db.guild
-    return coll.find_one({'guild_id': str(guild_id)})
+    return await coll.find_one({'guild_id': str(guild_id)})
 
-def take_guild_premium(guild_id: int) -> bool:
+async def take_guild_premium(guild_id: int) -> bool:
     """
     Takes premium from the guild.
 
@@ -64,7 +64,7 @@ def take_guild_premium(guild_id: int) -> bool:
     try:
         db = client.premium
         coll = db.guild
-        coll.delete_one({'guild_id': str(guild_id)})
+        await coll.delete_one({'guild_id': str(guild_id)})
         return True
     except Exception as e:
         raise e

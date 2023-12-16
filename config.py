@@ -1,4 +1,3 @@
-import discord
 import time
 import os
 
@@ -8,6 +7,7 @@ load_dotenv()
 
 settings = {
     'min_members': 10,
+    'debug_mode': False,
     'token': os.environ.get("TOKEN"),
     'app_id': int(os.environ.get("APP_ID")), # type: ignore
     'key': os.environ.get("SRA_TOKEN"),
@@ -32,7 +32,8 @@ settings = {
     'bcv2_token': os.environ.get("BC_TOKEN"),
     'unbelieva_token': os.environ.get("UNBELIEVA_TOKEN"),
     'risticks_token': os.environ.get("RISTICKS_TOKEN"),
-    'curr_version': os.environ.get("CURRENT_VERSION")
+    'curr_version': os.environ.get("CURRENT_VERSION"),
+    'mongo_url': os.environ.get("MONGO_URL")
 }
 
 started_at = int( # Время запуска бота. Не изменять.

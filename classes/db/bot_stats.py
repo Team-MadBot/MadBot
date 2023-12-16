@@ -2,13 +2,13 @@ from . import mongo_db as db
 
 from typing import Optional
 
-def get_bot_stats() -> dict:
+async def get_bot_stats() -> dict:
     coll = db.bot_stats
-    return coll.find_one({})
+    return await coll.find_one({})
 
-def update_used_commands() -> bool:
+async def update_used_commands() -> bool:
     coll = db.bot_stats
-    coll.update_one(
+    await coll.update_one(
         {},
         {
             "$inc": {
@@ -18,9 +18,9 @@ def update_used_commands() -> bool:
     )
     return True
 
-def update_last_command(last_command: str) -> bool:
+async def update_last_command(last_command: str) -> bool:
     coll = db.bot_stats
-    coll.update_one(
+    await coll.update_one(
         {},
         {
             "$set": {
@@ -30,14 +30,14 @@ def update_last_command(last_command: str) -> bool:
     )
     return True
 
-def create_bot_stats(
+async def create_bot_stats(
     last_command: Optional[str] = None,
     used_commands: Optional[int] = 0
 ) -> bool: # for debug purposes
     coll = db.bot_stats
-    if coll.find_one() is not None:
+    if await coll.find_one() is not None:
         return False
-    coll.insert_one(
+    await coll.insert_one(
         {
             "last_command": last_command,
             "used_commands": used_commands

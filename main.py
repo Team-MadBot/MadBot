@@ -68,6 +68,16 @@ class MadBot(commands.AutoShardedBot):
         logger.debug("Статистика бота создана!")
 
     async def setup_hook(self):
+        try:
+            logger.info("Проверка работы базы данных...")
+            await db.ping_db()
+        except Exception as e:
+            logger.critical(traceback.format_exc())
+            logger.critical(
+                "Невозможно \"достучаться\" до базы данных! Работа без неё НЕВОЗМОЖНА!!! Прерывание работы бота...\n"
+                "Подробнее об ошибке Вы можете посмотреть выше."
+            )
+            exit(1)
         if self.migrate_db:
             logger.info("При запуске была указана необходимость миграции. Бот выполнит её перед полным запуском.")
             try:

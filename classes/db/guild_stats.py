@@ -1,5 +1,4 @@
 from . import client as mongo_client
-from motor import MotorCursor
 
 db = mongo_client.stats
 
@@ -16,7 +15,7 @@ async def add_guild_stats(
         }
     )
 
-def get_guilds_stats() -> MotorCursor:
+def get_guilds_stats():
     return db.guilds.find()
 
 async def get_guild_stats(

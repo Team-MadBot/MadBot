@@ -1,10 +1,8 @@
 from . import mongo_db as db
 
-from motor import MotorCursor
-
 from typing import Optional
 
-def get_all_blacklist() -> MotorCursor:
+def get_all_blacklist():
     coll = db.blacklist
     return coll.find()
 

@@ -1,7 +1,6 @@
 import time
 
 from . import mongo_db as db
-from motor import MotorCursor
 
 from typing import (
     Optional,
@@ -19,7 +18,7 @@ async def get_marries(guild_id: int, user_id: int) -> Optional[dict]:
     coll = db.marries
     return await coll.find_one({'guild_id': guild_id, "$or": [{'user_id': user_id}, {'married_id': user_id}]})
 
-def get_all_marries(guild_id: int) -> MotorCursor:
+def get_all_marries(guild_id: int):
     """
     Getting all marries in the guild.
 

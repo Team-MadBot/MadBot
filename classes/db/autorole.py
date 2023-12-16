@@ -1,6 +1,5 @@
 from . import mongo_db as db
 
-from motor import MotorCursor
 from typing import Optional
 
 async def get_guild_autorole(guild_id: int) -> Optional[int]:
@@ -53,7 +52,7 @@ async def update_guild_autorole(guild_id: int, role_id: int) -> bool:
     await coll.update_one({'guild_id': str(guild_id)}, {"$set": {'role_id': str(role_id)}})
     return True
 
-def get_all_autoroles() -> MotorCursor:
+def get_all_autoroles():
     """
     Gets all autoroles, if any.
     """

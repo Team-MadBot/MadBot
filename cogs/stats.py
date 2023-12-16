@@ -312,7 +312,7 @@ class Stats(commands.Cog):
         )
 
         class Select(ui.Select):
-            def __init__(self):
+            def __init__(self, guild_channels: list):
                 options = [
                     discord.SelectOption(
                         label="Кол-во эмодзи",
@@ -354,7 +354,7 @@ class Stats(commands.Cog):
                     )
                 ]
                 if interaction.client.intents.members and interaction.client.intents.presences: options = intent_options + options
-                channels = asyncio.run(db.get_guild_stats(guild_id=interaction.guild.id))['channels']
+                channels = guild_channels
                 for channel in channels:
                     for option in options:
                         if option.value == channel['type']: options.remove(option)
@@ -410,11 +410,12 @@ class Stats(commands.Cog):
                 await interaction.edit_original_response(view=None)
 
         class View(ui.View):
-            def __init__(self):
+            def __init__(self, guild_channels: list):
                 super().__init__(timeout=None)
-                self.add_item(Select())
+                self.add_item(Select(guild_channels))
 
-        await interaction.response.send_message(embed=embed, view=View(), ephemeral=True)
+        guild_channels = await db.get_guild_stats(guild_id=interaction.guild.id)['channels']
+        await interaction.response.send_message(embed=embed, view=View(guild_channels), ephemeral=True)
 
     @app_commands.command(name="stats-delete", description="[Статистика] Удалить статистику")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)

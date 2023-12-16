@@ -17,7 +17,7 @@ class ServerInfo(commands.Cog):
 
     @app_commands.command(name="serverinfo", description="[Полезности] Информация о сервере")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def serverinfo(self, interaction: discord.Interaction):
         if interaction.guild is None:

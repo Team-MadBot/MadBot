@@ -43,8 +43,8 @@ async def is_in_blacklist(resource_id: int) -> bool:
     """
     return bool(await db.get_blacklist(resource_id))
 
-async def interaction_is_in_blacklist(interaction: discord.Interaction) -> bool:
-    """Checks if a resource ID is in the blacklist, but for discord.py's `checks` function
+async def interaction_is_not_in_blacklist(interaction: discord.Interaction) -> bool:
+    """Checks if a resource ID isn't in the blacklist, but for discord.py's `checks` function
     
     Args:
         interaction (discord.Interaction): Discord's interaction class.
@@ -65,8 +65,8 @@ async def is_shutted_down(command: str) -> bool:
     """
     return bool(await db.get_shutted_command(command))
 
-async def interaction_is_shutted_down(interaction: discord.Interaction) -> bool:
-    """Checks if a command is currently shut down, but for discord.py's `checks` function
+async def interaction_is_not_shutted_down(interaction: discord.Interaction) -> bool:
+    """Checks if a command isn't currently shut down, but for discord.py's `checks` function
     
     Args:
         interaction (discord.Interaction): Discord's interaction class.

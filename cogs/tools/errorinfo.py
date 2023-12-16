@@ -12,7 +12,7 @@ class ErrorInfo(commands.Cog):
     
     @app_commands.command(name="errors", description="[Полезности] Список ошибок и решения их")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def errors(self, interaction: discord.Interaction):
         embed = discord.Embed(title="Ошибки бота:", color=discord.Color.orange())

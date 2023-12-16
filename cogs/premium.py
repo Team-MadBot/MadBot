@@ -20,7 +20,7 @@ class Premium(commands.Cog):
         class Premium(app_commands.Group):
             "Управление премиум-подпиской"
             @app_commands.command(name="give", description="Дать премиум серверу")
-            @app_commands.check(checks.interaction_is_in_blacklist)
+            @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_shutted_down)
             async def give(self, interaction: discord.Interaction):
                 if await isPremium(interaction.client, interaction.user.id) == 'None':
@@ -63,7 +63,7 @@ class Premium(commands.Cog):
                 await interaction.response.send_message(embed=embed)
                 
             @app_commands.command(name="take", description="Забрать премиум с сервера")
-            @app_commands.check(checks.interaction_is_in_blacklist)
+            @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_shutted_down)
             async def take(self, interaction: discord.Interaction):
                 if await isPremium(interaction.client, interaction.user.id) == 'None':
@@ -97,7 +97,7 @@ class Premium(commands.Cog):
                 await interaction.response.send_message(embed=embed)
             
             @app_commands.command(name="list", description="Список серверов, на которые Вы дали премиум")
-            @app_commands.check(checks.interaction_is_in_blacklist)
+            @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_shutted_down)
             async def info(self, interaction: discord.Interaction):
                 if await isPremium(interaction.client, interaction.user.id) == 'None':
@@ -168,7 +168,7 @@ class Premium(commands.Cog):
                 await interaction.response.send_message(embed=prem_embed, view=View())
 
             @app_commands.command(name="buy", description="Купить премиум")
-            @app_commands.check(checks.interaction_is_in_blacklist)
+            @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_shutted_down)
             async def buy(self, interaction: discord.Interaction):
                 embed = discord.Embed(

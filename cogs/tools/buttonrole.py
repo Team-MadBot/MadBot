@@ -15,7 +15,7 @@ class ButtonRole(commands.Cog):
 
     @app_commands.command(name="buttonrole", description="[Полезности] Настроить выдачу ролей по нажатию кнопки.")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def buttonrole(
         self, 

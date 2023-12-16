@@ -41,7 +41,7 @@ class BotInfo(commands.Cog):
     
     @app_commands.command(name="botinfo", description="[Полезности] Информация о боте")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def botinfo(self, interaction: discord.Interaction):
         embed = discord.Embed(title=f"{self.bot.user.name} - v{settings['curr_version']}", color=discord.Color.orange(), description=f"Для выбора категории используйте меню снизу.\n\n**Основная информация:**")

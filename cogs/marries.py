@@ -17,7 +17,7 @@ class Marries(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="marry", description="[Свадьбы] Пожениться")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, с которым Вы хотите пожениться.")
     async def marry(self, interaction: discord.Interaction, member: discord.User):
@@ -123,7 +123,7 @@ class Marries(commands.Cog):
         await interaction.edit_original_response(embed=embed, content=None, view=None)
     
     @app_commands.command(name="divorce", description="[Свадьбы] Развод")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def dibvorce(self, interaction: discord.Interaction):
         if interaction.guild is None:
@@ -192,7 +192,7 @@ class Marries(commands.Cog):
         await interaction.edit_original_response(embed=embed, view=None)
     
     @app_commands.command(name="marry-info", description="[Свадьбы] Информация о Вашем браке")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, чей брак Вы хотите посмотреть.")
     async def marry_info(self, interaction: discord.Interaction, member: discord.User = None):
@@ -230,7 +230,7 @@ class Marries(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="marries", description="[Свадьбы] Список браков.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def marries(self, interaction: discord.Interaction):
         if interaction.guild is None:
@@ -252,7 +252,7 @@ class Marries(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="marry-people", description="[Свадьбы] Поженить принудительно пару.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(
         member="Участник, которого Вы хотите поженить.", 
@@ -314,7 +314,7 @@ class Marries(commands.Cog):
         await interaction.response.send_message(embed=embed, content=f"<@!{user_id}> и <@!{member_id}>")
     
     @app_commands.command(name="divorce-people", description="[Свадьбы] Развести принудительно пару.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которого Вы хотите развести.")
     async def divorce_people(self, interaction: discord.Interaction, member: discord.User):

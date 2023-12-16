@@ -17,7 +17,7 @@ class Moderation(commands.Cog):
         self.bot = bot
     
     @app_commands.command(name="kick", description="[Модерация] Выгнать участника с сервера")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member='Участник, который будет исключен', reason="Причина кика")
     async def kick(
@@ -109,7 +109,7 @@ class Moderation(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="ban", description="[Модерация] Забанить участника на сервере")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member='Участник, который будет забанен', reason="Причина бана", delete_message_days="За какой период дней удалить сообщения.")
     async def ban(
@@ -194,7 +194,7 @@ class Moderation(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="unban", description="[Модерация] Разбанить участника на сервере")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, который должен быть разбанен", reason="Причина разбана")
     async def unban(
@@ -262,7 +262,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="clear", description="[Модерация] Очистка сообщений")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(
         radius='Радиус, в котором будут очищаться сообщения.', 
@@ -313,7 +313,7 @@ class Moderation(commands.Cog):
             return await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="slowmode", description="[Модерация] Установить медленный режим в данном канале. Введите 0 для отключения.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(seconds="Кол-во секунд. Укажите 0 для снятия.", reason='Причина установки медленного режима')
     async def slowmode(
@@ -371,7 +371,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="timeout", description="[Модерация] Отправляет участника подумать о своем поведении")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(
         member="Участник, которому нужно выдать тайм-аут", 
@@ -492,7 +492,7 @@ class Moderation(commands.Cog):
         return await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name='clone', description="[Модерация] Клонирует чат.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(delete_original="Удалять ли клонируемый канал?", reason="Причина клонирования")
     async def clone(
@@ -551,7 +551,7 @@ class Moderation(commands.Cog):
                 )
 
     @app_commands.command(name="resetnick", description="[Модерация] Просит участника поменять ник")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, которого надо попросить сменить ник", reason="Причина сброса ника")
     async def resetnick(

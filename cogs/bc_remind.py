@@ -9,7 +9,7 @@ from classes import db
 
 class BoticordRemind(commands.GroupCog, group_name="remind"):
     @app_commands.command(name="info", description="Информация о напоминании")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def remind_info(self, interaction: discord.Interaction):
         user = await db.get_user(user_id=interaction.user.id)
@@ -57,7 +57,7 @@ class BoticordRemind(commands.GroupCog, group_name="remind"):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="enable", description="Включить напоминания о повышении")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def enable_remind(self, interaction: discord.Interaction):
         user = await db.get_user(user_id=interaction.user.id)

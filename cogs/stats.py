@@ -34,7 +34,7 @@ class Stats(commands.Cog):
 
     @app_commands.command(name="stats-setup", description="[Статистика] Настройка статистики")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def stats_setup(self, interaction: discord.Interaction):
         if interaction.guild is None:
@@ -201,7 +201,7 @@ class Stats(commands.Cog):
     )
     @app_commands.autocomplete(channel=es_autocomplete)
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(channel="Канал, который Вы хотите изменить или удалить.")
     async def edit_stats(self, interaction: discord.Interaction, channel: Optional[str]):
@@ -419,7 +419,7 @@ class Stats(commands.Cog):
 
     @app_commands.command(name="stats-delete", description="[Статистика] Удалить статистику")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def stats_delete(self, interaction: discord.Interaction):
         if interaction.guild is None:
@@ -467,7 +467,7 @@ class Stats(commands.Cog):
 
     @app_commands.command(name="stats-info", description='[Статистика] Показывает информацию о статистике.')
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def stats_info(self, interaction: discord.Interaction):
         if interaction.guild is None:

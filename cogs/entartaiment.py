@@ -21,7 +21,7 @@ class Entartaiment(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="cat", description="[Развлечения] Присылает рандомного котика")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def cat(self, interaction: discord.Interaction):
         resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/cat?key={settings['key']}")
@@ -35,7 +35,7 @@ class Entartaiment(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="dog", description="[Развлечения] Присылает рандомного пёсика")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def dog(self, interaction: discord.Interaction):
         resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/dog?key={settings['key']}")
@@ -49,7 +49,7 @@ class Entartaiment(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="math", description="[Развлечения] Реши несложный пример на сложение/вычитание")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def math_cmd(self, interaction: discord.Interaction):
         choice = ['+','-']
@@ -113,7 +113,7 @@ class Entartaiment(commands.Cog):
         await interaction.edit_original_response(view=None)
 
     @app_commands.command(name="doors", description="[Развлечения] Угадай дверь.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def doors(self, interaction: discord.Interaction):
         class DoorsButtons(discord.ui.View):
@@ -180,7 +180,7 @@ class Entartaiment(commands.Cog):
             return await interaction.edit_original_response(embed=embed, view=None)
 
     @app_commands.command(name="ball", description="[Развлечения] Магический шар.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(question="Вопрос, адресованный шару.")
     async def ball(self, interaction: discord.Interaction, question: app_commands.Range[str, None, 1024]):
@@ -214,7 +214,7 @@ class Entartaiment(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name='knb', description="[Развлечения] Камень, ножницы, бумага.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
     async def knb(self, interaction: discord.Interaction, member: discord.User = None):
@@ -400,7 +400,7 @@ class Entartaiment(commands.Cog):
                     await interaction.edit_original_response(embed=embed, view=None)
 
     @app_commands.command(name='tic-tac-toe', description="[Развлечения] Крестики-нолики.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
     async def tictac(self, interaction: discord.Interaction, member: discord.User):
@@ -571,7 +571,7 @@ class Entartaiment(commands.Cog):
     
     @app_commands.command(name="hangman", description="[Развлечения] Виселица (игра)")
     @app_commands.describe(member="Игрок, с кем вы хотите поиграть")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def hangman(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -799,7 +799,7 @@ class Entartaiment(commands.Cog):
         await interaction.edit_original_response(embed=embed, view=Button())
     
     @app_commands.command(name="coin", description="[Развлечения] Бросить монетку.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def coin(self, interaction: discord.Interaction):
         ans = choice(["Орёл", "Решка"])
@@ -810,7 +810,7 @@ class Entartaiment(commands.Cog):
     
     @app_commands.command(name='russian-roulette', description="[Развлечения] Русская рулетка")
     @app_commands.describe(count="Кол-во пуль. По умолчанию: 1")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def rr(self, interaction: discord.Interaction, count: app_commands.Range[int, 1, 5] = 1):
         shoot = random.randint(0,6)
@@ -831,7 +831,7 @@ class Entartaiment(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="duel", description="[Развлечения] Дуэль с участником.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть.")
     async def duel(self, interaction: discord.Interaction, member: discord.User):
@@ -1013,7 +1013,7 @@ class Entartaiment(commands.Cog):
             await interaction.edit_original_response(embed=embed, view=None)
 
     @app_commands.command(name="number", description="[Развлечения] Угадать число")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def whatsnumber(self, interaction: discord.Interaction, member: discord.User = None):
         if interaction.guild is None:
@@ -1192,7 +1192,7 @@ class Entartaiment(commands.Cog):
         await interaction.response.send_message(embed=embed, view=Button()) if member == None else await interaction.edit_original_response(embed=embed, view=Button())
         
     @app_commands.command(name='dice', description="[Развлечения] Сыграй в кости с другом.")
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть")
     async def dice(self, interaction: discord.Interaction, member: discord.User):
@@ -1284,7 +1284,7 @@ class Entartaiment(commands.Cog):
         await interaction.edit_original_response(embed=embed, view=None)
     
     @app_commands.command(name="tol", description='[Развлечения] Правда или ложь.')
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member="Участник, с которым Вы хотите поиграть.")
     async def tol(self, interaction: discord.Interaction, member: discord.User):

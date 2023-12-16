@@ -15,7 +15,7 @@ class HelpCommand(commands.Cog):
 
     @app_commands.command(name="help", description="[Полезности] Показывает основную информацию о боте.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     async def help(self, interaction: discord.Interaction):
         commands = self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)

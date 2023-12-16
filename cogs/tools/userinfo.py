@@ -21,7 +21,7 @@ class UserInfo(commands.Cog):
 
     @app_commands.command(name="userinfo", description="[Полезности] Показывает информацию о пользователе")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(member='Участник')
     async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):

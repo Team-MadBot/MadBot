@@ -8,7 +8,7 @@ from discord import ui
 from config import *
 from classes import checks
 from classes import db
-from classes import client as mongo_client
+from classes.db import client as mongo_client
 
 from classes.checks import isPremium, isPremiumServer
 

@@ -436,7 +436,7 @@ class Tools(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.user.guild_permissions.manage_guild:
-            role_info = db.get_guild_autorole(interaction.guild.id)
+            role_info = await db.get_guild_autorole(interaction.guild.id)
             if role is None:
                 if role_info is None:
                     embed = discord.Embed(
@@ -482,7 +482,7 @@ class Tools(commands.Cog):
                     return await interaction.edit_original_response(embed=embed, view=None)
                 if not view.value:
                     return await interaction.delete_original_response()
-                db.delete_guild_autorole(interaction.guild.id)
+                await db.delete_guild_autorole(interaction.guild.id)
                 embed = discord.Embed(
                     title=l10n.format_value("success"),
                     color=discord.Color.green(),
@@ -490,7 +490,7 @@ class Tools(commands.Cog):
                 )
                 return await interaction.edit_original_response(embed=embed, view=None)
             if role_info is None:
-                db.add_guild_autorole(interaction.guild.id, role.id)
+                await db.add_guild_autorole(interaction.guild.id, role.id)
                 embed = discord.Embed(
                     title=l10n.format_value("success"),
                     color=discord.Color.green(),
@@ -534,7 +534,7 @@ class Tools(commands.Cog):
                 return await interaction.edit_original_response(embed=embed, view=None)
             if not view.value:
                 return await interaction.delete_original_response()
-            db.update_guild_autorole(interaction.guild.id, role.id)
+            await db.update_guild_autorole(interaction.guild.id, role.id)
             embed = discord.Embed(
                 title=l10n.format_value("success"),
                 color=discord.Color.green(),

@@ -1,5 +1,6 @@
 import discord
 import logging
+import asyncio
 
 from discord.ext import commands
 from discord import app_commands
@@ -55,7 +56,7 @@ class Stats(commands.Cog):
                 description="Данная команда доступна только премиум серверам!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)"""
-        guild = db.get_guild_stats(guild_id=interaction.guild.id)
+        guild = await db.get_guild_stats(guild_id=interaction.guild.id)
         if guild is not None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -164,7 +165,7 @@ class Stats(commands.Cog):
                         )
                         return await viewinteract.followup.send(embed=embed)
                     channels.append({'type': value, 'id': str(channel.id), 'text': message})
-                db.add_guild_stats(
+                await db.add_guild_stats(
                     guild_id=viewinteract.guild.id,
                     next_update=int(time.time()) + 600,
                     channels=channels
@@ -186,7 +187,7 @@ class Stats(commands.Cog):
         await interaction.response.send_message(embed=embed, view=View(), ephemeral=True)
 
     async def es_autocomplete(self, interaction: discord.Interaction, current: str):
-        channels = db.get_guild_stats(
+        channels = await db.get_guild_stats(
             guild_id=interaction.guild.id, 
             channels=1, 
             _id=0
@@ -225,7 +226,7 @@ class Stats(commands.Cog):
                 description="Ваш сервер не имеет премиум подписки!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)"""
-        guild = db.get_guild_stats(guild_id=interaction.guild.id)
+        guild = await db.get_guild_stats(guild_id=interaction.guild.id)
         if guild is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -269,7 +270,7 @@ class Stats(commands.Cog):
                             channels.remove(channel_it)
                             channel_it['text'] = str(self.txt)
                             channels.append(channel_it)
-                            db.update_guild_stats(guild_id=minteract.guild.id, channels=channels)
+                            await db.update_guild_stats(guild_id=minteract.guild.id, channels=channels)
                             embed = discord.Embed(
                                 title="Успешно!",
                                 color=discord.Color.green(),
@@ -282,7 +283,7 @@ class Stats(commands.Cog):
                 @ui.button(label="Удалить", style=discord.ButtonStyle.red)
                 async def delete(self, viewinteract: discord.Interaction, button: ui.Button):
                     channels.remove(channel_it)
-                    db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
+                    await db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
                     try:
                         await channel.delete()
                     except:
@@ -353,7 +354,7 @@ class Stats(commands.Cog):
                     )
                 ]
                 if interaction.client.intents.members and interaction.client.intents.presences: options = intent_options + options
-                channels = db.get_guild_stats(guild_id=interaction.guild.id)['channels']
+                channels = asyncio.run(db.get_guild_stats(guild_id=interaction.guild.id))['channels']
                 for channel in channels:
                     for option in options:
                         if option.value == channel['type']: options.remove(option)
@@ -362,7 +363,7 @@ class Stats(commands.Cog):
             async def callback(self, viewinteract: discord.Interaction):
                 await viewinteract.response.defer(thinking=True, ephemeral=True)
                 values = self.values
-                channels = db.get_guild_stats(guild_id=viewinteract.guild.id)['channels']
+                channels = await db.get_guild_stats(guild_id=viewinteract.guild.id)['channels']
                 for value in values:
                     message = "%count%"
                     stat = 0
@@ -399,7 +400,7 @@ class Stats(commands.Cog):
                         )
                         return await viewinteract.followup.send(embed=embed)
                     channels.append({'type': value, 'id': str(channel.id), 'text': message})
-                db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
+                await db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
                 embed = discord.Embed(
                     title="Успешно!",
                     color=discord.Color.green(),
@@ -434,7 +435,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        doc = db.get_guild_stats(guild_id=interaction.guild.id)
+        doc = await db.get_guild_stats(guild_id=interaction.guild.id)
         if doc is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -455,7 +456,7 @@ class Stats(commands.Cog):
                     description="Бот не имеет права на `управление каналами`, которое нужно для бота."
                 )
                 return await interaction.followup.send(embed=embed)
-        db.delete_guild_stats(guild_id=interaction.guild.id)
+        await db.delete_guild_stats(guild_id=interaction.guild.id)
         embed = discord.Embed(
             title="Успешно!",
             color=discord.Color.green(),
@@ -482,7 +483,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        doc = db.get_guild_stats(guild_id=interaction.guild.id)
+        doc = await db.get_guild_stats(guild_id=interaction.guild.id)
         if doc is None:
             embed = discord.Embed(
                 title="Ошибка!",

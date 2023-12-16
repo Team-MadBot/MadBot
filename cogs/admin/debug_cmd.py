@@ -80,7 +80,7 @@ class DebugCmd(commands.Cog):
                                         if checks.isPremium(modalinteract.client, int(str(self.user_id))) != 'None':
                                             return await modalinteract.response.send_message(
                                                 "У пользователя уже есть премиум!", ephemeral=True)
-                                        db.give_premium(user_id=str(self.user_id), type="server")
+                                        await db.give_premium(user_id=str(self.user_id), type="server")
                                         await modalinteract.response.send_message("Успешно!", ephemeral=True)
 
                                 await viewinteract.response.send_modal(Input())
@@ -94,7 +94,7 @@ class DebugCmd(commands.Cog):
                                         if checks.isPremium(modalinteract.client, int(str(self.user_id))) != 'None':
                                             return await modalinteract.response.send_message(
                                                 "У пользователя уже есть премиум!", ephemeral=True)
-                                        db.give_premium(user_id=str(self.user_id), type="user")
+                                        await db.give_premium(user_id=str(self.user_id), type="user")
                                         await modalinteract.response.send_message("Успешно!", ephemeral=True)
 
                                 await viewinteract.response.send_modal(Input())
@@ -108,7 +108,7 @@ class DebugCmd(commands.Cog):
                                         if checks.isPremium(modalinteract.client, int(str(self.user_id))) == 'None':
                                             return await modalinteract.response.send_message("У пользователя нет премиума!",
                                                                                             ephemeral=True)
-                                        db.take_premium(user_id=str(self.user_id))
+                                        await db.take_premium(user_id=str(self.user_id))
                                         await modalinteract.response.send_message("Успешно!", ephemeral=True)
 
                                 await viewinteract.response.send_modal(Input())
@@ -174,7 +174,7 @@ class DebugCmd(commands.Cog):
                                 async def on_submit(self, modalinteract: discord.Interaction):
                                     until_input = self.until.value if self.until.value != '' else 0
                                     reason_input = self.reason.value if self.reason.value != '' else None
-                                    if not db.add_blacklist(
+                                    if not await db.add_blacklist(
                                         resource_id=int(str(self.resource_id)),
                                         moderator_id=modalinteract.user.id,
                                         until=None if self.until.value == '' else round(
@@ -195,7 +195,7 @@ class DebugCmd(commands.Cog):
                                             timestamp=datetime.datetime.now()
                                         )
                                         embed.set_thumbnail(url=guild.icon_url)
-                                        db.add_blacklist(
+                                        await db.add_blacklist(
                                             resource_id=guild.owner.id,
                                             moderator_id=modalinteract.user.id,
                                             reason=f"Владелец сервера с ID {guild.id}, который занесён в чёрный список\n"
@@ -215,7 +215,7 @@ class DebugCmd(commands.Cog):
                                     )
                                     await sleep(30)
                                     if int(str(self.resource_id)) == config.settings['owner_id']:
-                                        db.remove_blacklist(config.settings['owner_id'])
+                                        await db.remove_blacklist(config.settings['owner_id'])
 
                             await viewinteract.response.send_modal(Input())
 
@@ -259,7 +259,7 @@ class DebugCmd(commands.Cog):
                         @discord.ui.button(label="Черный список")
                         async def blacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                             await viewinteract.response.send_message(
-                                f"Забаненные: {', '.join(i['resource_id'] for i in db.get_all_blacklist())}", 
+                                f"Забаненные: {', '.join(i['resource_id'] async for i in db.get_all_blacklist())}", 
                                 ephemeral=True
                             )
 
@@ -269,7 +269,7 @@ class DebugCmd(commands.Cog):
                                 ans = discord.ui.TextInput(label="ID участника/сервера:", min_length=18, max_length=19)
 
                                 async def on_submit(self, modalinteract: discord.Interaction):
-                                    db.remove_blacklist(int(str(self.ans)))
+                                    await db.remove_blacklist(int(str(self.ans)))
                                     await modalinteract.response.send_message(f"`{str(self.ans)}` вынесен(-а) из ЧС!", ephemeral=True)
 
                             await viewinteract.response.send_modal(Input())
@@ -363,7 +363,7 @@ class DebugCmd(commands.Cog):
                                 ans = discord.ui.TextInput(label="Команда:", max_length=32)
 
                                 async def on_submit(self, modalinteract: discord.Interaction):
-                                    if not db.add_shutted_command(str(self.ans)):
+                                    if not await db.add_shutted_command(str(self.ans)):
                                         return await modalinteract.response.send_message(
                                             f"Команда `{str(self.ans)}` уже отключена!",
                                             ephemeral=True
@@ -379,7 +379,7 @@ class DebugCmd(commands.Cog):
                                 ans = discord.ui.TextInput(label="Команда:", max_length=32)
 
                                 async def on_submit(self, modalinteract: discord.Interaction):
-                                    db.remove_shutted_command(str(self.ans))
+                                    await db.remove_shutted_command(str(self.ans))
                                     await modalinteract.response.send_message(f"Команда `{str(self.ans)}` включена!",
                                                                             ephemeral=True)
 

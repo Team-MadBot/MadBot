@@ -56,7 +56,7 @@ class BotInfo(commands.Cog):
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_footer(text=f"©️ 2021 - 2023 MadBot. Все права защищены.")
 
-        bot_stats = db.get_bot_stats()
+        bot_stats = await db.get_bot_stats()
         stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())
         stats.add_field(name="Пинг:", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
         stats.add_field(name="Запущен:", value=f"<t:{started_at}:R>")

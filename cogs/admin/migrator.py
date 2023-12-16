@@ -11,7 +11,7 @@ class MigrateDB(commands.Cog):
     async def migrate_db(self, ctx: commands.Context):
         message = await ctx.send("# Миграция\n[**В процессе...**] Мигрирование чёрного списка\n[В очереди] Мигрирование верифицированных")
         for resource in blacklist:
-            db.add_blacklist(
+            await db.add_blacklist(
                 resource,
                 ctx.author.id,
                 None,
@@ -22,7 +22,7 @@ class MigrateDB(commands.Cog):
             "[**В процессе...**] Мигрирование статистики бота\n"
             "[В очереди] Мигрирование верифицированных"
         )
-        db.create_bot_stats()
+        await db.create_bot_stats()
         await message.edit(
             content=f"# Миграция\n[*{len(blacklist)} перенесено*] Мигрирование чёрного списка\n"
             "[*Создано*] Мигрирование статистики бота\n"

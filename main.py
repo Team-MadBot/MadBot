@@ -55,7 +55,7 @@ class MadBot(commands.AutoShardedBot):
     async def db_migration(self):
         logger.debug("Начинаю миграцию чёрного списка...")
         for resource in config.blacklist:
-            db.add_blacklist(
+            await db.add_blacklist(
                 resource_id=resource,
                 moderator_id=config.settings['owner_id'],
                 reason=None,
@@ -64,7 +64,7 @@ class MadBot(commands.AutoShardedBot):
             logger.debug(f"Пользователь с ID {resource} занесён в новый чёрный список.")
         logger.debug("Чёрный список перенесён!")
         logger.debug("Создание документа статистики бота...")
-        db.create_bot_stats()
+        await db.create_bot_stats()
         logger.debug("Статистика бота создана!")
 
     async def setup_hook(self):
@@ -198,11 +198,11 @@ class MadBot(commands.AutoShardedBot):
         assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
         if isPremiumServer(self, guild):
-            db.take_guild_premium(guild.id)
+            await db.take_guild_premium(guild.id)
 
     async def on_member_join(self, member: discord.Member):
         if not member.bot and self.intents.members:
-            role = db.get_guild_autorole(member.guild.id)
+            role = await db.get_guild_autorole(member.guild.id)
             assert role is not None
             autorole = member.guild.get_role(role)
             assert autorole is not None

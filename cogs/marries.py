@@ -1,6 +1,7 @@
 import discord
 import logging
 
+from asyncstdlib import enumerate as aenumerate
 from discord.ext import commands
 from discord import app_commands
 from discord import ui
@@ -43,7 +44,7 @@ class Marries(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
-        marry = db.get_marries(interaction.guild.id, user_id)
+        marry = await db.get_marries(interaction.guild.id, user_id)
         if marry is not None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -51,7 +52,7 @@ class Marries(commands.Cog):
                 description="У Вас есть активный брак! Разведитесь перед заведением нового брака."
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        marry = db.get_marries(interaction.guild.id, member_id)
+        marry = await db.get_marries(interaction.guild.id, member_id)
         if marry is not None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -113,7 +114,7 @@ class Marries(commands.Cog):
                 description="Вам отказали в свадьбе."
             )
             return await interaction.edit_original_response(embed=embed, content=None, view=None)
-        db.marry(interaction.guild.id, user_id, member_id)
+        await db.marry(interaction.guild.id, user_id, member_id)
         embed = discord.Embed(
             title="Свадьба - Поздравляем!",
             color=discord.Color.green(),
@@ -132,7 +133,7 @@ class Marries(commands.Cog):
         
         user_id = interaction.user.id
         
-        marry = db.get_marries(interaction.guild.id, user_id)
+        marry = await db.get_marries(interaction.guild.id, user_id)
         if marry is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -182,7 +183,7 @@ class Marries(commands.Cog):
                 description="Вы отменили развод."
             )
             return await interaction.edit_original_response(embed=embed, content=None, view=None)
-        db.divorce(interaction.guild.id, user_id)
+        await db.divorce(interaction.guild.id, user_id)
         embed = discord.Embed(
             title="Развод - Завершено!",
             color=discord.Color.green(),
@@ -202,7 +203,7 @@ class Marries(commands.Cog):
         
         user_id = interaction.user.id if member is None else member.id
 
-        marry = db.get_marries(interaction.guild.id, user_id)
+        marry = await db.get_marries(interaction.guild.id, user_id)
         if marry is None:
             if user_id == interaction.user.id:
                 embed = discord.Embed(
@@ -236,20 +237,12 @@ class Marries(commands.Cog):
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        
-        marries = db.get_all_marries(interaction.guild.id)
-        if marries is None:
-            embed = discord.Embed(
-                title="Браки сервера:",
-                color=discord.Color.orange(),
-                description="*Пусто...*"
-            )
-            embed.set_footer(text="Используйте команду /marry для предложения заключения брака.")
-            return await interaction.response.send_message(embed=embed)
-        description = "".join(
-            f"`{count}.` <@!{marry['user_id']}> и <@!{marry['married_id']}>.\nДата заключения брака: <t:{marry['dt']}> (<t:{marry['dt']}:R>).\n\n"
-            for count, marry in enumerate(marries, start=1)
-        )
+
+        description = "\n\n".join(
+            f"`{count}.` <@!{marry['user_id']}> и <@!{marry['married_id']}>.\nДата заключения брака: <t:{marry['dt']}> (<t:{marry['dt']}:R>)."
+            async for count, marry in aenumerate(db.get_all_marries(), start=1)
+        ) or "*Пусто...*"
+
         embed = discord.Embed(
             title="Браки сервера:",
             color=discord.Color.orange(),
@@ -296,7 +289,7 @@ class Marries(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
-        marry = db.get_marries(interaction.guild.id, user_id)
+        marry = await db.get_marries(interaction.guild.id, user_id)
         if marry is not None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -304,7 +297,7 @@ class Marries(commands.Cog):
                 description=f"У <@!{user_id}> есть активный брак! Разведите его перед заведением нового брака."
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        marry = db.get_marries(interaction.guild.id, member_id)
+        marry = await db.get_marries(interaction.guild.id, member_id)
         if marry is not None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -312,7 +305,7 @@ class Marries(commands.Cog):
                 description=f"У <@!{member_id}> есть активный брак! Разведите его перед заведением нового брака."
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        db.marry(interaction.guild.id, user_id, member_id)
+        await db.marry(interaction.guild.id, user_id, member_id)
         embed = discord.Embed(
             title="Свадьба - Поздравляем!",
             color=discord.Color.green(),
@@ -353,7 +346,7 @@ class Marries(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         
-        marry = db.get_marries(interaction.guild.id, user_id)
+        marry = await db.get_marries(interaction.guild.id, user_id)
         if marry is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -361,7 +354,7 @@ class Marries(commands.Cog):
                 description=f"У <@!{user_id}> нет активного брака!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        db.divorce(interaction.guild.id, user_id)
+        await db.divorce(interaction.guild.id, user_id)
         embed = discord.Embed(
             title="Развод - Успешно!",
             color=discord.Color.green(),

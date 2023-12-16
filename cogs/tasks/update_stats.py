@@ -21,8 +21,7 @@ class UpdateStatsCog(commands.Cog):
     
     @tasks.loop(seconds=1)
     async def update_stats(self):
-        guilds = db.get_guilds_stats()
-        for guild in guilds:
+        async for guild in db.get_guilds_stats():
             if guild['next_update'] > time.time(): continue
             for channel_id in guild['channels']:
                 channel = self.bot.get_channel(int(channel_id['id']))
@@ -37,7 +36,7 @@ class UpdateStatsCog(commands.Cog):
                 except Exception as e:
                     logger.error(e)
                     print(e)
-            db.update_guild_stats(
+            await db.update_guild_stats(
                 guild_id=guild['id'],
                 next_update=int(time.time()) + 600
             )

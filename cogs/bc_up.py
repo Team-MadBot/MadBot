@@ -44,7 +44,7 @@ class SetReminderButton(ui.Button):
         if interaction.user.id != self.user_id:
             return await interaction.response.send_message("Не для тебя кнопочка!", ephemeral=True)
         
-        user = db.get_user(user_id=self.user_id)
+        user = await db.get_user(user_id=self.user_id)
         if user is not None and user['enabled']:
             embed = discord.Embed(
                 title="Напоминание о повышении",
@@ -58,12 +58,12 @@ class SetReminderButton(ui.Button):
                 ephemeral=True
             )
         elif user is not None:
-            db.update_user(
+            await db.update_user(
                 user_id=self.user_id,
                 enabled=True
             )
         else:
-            db.add_user(
+            await db.add_user(
                 user_id=self.user_id,
                 enabled=True,
                 next_bump=self.upped_at + 3600 * 6,
@@ -195,15 +195,15 @@ class BoticordBotUp(commands.Cog):
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
             await interaction.followup.send(embed=embed, ephemeral=True)
-            db_user = db.get_user(user_id=interaction.user.id)
+            db_user = await db.get_user(user_id=interaction.user.id)
             if db_user is not None:
-                db.update_user(
+                await db.update_user(
                     user_id=interaction.user.id,
                     next_bump=next_bump,
                     reminded=False
                 )
             else:
-                db.add_user(
+                await db.add_user(
                     user_id=interaction.user.id,
                     next_bump=next_bump
                 )
@@ -322,21 +322,21 @@ class BoticordBotUp(commands.Cog):
         next_up = round(time.time()) + 3600 * 6
         view = LinktoBoticord(bot_id=self.bot.user.id)
 
-        db_user = db.get_user(user_id=user.id)
+        db_user = await db.get_user(user_id=user.id)
         view.add_item(SetReminderButton(user.id, disabled=db_user is not None))
 
         if db_user is not None:
-            db.update_user(
+            await db.update_user(
                 user_id=user.id,
                 next_bump=next_up,
                 reminded=False
             )
-            db.increment_user(
+            await db.increment_user(
                 user_id=user.id,
                 up_count=1
             )
         else:
-            db.add_user(
+            await db.add_user(
                 user_id=user.id,
                 next_bump=next_up,
                 up_count=1

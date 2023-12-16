@@ -239,8 +239,8 @@ class Reactions(commands.Cog):
             async def accepted(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user == member:
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
-                    marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
-                    marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
+                    marry = await db.get_marries(viewinteract.guild.id, viewinteract.user.id)
+                    marry1 = await db.get_marries(viewinteract.guild.id, interaction.user.id)
                     if (
                         marry is not None
                         and marry['user_id']
@@ -309,8 +309,8 @@ class Reactions(commands.Cog):
             async def accepted(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user == member:
                     description = f"{interaction.user.mention} поцеловал(-а) {member.mention}."
-                    marry = db.get_marries(viewinteract.guild.id, viewinteract.user.id)
-                    marry1 = db.get_marries(viewinteract.guild.id, interaction.user.id)
+                    marry = await db.get_marries(viewinteract.guild.id, viewinteract.user.id)
+                    marry1 = await db.get_marries(viewinteract.guild.id, interaction.user.id)
                     if (
                         marry is not None
                         and marry['user_id']

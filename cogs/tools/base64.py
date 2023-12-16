@@ -14,8 +14,8 @@ class Base64(commands.GroupCog, group_name="base64"):
     """
     @app_commands.command(description="[Полезности] Кодирует указанный текст в Base64.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(text="Текст для кодировки")
     async def encode(self, interaction: discord.Interaction, text: app_commands.Range[str, None, 1024]):
         ans = b64encode(text.encode()).decode()
@@ -52,8 +52,8 @@ class Base64(commands.GroupCog, group_name="base64"):
 
     @app_commands.command(description="[Полезности] Декодирует Base64 в текст.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(text="Текст для декодировки")
     async def decode(self, interaction: discord.Interaction, text: str):
         try:

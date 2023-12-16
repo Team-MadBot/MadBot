@@ -17,19 +17,19 @@ class ServerInfo(commands.Cog):
 
     @app_commands.command(name="serverinfo", description="[Полезности] Информация о сервере")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def serverinfo(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         badges = ''
-        if checks.is_in_blacklist(interaction.guild.id):
+        if await checks.is_in_blacklist(interaction.guild.id):
             badges += '<:ban:946031802634612826> '
         if interaction.guild.id in verified:
             badges += '<:verified:946057332389978152> '
-        if isPremiumServer(self.bot, interaction.guild):
+        if await isPremiumServer(self.bot, interaction.guild):
             badges += '<a:premium:988735181546475580> '
         if interaction.guild.id in beta_testers:
             badges += '<:beta:946063731819937812> '

@@ -96,7 +96,7 @@ class MadBot(commands.AutoShardedBot):
         
         for guild in self.guilds:
             assert guild.owner_id is not None
-            if checks.is_in_blacklist(guild.id) or checks.is_in_blacklist(guild.owner_id):
+            if await checks.is_in_blacklist(guild.id) or await checks.is_in_blacklist(guild.owner_id):
                 await guild.leave()
                 logger.info(f"Бот вышел из {guild.name} ({guild.id})")
         
@@ -111,7 +111,7 @@ class MadBot(commands.AutoShardedBot):
         await logs.send(embed=embed)
     
     async def is_owner(self, user: discord.User) -> bool:
-        return False if checks.is_in_blacklist(user.id) else True if user.id in config.coders else await super().is_owner(user)
+        return False if await checks.is_in_blacklist(user.id) else True if user.id in config.coders else await super().is_owner(user)
 
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
@@ -126,7 +126,7 @@ class MadBot(commands.AutoShardedBot):
 
     async def on_guild_join(self, guild: discord.Guild):
         assert guild.owner_id is not None
-        if checks.is_in_blacklist(guild.id) or checks.is_in_blacklist(guild.owner_id):
+        if await checks.is_in_blacklist(guild.id) or await checks.is_in_blacklist(guild.owner_id):
             embed = discord.Embed(
                 title="Данный сервер либо владелец сервера занесен(-ы) в чёрный список бота!",
                 color=discord.Color.red(),
@@ -197,7 +197,7 @@ class MadBot(commands.AutoShardedBot):
         log_channel = self.get_channel(config.settings['log_channel'])
         assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
-        if isPremiumServer(self, guild):
+        if await isPremiumServer(self, guild):
             await db.take_guild_premium(guild.id)
 
     async def on_member_join(self, member: discord.Member):

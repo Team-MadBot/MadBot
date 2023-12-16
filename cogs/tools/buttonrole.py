@@ -15,8 +15,8 @@ class ButtonRole(commands.Cog):
 
     @app_commands.command(name="buttonrole", description="[Полезности] Настроить выдачу ролей по нажатию кнопки.")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def buttonrole(
         self, 
         interaction: discord.Interaction

@@ -14,16 +14,16 @@ from config import *
 
 logger = logging.getLogger('discord')
 
-def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (isPremium(interaction.client, interaction.user.id) != 'None' or
-            isPremiumServer(interaction.client, interaction.guild)):
+async def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
+    if (await isPremium(interaction.client, interaction.user.id) != 'None' or
+            await isPremiumServer(interaction.client, interaction.guild)):
         return None
     return app_commands.Cooldown(1, 3.0)
 
 
-def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (isPremium(interaction.client, interaction.user.id) != 'None' or
-            isPremiumServer(interaction.client, interaction.guild)):
+async def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
+    if (await isPremium(interaction.client, interaction.user.id) != 'None' or
+            await isPremiumServer(interaction.client, interaction.guild)):
         return app_commands.Cooldown(1, 2.0)
     return app_commands.Cooldown(1, 10.0)
 
@@ -34,8 +34,8 @@ class Stats(commands.Cog):
 
     @app_commands.command(name="stats-setup", description="[Статистика] Настройка статистики")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def stats_setup(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
@@ -201,8 +201,8 @@ class Stats(commands.Cog):
     )
     @app_commands.autocomplete(channel=es_autocomplete)
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     @app_commands.describe(channel="Канал, который Вы хотите изменить или удалить.")
     async def edit_stats(self, interaction: discord.Interaction, channel: Optional[str]):
         if interaction.guild is None:
@@ -219,7 +219,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права на `управление каналами`, чтобы использовать эту команду!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        """if not isPremiumServer(self.bot, interaction.guild):
+        """if not await isPremiumServer(self.bot, interaction.guild):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -418,8 +418,8 @@ class Stats(commands.Cog):
 
     @app_commands.command(name="stats-delete", description="[Статистика] Удалить статистику")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def stats_delete(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed = discord.Embed(
@@ -466,8 +466,8 @@ class Stats(commands.Cog):
 
     @app_commands.command(name="stats-info", description='[Статистика] Показывает информацию о статистике.')
     @app_commands.checks.dynamic_cooldown(default_cooldown)
-    @app_commands.check(lambda i: not checks.is_in_blacklist(i.user.id))
-    @app_commands.check(lambda i: not checks.is_shutted_down(i.command.name))
+    @app_commands.check(checks.interaction_is_in_blacklist)
+    @app_commands.check(checks.interaction_is_shutted_down)
     async def stats_info(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed = discord.Embed(

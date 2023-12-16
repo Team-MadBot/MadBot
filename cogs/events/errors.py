@@ -37,7 +37,7 @@ class ErrorCog(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if isinstance(error, app_commands.CheckFailure):
-            if checks.is_in_blacklist(interaction.user.id):
+            if await checks.is_in_blacklist(interaction.user.id):
                 blacklist_info = await db.get_blacklist(interaction.user.id)
                 assert blacklist_info is not None
                 assert interaction.user.avatar is not None

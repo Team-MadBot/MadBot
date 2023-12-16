@@ -5,6 +5,8 @@ import logging
 from discord.ext import commands
 from discord.ext import tasks
 
+from contextlib import suppress
+
 from classes import db
 from contextlib import suppress
 

@@ -3,7 +3,6 @@ import discord
 import traceback
 import datetime
 import time
-import config
 import logging
 
 from boticordpy import BoticordClient

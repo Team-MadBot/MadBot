@@ -16,8 +16,7 @@ async def isPremium(bot: commands.AutoShardedBot, user_id: int) -> str:
         str: The premium type if the user is premium, else 'None'.
     """
     isPrem = await db.get_premium_user(user_id=user_id)
-    if isPrem is None: isPrem = {'type': 'None'}
-    return isPrem['type']
+    return isPrem.get('type')
 
 async def isPremiumServer(bot: commands.AutoShardedBot, guild: discord.Guild) -> bool:
     """Checks if a Discord guild has premium status.

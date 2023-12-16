@@ -18,7 +18,7 @@ class ServerInfo(commands.Cog):
     @app_commands.command(name="serverinfo", description="[Полезности] Информация о сервере")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     async def serverinfo(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")

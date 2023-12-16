@@ -18,7 +18,7 @@ class Marries(commands.Cog):
 
     @app_commands.command(name="marry", description="[Свадьбы] Пожениться")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, с которым Вы хотите пожениться.")
     async def marry(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -124,7 +124,7 @@ class Marries(commands.Cog):
     
     @app_commands.command(name="divorce", description="[Свадьбы] Развод")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     async def dibvorce(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -193,7 +193,7 @@ class Marries(commands.Cog):
     
     @app_commands.command(name="marry-info", description="[Свадьбы] Информация о Вашем браке")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, чей брак Вы хотите посмотреть.")
     async def marry_info(self, interaction: discord.Interaction, member: discord.User = None):
         if interaction.guild is None:
@@ -231,7 +231,7 @@ class Marries(commands.Cog):
     
     @app_commands.command(name="marries", description="[Свадьбы] Список браков.")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     async def marries(self, interaction: discord.Interaction):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
@@ -253,7 +253,7 @@ class Marries(commands.Cog):
     
     @app_commands.command(name="marry-people", description="[Свадьбы] Поженить принудительно пару.")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(
         member="Участник, которого Вы хотите поженить.", 
         member2="Участник, с кем Вы хотите поженить первого участника."
@@ -315,7 +315,7 @@ class Marries(commands.Cog):
     
     @app_commands.command(name="divorce-people", description="[Свадьбы] Развести принудительно пару.")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, которого Вы хотите развести.")
     async def divorce_people(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:

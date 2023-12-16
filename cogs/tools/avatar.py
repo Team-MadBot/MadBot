@@ -15,7 +15,7 @@ class UserAvatar(commands.Cog):
     @app_commands.command(name="avatar", description="[Полезности] Присылает аватар пользователя")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(
         member='Участник, чью аватарку вы хотите получить', 
         format="Формат изображения", 

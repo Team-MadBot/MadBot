@@ -159,7 +159,7 @@ class BoticordBotUp(commands.Cog):
         
     @app_commands.command(name="up", description="[Boticord] Апнуть бота на мониторинге")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.checks.cooldown(1, 5.0)
     async def bump_bot(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)

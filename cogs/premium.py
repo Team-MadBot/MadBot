@@ -21,7 +21,7 @@ class Premium(commands.Cog):
             "Управление премиум-подпиской"
             @app_commands.command(name="give", description="Дать премиум серверу")
             @app_commands.check(checks.interaction_is_not_in_blacklist)
-            @app_commands.check(checks.interaction_is_shutted_down)
+            @app_commands.check(checks.interaction_is_not_shutted_down)
             async def give(self, interaction: discord.Interaction):
                 if await isPremium(interaction.client, interaction.user.id) == 'None':
                     embed = discord.Embed(
@@ -64,7 +64,7 @@ class Premium(commands.Cog):
                 
             @app_commands.command(name="take", description="Забрать премиум с сервера")
             @app_commands.check(checks.interaction_is_not_in_blacklist)
-            @app_commands.check(checks.interaction_is_shutted_down)
+            @app_commands.check(checks.interaction_is_not_shutted_down)
             async def take(self, interaction: discord.Interaction):
                 if await isPremium(interaction.client, interaction.user.id) == 'None':
                     embed = discord.Embed(
@@ -98,7 +98,7 @@ class Premium(commands.Cog):
             
             @app_commands.command(name="list", description="Список серверов, на которые Вы дали премиум")
             @app_commands.check(checks.interaction_is_not_in_blacklist)
-            @app_commands.check(checks.interaction_is_shutted_down)
+            @app_commands.check(checks.interaction_is_not_shutted_down)
             async def info(self, interaction: discord.Interaction):
                 if await isPremium(interaction.client, interaction.user.id) == 'None':
                     embed = discord.Embed(
@@ -169,7 +169,7 @@ class Premium(commands.Cog):
 
             @app_commands.command(name="buy", description="Купить премиум")
             @app_commands.check(checks.interaction_is_not_in_blacklist)
-            @app_commands.check(checks.interaction_is_shutted_down)
+            @app_commands.check(checks.interaction_is_not_shutted_down)
             async def buy(self, interaction: discord.Interaction):
                 embed = discord.Embed(
                     title="MadBot Premium - Покупка",

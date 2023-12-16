@@ -40,7 +40,7 @@ class Tools(commands.Cog):
     @app_commands.command(name="badgeinfo", description="[Полезности] Информация о значках пользователей и серверов в боте.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     async def badgeinfo(self, interaction: discord.Interaction):
         embed=discord.Embed(title="Виды значков:", color=discord.Color.orange())
         embed.add_field(name="Значки пользователя:", value=f"<:ban:946031802634612826> - пользователь забанен в системе бота.\n<a:premium:988735181546475580> - пользователь имеет MadBot Premium.\n<:timeout:950702768782458893> - пользователь получил тайм-аут на сервере.\n<:botdev:977645046188871751> - разработчик бота.\n<:code:946056751646638180> - помощник разработчика.\n<:support:946058006641143858> - поддержка бота.\n<:bug_hunter:955497457020715038> - охотник на баги (обнаружил и сообщил о 3-х и более багах).\n<:bug_terminator:955891723152801833> - уничтожитель багов (обнаружил и сообщил о 10-ти и более багах).\n<:verified:946057332389978152> - верифицированный пользователь.\n<:bot:946064625525465118> - участник является ботом.", inline=False)
@@ -50,7 +50,7 @@ class Tools(commands.Cog):
     @app_commands.command(name="nick", description="[Полезности] Изменяет ваш ник.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника")
     async def nick(self, interaction: discord.Interaction, argument: str = None):
         if interaction.guild is None:
@@ -144,7 +144,7 @@ class Tools(commands.Cog):
     @app_commands.command(name="getemoji", description="[Полезности] Выдает эмодзи картинкой.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(emoji_name="Название, ID либо сам эмодзи.", is_registry="Стоит ли учитывать регистр имени?")
     async def getemoji(self, interaction: discord.Interaction, emoji_name: str, is_registry: bool = False):
         if emoji_name.startswith("<") and emoji_name.endswith(">"):
@@ -209,7 +209,7 @@ class Tools(commands.Cog):
     @app_commands.command(name="send", description="[Полезности] Отправляет сообщение в канал от имени вебхука")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(message="Сообщение, которое будет отправлено")
     async def send(self, interaction: discord.Interaction, message: app_commands.Range[str, None, 2000]):
         if interaction.guild is None:
@@ -245,7 +245,7 @@ class Tools(commands.Cog):
     @app_commands.command(name="getaudit", description="[Полезности] Получает информацию о кол-ве модерационных действий пользователя.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, чьё кол-во действий вы хотите увидить")
     async def getaudit(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
@@ -270,7 +270,7 @@ class Tools(commands.Cog):
     @app_commands.describe(city="Город, где надо узнать погоду")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     async def weather(self, interaction: discord.Interaction, city: str):
         city = city.replace(' ', '%20')
         embed = discord.Embed(title="Поиск...", color=discord.Color.yellow(), description="Ищем ваш город...")
@@ -302,7 +302,7 @@ class Tools(commands.Cog):
     @app_commands.command(name="stopwatch", description="[Полезности] Секундомер.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     async def stopwatch(self, interaction: discord.Interaction):
         embed = discord.Embed(title="Секундомер", color=discord.Color.orange(), description=f"Время пошло!\nСекундомер запущен {discord.utils.format_dt(datetime.datetime.now(), 'R')}")
         embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)\
@@ -327,7 +327,7 @@ class Tools(commands.Cog):
 
     @app_commands.command(name="debug", description="[Полезности] Запрос основной информации о боте.")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.checks.dynamic_cooldown(lambda i: app_commands.Cooldown(1, 300.0))
     async def debug(self, interaction: discord.Interaction):
         def get_permissions(perms: discord.Permissions):
@@ -381,7 +381,7 @@ class Tools(commands.Cog):
     @app_commands.command(name="calc", description="[Полезности] Калькулятор в Discord.")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(problem="Пример для решения")
     async def calc(self, interaction: discord.Interaction, problem: app_commands.Range[str, None, 30]):
         if "**" in problem:
@@ -420,7 +420,7 @@ class Tools(commands.Cog):
     @app_commands.describe(role="Роль для выдачи. Не указывайте её для удаления.")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
-    @app_commands.check(checks.interaction_is_shutted_down)
+    @app_commands.check(checks.interaction_is_not_shutted_down)
     async def autorole(self, interaction: discord.Interaction, role: typing.Optional[discord.Role]):
         loader = FluentResourceLoader("locales/{locale}")
         l10n = FluentLocalization(["ru"], ["main.ftl", "texts.ftl", "commands.ftl"], loader)

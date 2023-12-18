@@ -38,7 +38,8 @@ class UpdateStatsCog(commands.Cog):
                     try:
                         await channel.edit(name=channel_id['text'].replace('%count%', str(stat)))
                     except Exception as e:
-                        logger.error(e)
+                        if not isinstance(e, discord.Forbidden):
+                            logger.error(e)
             await db.update_guild_stats(
                 guild_id=guild['id'],
                 next_update=int(time.time()) + 600

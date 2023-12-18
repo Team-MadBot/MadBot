@@ -239,8 +239,8 @@ class Marries(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         description = "\n\n".join(
-            f"`{count}.` <@!{marry['user_id']}> и <@!{marry['married_id']}>.\nДата заключения брака: <t:{marry['dt']}> (<t:{marry['dt']}:R>)."
-            async for count, marry in aenumerate(db.get_all_marries(guild_id=interaction.guild.id), start=1)
+            [f"`{count}.` <@!{marry['user_id']}> и <@!{marry['married_id']}>.\nДата заключения брака: <t:{marry['dt']}> (<t:{marry['dt']}:R>)."
+            async for count, marry in aenumerate(db.get_all_marries(guild_id=interaction.guild.id), start=1)]
         ) or "*Пусто...*"
 
         embed = discord.Embed(

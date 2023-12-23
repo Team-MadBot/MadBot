@@ -2,8 +2,8 @@ import motor.motor_asyncio
 
 from config import settings
 
-client = motor.motor_asyncio.AsyncIOMotorClient(settings['mongo_url'])
-mongo_db = client.madbottest if settings['debug_mode'] else client.madbot
+client = motor.motor_asyncio.AsyncIOMotorClient(settings['mongo_url']) # type: ignore
+mongo_db = client.madbottest if settings['debug_mode'] else client.madbot # type: ignore
 
 from .blacklist import *
 from .marries import *

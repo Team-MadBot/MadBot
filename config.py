@@ -3,9 +3,41 @@ import os
 
 from dotenv import load_dotenv
 
+from typing import TypedDict
+
 load_dotenv()
 
-settings = {
+class __Settings(TypedDict):
+    min_members: int
+    debug_mode: bool
+    token: str
+    app_id: int
+    key: str
+    weather_key: str
+    sdc_key: str
+    nc_token: str
+    support_invite: str
+    owner_id: int
+    supp_guild: int
+    comm_guild: int
+    log_channel: int
+    report_channel: int
+    debug_channel: int
+    perm_scope: int
+    outages: int
+    prem_user: int
+    prem_server: int
+    bc_api_ver: int
+    bc_hook_url: str
+    shard_log_hook_url: str
+    vote_hook_url: str
+    bcv2_token: str
+    unbelieva_token: str
+    risticks_token: str
+    curr_version: str
+    mongo_url: str
+
+settings: __Settings = {
     'min_members': 10,
     'debug_mode': False,
     'token': os.environ.get("TOKEN"),

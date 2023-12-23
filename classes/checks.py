@@ -27,8 +27,8 @@ async def isPremiumServer(guild: discord.Guild) -> bool:
         bool: True if the guild has premium, False otherwise.
     """
     isPrem = await db.get_premium_guild_info(guild_id=guild.id)
-    if isPrem is not None and await isPremium(isPrem['user_id']) == 'None': await db.take_guild_premium(guild_id=guild.id)
-    return isPrem is not None and await isPremium(isPrem['user_id']) != 'None'
+    if isPrem is not None and await isPremium(isPrem.get("user_id")) == 'None': await db.take_guild_premium(guild_id=guild.id)
+    return isPrem is not None and await isPremium(isPrem.get("user_id")) != 'None'
 
 async def is_in_blacklist(resource_id: int) -> bool:
     """Checks if a resource ID is in the blacklist.

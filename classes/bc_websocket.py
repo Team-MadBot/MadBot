@@ -4,7 +4,7 @@ import logging
 import json
 
 from contextlib import suppress
-from boticordpy import BotiCordWebsocket
+from boticordpy import BotiCordWebsocket # type: ignore
 from typing import Callable
 
 class BoticordWS(BotiCordWebsocket):

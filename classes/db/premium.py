@@ -43,7 +43,7 @@ def get_premium_guids(user_id: int) -> Optional[dict]:
     coll = db.guild
     return coll.find({'user_id': str(user_id)})
 
-async def get_premium_guild_info(guild_id: int) -> Optional[list]:
+async def get_premium_guild_info(guild_id: int) -> Optional[dict]:
     """
     Gets info about premium server.
 

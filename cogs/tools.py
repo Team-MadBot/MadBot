@@ -3,7 +3,7 @@ import discord
 import datetime
 import typing
 import aiohttp
-import numexpr
+import numexpr  # type: ignore
 import logging
 
 from discord import Forbidden, app_commands, ui
@@ -20,15 +20,15 @@ logger = logging.getLogger('discord')
 
 
 async def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (await isPremium(interaction.client, interaction.user.id) != 'None' or
-            await isPremiumServer(interaction.client, interaction.guild)):
+    if (await isPremium(interaction.client, interaction.user.id) != 'None' or  # type: ignore
+            await isPremiumServer(interaction.client, interaction.guild)):  # type: ignore
         return None
     return app_commands.Cooldown(1, 3.0)
 
 
 async def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (await isPremium(interaction.client, interaction.user.id) != 'None' or
-            await isPremiumServer(interaction.client, interaction.guild)):
+    if (await isPremium(interaction.client, interaction.user.id) != 'None' or  # type: ignore
+            await isPremiumServer(interaction.client, interaction.guild)):  # type: ignore
         return app_commands.Cooldown(1, 2.0)
     return app_commands.Cooldown(1, 10.0)
 
@@ -52,10 +52,10 @@ class Tools(commands.Cog):
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника")
-    async def nick(self, interaction: discord.Interaction, argument: str = None):
+    async def nick(self, interaction: discord.Interaction, argument: str | None = None):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if not self.bot.intents.members:
             embed = discord.Embed(
@@ -64,7 +64,9 @@ class Tools(commands.Cog):
                 description="На данный момент, команда недоступна."
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        assert self.bot.user is not None
         bot_member = await interaction.guild.fetch_member(self.bot.user.id)
+        assert isinstance(interaction.user, discord.Member)
         if not bot_member.guild_permissions.manage_nicknames or bot_member.top_role < interaction.user.top_role:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -76,7 +78,7 @@ class Tools(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Длина ника не должна превышать `32 символа`!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.user.guild_permissions.change_nickname:
-            if interaction.user.id == interaction.guild.owner.id:
+            if interaction.user.id == interaction.guild.owner_id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не может изменять никнейм владельцу сервера!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
             try:
@@ -103,7 +105,9 @@ class Tools(commands.Cog):
                     self.value = None
 
                 @discord.ui.button(emoji="✅", style=discord.ButtonStyle.green)
-                async def confirm(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                async def confirm(self, viewinteract: discord.Interaction, button: discord.ui.Button):  # type: ignore
+                    assert isinstance(viewinteract.user, discord.Member)
+                    assert isinstance(interaction.user, discord.Member)
                     if viewinteract.user.guild_permissions.manage_nicknames:
                         self.value = True
                         try:
@@ -125,7 +129,8 @@ class Tools(commands.Cog):
                         return await viewinteract.response.send_message(embed=embed, ephemeral=True)
 
                 @discord.ui.button(emoji="<:x_icon:975324570741526568>", style=discord.ButtonStyle.red)
-                async def denied(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                async def denied(self, viewinteract: discord.Interaction, button: discord.ui.Button):  # type: ignore
+                    assert isinstance(viewinteract.user, discord.Member)
                     if viewinteract.user.guild_permissions.manage_nicknames:
                         self.value = False
                         embed = discord.Embed(title="Отказ", color=discord.Color.red(), description="Вам отказано в смене ника!")
@@ -179,7 +184,8 @@ class Tools(commands.Cog):
             embed.set_footer(text=f"ID: {emoji.id}")
             embed.set_thumbnail(url=emoji.url)
             return await interaction.response.send_message(embed=embed)
-        embeds = []
+        embeds: list[discord.Embed] = []
+        assert interaction.guild is not None
         for emoji in interaction.guild.emojis:
             x = emoji.name
             y = emoji_name
@@ -214,7 +220,7 @@ class Tools(commands.Cog):
     async def send(self, interaction: discord.Interaction, message: app_commands.Range[str, None, 2000]):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if isinstance(interaction.channel, discord.Thread):
             embed = discord.Embed(
@@ -223,10 +229,13 @@ class Tools(commands.Cog):
                 description="Данная команда недоступна в ветках!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if interaction.channel.permissions_for(interaction.guild.get_member(self.bot.user.id)).manage_webhooks == False:
+        assert interaction.channel is not None
+        assert self.bot.user is not None
+        if interaction.channel.permissions_for(interaction.guild.get_member(self.bot.user.id)).manage_webhooks == False:  # type: ignore
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права на управление вебхуками!\nТип ошибки: `Forbidden`.")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         webhook = None
+        assert isinstance(interaction.channel, discord.TextChannel)
         webhooks = await interaction.channel.webhooks()
         for hook in webhooks:
             if hook.name == "MadWebHook":
@@ -250,10 +259,12 @@ class Tools(commands.Cog):
     async def getaudit(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        assert isinstance(interaction.user, discord.Member)
         if interaction.user.guild_permissions.view_audit_log:
-            member_bot = interaction.guild.get_member(self.bot.user.id)
+            assert self.bot.user is not None
+            member_bot = await interaction.guild.fetch_member(self.bot.user.id)
             if not member_bot.guild_permissions.view_audit_log:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет доступа к журналу аудита!\nТип ошибки: `Forbidden`.")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -308,16 +319,16 @@ class Tools(commands.Cog):
         embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)\
 
         class Button(discord.ui.View):
-            def __init__(self, start):
+            def __init__(self, start: float):
                 super().__init__(timeout=None)
                 self.start = start
 
             @discord.ui.button(label="Стоп", style=discord.ButtonStyle.danger)
-            async def callback(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+            async def callback(self, viewinteract: discord.Interaction, button: discord.ui.Button):  # type: ignore
                 if interaction.user.id != viewinteract.user.id:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
                 stop = time.time() - self.start
-                embed = discord.Embed(title="Секундомер остановлен!", color=discord.Color.red(), description=f"Насчитанное время: `{round(stop, 3)}s`.")
+                embed = discord.Embed(title="Секундомер остановлен!", color=discord.Color.red(), description=f"Насчитанное время: `{stop:.3f}s`.")
                 embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
                 button.disabled = True
                 await viewinteract.response.edit_message(embed=embed, view=self)
@@ -332,7 +343,7 @@ class Tools(commands.Cog):
     async def debug(self, interaction: discord.Interaction):
         def get_permissions(perms: discord.Permissions):
             ans = ""
-            ans += f"✅ Отправка сообщений\n" if perms.send_messages else f"❌ Отправка сообщений\n"
+            ans += f"✅ Отправка сообщений\n" if perms.send_messages else f"❌ Отправка сообщений\n"  # TODO FUCK MAD CAT IN THE ASS AND REWRITE
             ans += f"✅ Добавление ссылок\n" if perms.embed_links else f"❌ Добавление ссылок\n"
             ans += f"✅ Использование внешних эмодзи\n" if perms.use_external_emojis else f"❌ Использование внешних эмодзи\n"
             ans += f"✅ Управление каналами\n" if perms.manage_channels else f"❌ Управление каналами\n"
@@ -374,7 +385,7 @@ class Tools(commands.Cog):
             name="Информация о пользователе",
             value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{ans}`"
         )
-        channel = self.bot.get_channel(settings['debug_channel'])
+        channel = self.bot.get_channel(config.settings['debug_channel'])
         message = await channel.send(embed=embed)
         await interaction.response.send_message(content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url}",embed=embed)
 

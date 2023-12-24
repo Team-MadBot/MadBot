@@ -1,11 +1,9 @@
 import discord
 
-from discord.ext import commands
-
 from config import *
 from classes import db
 
-async def isPremium(bot: commands.AutoShardedBot, user_id: int) -> str:
+async def isPremium(user_id: int) -> str:
     """Checks if a user is a premium user of the bot.
 
     Args:
@@ -15,10 +13,10 @@ async def isPremium(bot: commands.AutoShardedBot, user_id: int) -> str:
     Returns:
         str: The premium type if the user is premium, else 'None'.
     """
-    isPrem = await db.get_premium_user(user_id=user_id)
+    isPrem = await db.get_premium_user(user_id=user_id) or {}
     return isPrem.get('type', 'None')
 
-async def isPremiumServer(bot: commands.AutoShardedBot, guild: discord.Guild) -> bool:
+async def isPremiumServer(guild: discord.Guild) -> bool:
     """Checks if a Discord guild has premium status.
 
     Args:
@@ -29,8 +27,8 @@ async def isPremiumServer(bot: commands.AutoShardedBot, guild: discord.Guild) ->
         bool: True if the guild has premium, False otherwise.
     """
     isPrem = await db.get_premium_guild_info(guild_id=guild.id)
-    if isPrem is not None and await isPremium(bot, isPrem.get("user_id")) == 'None': await db.take_guild_premium(guild_id=guild.id)
-    return isPrem is not None and await isPremium(bot, isPrem.get("user_id")) != 'None'
+    if isPrem is not None and await isPremium(isPrem.get("user_id")) == 'None': await db.take_guild_premium(guild_id=guild.id)
+    return isPrem is not None and await isPremium(isPrem.get("user_id")) != 'None'
 
 async def is_in_blacklist(resource_id: int) -> bool:
     """Checks if a resource ID is in the blacklist.
@@ -74,4 +72,4 @@ async def interaction_is_not_shutted_down(interaction: discord.Interaction) -> b
     Returns:
         bool: Is check successful.
     """
-    return not await is_shutted_down(command=interaction.command.name)
+    return not await is_shutted_down(command=interaction.command.name) if interaction.command is not None else False

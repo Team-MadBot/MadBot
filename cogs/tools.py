@@ -14,7 +14,8 @@ from typing import Optional
 from classes.checks import isPremium, isPremiumServer
 from classes import db
 from classes import checks
-from config import *
+import config
+import time
 
 logger = logging.getLogger('discord')
 
@@ -34,7 +35,7 @@ async def hard_cooldown(interaction: discord.Interaction) -> Optional[app_comman
 
 
 class Tools(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
     
     @app_commands.command(name="badgeinfo", description="[Полезности] Информация о значках пользователей и серверов в боте.")
@@ -341,51 +342,67 @@ class Tools(commands.Cog):
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.checks.dynamic_cooldown(lambda i: app_commands.Cooldown(1, 300.0))
     async def debug(self, interaction: discord.Interaction):
-        def get_permissions(perms: discord.Permissions):
-            ans = ""
-            ans += f"✅ Отправка сообщений\n" if perms.send_messages else f"❌ Отправка сообщений\n"  # TODO FUCK MAD CAT IN THE ASS AND REWRITE
-            ans += f"✅ Добавление ссылок\n" if perms.embed_links else f"❌ Добавление ссылок\n"
-            ans += f"✅ Использование внешних эмодзи\n" if perms.use_external_emojis else f"❌ Использование внешних эмодзи\n"
-            ans += f"✅ Управление каналами\n" if perms.manage_channels else f"❌ Управление каналами\n"
-            ans += f"✅ Исключение участников\n" if perms.kick_members else f"❌ Исключение участников\n"
-            ans += f"✅ Блокировка участников\n" if perms.ban_members else f"❌ Блокировка участников\n"
-            ans += f"✅ Чтение истории сообщений\n" if perms.read_message_history else f"❌ Чтение истории сообщений\n"
-            ans += f"✅ Чтение сообщений\n" if perms.read_messages else f"❌ Чтение сообщений\n"
-            ans += f"✅ Управление участниками\n" if perms.moderate_members else f"❌ Управление участниками\n"
-            ans += f"✅ Управление никнеймами\n" if perms.manage_nicknames else f"❌ Управление никнеймами\n"
-            ans += f"✅ Управление сообщениями\n" if perms.manage_messages else f"❌ Управление сообщениями\n"
-            ans += f"✅ Создание приглашений\n" if perms.create_instant_invite else f"❌ Создание приглашений\n"
-            ans += f"✅ Управление сервером\n" if perms.manage_guild else f"❌ Управление сервером\n"
-            ans += f"✅ Управление вебхуками\n" if perms.manage_webhooks else f"❌ Управление вебхуками\n"
-            ans += f"✅ Журнал аудита\n" if perms.view_audit_log else f"❌ Журнал аудита\n"
-            return ans
+        def get_permissions(perms: discord.Permissions) -> str:
+            perms_: tuple[tuple[bool, str], ...] = (
+                (perms.send_messages, "Отправка сообщений"),
+                (perms.embed_links, "Добавление ссылок"),
+                (perms.use_external_emojis, "Использование внешних эмодзи"),
+                (perms.manage_channels, "Управление каналами"),
+                (perms.kick_members, "Исключение участников"),
+                (perms.ban_members, "Блокировка участников"),
+                (perms.read_message_history, "Чтение истории сообщений"),
+                (perms.read_messages, "Чтение сообщений"),
+                (perms.moderate_members, "Управление участниками"),
+                (perms.manage_nicknames, "Управление никнеймами"),
+                (perms.manage_messages, "Управление сообщениями"),
+                (perms.create_instant_invite, "Создание приглашений"),
+                (perms.manage_guild, "Управление сервером"),
+                (perms.manage_webhooks, "Управление вебхуками"),
+                (perms.view_audit_log, "Журнал аудита")
+            )
 
-        embed = discord.Embed(title="Отладка", color=discord.Color.orange())
+            #? It can be done in a oneline, but I think it's too messy and unreadable
+            output: list[str] = []
+            for i in perms_:
+                output.append(("✅ " if i[0] else "❌ ") + i[1])
+            return "\n".join(output)
+
+        def get_vals() -> str:  # TODO rename
+            assert interaction.guild is not None
+            perms_ = (
+                (interaction.guild.owner_id == interaction.user.id, "Создатель"),
+                (user.guild_permissions.administrator, "Администратор")
+            )
+
+            #? It can be done in a oneline, but I think it's too messy and unreadable
+            output: list[str] = []
+            for i in perms_:
+                output.append(("✅ " if i[0] else "❌ ") + i[1])
+            return "\n".join(output)
+
+        assert interaction.guild is not None
+        assert isinstance(interaction.channel, discord.TextChannel)
+        assert self.bot.user is not None
         bot_member = await interaction.guild.fetch_member(self.bot.user.id)
         user = await interaction.guild.fetch_member(interaction.user.id)
-        embed.add_field(
+        embed = discord.Embed(title="Отладка", color=discord.Color.orange()).add_field(
             name="Права бота",
             value=get_permissions(bot_member.guild_permissions)
-        )
-        embed.add_field(
+        ).add_field(
             name="Права в этом канале",
             value=get_permissions(interaction.channel.permissions_for(bot_member))
-        )
-        embed.add_field(
+        ).add_field(
             name="Информация о сервере",
             value=(f"Имя канала:\n`{interaction.channel.name}`\nID канала:\n`{interaction.channel.id}`\n" +
                 f"Кол-во каналов:\n`{len(interaction.guild.channels)}/500`\n" + 
                 f"Название сервера:\n`{interaction.guild.name}`\nID сервера:\n`{interaction.guild.id}`"
             )
-        )
-        ans = ''
-        ans += f"✅ Создатель\n" if interaction.guild.owner_id == interaction.user.id else f"❌ Создатель\n"
-        ans += f"✅ Администратор\n" if user.guild_permissions.administrator else f"❌ Администратор\n"
-        embed.add_field(
+        ).add_field(
             name="Информация о пользователе",
-            value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{ans}`"
+            value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{get_vals()}`"
         )
         channel = self.bot.get_channel(config.settings['debug_channel'])
+        assert isinstance(channel, discord.TextChannel)
         message = await channel.send(embed=embed)
         await interaction.response.send_message(content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url}",embed=embed)
 
@@ -403,7 +420,7 @@ class Tools(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         try:
-            answer = numexpr.evaluate(problem)
+            answer = numexpr.evaluate(problem)  # type: ignore
         except ZeroDivisionError:
             embed = discord.Embed(
                 title="Ошибка!", 
@@ -437,7 +454,7 @@ class Tools(commands.Cog):
         l10n = FluentLocalization(["ru"], ["main.ftl", "texts.ftl", "commands.ftl"], loader)
         if interaction.guild is None:
             embed = discord.Embed(title=l10n.format_value("error_title"), color=discord.Color.red(), description=l10n.format_value("guild_only_error"))
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True) 
         if not self.bot.intents.members:
             embed = discord.Embed(
@@ -446,6 +463,7 @@ class Tools(commands.Cog):
                 description=l10n.format_value("intents_are_not_enabled")
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        assert isinstance(interaction.user, discord.Member)
         if interaction.user.guild_permissions.manage_guild:
             role_info = await db.get_guild_autorole(interaction.guild.id)
             if role is None:
@@ -456,13 +474,13 @@ class Tools(commands.Cog):
                         description=l10n.format_value("autorole_no_active_role")
                     )
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
-                class Buttons(ui.View):
+                class Buttons1(ui.View):  # Error: Объявление класса "Buttons" скрывается объявлением с тем же именем  # TODO rename
                     def __init__(self):
                         super().__init__(timeout=180)
                         self.value = None
 
                     @ui.button(label=l10n.format_value("yes"), style=discord.ButtonStyle.green)
-                    async def yes(self, viewinteract: discord.Interaction, button: ui.Button):
+                    async def yes(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                         if viewinteract.user.id != interaction.user.id:
                             return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
                         await viewinteract.response.defer()
@@ -470,7 +488,7 @@ class Tools(commands.Cog):
                         self.stop()
 
                     @ui.button(label=l10n.format_value("no"), style=discord.ButtonStyle.red)
-                    async def no(self, viewinteract: discord.Interaction, button: ui.Button):
+                    async def no(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                         if viewinteract.user.id != interaction.user.id:
                             return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
                         await viewinteract.response.defer()
@@ -482,7 +500,7 @@ class Tools(commands.Cog):
                     color=discord.Color.orange(),
                     description=l10n.format_value("autorole_confirm_deletion", {"role": f"<@&{role_info}>"})
                 )
-                view = Buttons()
+                view = Buttons1()
                 await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
                 await view.wait()
                 if view.value is None:
@@ -514,7 +532,7 @@ class Tools(commands.Cog):
                     self.value = None
 
                 @ui.button(label=l10n.format_value("yes"), style=discord.ButtonStyle.green)
-                async def yes(self, viewinteract: discord.Interaction, button: ui.Button):
+                async def yes(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                     if viewinteract.user.id != interaction.user.id:
                         return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
                     await viewinteract.response.defer()
@@ -522,7 +540,7 @@ class Tools(commands.Cog):
                     self.stop()
 
                 @ui.button(label=l10n.format_value("no"), style=discord.ButtonStyle.red)
-                async def no(self, viewinteract: discord.Interaction, button: ui.Button):
+                async def no(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                     if viewinteract.user.id != interaction.user.id:
                         return await interaction.response.send_message(l10n.format_value("button_click_forbidden"))
                     await viewinteract.response.defer()
@@ -560,5 +578,5 @@ class Tools(commands.Cog):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-async def setup(bot):
+async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(Tools(bot))

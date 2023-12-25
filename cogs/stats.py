@@ -1,6 +1,5 @@
 import discord
 import logging
-import asyncio
 
 from discord.ext import commands
 from discord import app_commands
@@ -15,15 +14,17 @@ from config import *
 logger = logging.getLogger('discord')
 
 async def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (await isPremium(interaction.client, interaction.user.id) != 'None' or
-            await isPremiumServer(interaction.client, interaction.guild)):
+    assert interaction.guild is not None
+    if (await isPremium(interaction.user.id) != 'None' or
+            await isPremiumServer(interaction.guild)):
         return None
     return app_commands.Cooldown(1, 3.0)
 
 
 async def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (await isPremium(interaction.client, interaction.user.id) != 'None' or
-            await isPremiumServer(interaction.client, interaction.guild)):
+    assert interaction.guild is not None
+    if (await isPremium(interaction.user.id) != 'None' or
+            await isPremiumServer(interaction.guild)):
         return app_commands.Cooldown(1, 2.0)
     return app_commands.Cooldown(1, 10.0)
 
@@ -40,8 +41,9 @@ class Stats(commands.Cog):
         if interaction.guild is None:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(),
                                   description="Извините, но данная команда недоступна в личных сообщениях!")
-            embed.set_thumbnail(url=interaction.user.avatar.url)
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        assert isinstance(interaction.user, discord.Member)
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -56,7 +58,7 @@ class Stats(commands.Cog):
                 description="Данная команда доступна только премиум серверам!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)"""
-        guild = await db.get_guild_stats(guild_id=interaction.guild.id)
+        guild = await db.get_guild_stats(guild_id=interaction.guild.id)  # type: ignore
         if guild is not None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -70,7 +72,7 @@ class Stats(commands.Cog):
             description="Пожалуйста, выберите, какую статистику Вы хотите видеть."
         )
 
-        class Select(ui.Select):
+        class Select(ui.Select):  # type: ignore
             def __init__(self):
                 options = [
                     discord.SelectOption(
@@ -115,10 +117,11 @@ class Stats(commands.Cog):
                 if interaction.client.intents.members and interaction.client.intents.presences: options = intent_options + options
                 super().__init__(placeholder="Выберите статистику", max_values=len(options), options=options)
 
-            async def callback(self, viewinteract: discord.Interaction):
+            async def callback(self, viewinteract: discord.Interaction):  # type: ignore
+                assert viewinteract.guild is not None
                 await viewinteract.response.defer(thinking=True, ephemeral=True)
                 values = self.values
-                channels = []
+                channels: list[dict[str, str]] = []
                 for value in values:
                     message = "%count%"
                     stat = 0
@@ -126,8 +129,7 @@ class Stats(commands.Cog):
                         len(voice.voice_states)
                         for voice in viewinteract.guild.voice_channels
                     )
-                    bot = sum(bool(member.bot)
-                          for member in viewinteract.guild.members)
+                    bot = sum(bool(member.bot) for member in viewinteract.guild.members)
                     if value == 'bots':
                         message = "Ботов: %count%"
                         stat = bot
@@ -149,7 +151,7 @@ class Stats(commands.Cog):
                         )
                     elif value == 'people':
                         message = "Людей: %count%"
-                        stat = viewinteract.guild.member_count - bot
+                        stat = viewinteract.guild.member_count or 0 - bot
                     elif value == 'voice':
                         message = "В войсах: %count%"
                         stat = voices
@@ -187,12 +189,13 @@ class Stats(commands.Cog):
         await interaction.response.send_message(embed=embed, view=View(), ephemeral=True)
 
     async def es_autocomplete(self, interaction: discord.Interaction, current: str):
-        channels = await db.get_guild_stats(
-            guild_id=interaction.guild.id, 
+        assert interaction.guild is not None
+        channels = await db.get_guild_stats(  # type: ignore
+            guild_id=interaction.guild.id,
             channels=1, 
             _id=0
         )['channels']
-        return [app_commands.Choice(name=channel['text'].replace("%count%", ''), value=str(channel['id'])) for channel
+        return [app_commands.Choice(name=channel['text'].replace("%count%", ''), value=str(channel['id'])) for channel  # type: ignore
                 in channels if current.lower() in channel['type']]
 
     @app_commands.command(
@@ -210,8 +213,9 @@ class Stats(commands.Cog):
                 title="Ошибка!", 
                 color=discord.Color.red(),
                 description="Извините, но данная команда недоступна в личных сообщениях!"
-            ).set_thumbnail(url=interaction.user.avatar.url)
+            ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        assert isinstance(interaction.user, discord.Member)
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -226,7 +230,7 @@ class Stats(commands.Cog):
                 description="Ваш сервер не имеет премиум подписки!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)"""
-        guild = await db.get_guild_stats(guild_id=interaction.guild.id)
+        guild = await db.get_guild_stats(guild_id=interaction.guild.id)  # type: ignore
         if guild is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -235,14 +239,14 @@ class Stats(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if channel is not None:
-            channel: discord.abc.GuildChannel = self.bot.get_channel(int(channel))
-            channels: list = guild['channels']
-            channel_it: dict = None
+            channel_: discord.abc.GuildChannel = self.bot.get_channel(int(channel))  # type: ignore
+            channels: list[dict[str, str | int]] = guild['channels']  # type: ignore
+            channel_it: dict[str, str | int] | None = None
             text = ''
-            for ch in channels:
-                if int(ch['id']) == channel.id:
-                    text = ch['text']
-                    channel_it = ch
+            for ch in channels:  # type: ignore
+                if int(ch['id']) == channel_.id:  # type: ignore
+                    text = ch['text']  # type: ignore
+                    channel_it = ch  # type: ignore
                     break
             embed = discord.Embed(
                 title="Изменение канала",
@@ -255,37 +259,37 @@ class Stats(commands.Cog):
                     super().__init__(timeout=None)
 
                 @ui.button(label="Переименовать", style=discord.ButtonStyle.green)
-                async def rename(self, viewinteract: discord.Interaction, button: ui.Button):
+                async def rename(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                     class Input(ui.Modal, title="Переименование канала"):
-                        txt = ui.TextInput(label="Название канала:", default=text, max_length=100, min_length=7)
+                        txt = ui.TextInput(label="Название канала:", default=text, max_length=100, min_length=7)  # type: ignore
 
                         async def on_submit(self, minteract: discord.Interaction):
-                            if str(self.txt).find("%count%") == -1:
+                            if str(self.txt).find("%count%") == -1:  # type: ignore
                                 embed = discord.Embed(
                                     title="Ошибка!",
                                     color=discord.Color.red(),
                                     description="Необходимо указать `%count%`, которое будет показывать боту, куда ставить число со статистикой."
                                 )
                                 return await minteract.response.send_message(embed=embed, ephemeral=True)
-                            channels.remove(channel_it)
-                            channel_it['text'] = str(self.txt)
-                            channels.append(channel_it)
-                            await db.update_guild_stats(guild_id=minteract.guild.id, channels=channels)
+                            channels.remove(channel_it)  # type: ignore
+                            channel_it['text'] = str(self.txt)  # type: ignore
+                            channels.append(channel_it)  # type: ignore
+                            await db.update_guild_stats(guild_id=minteract.guild.id, channels=channels)  # type: ignore
                             embed = discord.Embed(
                                 title="Успешно!",
                                 color=discord.Color.green(),
-                                description=f"Название канала изменено на `{str(self.txt).replace('%count%', '[число]')}`. Название изменится вместе со статистикой."
+                                description=f"Название канала изменено на `{str(self.txt).replace('%count%', '[число]')}`. Название изменится вместе со статистикой."  # type: ignore
                             )
                             await minteract.response.send_message(embed=embed, ephemeral=True)
 
                     await viewinteract.response.send_modal(Input())
 
                 @ui.button(label="Удалить", style=discord.ButtonStyle.red)
-                async def delete(self, viewinteract: discord.Interaction, button: ui.Button):
-                    channels.remove(channel_it)
-                    await db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
+                async def delete(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
+                    channels.remove(channel_it)  # type: ignore
+                    await db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)  # type: ignore
                     try:
-                        await channel.delete()
+                        await channel_.delete()
                     except:
                         embed = discord.Embed(
                             title="Ошибка!",
@@ -297,7 +301,7 @@ class Stats(commands.Cog):
                     embed = discord.Embed(
                         title="Успешно!",
                         color=discord.Color.green(),
-                        description=f"Канал `{channel.name}` удалён!"
+                        description=f"Канал `{channel_.name}` удалён!"
                     )
                     await viewinteract.response.send_message(embed=embed, ephemeral=True)
                     self.stop()
@@ -311,8 +315,8 @@ class Stats(commands.Cog):
                 "Если Вы хотите удалить статистику, используйте команду `/stats-delete`.")
         )
 
-        class Select(ui.Select):
-            def __init__(self, guild_channels: list):
+        class Select(ui.Select):  # type: ignore
+            def __init__(self, guild_channels: list):  # type: ignore
                 options = [
                     discord.SelectOption(
                         label="Кол-во эмодзи",
@@ -354,21 +358,22 @@ class Stats(commands.Cog):
                     )
                 ]
                 if interaction.client.intents.members and interaction.client.intents.presences: options = intent_options + options
-                channels = guild_channels
-                for channel in channels:
+                channels = guild_channels  # type: ignore
+                for channel in channels:  # type: ignore
                     for option in options:
                         if option.value == channel['type']: options.remove(option)
                 super().__init__(placeholder="Выберите статистику", max_values=len(options), options=options)
 
-            async def callback(self, viewinteract: discord.Interaction):
+            async def callback(self, viewinteract: discord.Interaction):  # type: ignore
                 await viewinteract.response.defer(thinking=True, ephemeral=True)
                 values = self.values
-                channels = await db.get_guild_stats(guild_id=viewinteract.guild.id)['channels']
+                channels = await db.get_guild_stats(guild_id=viewinteract.guild.id)['channels']  # type: ignore
                 for value in values:
                     message = "%count%"
                     stat = 0
                     bot = 0
                     voices = 0
+                    assert viewinteract.guild is not None
                     for voice in viewinteract.guild.voice_channels:
                         voices += len(voice.voice_states)
                     for member in viewinteract.guild.members:
@@ -383,11 +388,25 @@ class Stats(commands.Cog):
                                 + len(
                             list(filter(lambda x: x.status == discord.Status.dnd, viewinteract.guild.members)))
                         )
-                    if value == 'members': message = "Участников: %count%"; stat = viewinteract.guild.member_count
-                    if value == 'people': message = "Людей: %count%"; stat = viewinteract.guild.member_count - bot
-                    if value == 'bots': message = "Ботов: %count%"; stat = bot
-                    if value == 'emojis': message = "Эмодзи: %count%"; stat = len(viewinteract.guild.emojis)
-                    if value == 'voice': message = "В войсах: %count%"; stat = voices
+                    match value:
+                        case 'members':
+                            message = "Участников: %count%"
+                            stat = viewinteract.guild.member_count
+                    
+                        case 'people': 
+                            message = "Людей: %count%"
+                            stat = viewinteract.guild.member_count or 0 - bot
+                        case 'bots': 
+                            message = "Ботов: %count%"
+                            stat = bot
+                        case 'emojis': 
+                            message = "Эмодзи: %count%"
+                            stat = len(viewinteract.guild.emojis)
+                        case 'voice': 
+                            message = "В войсах: %count%"
+                            stat = voices
+                        case _:
+                            pass
                     try:
                         channel = await viewinteract.guild.create_voice_channel(
                             name=message.replace("%count%", str(stat)), position=0,
@@ -399,8 +418,8 @@ class Stats(commands.Cog):
                             description="Бот не имеет права на `управление каналами`, которое нужно для бота."
                         )
                         return await viewinteract.followup.send(embed=embed)
-                    channels.append({'type': value, 'id': str(channel.id), 'text': message})
-                await db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)
+                    channels.append({'type': value, 'id': str(channel.id), 'text': message})  # type: ignore
+                await db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)  # type: ignore
                 embed = discord.Embed(
                     title="Успешно!",
                     color=discord.Color.green(),
@@ -410,12 +429,12 @@ class Stats(commands.Cog):
                 await interaction.edit_original_response(view=None)
 
         class View(ui.View):
-            def __init__(self, guild_channels: list):
+            def __init__(self, guild_channels: list):  # type: ignore
                 super().__init__(timeout=None)
                 self.add_item(Select(guild_channels))
 
-        guild_channels = await db.get_guild_stats(guild_id=interaction.guild.id)['channels']
-        await interaction.response.send_message(embed=embed, view=View(guild_channels), ephemeral=True)
+        guild_channels = await db.get_guild_stats(guild_id=interaction.guild.id)['channels']  # type: ignore
+        await interaction.response.send_message(embed=embed, view=View(guild_channels), ephemeral=True)  # type: ignore
 
     @app_commands.command(name="stats-delete", description="[Статистика] Удалить статистику")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
@@ -427,8 +446,9 @@ class Stats(commands.Cog):
                 title="Ошибка!", 
                 color=discord.Color.red(),
                 description="Извините, но данная команда недоступна в личных сообщениях!"
-            ).set_thumbnail(url=interaction.user.avatar.url)
+            ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        assert isinstance(interaction.user, discord.Member)
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -436,7 +456,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        doc = await db.get_guild_stats(guild_id=interaction.guild.id)
+        doc = await db.get_guild_stats(guild_id=interaction.guild.id)  # type: ignore
         if doc is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -445,9 +465,10 @@ class Stats(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.response.defer(thinking=True)
-        for channel in doc['channels']:
-            ch = self.bot.get_channel(int(channel['id']))
+        for channel in doc['channels']:  # type: ignore
+            ch = self.bot.get_channel(int(channel['id']))  # type: ignore
             if ch is None: continue
+            assert isinstance(ch, discord.TextChannel)
             try:
                 await ch.delete()
             except:
@@ -475,8 +496,9 @@ class Stats(commands.Cog):
                 title="Ошибка!", 
                 color=discord.Color.red(),
                 description="Извините, но данная команда недоступна в личных сообщениях!"
-            ).set_thumbnail(url=interaction.user.avatar.url)
+            ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        assert isinstance(interaction.user, discord.Member)
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -484,7 +506,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        doc = await db.get_guild_stats(guild_id=interaction.guild.id)
+        doc = await db.get_guild_stats(guild_id=interaction.guild.id)  # type: ignore
         if doc is None:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -494,9 +516,10 @@ class Stats(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         description = "Здесь Вы можете увидеть все каналы статистики, а также узнать, когда бот обновит статистику.\n\n**__Статистика:__**\n"
         count = 1
-        for channel in doc['channels']:
-            ch = self.bot.get_channel(int(channel['id']))
+        for channel in doc['channels']:  # type: ignore
+            ch = self.bot.get_channel(int(channel['id']))  # type: ignore
             if ch is None: continue
+            assert isinstance(ch, discord.TextChannel)
             description += f"> `{count}.` {ch.name}.\n"
             count += 1
         embed = discord.Embed(

@@ -216,7 +216,7 @@ class MadBot(commands.AutoShardedBot):
         log_channel = self.get_channel(config.settings['log_channel'])
         assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
-        if await isPremiumServer(self, guild):
+        if await isPremiumServer(guild):
             await db.take_guild_premium(guild.id)
 
     async def on_member_join(self, member: discord.Member):

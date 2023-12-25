@@ -9,6 +9,7 @@ from config import *
 from classes import checks
 from classes import db
 from classes.db import client as mongo_client
+from asyncstdlib import enumerate as aenumerate
 
 from classes.checks import isPremium, isPremiumServer
 
@@ -23,14 +24,14 @@ class Premium(commands.Cog):
             @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_not_shutted_down)
             async def give(self, interaction: discord.Interaction):
-                if await isPremium(interaction.client, interaction.user.id) == 'None':
+                if await isPremium(interaction.user.id) == 'None':
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
                         description="Вы не являетесь премиум пользователем!"
                     )
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
-                if await isPremiumServer(interaction.client, interaction.guild):
+                if await isPremiumServer(interaction.guild):
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
@@ -40,14 +41,14 @@ class Premium(commands.Cog):
                 db = mongo_client.premium
                 coll = db.guild
                 premiums = await coll.count_documents({'user_id': str(interaction.user.id)})
-                if await isPremium(interaction.client, interaction.user.id) == 'user' and premiums == 5:
+                if await isPremium(interaction.user.id) == 'user' and premiums == 5:
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
                         description="Вы не можете дать подписку более, чем `5-ти` серверам!"
                     )
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
-                if await isPremium(interaction.client, interaction.user.id) == 'server' and premiums == 2:
+                if await isPremium(interaction.user.id) == 'server' and premiums == 2:
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
@@ -66,14 +67,14 @@ class Premium(commands.Cog):
             @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_not_shutted_down)
             async def take(self, interaction: discord.Interaction):
-                if await isPremium(interaction.client, interaction.user.id) == 'None':
+                if await isPremium(interaction.user.id) == 'None':
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
                         description="Вы не являетесь премиум пользователем!"
                     )
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
-                if not await isPremiumServer(interaction.client, interaction.guild):
+                if not await isPremiumServer(interaction.guild):
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
@@ -100,32 +101,33 @@ class Premium(commands.Cog):
             @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_not_shutted_down)
             async def info(self, interaction: discord.Interaction):
-                if await isPremium(interaction.client, interaction.user.id) == 'None':
+                if await isPremium(interaction.user.id) == 'None':
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
                         description="Вы не являетесь премиум пользователем."
                     )
-                prems = await db.get_premium_guids(interaction.user.id)
                 prem_embed = discord.Embed(
                     title="MadBot Premium - сервера",
                     color=discord.Color.orange(),
                     description="Здесь Вы можете узнать, на какие сервера Вы дали подписку. Также Вы можете снять с них подписку."
                 )
                 options = []
-                count = 0
-                for prem in prems:
+                async for count, prem in aenumerate(db.get_premium_guilds(interaction.user.id), start=1):
                     guild = interaction.client.get_guild(int(prem['guild_id']))
-                    prem_embed.add_field(name=f"Сервер №{count+1}", value=f"`{guild.name}`")
+                    prem_embed.add_field(
+                        name=f"Сервер №{count}", 
+                        value=f"`{'Название неизвестно' if guild is None else guild.name}`"
+                    )
                     options.append(
                         discord.SelectOption(
-                            label=f"Снять подписку с {guild.name}",
+                            label=f"Снять подписку с сервера №{count}",
                             value=f"{prem['guild_id']}N{count}",
                             description="Забрать подписку с данного сервера."
                         )
                     )
                     count += 1
-                if count == 0:
+                if len(options) == 0:
                     embed = discord.Embed(
                         title="MadBot Premium - сервера",
                         color=discord.Color.orange(),

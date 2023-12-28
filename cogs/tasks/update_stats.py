@@ -1,11 +1,14 @@
-import logging
+import discord
 import time
+import logging
+
+from discord.ext import commands
+from discord.ext import tasks
+
 from contextlib import suppress
 
-import discord
-from discord.ext import commands, tasks
-
 from classes import db
+from contextlib import suppress
 
 logger = logging.getLogger('discord')
 

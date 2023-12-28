@@ -1,13 +1,16 @@
+import discord
 import logging
 
-import discord
-from discord import app_commands, ui
 from discord.ext import commands
+from discord import app_commands
+from discord import ui
 
-from classes import checks, db
-from classes.checks import isPremium, isPremiumServer
-from classes.db import client as mongo_client
 from config import *
+from classes import checks
+from classes import db
+from classes.db import client as mongo_client
+
+from classes.checks import isPremium, isPremiumServer
 
 logger = logging.getLogger('discord')
 

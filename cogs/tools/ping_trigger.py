@@ -1,8 +1,8 @@
 import discord
+
 from discord.ext import commands
 
 from classes import checks
-
 
 class PingTrigger(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

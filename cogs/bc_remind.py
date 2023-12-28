@@ -1,10 +1,11 @@
 import discord
-from discord import app_commands
+
 from discord.ext import commands
+from discord import app_commands
 
-from classes import checks, db
 from config import *
-
+from classes import checks
+from classes import db
 
 class BoticordRemind(commands.GroupCog, group_name="remind"):
     @app_commands.command(name="info", description="Информация о напоминании")

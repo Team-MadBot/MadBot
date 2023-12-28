@@ -1,10 +1,8 @@
-from typing import Optional
-
 import discord
-from discord import app_commands
 
+from typing import Optional
 from classes.checks import isPremium, isPremiumServer
-
+from discord import app_commands
 
 async def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
     if (await isPremium(interaction.client, interaction.user.id) != 'None' or

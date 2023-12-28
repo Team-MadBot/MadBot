@@ -1,8 +1,7 @@
 import discord
 
-from classes import db
 from config import *
-
+from classes import db
 
 async def isPremium(user_id: int) -> str:
     """Checks if a user is a premium user of the bot.

@@ -1,7 +1,6 @@
-from typing import Optional
-
 from . import mongo_db as db
 
+from typing import Optional
 
 async def get_shutted_command(command: str) -> Optional[dict]:
     coll = db.shutted_commands

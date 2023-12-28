@@ -1,14 +1,19 @@
 import discord
-from discord import app_commands
-from discord.ext import commands
 
-from classes import checks
-from classes.checks import isPremium
-from config import (bug_hunters, bug_terminators, coders, settings, supports,
-                    verified)
+from discord.ext import commands
+from discord import app_commands
 
 from . import default_cooldown
 
+from classes import checks
+from classes.checks import isPremium
+
+from config import settings
+from config import coders
+from config import supports
+from config import bug_hunters
+from config import bug_terminators
+from config import verified
 
 class UserInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

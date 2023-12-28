@@ -1,9 +1,8 @@
+import discord
+import aiohttp
 import logging
 
-import aiohttp
-import discord
 from discord.ext import commands
-
 from config import settings
 
 logger = logging.getLogger('discord')

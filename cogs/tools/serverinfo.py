@@ -1,13 +1,15 @@
 import discord
-from discord import app_commands
-from discord.ext import commands
 
-from classes import checks
-from classes.checks import isPremiumServer
-from config import beta_testers, verified
+from discord.ext import commands
+from discord import app_commands
 
 from . import default_cooldown
 
+from classes import checks
+from classes.checks import isPremiumServer
+
+from config import verified
+from config import beta_testers
 
 class ServerInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

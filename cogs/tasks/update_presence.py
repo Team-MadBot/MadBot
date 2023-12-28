@@ -1,8 +1,8 @@
-from contextlib import suppress
-
 import discord
-from discord.ext import commands, tasks
 
+from discord.ext import commands
+from discord.ext import tasks
+from contextlib import suppress
 
 class UpdatePresenceCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

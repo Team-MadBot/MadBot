@@ -1,16 +1,18 @@
-import datetime
-import sys
-
 import discord
+import sys
+import datetime
 import distro
-from discord import app_commands
-from discord.ext import commands
 
-from classes import checks, db
-from config import settings, started_at
+from discord.ext import commands
+from discord import app_commands
 
 from . import default_cooldown
 
+from classes import checks
+from classes import db
+
+from config import settings
+from config import started_at
 
 class BotInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

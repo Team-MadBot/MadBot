@@ -1,10 +1,10 @@
-from asyncio import sleep
-from contextlib import suppress
-
 import discord
+
 from discord import app_commands
 from discord.ext import commands
 
+from contextlib import suppress
+from asyncio import sleep
 
 class InteractionTrigger(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

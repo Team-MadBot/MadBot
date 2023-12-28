@@ -33,7 +33,7 @@ class __Settings(TypedDict):
     unbelieva_token: str
     risticks_token: str
     curr_version: str
-    mongo_url: str
+    mongo_url: str | None
     catapi_key: str | None
     dogapi_key: str | None
 

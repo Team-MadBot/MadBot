@@ -110,13 +110,13 @@ class Boticord(commands.Cog):
         self.bc_ws.register_listener("comment_removed", self.comment_removed) # type: ignore
         self.bc_ws.register_closer(self.on_close) # type: ignore
         
-        if not logger.level == logging.DEBUG:
+        if not settings['debug_mode']:
             self.send_stats.start()
         with suppress(Exception):
             await self.bc_ws.connect()
     
     async def cog_unload(self):
-        if not logger.level == logging.DEBUG:
+        if not settings['debug_mode']:
             self.send_stats.cancel()
         if self.bc_ws.not_closed:
             await self.bc_ws.close()

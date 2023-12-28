@@ -27,7 +27,7 @@ class Entertainment(commands.Cog):
     async def cat(self, interaction: discord.Interaction):
         resp = await aiohttp.ClientSession().get(
             "https://api.thecatapi.com/v1/images/search?mime_types=jpg,png" + 
-            settings['catapi_key'] if settings['catapi_key'] is not None else ""
+            f"&api_key={settings['catapi_key']}" if settings['catapi_key'] is not None else ""
         )
         json = await resp.json()
         if resp.status == 200:
@@ -44,7 +44,7 @@ class Entertainment(commands.Cog):
     async def dog(self, interaction: discord.Interaction):
         resp = await aiohttp.ClientSession().get(
             f"https://api.thedogapi.com/v1/images/search?mime_types=jpg,png" +
-            settings['dogapi_key'] if settings['dogapi_key'] is not None else ""
+            f"&api_key={settings['dogapi_key']}" if settings['dogapi_key'] is not None else ""
         )
         json = await resp.json()
         if resp.status == 200:

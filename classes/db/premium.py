@@ -1,11 +1,11 @@
-from . import client
+from . import client # type: ignore
 
-from typing import Optional
+from typing import Optional, Any
 
-async def get_premium_user(user_id: int) -> Optional[dict]:
-    db = client.premium
-    coll = db.user
-    return await coll.find_one({'user_id': str(user_id)})
+async def get_premium_user(user_id: int) -> Optional[dict[str, Any]]:
+    db = client.premium # type: ignore
+    coll = db.user # type: ignore
+    return await coll.find_one({'user_id': str(user_id)}) # type: ignore
 
 async def give_premium(user_id: int, type: str) -> bool:
     """
@@ -27,32 +27,32 @@ async def take_premium(user_id: int) -> bool:
     Arguments:
     - `user_id` - ID of the user.
     """
-    db = client.premium
-    coll = db.user
+    db = client.premium # type: ignore
+    coll = db.user # type: ignore
     await coll.delete_one({'user_id': str(user_id)})
     return True
 
-def get_premium_guids(user_id: int) -> Optional[dict]:
+def get_premium_guilds(user_id: int) -> Optional[dict[str, Any]]:
     """
     Gets all servers, where the user gave premium.
 
     Arguments:
     - `user_id` - ID of the user.
     """
-    db = client.premium
-    coll = db.guild
+    db = client.premium # type: ignore
+    coll = db.guild # type: ignore
     return coll.find({'user_id': str(user_id)})
 
-async def get_premium_guild_info(guild_id: int) -> Optional[list]:
+async def get_premium_guild_info(guild_id: int) -> Optional[dict[str, Any]]:
     """
     Gets info about premium server.
 
     Arguments:
     - `guild_id` - ID of the guild.
     """
-    db = client.premium
-    coll = db.guild
-    return await coll.find_one({'guild_id': str(guild_id)})
+    db = client.premium # type: ignore
+    coll = db.guild # type: ignore
+    return await coll.find_one({'guild_id': str(guild_id)}) # type: ignore
 
 async def take_guild_premium(guild_id: int) -> bool:
     """

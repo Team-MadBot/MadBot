@@ -5,12 +5,14 @@ import datetime
 import time
 import logging
 
-from boticordpy import BoticordClient
+from boticordpy import BoticordClient # type: ignore
 from discord.ext import commands, tasks
 from discord import utils as dutils
 from discord import ui
 from contextlib import suppress
 from asyncio import sleep
+
+from typing import Any
 
 logger = logging.getLogger('discord')
 
@@ -34,7 +36,7 @@ class LinktoBoticord(ui.View):
             )
         )
     
-class SetReminderButton(ui.Button):
+class SetReminderButton(ui.Button): # type: ignore
     def __init__(self, user_id: int, *, disabled: bool):
         super().__init__(
             style=discord.ButtonStyle.blurple, 
@@ -48,7 +50,7 @@ class SetReminderButton(ui.Button):
         if interaction.user.id != self.user_id:
             return await interaction.response.send_message("Не для тебя кнопочка!", ephemeral=True)
         
-        user = await db.get_user(self.user_id)
+        user = await db.get_user(self.user_id) # type: ignore
         if user is not None and user['enabled']:
             embed = discord.Embed(
                 title="Напоминание о повышении",
@@ -56,13 +58,13 @@ class SetReminderButton(ui.Button):
                 description="Напоминание о повышении бота на мониторинге уже включено. Для отключения напоминания "
                 "используйте `/remind disable`."
             )
-            self.view.stop()
+            self.view.stop() # type: ignore
             return await interaction.response.send_message(
                 embed=embed, 
                 ephemeral=True
             )
         elif user is not None:
-            await db.update_user(
+            await db.update_user( # type: ignore
                 user_id=self.user_id,
                 enabled=True
             )
@@ -81,7 +83,7 @@ class SetReminderButton(ui.Button):
             description="Напоминание о повышении бота на мониторинге включено. Вы будете упомянуты в этом канале, "
             "когда настанет время. Для отключения используйте `/remind disable`"
         )
-        self.view.stop()
+        self.view.stop() # type: ignore
         await interaction.response.send_message(
             embed=embed,
             ephemeral=True
@@ -102,11 +104,11 @@ class Boticord(commands.Cog):
         )
     
     async def cog_load(self):
-        self.bc_ws.register_listener("up_added", self.new_bot_bump)
-        self.bc_ws.register_listener("comment_added", self.comment_added)
-        self.bc_ws.register_listener("comment_edited", self.comment_edited)
-        self.bc_ws.register_listener("comment_removed", self.comment_removed)
-        self.bc_ws.register_closer(self.on_close)
+        self.bc_ws.register_listener("up_added", self.new_bot_bump) # type: ignore
+        self.bc_ws.register_listener("comment_added", self.comment_added) # type: ignore
+        self.bc_ws.register_listener("comment_edited", self.comment_edited) # type: ignore
+        self.bc_ws.register_listener("comment_removed", self.comment_removed) # type: ignore
+        self.bc_ws.register_closer(self.on_close) # type: ignore
         
         self.stats_task = self.send_stats.start()
         with suppress(Exception):
@@ -121,7 +123,9 @@ class Boticord(commands.Cog):
         await sleep(15)
         await self.bot.reload_extension("cogs.bc_api")
     
-    async def new_bot_bump(self, data: dict):
+    async def new_bot_bump(self, data: dict[str, Any]):
+        assert self.bot.user is not None
+        assert isinstance(data['user'], str)
         if data['id'] != str(self.bot.user.id):
             return
         bc_wh = self.bc_wh
@@ -129,16 +133,16 @@ class Boticord(commands.Cog):
         next_up = round(time.time()) + 3600 * 6
         view = LinktoBoticord(bot_id=self.bot.user.id)
 
-        db_user = await db.get_user(user_id=user.id)
+        db_user = await db.get_user(user_id=user.id) # type: ignore
         view.add_item(SetReminderButton(user.id, disabled=db_user is not None))
 
         if db_user is not None:
-            await db.update_user(
+            await db.update_user( # type: ignore
                 user_id=user.id,
                 next_bump=next_up,
                 reminded=False
             )
-            await db.increment_user(
+            await db.increment_user( # type: ignore
                 user_id=user.id,
                 up_count=1
             )
@@ -188,11 +192,12 @@ class Boticord(commands.Cog):
         )
         await view.wait()
         for item in view.children:
-            if item.url is None:
-                item.disabled = True
+            if item.url is None: # type: ignore
+                item.disabled = True # type: ignore
         await msg.edit(view=view)
     
-    async def comment_added(self, data: dict):
+    async def comment_added(self, data: dict[str, Any]):
+        assert self.bot.user is not None
         if data['id'] != str(self.bot.user.id):
             return
         bc_wh = self.bc_wh
@@ -212,7 +217,8 @@ class Boticord(commands.Cog):
         )
         await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=self.bot.user.id))
 
-    async def comment_removed(self, data: dict):
+    async def comment_removed(self, data: dict[str, Any]):
+        assert self.bot.user is not None
         if data['id'] != str(self.bot.user.id):
             return
         bc_wh = self.bc_wh
@@ -232,7 +238,8 @@ class Boticord(commands.Cog):
         )
         await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=self.bot.user.id))
     
-    async def comment_edited(self, data: dict):
+    async def comment_edited(self, data: dict[str, Any]):
+        assert self.bot.user is not None
         if data['id'] != str(self.bot.user.id):
             return
         bc_wh = self.bc_wh
@@ -254,6 +261,7 @@ class Boticord(commands.Cog):
 
     @tasks.loop(seconds=300)
     async def send_stats(self):
+        assert self.bot.user is not None
         try:
             await self.bc_client.post_bot_stats(
                 self.bot.user.id,
@@ -261,7 +269,7 @@ class Boticord(commands.Cog):
                 shards=self.bot.shard_count,
                 users=len(self.bot.users)
             )
-        except Exception as e:
+        except Exception:
             logger.error("Статистика на Boticord НЕ ОБНОВЛЕНА!!! (V2)")
             logger.error(traceback.format_exc())
             logger.error("============ AutoPost ============")

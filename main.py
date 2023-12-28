@@ -183,10 +183,19 @@ class MadBot(commands.AutoShardedBot):
                         with suppress(Exception):
                             await guild.system_channel.send(embed=embed)
             
-            embed = discord.Embed(title="Новый сервер!", color=discord.Color.green())
-            embed.add_field(name="Название:", value=f"`{guild.name}`")
-            embed.add_field(name="Владелец:", value=f"<@{guild.owner_id}>")
-            embed.add_field(name="ID сервера:", value=f"`{guild.id}`")
+            embed = discord.Embed(
+                title="Новый сервер!", 
+                color=discord.Color.green()
+            ).add_field(
+                name="Название:", 
+                value=f"`{guild.name}`"
+            ).add_field(
+                name="Владелец:", 
+                value=f"<@{guild.owner_id}>"
+            ).add_field(
+                name="ID сервера:", 
+                value=f"`{guild.id}`"
+            )
             if self.intents.members:
                 embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
             if guild.icon is not None:

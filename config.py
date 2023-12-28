@@ -3,17 +3,45 @@ import os
 
 from dotenv import load_dotenv
 
+from typing import TypedDict
+
 load_dotenv()
 
-settings = {
+class __Settings(TypedDict):
+    min_members: int
+    debug_mode: bool
+    token: str
+    app_id: int
+    weather_key: str
+    sdc_key: str
+    support_invite: str
+    owner_id: int
+    supp_guild: int
+    comm_guild: int
+    log_channel: int
+    report_channel: int
+    debug_channel: int
+    perm_scope: int
+    outages: int
+    prem_user: int
+    prem_server: int
+    bc_api_ver: int
+    bc_hook_url: str
+    shard_log_hook_url: str
+    vote_hook_url: str
+    bcv2_token: str
+    unbelieva_token: str
+    risticks_token: str
+    curr_version: str
+    mongo_url: str
+
+settings: __Settings = {
     'min_members': 10,
     'debug_mode': False,
     'token': os.environ.get("TOKEN"),
     'app_id': int(os.environ.get("APP_ID")), # type: ignore
-    'key': os.environ.get("SRA_TOKEN"),
     'weather_key': os.environ.get("WEATHER_TOKEN"),
     'sdc_key': os.environ.get("SDC_TOKEN"),
-    'nc_token': os.environ.get("NC_TOKEN"),
     'support_invite': os.environ.get("SUPPORT_INVITE_URL"),
     'owner_id': int(os.environ.get("OWNER_ID")), # type: ignore
     'supp_guild': int(os.environ.get("SUPPORT_GUILD_ID")), # type: ignore
@@ -88,34 +116,4 @@ bug_terminators = [
 ]
 coders = [ # Помощники разработчика.
     560529834325966858
-]
-
-slap_gifs = [ # Гифки шлёпа.
-    "https://cdn.discordapp.com/attachments/707201738255368194/847553281852702770/tenor_1.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847553382339182642/tenor_2.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847553413319098418/tenor_3.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847553484949553202/tenor_4.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847553521683529758/tenor_5.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847553545632612443/tenor_6.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847553662780047421/tenor_12.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847554139943731250/tenor_23.gif",
-    "https://cdn.discordapp.com/attachments/707201738255368194/847554219648352266/tenor_24.gif"
-]
-kiss_gifs = [ # Гифки поцелуя.
-    "https://i.imgur.com/a66k9c7.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967834319160750111/animesher.com_kiss-anime-love-tender-kiss-766612.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967834665568305162/d0cd64030f383d56e7edc54a484d4b8d.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967834666021310534/giphy.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967834666277175296/kiss-anime.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967834666709164123/tumblr_0cd93127b3eee8352ca2a5a66349bcdb_0d2f4ba2_500.gif"
-]
-hit_gifs = [ # Гифки удара.
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842754828861470/2ce5a017f6556ff103bce87b273b89b7.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842755147624468/anime.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842755697049600/anime-hit.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842755978100786/animesher.com_hitting-toradora-funny-1701058.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842756288475277/head-hit-anime.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842756590444624/hit.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842756875673710/hit-anime.gif",
-    "https://cdn.discordapp.com/attachments/956616897363869796/967842757148278864/hit-head-anime.gif"
 ]

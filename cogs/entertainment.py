@@ -12,11 +12,12 @@ from random import choice
 from typing import List
 
 from config import *
+from config import settings
 from classes import checks
 
 logger = logging.getLogger('discord')
 
-class Entartaiment(commands.Cog):
+class Entertainment(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -24,11 +25,14 @@ class Entartaiment(commands.Cog):
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def cat(self, interaction: discord.Interaction):
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/cat?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(
+            "https://api.thecatapi.com/v1/images/search?mime_types=jpg,png" + 
+            f"&api_key={settings['catapi_key']}" if settings['catapi_key'] is not None else ""
+        )
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Мяу!", color=discord.Color.orange())
-            embed.set_image(url=json['image'])
+            embed.set_image(url=json[0]['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`")
@@ -38,11 +42,14 @@ class Entartaiment(commands.Cog):
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def dog(self, interaction: discord.Interaction):
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/dog?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(
+            f"https://api.thedogapi.com/v1/images/search?mime_types=jpg,png" +
+            f"&api_key={settings['dogapi_key']}" if settings['dogapi_key'] is not None else ""
+        )
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Гав!", color=discord.Color.orange())
-            embed.set_image(url=json['image'])
+            embed.set_image(url=json[0]['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`")
@@ -1485,4 +1492,4 @@ class Entartaiment(commands.Cog):
 
             
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Entartaiment(bot))
+    await bot.add_cog(Entertainment(bot))

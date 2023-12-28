@@ -57,11 +57,11 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя обнять самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/hug")
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Реакция: обнятие", color=discord.Color.orange(), description=f"{interaction.user.mention} обнял(-а) {member.mention}.")
-            embed.set_image(url=json['link'])
+            embed.set_image(url=json['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
@@ -80,11 +80,11 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя обнять самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/hug?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/hug")
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Реакция: обнятие", color=discord.Color.orange(), description=f"{interaction.user.mention} обнял(-а) {member.mention}.")
-            embed.set_image(url=json['link'])
+            embed.set_image(url=json['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
@@ -105,11 +105,11 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя погладить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/pat")
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Реакция: погладить", color=discord.Color.orange(), description=f"{interaction.user.mention} погладил(-а) {member.mention}.")
-            embed.set_image(url=json['link'])
+            embed.set_image(url=json['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
@@ -128,11 +128,11 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя погладить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/pat?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/pat")
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Реакция: погладить", color=discord.Color.orange(), description=f"{interaction.user.mention} погладил(-а) {member.mention}.")
-            embed.set_image(url=json['link'])
+            embed.set_image(url=json['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
@@ -154,7 +154,7 @@ class Reactions(commands.Cog):
             if member.id == interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя подмигнуть самому себе!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/wink")
         json = await resp.json()
         if resp.status == 200:
             description = ''
@@ -163,7 +163,7 @@ class Reactions(commands.Cog):
             else:
                 description = f"{interaction.user.mention} подмигнул(-а) {member.mention}."
             embed = discord.Embed(title="Реакция: подмигивание", color=discord.Color.orange(), description=description)
-            embed.set_image(url=json['link'])
+            embed.set_image(url=json['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
@@ -183,11 +183,11 @@ class Reactions(commands.Cog):
             if member.id == interaction.user.id:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя подмигнуть самому себе!")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animu/wink?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/wink")
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Реакция: подмигивание", color=discord.Color.orange(), description=f"{interaction.user.mention} подмигнул(-а) {member.mention}.")
-            embed.set_image(url=json['link'])
+            embed.set_image(url=json['url'])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
@@ -208,9 +208,15 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя отлупить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        embed = discord.Embed(title="Реакция: шлёп", color=discord.Color.orange(), description=f"{interaction.user.mention} отлупил(-а) {member.mention}.")
-        embed.set_image(url=random.choice(slap_gifs))
-        await interaction.response.send_message(embed=embed)
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/slap")
+        json = await resp.json()
+        if resp.status == 200:
+            embed = discord.Embed(title="Реакция: шлепок", color=discord.Color.orange(), description=f"{interaction.user.mention} отлупил(-а) {member.mention}.")
+            embed.set_image(url=json['url'])
+            await interaction.response.send_message(embed=embed)
+        else:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="kiss", description="[Реакции] Поцеловать участника")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
@@ -255,8 +261,13 @@ class Reactions(commands.Cog):
                         description = f"{interaction.user.mention} поцеловал(-а) {viewinteract.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
                     elif marry is not None and marry1 is not None:
                         description = f"{interaction.user.mention} и {member.mention} целуются. Интересно, их вторые половинки знают об этом?"
-                    embed = discord.Embed(title="Реакция: поцелуй", color=discord.Color.orange(), description=description)
-                    embed.set_image(url=random.choice(kiss_gifs))
+                    resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/kiss")
+                    json = await resp.json()
+                    if resp.status == 200:
+                        embed = discord.Embed(title="Реакция: поцелуй", color=discord.Color.orange(), description=description)
+                        embed.set_image(url=json['url'])
+                    else:
+                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
                     self.value = True
                     return await interaction.edit_original_response(embed=embed, view=None)
                 else:
@@ -325,8 +336,13 @@ class Reactions(commands.Cog):
                         description = f"{interaction.user.mention} поцеловал(-а) {viewinteract.user.mention}. Надеюсь, его вторая половинка об этом не узнает..."
                     elif marry is not None and marry1 is not None:
                         description = f"{interaction.user.mention} и {member.mention} целуются. Интересно, их вторые половинки знают об этом?"
-                    embed = discord.Embed(title="Реакция: поцелуй", color=discord.Color.orange(), description=description)
-                    embed.set_image(url=random.choice(kiss_gifs))
+                    resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/kiss")
+                    json = await resp.json()
+                    if resp.status == 200:
+                        embed = discord.Embed(title="Реакция: поцелуй", color=discord.Color.orange(), description=description)
+                        embed.set_image(url=json['url'])
+                    else:
+                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
                     self.value = True
                     return await interaction.edit_original_response(embed=embed, view=None)
                 else:
@@ -369,9 +385,15 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя ударить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        embed = discord.Embed(title="Реакция: удар", color=discord.Color.orange(), description=f"{interaction.user.mention} ударил(-а) {member.mention}.")
-        embed.set_image(url=random.choice(hit_gifs))
-        await interaction.response.send_message(embed=embed)
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/slap")
+        json = await resp.json()
+        if resp.status == 200:
+            embed = discord.Embed(title="Реакция: удар", color=discord.Color.orange(), description=f"{interaction.user.mention} ударил(-а) {member.mention}.")
+            embed.set_image(url=json['url'])
+            await interaction.response.send_message(embed=embed)
+        else:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -386,9 +408,15 @@ class Reactions(commands.Cog):
         if member.id == interaction.user.id:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Нельзя ударить самого себя!")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        embed = discord.Embed(title="Реакция: удар", color=discord.Color.orange(), description=f"{interaction.user.mention} ударил(-а) {member.mention}.")
-        embed.set_image(url=random.choice(hit_gifs))
-        await interaction.response.send_message(embed=embed)
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/slap")
+        json = await resp.json()
+        if resp.status == 200:
+            embed = discord.Embed(title="Реакция: удар", color=discord.Color.orange(), description=f"{interaction.user.mention} ударил(-а) {member.mention}.")
+            embed.set_image(url=json['url'])
+            await interaction.response.send_message(embed=embed)
+        else:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @app_commands.command(name="sad", description="[Реакции] Погрустить")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
@@ -398,18 +426,15 @@ class Reactions(commands.Cog):
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        headers = {
-            "Authorization": settings['nc_token']
-        }
-        image = None
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.neppedcord.top/images/sad", headers=headers) as resp:
-                response = await resp.json()
-                image = response['url']
-        embed = discord.Embed(title="Реакция: грусть", color=discord.Color.orange(), description=f"{interaction.user.mention} грустит.")
-        embed.set_image(url=image)
-        embed.set_footer(text="© NeppedAPI (https://api-docs.neppedcord.top/)")
-        await interaction.response.send_message(embed=embed)
+        resp = await aiohttp.ClientSession().get(f"https://api.waifu.pics/sfw/cry")
+        json = await resp.json()
+        if resp.status == 200:
+            embed = discord.Embed(title="Реакция: грусть", color=discord.Color.orange(), description=f"{interaction.user.mention} грустит.")
+            embed.set_image(url=json['url'])
+            await interaction.response.send_message(embed=embed)
+        else:
+            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
     
 
 async def setup(bot: commands.Bot):

@@ -391,8 +391,7 @@ class Stats(commands.Cog):
                     match value:
                         case 'members':
                             message = "Участников: %count%"
-                            stat = viewinteract.guild.member_count
-                    
+                            stat = viewinteract.guild.member_count       
                         case 'people': 
                             message = "Людей: %count%"
                             stat = (viewinteract.guild.member_count or 0) - bot

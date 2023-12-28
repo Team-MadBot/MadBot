@@ -1,13 +1,11 @@
-import discord
 import logging
 
+import discord
 from asyncstdlib import enumerate as aenumerate
+from discord import app_commands, ui
 from discord.ext import commands
-from discord import app_commands
-from discord import ui
-from classes import db
 
-from classes import checks
+from classes import checks, db
 from config import *
 
 logger = logging.getLogger('discord')

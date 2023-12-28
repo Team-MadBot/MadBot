@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-import traceback
-import discord
-import datetime
-import os
 import argparse
+import datetime
 import logging
-import config
-
-from discord.ext import commands
+import os
+import traceback
 from asyncio import sleep
 from contextlib import suppress
 from logging.handlers import RotatingFileHandler
 
-from classes import db
-from classes import checks
-from classes.checks import isPremiumServer
+import discord
+from discord.ext import commands
 
+import config
+from classes import checks, db
+from classes.checks import isPremiumServer
 
 logging.getLogger("discord").addHandler(RotatingFileHandler(
     filename="discord.log",

@@ -1,6 +1,7 @@
-from . import client # type: ignore
+from typing import Any, Optional
 
-from typing import Optional, Any
+from . import client  # type: ignore
+
 
 async def get_premium_user(user_id: int) -> Optional[dict[str, Any]]:
     db = client.premium # type: ignore

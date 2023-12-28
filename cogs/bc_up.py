@@ -1,18 +1,17 @@
-import discord
-import aiohttp
 import base64
 import datetime
 import time
-
-from discord.ext import commands
-from discord import app_commands
-from discord import ui
-from typing import List, Union
 from io import BytesIO
+from typing import List, Union
 
+import aiohttp
+import discord
+from discord import app_commands, ui
+from discord.ext import commands
+
+from classes import checks, db
 from config import *
-from classes import checks
-from classes import db
+
 
 class LinktoBoticord(ui.View):
     def __init__(self, bot_id: int):

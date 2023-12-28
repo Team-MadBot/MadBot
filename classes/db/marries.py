@@ -1,11 +1,8 @@
 import time
+from typing import List, Optional
 
 from . import mongo_db as db
 
-from typing import (
-    Optional,
-    List
-)
 
 async def get_marries(guild_id: int, user_id: int) -> Optional[dict]:
     """

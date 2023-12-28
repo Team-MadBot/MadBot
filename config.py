@@ -1,9 +1,8 @@
-import time
 import os
+import time
+from typing import TypedDict
 
 from dotenv import load_dotenv
-
-from typing import TypedDict
 
 load_dotenv()
 
@@ -15,7 +14,6 @@ class __Settings(TypedDict):
     key: str
     weather_key: str
     sdc_key: str
-    nc_token: str
     support_invite: str
     owner_id: int
     supp_guild: int
@@ -37,6 +35,7 @@ class __Settings(TypedDict):
     curr_version: str
     mongo_url: str
 
+print(os.environ)
 settings: __Settings = {
     'min_members': 10,
     'debug_mode': False,
@@ -45,7 +44,6 @@ settings: __Settings = {
     'key': os.environ.get("SRA_TOKEN"),
     'weather_key': os.environ.get("WEATHER_TOKEN"),
     'sdc_key': os.environ.get("SDC_TOKEN"),
-    'nc_token': os.environ.get("NC_TOKEN"),
     'support_invite': os.environ.get("SUPPORT_INVITE_URL"),
     'owner_id': int(os.environ.get("OWNER_ID")), # type: ignore
     'supp_guild': int(os.environ.get("SUPPORT_GUILD_ID")), # type: ignore

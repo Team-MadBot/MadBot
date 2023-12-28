@@ -1,12 +1,12 @@
 import discord
-
-from discord.ext import commands
 from discord import app_commands
 from discord.app_commands import Choice
+from discord.ext import commands
+
+from classes import checks
 
 from . import default_cooldown
 
-from classes import checks
 
 class UserAvatar(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

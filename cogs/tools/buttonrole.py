@@ -1,13 +1,12 @@
 import discord
-
 from discord import app_commands
 from discord.ext import commands
 
+from classes import checks
+from config import settings
+
 from . import hard_cooldown
 
-from classes import checks
-
-from config import settings
 
 class ButtonRole(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

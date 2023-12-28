@@ -1,6 +1,7 @@
+from typing import Optional
+
 from . import mongo_db as db
 
-from typing import Optional
 
 async def get_bot_stats() -> dict:
     coll = db.bot_stats

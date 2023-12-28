@@ -1,5 +1,6 @@
 from . import mongo_db
 
+
 async def add_user(
     *,
     user_id: int,

@@ -1,6 +1,7 @@
+from typing import Optional
+
 from . import mongo_db as db
 
-from typing import Optional
 
 def get_all_blacklist():
     coll = db.blacklist

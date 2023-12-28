@@ -1,18 +1,18 @@
-import discord
 import datetime
-import aiohttp
-import random
 import logging
+import random
 import time
-
 from asyncio import sleep
-from discord import app_commands
-from discord.ext import commands
 from random import choice
 from typing import List
 
-from config import *
+import aiohttp
+import discord
+from discord import app_commands
+from discord.ext import commands
+
 from classes import checks
+from config import *
 
 logger = logging.getLogger('discord')
 
@@ -24,11 +24,11 @@ class Entartaiment(commands.Cog):
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def cat(self, interaction: discord.Interaction):
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/cat?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"http://shibe.online/api/cats?count=1&urls=true&httpsUrls=true")
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Мяу!", color=discord.Color.orange())
-            embed.set_image(url=json['image'])
+            embed.set_image(url=json[0])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`")
@@ -38,11 +38,11 @@ class Entartaiment(commands.Cog):
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def dog(self, interaction: discord.Interaction):
-        resp = await aiohttp.ClientSession().get(f"https://some-random-api.com/animal/dog?key={settings['key']}")
+        resp = await aiohttp.ClientSession().get(f"http://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true")
         json = await resp.json()
         if resp.status == 200:
             embed = discord.Embed(title="Гав!", color=discord.Color.orange())
-            embed.set_image(url=json['image'])
+            embed.set_image(url=json[0])
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`")
@@ -70,8 +70,6 @@ class Entartaiment(commands.Cog):
             async def solve(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                 if viewinteract.user != interaction.user:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
-
-
 
 
                 class InputText(discord.ui.Modal, title=f"Сколько будет {tosolve}?"):

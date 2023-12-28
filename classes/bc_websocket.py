@@ -1,11 +1,12 @@
-import aiohttp
 import asyncio
-import logging
 import json
-
+import logging
 from contextlib import suppress
-from boticordpy import BotiCordWebsocket # type: ignore
 from typing import Callable
+
+import aiohttp
+from boticordpy import BotiCordWebsocket  # type: ignore
+
 
 class BoticordWS(BotiCordWebsocket):
     """Client for interacting with the Boticord API via websocket.

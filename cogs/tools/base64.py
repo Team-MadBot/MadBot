@@ -1,12 +1,13 @@
-import discord
+from base64 import b64decode, b64encode
 
-from base64 import b64decode
-from base64 import b64encode
-from discord.ext import commands
+import discord
 from discord import app_commands
+from discord.ext import commands
+
+from classes import checks
 
 from . import default_cooldown
-from classes import checks
+
 
 class Base64(commands.GroupCog, group_name="base64"):
     """

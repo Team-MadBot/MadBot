@@ -1,15 +1,15 @@
-import discord
-import config
-import os
 import datetime
-import time
+import os
 import sys
-
-from discord.ext import commands
+import time
 from asyncio import sleep
 
-from classes import db
-from classes import checks
+import discord
+from discord.ext import commands
+
+import config
+from classes import checks, db
+
 
 class DebugCmd(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

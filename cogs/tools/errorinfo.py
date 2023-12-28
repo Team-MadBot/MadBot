@@ -1,10 +1,11 @@
 import discord
-
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
+
+from classes import checks
 
 from . import default_cooldown
-from classes import checks
+
 
 class ErrorInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

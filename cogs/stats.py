@@ -1,14 +1,12 @@
-import discord
 import logging
-
-from discord.ext import commands
-from discord import app_commands
-from discord import ui
 from typing import Optional
 
-from classes.checks import isPremiumServer, isPremium
-from classes import checks
-from classes import db
+import discord
+from discord import app_commands, ui
+from discord.ext import commands
+
+from classes import checks, db
+from classes.checks import isPremium, isPremiumServer
 from config import *
 
 logger = logging.getLogger('discord')
@@ -391,8 +389,7 @@ class Stats(commands.Cog):
                     match value:
                         case 'members':
                             message = "Участников: %count%"
-                            stat = viewinteract.guild.member_count
-                    
+                            stat = viewinteract.guild.member_count5
                         case 'people': 
                             message = "Людей: %count%"
                             stat = (viewinteract.guild.member_count or 0) - bot

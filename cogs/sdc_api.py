@@ -9,10 +9,12 @@ logger = logging.getLogger('discord')
 class SDC_API(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
-        self.sdc_stats.start()
+        if not logger.level == logging.DEBUG:
+            self.sdc_stats.start()
 
     def cog_unload(self):
-        self.sdc_stats.cancel()
+        if not logger.level == logging.DEBUG:
+            self.sdc_stats.cancel()
 
     @tasks.loop(seconds=1800.0)
     async def sdc_stats(self):

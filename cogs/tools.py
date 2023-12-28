@@ -5,6 +5,9 @@ import typing
 import aiohttp
 import numexpr  # type: ignore
 import logging
+import time
+
+import config
 
 from discord import Forbidden, app_commands, ui
 from fluent.runtime import FluentLocalization, FluentResourceLoader
@@ -14,8 +17,6 @@ from typing import Optional
 from classes.checks import isPremium, isPremiumServer
 from classes import db
 from classes import checks
-import config
-import time
 
 logger = logging.getLogger('discord')
 

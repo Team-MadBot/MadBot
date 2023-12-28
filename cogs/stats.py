@@ -151,7 +151,7 @@ class Stats(commands.Cog):
                         )
                     elif value == 'people':
                         message = "Людей: %count%"
-                        stat = viewinteract.guild.member_count or 0 - bot
+                        stat = (viewinteract.guild.member_count or 0) - bot
                     elif value == 'voice':
                         message = "В войсах: %count%"
                         stat = voices

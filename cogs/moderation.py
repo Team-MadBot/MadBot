@@ -32,7 +32,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         try:
             member = await interaction.guild.fetch_member(member.id)
-        except:
+        except:  # FIXME: bare except
             embed = discord.Embed(
                 title="Ошибка!", 
                 color=discord.Color.red(), 
@@ -89,7 +89,7 @@ class Moderation(commands.Cog):
 
         try:
             message = await member.send(embed=embed)
-        except:
+        except:  # FIXME: bare except
             embed.set_footer(text="Участник не получил сообщение о исключении!")
         
         try:
@@ -97,7 +97,7 @@ class Moderation(commands.Cog):
                 member, 
                 reason=f"{reason} // {interaction.user}"
             )
-        except:
+        except:  # FIXME: bare except
             await message.delete()
             embed = discord.Embed(
                 title="Ошибка!",
@@ -173,7 +173,7 @@ class Moderation(commands.Cog):
 
         try:
             message = await member.send(embed=embed)
-        except:
+        except:  # FIXME: bare except
             embed.set_footer(text="Участник не получил сообщение о блокировке!")
         
         try:
@@ -182,7 +182,7 @@ class Moderation(commands.Cog):
                 reason=f"{reason} // {interaction.user}",
                 delete_message_days=delete_message_days
             )
-        except:
+        except:  # FIXME: bare except
             await message.delete()
             embed = discord.Embed(
                 title="Ошибка!",
@@ -463,7 +463,7 @@ class Moderation(commands.Cog):
             )
             try:
                 await member.send(embed=embed)
-            except:
+            except:  # FIXME: bare except
                 embed.set_footer(
                     text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"
                 )
@@ -485,7 +485,7 @@ class Moderation(commands.Cog):
         )
         try:
             await member.send(embed=embed)
-        except:
+        except:  # FIXME: bare except
             embed.set_footer(
                 text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"
             )
@@ -627,7 +627,7 @@ class Moderation(commands.Cog):
         )
         try:
             await member.send(embed=embed)
-        except:
+        except:  # FIXME: bare except
             embed.set_footer(text="Участник закрыл доступ к личным сообщениям, поэтому не был оповещён.")
         await interaction.response.send_message(embed=embed)
 

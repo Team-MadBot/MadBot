@@ -6,7 +6,7 @@ from discord import app_commands
 from discord import ui
 from typing import Optional
 
-from classes.checks import isPremiumServer, isPremium
+from classes.checks import is_premium_server, is_premium
 from classes import checks
 from classes import db
 from config import *
@@ -15,16 +15,16 @@ logger = logging.getLogger('discord')
 
 async def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
     assert interaction.guild is not None
-    if (await isPremium(interaction.user.id) != 'None' or
-            await isPremiumServer(interaction.guild)):
+    if (await is_premium(interaction.user.id) != 'None' or
+            await is_premium_server(interaction.guild)):
         return None
     return app_commands.Cooldown(1, 3.0)
 
 
 async def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
     assert interaction.guild is not None
-    if (await isPremium(interaction.user.id) != 'None' or
-            await isPremiumServer(interaction.guild)):
+    if (await is_premium(interaction.user.id) != 'None' or
+            await is_premium_server(interaction.guild)):
         return app_commands.Cooldown(1, 2.0)
     return app_commands.Cooldown(1, 10.0)
 
@@ -51,7 +51,7 @@ class Stats(commands.Cog):
                 description="У Вас отсутствует право `управление каналами` для использования этой команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        """if not isPremiumServer(self.bot, interaction.guild):
+        """if not is_premium_server(self.bot, interaction.guild):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -159,7 +159,7 @@ class Stats(commands.Cog):
                         channel = await viewinteract.guild.create_voice_channel(
                             name=message.replace("%count%", str(stat)), position=0,
                             overwrites={viewinteract.guild.default_role: discord.PermissionOverwrite(connect=False)})
-                    except:
+                    except:  # FIXME: bare except
                         embed = discord.Embed(
                             title="Ошибка!",
                             color=discord.Color.red(),
@@ -223,7 +223,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права на `управление каналами`, чтобы использовать эту команду!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        """if not await isPremiumServer(self.bot, interaction.guild):
+        """if not await is_premium_server(self.bot, interaction.guild):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -290,7 +290,7 @@ class Stats(commands.Cog):
                     await db.update_guild_stats(guild_id=viewinteract.guild.id, channels=channels)  # type: ignore
                     try:
                         await channel_.delete()
-                    except:
+                    except:  # FIXME: bare except
                         embed = discord.Embed(
                             title="Ошибка!",
                             color=discord.Color.red(),
@@ -410,7 +410,7 @@ class Stats(commands.Cog):
                         channel = await viewinteract.guild.create_voice_channel(
                             name=message.replace("%count%", str(stat)), position=0,
                             overwrites={viewinteract.guild.default_role: discord.PermissionOverwrite(connect=False)})
-                    except:
+                    except:  # FIXME: bare except
                         embed = discord.Embed(
                             title="Ошибка!",
                             color=discord.Color.red(),
@@ -470,7 +470,7 @@ class Stats(commands.Cog):
             assert isinstance(ch, discord.TextChannel)
             try:
                 await ch.delete()
-            except:
+            except:  # FIXME: bare except
                 embed = discord.Embed(
                     title="Ошибка!",
                     color=discord.Color.red(),

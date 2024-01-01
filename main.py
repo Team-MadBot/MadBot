@@ -14,7 +14,7 @@ from logging.handlers import RotatingFileHandler
 
 from classes import db
 from classes import checks
-from classes.checks import isPremiumServer
+from classes.checks import is_premiumServer
 
 
 logging.getLogger("discord").addHandler(RotatingFileHandler(
@@ -178,8 +178,8 @@ class MadBot(commands.AutoShardedBot):
                     embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.")
                 try:
                     await adder.send(embed=embed)
-                except:
-                    if guild.system_channel != None:
+                except Exception: # FIXME: specify exception group or type 
+                    if guild.system_channel is not None:
                         with suppress(Exception):
                             await guild.system_channel.send(embed=embed)
             
@@ -216,7 +216,7 @@ class MadBot(commands.AutoShardedBot):
         log_channel = self.get_channel(config.settings['log_channel'])
         assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
-        if await isPremiumServer(guild):
+        if await is_premiumServer(guild):
             await db.take_guild_premium(guild.id)
 
     async def on_member_join(self, member: discord.Member):

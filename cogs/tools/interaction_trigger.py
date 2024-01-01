@@ -18,7 +18,7 @@ class InteractionTrigger(commands.Cog):
             with suppress(Exception):
                 try:
                     member = await interaction.guild.fetch_member(interaction.user.id)
-                except: 
+                except:  # FIXME: bare except 
                     return
                 role = interaction.guild.get_role(role_id)
                 if role is None:
@@ -26,7 +26,7 @@ class InteractionTrigger(commands.Cog):
                 if role_id in [role.id for role in member.roles]:
                     try:
                         await member.remove_roles(role, reason="Нажатие на кнопку")
-                    except:
+                    except:  # FIXME: bare except
                         embed = discord.Embed(
                             title="Ошибка!",
                             color=discord.Color.red(),
@@ -41,7 +41,7 @@ class InteractionTrigger(commands.Cog):
                 else:
                     try:
                         await member.add_roles(role, reason="Нажатие на кнопку")
-                    except:
+                    except:  # FIXME: bare except
                         embed = discord.Embed(
                             title="Ошибка!",
                             color=discord.Color.red(),
@@ -63,7 +63,7 @@ class InteractionTrigger(commands.Cog):
                 with suppress(Exception):
                     try: 
                         member = await interaction.guild.fetch_member(interaction.user.id)
-                    except: 
+                    except:  # FIXME: bare except 
                         return
                     role = interaction.guild.get_role(role_id)
                     if role is None:
@@ -71,7 +71,7 @@ class InteractionTrigger(commands.Cog):
                     if role_id in [role.id for role in member.roles]:
                         try:
                             await member.remove_roles(role, reason="Нажатие на кнопку")
-                        except:
+                        except:  # FIXME: bare except
                             embed = discord.Embed(
                                 title="Ошибка!",
                                 color=discord.Color.red(),
@@ -82,7 +82,7 @@ class InteractionTrigger(commands.Cog):
                     else:
                         try:
                             await member.add_roles(role, reason="Нажатие на кнопку")
-                        except:
+                        except:  # FIXME: bare except
                             embed = discord.Embed(
                                 title="Ошибка!",
                                 color=discord.Color.red(),

@@ -201,7 +201,7 @@ class HelpCommand(commands.Cog):
                                     embed.set_author(name=str(ansinteract.user), icon_url=ansinteract.user.display_avatar.url)
                                     try:
                                         await viewinteract.user.send(embed=embed)
-                                    except:
+                                    except:  # FIXME: bare except
                                         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не смог отправить ответ на вопрос в личные сообщения пользователя!")
                                         await ansinteract.response.send_message(embed=embed, ephemeral=True)
                                     else:

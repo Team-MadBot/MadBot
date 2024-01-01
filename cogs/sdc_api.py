@@ -16,7 +16,7 @@ class SDC_API(commands.Cog):
         if not settings['debug_mode']:
             self.sdc_stats.cancel()
 
-    @tasks.loop(seconds=1800.0)
+    @tasks.loop(seconds=60.0 * 30)
     async def sdc_stats(self):
         headers = {
             'Authorization': settings['sdc_key']

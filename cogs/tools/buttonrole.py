@@ -156,7 +156,7 @@ class ButtonRole(commands.Cog):
             if isinstance(color, str):
                 try:
                     color = discord.Color.from_str(color)
-                except:
+                except:  # FIXME: bare except
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),
@@ -182,7 +182,7 @@ class ButtonRole(commands.Cog):
                     embed.set_footer(text=f"Создал: {interaction.user}", icon_url=interaction.user.display_avatar.url)
                     try:
                         await viewinteract.channel.send(embed=embed, view=view)
-                    except:
+                    except:  # FIXME: bare except
                         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Бот не имеет права на отправку сообщения в этом канале!")
                         return await viewinteract.response.edit_message(embed=embed, view=None)
                     log_channel = self.bot.get_channel(settings['log_channel'])

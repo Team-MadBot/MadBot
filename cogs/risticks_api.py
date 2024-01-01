@@ -126,7 +126,7 @@ class RisticksAPI(commands.Cog):
 
         try:
             resp = await self._bump(interaction.guild.id, interaction.user.id)
-        except:
+        except:  # FIXME: bare except
             logger.error(traceback.format_exc())
             return await interaction.followup.send(
                 embed=self.UNKNOWN_RISTICKS_ERROR

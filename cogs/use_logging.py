@@ -11,7 +11,8 @@ class Logging(commands.Cog):
     
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
-        if interaction.type != discord.InteractionType.application_command: return
+        if interaction.type != discord.InteractionType.application_command: 
+            return
         assert interaction.command is not None
         logger.info(
             f"[SLASH USAGE] - '{interaction.user}' ({interaction.user.id}): '/{interaction.command.qualified_name}'"

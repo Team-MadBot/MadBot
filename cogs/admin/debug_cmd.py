@@ -77,7 +77,7 @@ class DebugCmd(commands.Cog):
                                     user_id = discord.ui.TextInput(label="ID пользователя", min_length=18, max_length=19)
 
                                     async def on_submit(self, modalinteract: discord.Interaction):
-                                        if await checks.isPremium(modalinteract.client, int(str(self.user_id))) != 'None':
+                                        if await checks.is_premium(modalinteract.client, int(str(self.user_id))) != 'None':
                                             return await modalinteract.response.send_message(
                                                 "У пользователя уже есть премиум!", ephemeral=True)
                                         await db.give_premium(user_id=str(self.user_id), type="server")
@@ -91,7 +91,7 @@ class DebugCmd(commands.Cog):
                                     user_id = discord.ui.TextInput(label="ID пользователя", min_length=18, max_length=19)
 
                                     async def on_submit(self, modalinteract: discord.Interaction):
-                                        if await checks.isPremium(modalinteract.client, int(str(self.user_id))) != 'None':
+                                        if await checks.is_premium(modalinteract.client, int(str(self.user_id))) != 'None':
                                             return await modalinteract.response.send_message(
                                                 "У пользователя уже есть премиум!", ephemeral=True)
                                         await db.give_premium(user_id=str(self.user_id), type="user")
@@ -105,7 +105,7 @@ class DebugCmd(commands.Cog):
                                     user_id = discord.ui.TextInput(label="ID пользователя", min_length=18, max_length=19)
 
                                     async def on_submit(self, modalinteract: discord.Interaction):
-                                        if await checks.isPremium(modalinteract.client, int(str(self.user_id))) == 'None':
+                                        if await checks.is_premium(modalinteract.client, int(str(self.user_id))) == 'None':
                                             return await modalinteract.response.send_message("У пользователя нет премиума!",
                                                                                             ephemeral=True)
                                         await db.take_premium(user_id=str(self.user_id))
@@ -143,7 +143,7 @@ class DebugCmd(commands.Cog):
                                                 return await modalinteract.response.send_message(
                                                     f"Название: {guild.name}, владелец: <@{guild.owner_id}>, ID: {guild.id}, участников: {guild.member_count}",
                                                     ephemeral=True)
-                                        except:
+                                        except:  # FIXME: bare except
                                             pass
 
                             await viewinteract.response.send_modal(Input())
@@ -187,7 +187,7 @@ class DebugCmd(commands.Cog):
                                             ephemeral=True
                                         )
                                     guild = modalinteract.client.get_guild(int(str(self.resource_id)))
-                                    if guild != None:
+                                    if guild is not None:
                                         embed = discord.Embed(
                                             title="Ваш сервер занесён в чёрный список бота!",
                                             color=discord.Color.red(),
@@ -206,7 +206,7 @@ class DebugCmd(commands.Cog):
                                         )
                                         try:
                                             await guild.owner.send(embed=embed)
-                                        except:
+                                        except:  # FIXME: bare except
                                             pass
                                         await guild.leave()
                                     await modalinteract.response.send_message(
@@ -281,7 +281,7 @@ class DebugCmd(commands.Cog):
 
                                 async def on_submit(self, modalinteract: discord.Interaction):
                                     guild = await modalinteract.client.fetch_guild(int(str(self.ans)))
-                                    if guild == None:
+                                    if guild is None:
                                         return await modalinteract.response.send_message("Сервер не обнаружен!",
                                                                                         ephemeral=True)
                                     await guild.leave()

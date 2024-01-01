@@ -94,7 +94,7 @@ class Entertainment(commands.Cog):
                             return await modalinteract.response.send_message(embed=embed, ephemeral=True)
                         try:
                             temp = int(str(self.ans))
-                        except:
+                        except:  # FIXME: bare except
                             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы ввели не число!")
                             embed1 = discord.Embed(title="Ответ некорректный!", color=discord.Color.red(), description=f"Пример: `{tosolve}`.\nПравильный ответ: `{answer}`.")
                             await interaction.edit_original_response(embed=embed1, view=None)
@@ -296,7 +296,7 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `камень`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_one = "stone"
-                        if self.choice_one != None and self.choice_two != None:
+                        if self.choice_one is not None and self.choice_two is not None:
                             self.stop()
                     elif (
                         member.id == viewinteract.user.id
@@ -305,7 +305,7 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `камень`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_two = "stone"
-                        if self.choice_one != None and self.choice_two != None:
+                        if self.choice_one is not None and self.choice_two is not None:
                             self.stop()
                     else:
                         return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
@@ -319,7 +319,7 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `ножницы`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_one = "scissors"
-                        if self.choice_one != None and self.choice_two != None:
+                        if self.choice_one is not None and self.choice_two is not None:
                             self.stop()
                     elif (
                         member.id == viewinteract.user.id
@@ -328,7 +328,7 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `ножницы`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_two = "scissors"
-                        if self.choice_one != None and self.choice_two != None:
+                        if self.choice_one is not None and self.choice_two is not None:
                             self.stop()
                     else:
                         return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
@@ -342,7 +342,7 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `бумагу`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_one = "paper"
-                        if self.choice_one != None and self.choice_two != None:
+                        if self.choice_one is not None and self.choice_two is not None:
                             self.stop()
                     elif (
                         member.id == viewinteract.user.id
@@ -351,7 +351,7 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(title="Выбор", color=discord.Color.green(), description="Вы выбрали `бумагу`, ожидайте итогов.")
                         await viewinteract.response.send_message(embed=embed, ephemeral=True)
                         self.choice_two = "paper"
-                        if self.choice_one != None and self.choice_two != None:
+                        if self.choice_one is not None and self.choice_two is not None:
                             self.stop()
                     else:
                         return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
@@ -464,7 +464,7 @@ class Entertainment(commands.Cog):
         if not member.bot:
             await interaction.response.send_message(embed=emb, view=acc)
             await acc.wait()
-        if acc.value == None:
+        if acc.value is None:
             await interaction.edit_original_response(
                 embed=discord.Embed(
                     title="Время вышло!",
@@ -633,7 +633,7 @@ class Entertainment(commands.Cog):
         if acc.value == False and acc.clicker == interaction.user:
             embed = discord.Embed(title="Отмена!", color=discord.Color.red(), description="Инициатор игры отменил её!")
             return await interaction.edit_original_response(embed=embed, view=None)
-        if acc.value == None:
+        if acc.value is None:
             embed = discord.Embed(title="Время вышло!", color=discord.Color.red())
             return await interaction.edit_original_response(embed=embed, view=None)
         
@@ -886,10 +886,10 @@ class Entertainment(commands.Cog):
         embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed, view=acc)
         await acc.wait()
-        if acc.value == None:
+        if acc.value is None:
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             return await interaction.edit_original_response(embed=embed, view=None)
-        if acc.clicker != None:
+        if acc.clicker is not None:
             if acc.clicker.id == member.id:
                 embed = discord.Embed(
                     title="Дуэль - Отказ", 
@@ -1007,7 +1007,7 @@ class Entertainment(commands.Cog):
         game = GamePlay()
         await interaction.edit_original_response(embed=embed, view=game)
         await game.wait()
-        if game.winner == None and game.tryes != 15:
+        if game.winner is None and game.tryes != 15:
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             return await interaction.edit_original_response(embed=embed, view=None)
         if game.tryes != 15:
@@ -1027,14 +1027,14 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True) 
-        if member != None:
+        if member is not None:
             try:
                 member = await interaction.guild.fetch_member(member.id)
-            except:
+            except:  # FIXME: bare except
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if member == None:
+        if member is None:
             number = random.randint(1,10)
         else:
             if interaction.user.id == member.id:
@@ -1076,7 +1076,7 @@ class Entertainment(commands.Cog):
             embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
             await interaction.response.send_message(embed=embed, view=acc)
             await acc.wait()
-            if acc.value == None:
+            if acc.value is None:
                 embed = discord.Embed(title="Время истекло", color=discord.Color.red())
                 return await interaction.edit_original_response(embed=embed, view=None)
             if acc.value == False:
@@ -1109,7 +1109,7 @@ class Entertainment(commands.Cog):
                         async def on_submit(self, modalinteract: discord.Interaction):
                             try:
                                 self.value = int(str(self.ans))
-                            except:
+                            except:  # FIXME: bare except
                                 return await modalinteract.response.send_message("Введённая строка не является числом!", ephemeral=True)
                             if self.value < 1 or self.value > 10:
                                 self.value = None
@@ -1119,7 +1119,7 @@ class Entertainment(commands.Cog):
                     await viewinteract.response.send_modal(modal)
                     await modal.wait()
                     self.value = modal.value
-                    if self.value != None:
+                    if self.value is not None:
                         self.stop()
             button = InputButton()
             embed = discord.Embed(
@@ -1130,12 +1130,12 @@ class Entertainment(commands.Cog):
             embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
             await interaction.edit_original_response(embed=embed, view=button)
             await button.wait()
-            if button.value == None:
+            if button.value is None:
                 embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
                 return await interaction.edit_original_response(embed=embed, view=None)
             number = button.value
         tryes = 0
-        player = interaction.user if member == None else member
+        player = interaction.user if member is None else member
         
         class Button(discord.ui.View):
             def __init__(self):
@@ -1151,7 +1151,7 @@ class Entertainment(commands.Cog):
                         nonlocal number, tryes
                         try:
                             answer = int(str(self.ans))
-                        except:
+                        except:  # FIXME: bare except
                             return await modalinteract.response.send_message("Введённая строка не является числом!", ephemeral=True)
                         if answer < 1 or answer > 10:
                             return await modalinteract.response.send_message("Введённое число меньше единицы или больше десяти!", ephemeral=True)
@@ -1196,7 +1196,7 @@ class Entertainment(commands.Cog):
             description=f"**Введите число**, нажав на кнопку.\nЧисло загадано в диапазоне от `одного до десяти` включительно.\n**Число попыток:** `{tryes} / 4`."
         )
         embed.set_footer(text=str(player), icon_url=player.display_avatar.url)
-        await interaction.response.send_message(embed=embed, view=Button()) if member == None else await interaction.edit_original_response(embed=embed, view=Button())
+        await interaction.response.send_message(embed=embed, view=Button()) if member is None else await interaction.edit_original_response(embed=embed, view=Button())
         
     @app_commands.command(name='dice', description="[Развлечения] Сыграй в кости с другом.")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
@@ -1207,10 +1207,10 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True) 
-        if member != None:
+        if member is not None:
             try:
                 member = await interaction.guild.fetch_member(member.id)
-            except:
+            except:  # FIXME: bare except
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1255,10 +1255,10 @@ class Entertainment(commands.Cog):
         embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed, view=acc)
         await acc.wait()
-        if acc.value == None:
+        if acc.value is None:
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             return await interaction.edit_original_response(embed=embed, view=None)
-        if acc.clicker != None:
+        if acc.clicker is not None:
             if acc.clicker.id == member.id:
                 embed = discord.Embed(
                     title="Кости - Отказ", 
@@ -1343,10 +1343,10 @@ class Entertainment(commands.Cog):
         embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed, view=acc)
         await acc.wait()
-        if acc.value == None:
+        if acc.value is None:
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             return await interaction.edit_original_response(embed=embed, view=None)
-        if acc.clicker != None:
+        if acc.clicker is not None:
             if acc.clicker.id == member.id:
                 embed = discord.Embed(
                     title="Правда или ложь - Отказ", 

@@ -147,7 +147,7 @@ class Reactions(commands.Cog):
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if member != None:
+        if member is not None:
             if member.bot:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но боту подмигнуть нельзя")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -176,7 +176,7 @@ class Reactions(commands.Cog):
             embed=discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Извините, но данная команда недоступна в личных сообщениях!")
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if member != None:
+        if member is not None:
             if member.bot:
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Увы, но боту подмигнуть нельзя")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)

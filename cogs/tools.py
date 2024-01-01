@@ -13,8 +13,9 @@ from discord import Forbidden, app_commands, ui
 from fluent.runtime import FluentLocalization, FluentResourceLoader
 from discord.ext import commands
 from typing import Optional
+from urllib.parse import quote_plus
 
-from classes.checks import isPremium, isPremiumServer
+from classes.checks import is_premium, is_premium_server
 from classes import db
 from classes import checks
 
@@ -22,15 +23,15 @@ logger = logging.getLogger('discord')
 
 
 async def default_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (await isPremium(interaction.client, interaction.user.id) != 'None' or  # type: ignore
-            await isPremiumServer(interaction.client, interaction.guild)):  # type: ignore
+    if (await is_premium(interaction.client, interaction.user.id) != 'None' or  # type: ignore
+            await is_premium_server(interaction.client, interaction.guild)):  # type: ignore
         return None
     return app_commands.Cooldown(1, 3.0)
 
 
 async def hard_cooldown(interaction: discord.Interaction) -> Optional[app_commands.Cooldown]:
-    if (await isPremium(interaction.client, interaction.user.id) != 'None' or  # type: ignore
-            await isPremiumServer(interaction.client, interaction.guild)):  # type: ignore
+    if (await is_premium(interaction.client, interaction.user.id) != 'None' or  # type: ignore
+            await is_premium_server(interaction.client, interaction.guild)):  # type: ignore
         return app_commands.Cooldown(1, 2.0)
     return app_commands.Cooldown(1, 10.0)
 
@@ -89,14 +90,12 @@ class Tools(commands.Cog):
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не смог изменить вам никнейм!\nТип ошибки: `Forbidden`")
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
             else:
-                embed = None
                 if argument is not None:
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=datetime.datetime.now())
                 else:
                     embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=datetime.datetime.now())
                 await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            string = None
             string = "Вы желаете сбросить никнейм." if argument is None else f"Ваш желаемый ник: `{argument}`."
             embed = discord.Embed(title="Запрос разрешения", color=discord.Color.orange(), description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\n{string}")
             embed.set_footer(text="Время ожидания: 5 минут.")
@@ -110,25 +109,26 @@ class Tools(commands.Cog):
                 async def confirm(self, viewinteract: discord.Interaction, button: discord.ui.Button):  # type: ignore
                     assert isinstance(viewinteract.user, discord.Member)
                     assert isinstance(interaction.user, discord.Member)
-                    if viewinteract.user.guild_permissions.manage_nicknames:
-                        self.value = True
-                        try:
-                            await interaction.user.edit(nick=argument, reason=f"Одобрено // {viewinteract.user}")
-                        except Forbidden:
-                            embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`.")
-                            return await interaction.edit_original_response(embed=embed, view=None)
-                        else:
-                            embed = None
-                            if argument is not None:
-                                embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=datetime.datetime.now())
-                                embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
-                            else:
-                                embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=datetime.datetime.now())
-                                embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
-                            await interaction.edit_original_response(embed=embed, view=None)
-                    else:
+
+                    if not viewinteract.user.guild_permissions.manage_nicknames:
                         embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Вы не имеете права `управлять никнеймами` для использования кнопки!")
                         return await viewinteract.response.send_message(embed=embed, ephemeral=True)
+                    
+                    self.value = True
+                    try:
+                        await interaction.user.edit(nick=argument, reason=f"Одобрено // {viewinteract.user}")
+                    except Forbidden:
+                        embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`.")
+                        return await interaction.edit_original_response(embed=embed, view=None)
+                    else:
+                        embed = None
+                        if argument is not None:
+                            embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description=f"Ваш ник успешно изменён на `{argument}`!", timestamp=datetime.datetime.now())
+                            embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
+                        else:
+                            embed = discord.Embed(title="Успешно!", color=discord.Color.green(), description="Ваш ник успешно сброшен!", timestamp=datetime.datetime.now())
+                            embed.set_author(name=viewinteract.user, icon_url=viewinteract.user.display_avatar.url)
+                        await interaction.edit_original_response(embed=embed, view=None)
 
                 @discord.ui.button(emoji="<:x_icon:975324570741526568>", style=discord.ButtonStyle.red)
                 async def denied(self, viewinteract: discord.Interaction, button: discord.ui.Button):  # type: ignore
@@ -280,16 +280,17 @@ class Tools(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="weather", description="[Полезности] Узнать погоду в городе.")
-    @app_commands.describe(city="Город, где надо узнать погоду")
+    @app_commands.describe(city="Город, в котором надо узнать погоду")
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def weather(self, interaction: discord.Interaction, city: str):
-        city = city.replace(' ', '%20')
         embed = discord.Embed(title="Поиск...", color=discord.Color.yellow(), description="Ищем ваш город...")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         response = await aiohttp.ClientSession().get(
-            "https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={settings['weather_key']}&units=metric&lang=ru"
+            quote_plus(
+                f"https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={config.settings['weather_key']}&units=metric&lang=ru"
+            )
         )
         json = await response.json()
         if response.status > 400:
@@ -309,7 +310,7 @@ class Tools(commands.Cog):
             embed.add_field(name="Облачность:", value=f"{json['clouds']['all']}%")
             embed.add_field(name="Рассвет/Закат:", value=f"<t:{json['sys']['sunrise']}> / <t:{json['sys']['sunset']}>")
             embed.set_footer(text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе.")
-            embed.set_thumbnail(url=f"http://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png")
+            embed.set_thumbnail(url=f"https://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png")
             await interaction.edit_original_response(embed=embed)
     
     @app_commands.command(name="stopwatch", description="[Полезности] Секундомер.")
@@ -429,7 +430,7 @@ class Tools(commands.Cog):
                 description="Расскажу-ка тебе секрет. На ноль делить нельзя."
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        except:
+        except:  # FIXME: bare except
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),

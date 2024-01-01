@@ -9,18 +9,18 @@ from discord.ext import commands
 from discord import app_commands
 from config import settings
 
-logger = logging.getLogger('discord')
+logger = logging.getLogger("discord")
 
 class RisticksAPI(commands.Cog):
-    RISTICKS_LOGO_URL = "https://i.imgur.com/nMMTavR.png"
+    risticks_logo_url = "https://i.imgur.com/nMMTavR.png"
 
-    NO_GUILD_ERROR = discord.Embed(
+    no_guild_error = discord.Embed(
         title="Ошибка!",
         color=discord.Color.red(),
         description="Сервера нет на Risticks. [Добавьте сервер](https://risticks.xyz/add) и попробуйте снова."
     )
 
-    UNKNOWN_RISTICKS_ERROR = discord.Embed(
+    unknown_risticks_error = discord.Embed(
         title="Неизвестная ошибка!",
         color=discord.Color.red(),
         description="Произошла неизвестная ошибка при отправке запроса для Risticks API. "
@@ -28,14 +28,14 @@ class RisticksAPI(commands.Cog):
     )
 
     @property
-    def BUMP_SUCCESS(self):
+    def bump_success(self):
         return discord.Embed(
             title="✅ Risticks UP",
             color=discord.Color.orange(),
             description="Следующий бамп <t:{next_bump}:R> (<t:{next_bump}>)",
             timestamp=datetime.datetime.now()
         ).set_thumbnail(
-            url=self.RISTICKS_LOGO_URL
+            url=self.risticks_logo_url
         )
 
     def __init__(self, bot: commands.AutoShardedBot):
@@ -56,15 +56,15 @@ class RisticksAPI(commands.Cog):
         invite: str | None = None
     ) -> dict:
         headers = {
-            'Authorization': self._token
+            "Authorization": self._token
         }
         json = {
-            'owner_id': str(owner_id),
-            'name': name,
-            'icon': icon.key if icon else None,
-            'members': members,
-            'status': status,
-            'invite': invite
+            "owner_id": str(owner_id),
+            "name": name,
+            "icon": icon.key if icon else None,
+            "members": members,
+            "status": status,
+            "invite": invite
         }
         async with self.session.post(
             f"/guildinfo/{guild_id}",
@@ -75,7 +75,7 @@ class RisticksAPI(commands.Cog):
 
     async def _get_guildinfo(self, guild_id: int) -> dict:
         headers = {
-            'Authorization': self._token
+            "Authorization": self._token
         }
 
         async with self.session.get(
@@ -85,13 +85,13 @@ class RisticksAPI(commands.Cog):
             return await response.json()
     
     async def _bump(self, guild_id: int, user_id: int) -> dict:
-        json = {'user_id': str(user_id)}
+        json = {"user_id": str(user_id)}
         headers = {
-            'Authorization': self._token
+            "Authorization": self._token
         }
         
         async with self.session.post(
-            f'/bump/{guild_id}',
+            f"/bump/{guild_id}",
             json=json,
             headers=headers
         ) as response:
@@ -129,22 +129,22 @@ class RisticksAPI(commands.Cog):
         except:  # FIXME: bare except
             logger.error(traceback.format_exc())
             return await interaction.followup.send(
-                embed=self.UNKNOWN_RISTICKS_ERROR
+                embed=self.unknown_risticks_error
             )
 
         if resp.get("code") == 404:
             return await interaction.followup.send(
-                embed=self.NO_GUILD_ERROR
+                embed=self.no_guild_error
             )
 
         if resp.get("code") is None or resp.get("code") >= 400:
             logger.debug(resp)
             return await interaction.followup.send(
-                embed=self.UNKNOWN_RISTICKS_ERROR
+                embed=self.unknown_risticks_error
             )
         
         next_bump = str(round(time.time()) + 3600 * 4)
-        embed = self.BUMP_SUCCESS
+        embed = self.bump_success
         embed.description = embed.description.format(next_bump=next_bump)
         
         await interaction.followup.send(

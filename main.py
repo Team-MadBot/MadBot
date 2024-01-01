@@ -14,7 +14,7 @@ from logging.handlers import RotatingFileHandler
 
 from classes import db
 from classes import checks
-from classes.checks import is_premiumServer
+from classes.checks import is_premium_server
 
 
 logging.getLogger("discord").addHandler(RotatingFileHandler(
@@ -71,7 +71,7 @@ class MadBot(commands.AutoShardedBot):
         try:
             logger.info("Проверка работы базы данных...")
             await db.ping_db()
-        except Exception as e:
+        except Exception:
             logger.critical(traceback.format_exc())
             logger.critical(
                 "Невозможно \"достучаться\" до базы данных! Работа без неё НЕВОЗМОЖНА!!! Прерывание работы бота...\n"
@@ -120,14 +120,15 @@ class MadBot(commands.AutoShardedBot):
         )
         await logs.send(embed=embed)
     
-    async def is_owner(self, user: discord.User) -> bool:
+    async def is_owner(self, user: discord.abc.User) -> bool:
         return False if await checks.is_in_blacklist(user.id) else True if user.id in config.coders else await super().is_owner(user)
 
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
             return
         if isinstance(error, commands.NotOwner):
-            return await ctx.reply("https://http.cat/403")
+            await ctx.reply("https://http.cat/403")
+            return
         with suppress(Exception):
             await ctx.message.add_reaction("❌")
             await ctx.message.reply(content=f"```\n{error}```", delete_after=30)
@@ -173,15 +174,15 @@ class MadBot(commands.AutoShardedBot):
                 try:
                     async for entry in guild.audit_logs(limit=5, action=discord.AuditLogAction.bot_add):
                         if entry.target.id == self.user.id:
-                            adder = entry.user
+                            adder = entry.user;
                 except discord.Forbidden:
-                    embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.")
+                    embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.");
                 try:
-                    await adder.send(embed=embed)
+                    await adder.send(embed=embed);
                 except Exception: # FIXME: specify exception group or type 
                     if guild.system_channel is not None:
                         with suppress(Exception):
-                            await guild.system_channel.send(embed=embed)
+                            await guild.system_channel.send(embed=embed);
             
             embed = discord.Embed(
                 title="Новый сервер!", 
@@ -216,7 +217,7 @@ class MadBot(commands.AutoShardedBot):
         log_channel = self.get_channel(config.settings['log_channel'])
         assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
-        if await is_premiumServer(guild):
+        if await is_premium_server(guild):
             await db.take_guild_premium(guild.id)
 
     async def on_member_join(self, member: discord.Member):

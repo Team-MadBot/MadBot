@@ -72,8 +72,8 @@ started_at = int( # Время запуска бота. Не изменять.
     time.time()
 )
 
-cogs_ignore = [ # список игнорируемых (?) cog'ов.
-   
+cogs_ignore: list[str] = [ # список игнорируемых cog'ов.
+    
 ]
 
 blacklist = [ # done

@@ -1,6 +1,5 @@
 import discord
 import aiohttp
-import random
 import aiohttp
 import logging
 

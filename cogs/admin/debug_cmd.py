@@ -259,7 +259,7 @@ class DebugCmd(commands.Cog):
                         @discord.ui.button(label="Черный список")
                         async def blacklist(self, viewinteract: discord.Interaction, button: discord.ui.Button):
                             await viewinteract.response.send_message(
-                                f"Забаненные: {', '.join(i['resource_id'] async for i in db.get_all_blacklist())}", 
+                                f"Забаненные: {[', '.join(i['resource_id'] async for i in db.get_all_blacklist())]}", 
                                 ephemeral=True
                             )
 

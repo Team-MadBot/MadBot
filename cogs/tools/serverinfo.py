@@ -29,7 +29,7 @@ class ServerInfo(commands.Cog):
             badges += '<:ban:946031802634612826> '
         if interaction.guild.id in verified:
             badges += '<:verified:946057332389978152> '
-        if await isPremiumServer(self.bot, interaction.guild):
+        if await isPremiumServer(interaction.guild):
             badges += '<a:premium:988735181546475580> '
         if interaction.guild.id in beta_testers:
             badges += '<:beta:946063731819937812> '

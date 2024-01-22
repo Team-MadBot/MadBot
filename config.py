@@ -7,6 +7,8 @@ from typing import TypedDict
 
 load_dotenv()
 
+__VERSION__ = "1.2.2"
+
 class __Settings(TypedDict):
     min_members: int
     debug_mode: bool

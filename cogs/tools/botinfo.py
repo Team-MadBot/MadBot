@@ -1,6 +1,7 @@
 import discord
 import sys
 import distro
+import datetime
 
 from discord.ext import commands
 from discord import app_commands
@@ -48,7 +49,7 @@ class BotInfo(commands.Cog):
         embed.add_field(name="ID разработчика:", value=f"`{settings['owner_id']}`")
         embed.add_field(name="ID бота:", value=f"`{self.bot.user.id}`")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text=f"©️ 2021 - 2023 MadBot. Все права защищены.")
+        embed.set_footer(text=f"©️ 2021 - {datetime.datetime.now().year} MadBot. Все права защищены.")
 
         bot_stats = await db.get_bot_stats()
         stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())

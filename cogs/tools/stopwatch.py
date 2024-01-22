@@ -36,8 +36,14 @@ class StopWatchCog(commands.Cog):
                 if interaction.user.id != viewinteract.user.id:
                     return await viewinteract.response.send_message("Не для тебя кнопочка!", ephemeral=True)
                 stop = time.time() - self.start
-                embed = discord.Embed(title="Секундомер остановлен!", color=discord.Color.red(), description=f"Насчитанное время: `{stop:.3f}s`.")
-                embed.set_footer(text=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+                embed = discord.Embed(
+                    title="Секундомер остановлен!", 
+                    color=discord.Color.red(), 
+                    description=f"Насчитанное время: `{stop:.3f}сек`."
+                ).set_footer(
+                    text=str(interaction.user), 
+                    icon_url=interaction.user.display_avatar.url
+                )
                 button.disabled = True
                 await viewinteract.response.edit_message(embed=embed, view=self)
 

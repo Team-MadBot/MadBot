@@ -34,8 +34,6 @@ class __Settings(TypedDict):
     risticks_token: str
     curr_version: str
     mongo_url: str | None
-    catapi_key: str | None
-    dogapi_key: str | None
 
 settings: __Settings = {
     'min_members': 10,
@@ -63,9 +61,7 @@ settings: __Settings = {
     'unbelieva_token': os.environ.get("UNBELIEVA_TOKEN"),
     'risticks_token': os.environ.get("RISTICKS_TOKEN"),
     'curr_version': os.environ.get("CURRENT_VERSION"),
-    'mongo_url': os.environ.get("MONGO_URL"),
-    'catapi_key': os.environ.get("CATAPI_KEY"),
-    'dogapi_key': os.environ.get("DOGAPI_KEY")
+    'mongo_url': os.environ.get("MONGO_URL")
 }
 
 started_at = int( # Время запуска бота. Не изменять.

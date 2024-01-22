@@ -1,6 +1,5 @@
 import discord
 import sys
-import datetime
 import distro
 
 from discord.ext import commands

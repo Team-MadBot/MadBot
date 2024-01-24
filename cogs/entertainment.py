@@ -184,7 +184,7 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
             return await interaction.edit_original_response(embed=embed, view=None)
 
-    @app_commands.command(name="ball", description="[Развлечения] Магический шар.")
+    @app_commands.command(name="8ball", description="[Развлечения] Магический шар.")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(question="Вопрос, адресованный шару.")
@@ -211,11 +211,24 @@ class Entertainment(commands.Cog):
             "Перспективы не очень хорошие",
             "Весьма сомнительно"
         ]
-        embed = discord.Embed(title="Магический шар", color=discord.Color.orange(), timestamp=datetime.datetime.now())
-        embed.add_field(name="Ваш вопрос:", value=question, inline=False)
-        embed.add_field(name="Ответ шара:", value=random.choice(answers), inline=False)
-        embed.set_author(name=str(interaction.user), icon_url=interaction.user.display_avatar.url)
-        embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Magic_eight_ball.png/800px-Magic_eight_ball.png")
+        embed = discord.Embed(
+            title="Магический шар", 
+            color=discord.Color.orange(), 
+            timestamp=datetime.datetime.now()
+        ).add_field(
+            name="Ваш вопрос", 
+            value=question, 
+            inline=False
+        ).add_field(
+            name="Ответ шара", 
+            value=random.choice(answers), 
+            inline=False
+        ).set_author(
+            name=str(interaction.user), 
+            icon_url=interaction.user.display_avatar.url
+        ).set_thumbnail(
+            url="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Magic_eight_ball.png/800px-Magic_eight_ball.png"
+        )
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name='knb', description="[Развлечения] Камень, ножницы, бумага.")

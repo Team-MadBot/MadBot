@@ -80,7 +80,6 @@ class ButtonRole(commands.Cog):
                 
                 self.view.roles = self.values
                 self.view.interaction = viewinteract
-                await viewinteract.message.edit(view=None)
                 self.view.stop()
         
         class SelectButtonView(discord.ui.View):

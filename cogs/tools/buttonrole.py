@@ -1,3 +1,4 @@
+from typing import Optional
 import discord
 import config
 
@@ -177,11 +178,47 @@ class ButtonRole(commands.Cog):
                 
                 if str(self.color) != "": 
                     color = str(self.color)
+        
+        class KostylView(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=180)
+                self.modal: discord.ui.Modal | None = None
+            
+            @discord.ui.button(label="Заполнить эмбед", style=discord.ButtonStyle.green)
+            async def fill_embed(self, viewinteract: discord.Interaction, button: discord.ui.Button):
+                self.modal = Input()
+                await viewinteract.response.send_modal(self.modal)
+                await self.modal.wait()
+                
+                if self.modal.main is None or self.modal.description is None: 
+                    return
+                
+                self.stop()
 
-        modal = Input()
-        await selectinteract.response.send_modal(modal) # TODO: кнопка-костыль для вызова модального окна, чтобы не ебаться с отключающимся Select'ом
-        await modal.wait()
-        if modal.main is None or modal.description is None: return
+        embed = discord.Embed(
+            title="Выдача ролей - Заполнение эмбеда",
+            color=discord.Color.orange(),
+            description=f"Вы выбрали {'роли' if len(roles) > 1 else 'роль'}: {', '.join([i.mention for i in roles])}.\n\n"
+            "Теперь нужно заполнить эмбед, который будут видеть пользователи перед выбором роли. Нажмите кнопку ниже, чтобы начать заполнение."
+        )
+        kostyl_view = KostylView()
+        await selectinteract.response.edit_message(
+            embed=embed, 
+            view=kostyl_view
+        )
+        await kostyl_view.wait()
+        modal = kostyl_view.modal
+
+        if modal is None:
+            embed = discord.Embed(
+                title="Время вышло!",
+                color=discord.Color.red()
+            )
+            return await interaction.edit_original_response(
+                view=None,
+                embed=embed
+            )
+
         if isinstance(color, str):
             try:
                 color = discord.Color.from_str(color)

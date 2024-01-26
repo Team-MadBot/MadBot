@@ -157,7 +157,7 @@ class ButtonRole(commands.Cog):
                 label="Описание:", 
                 max_length=4000, 
                 style=discord.TextStyle.long,
-                default="Нажмите на кнопку или меню ниже, чтобы выбрать себе роль.",
+                default=f"Нажмите на {'кнопку' if len(roles) <= 1 else 'меню'} ниже, чтобы выбрать себе роль.",
                 placeholder="Получите прекрасную роль, нажав снизу на компонент!"
             )
             color = discord.ui.TextInput(

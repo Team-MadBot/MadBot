@@ -209,7 +209,7 @@ class ButtonRole(commands.Cog):
         await kostyl_view.wait()
         modal = kostyl_view.modal
 
-        if modal is None or modal.title is None:
+        if modal is None or modal.title is None or modal.title == "":
             embed = discord.Embed(
                 title="Время вышло!",
                 color=discord.Color.red()

@@ -112,8 +112,8 @@ class Boticord(commands.Cog):
         
         if not settings['debug_mode']:
             self.send_stats.start()
-        with suppress(Exception):
-            await self.bc_ws.connect()
+
+        await self.bc_ws.connect()
     
     async def cog_unload(self):
         if not settings['debug_mode']:

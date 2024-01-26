@@ -41,7 +41,9 @@ class MadBot(commands.AutoShardedBot):
             for file in files:
                 if not file.endswith(".py"): continue
                 egg = os.path.join(path, file)
-                if egg in config.cogs_ignore: continue
+                if egg in config.cogs_ignore:
+                    logger.debug(f"Модуль {egg} находится в игнор-листе в config.py, поэтому он не был загружен.") 
+                    continue
                 try:
                     await self.load_extension(egg.replace(os.sep, '.')[:-3])
                 except commands.NoEntryPointError:

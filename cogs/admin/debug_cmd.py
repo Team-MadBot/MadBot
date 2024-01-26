@@ -77,7 +77,7 @@ class DebugCmd(commands.Cog):
                                     user_id = discord.ui.TextInput(label="ID пользователя", min_length=18, max_length=19)
 
                                     async def on_submit(self, modalinteract: discord.Interaction):
-                                        if await checks.is_premium(modalinteract.client, int(str(self.user_id))) != 'None':
+                                        if await checks.is_premium(int(str(self.user_id))) != 'None':
                                             return await modalinteract.response.send_message(
                                                 "У пользователя уже есть премиум!", ephemeral=True)
                                         await db.give_premium(user_id=str(self.user_id), type="server")
@@ -91,7 +91,7 @@ class DebugCmd(commands.Cog):
                                     user_id = discord.ui.TextInput(label="ID пользователя", min_length=18, max_length=19)
 
                                     async def on_submit(self, modalinteract: discord.Interaction):
-                                        if await checks.is_premium(modalinteract.client, int(str(self.user_id))) != 'None':
+                                        if await checks.is_premium(int(str(self.user_id))) != 'None':
                                             return await modalinteract.response.send_message(
                                                 "У пользователя уже есть премиум!", ephemeral=True)
                                         await db.give_premium(user_id=str(self.user_id), type="user")
@@ -105,7 +105,7 @@ class DebugCmd(commands.Cog):
                                     user_id = discord.ui.TextInput(label="ID пользователя", min_length=18, max_length=19)
 
                                     async def on_submit(self, modalinteract: discord.Interaction):
-                                        if await checks.is_premium(modalinteract.client, int(str(self.user_id))) == 'None':
+                                        if await checks.is_premium(int(str(self.user_id))) == 'None':
                                             return await modalinteract.response.send_message("У пользователя нет премиума!",
                                                                                             ephemeral=True)
                                         await db.take_premium(user_id=str(self.user_id))

@@ -179,7 +179,7 @@ class ButtonRole(commands.Cog):
                     color = str(self.color)
 
         modal = Input()
-        await selectinteract.response.send_modal(modal)
+        await selectinteract.response.send_modal(modal) # TODO: кнопка-костыль для вызова модального окна, чтобы не ебаться с отключающимся Select'ом
         await modal.wait()
         if modal.main is None or modal.description is None: return
         if isinstance(color, str):

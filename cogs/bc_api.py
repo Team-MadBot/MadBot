@@ -9,7 +9,6 @@ from boticordpy import BoticordClient # type: ignore
 from discord.ext import commands, tasks
 from discord import utils as dutils
 from discord import ui
-from contextlib import suppress
 from asyncio import sleep
 
 from typing import Any

@@ -16,7 +16,6 @@ class BoticordWS(BotiCordWebsocket):
 
     def __init__(self, token: str):
         super().__init__(token)
-        self.__session: aiohttp.ClientSession | None = None
         self._on_connect: Callable | None = None
         self._on_close: Callable | None = None
         self.ws: aiohttp.ClientWebSocketResponse | None = None

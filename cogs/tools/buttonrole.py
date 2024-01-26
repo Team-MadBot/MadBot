@@ -151,14 +151,16 @@ class ButtonRole(commands.Cog):
                 label="Заголовок эмбеда:", 
                 max_length=256,
                 default="Выдача роли",
-                placeholder="Получение роли"
+                placeholder="Получение роли",
+                required=False
             )
             description = discord.ui.TextInput(
                 label="Описание:", 
                 max_length=4000, 
                 style=discord.TextStyle.long,
                 default=f"Нажмите на {'кнопку' if len(roles) <= 1 else 'меню'} ниже, чтобы выбрать себе роль.",
-                placeholder="Получите прекрасную роль, нажав снизу на компонент!"
+                placeholder="Получите прекрасную роль, нажав снизу на компонент!",
+                required=False
             )
             color = discord.ui.TextInput(
                 label="Цвет (по умолчанию - оранжевый):", 
@@ -209,7 +211,7 @@ class ButtonRole(commands.Cog):
         await kostyl_view.wait()
         modal = kostyl_view.modal
 
-        if modal is None or modal.title is None or modal.title == "":
+        if modal is None or modal.title is None:
             embed = discord.Embed(
                 title="Время вышло!",
                 color=discord.Color.red()

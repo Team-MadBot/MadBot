@@ -88,7 +88,7 @@ class SetReminderButton(ui.Button): # type: ignore
             ephemeral=True
         )
 
-class Boticord(commands.Cog):
+class BoticordCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
         self.bc_token = settings['bcv2_token']
@@ -282,4 +282,4 @@ class Boticord(commands.Cog):
         await self.bot.wait_until_ready()
 
 async def setup(bot: commands.AutoShardedBot):
-    await bot.add_cog(Boticord(bot))
+    await bot.add_cog(BoticordCog(bot))

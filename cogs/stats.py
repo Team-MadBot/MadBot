@@ -51,7 +51,7 @@ class Stats(commands.Cog):
                 description="У Вас отсутствует право `управление каналами` для использования этой команды!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        """if not is_premium_server(self.bot, interaction.guild):
+        """if not is_premium_server(interaction.guild):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -223,7 +223,7 @@ class Stats(commands.Cog):
                 description="Вы не имеете права на `управление каналами`, чтобы использовать эту команду!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        """if not await is_premium_server(self.bot, interaction.guild):
+        """if not await is_premium_server(interaction.guild):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),

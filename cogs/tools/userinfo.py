@@ -66,7 +66,7 @@ class UserInfo(commands.Cog):
 
         if await checks.is_in_blacklist(member.id):
             badges += '<:ban:946031802634612826> '
-        if await is_premium(self.bot, member.id) != 'None':
+        if await is_premium(member.id) != 'None':
             badges += '<a:premium:988735181546475580> '
         if member.is_timed_out():
             badges += '<:timeout:950702768782458893> '

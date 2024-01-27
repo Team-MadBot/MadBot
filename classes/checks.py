@@ -3,7 +3,7 @@ import discord
 from config import *
 from classes import db
 
-async def isPremium(user_id: int) -> str:
+async def is_premium(user_id: int) -> str:
     """Checks if a user is a premium user of the bot.
 
     Args:
@@ -16,7 +16,7 @@ async def isPremium(user_id: int) -> str:
     isPrem = await db.get_premium_user(user_id=user_id) or {}
     return isPrem.get('type', 'None')
 
-async def isPremiumServer(guild: discord.Guild) -> bool:
+async def is_premium_server(guild: discord.Guild) -> bool:
     """Checks if a Discord guild has premium status.
 
     Args:
@@ -27,8 +27,8 @@ async def isPremiumServer(guild: discord.Guild) -> bool:
         bool: True if the guild has premium, False otherwise.
     """
     isPrem = await db.get_premium_guild_info(guild_id=guild.id)
-    if isPrem is not None and await isPremium(isPrem.get("user_id")) == 'None': await db.take_guild_premium(guild_id=guild.id)
-    return isPrem is not None and await isPremium(isPrem.get("user_id")) != 'None'
+    if isPrem is not None and await is_premium(isPrem.get("user_id")) == 'None': await db.take_guild_premium(guild_id=guild.id)
+    return isPrem is not None and await is_premium(isPrem.get("user_id")) != 'None'
 
 async def is_in_blacklist(resource_id: int) -> bool:
     """Checks if a resource ID is in the blacklist.

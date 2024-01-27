@@ -1,6 +1,9 @@
 from . import client # type: ignore
 
-from typing import Optional, Any
+from typing import (
+    Optional, 
+    Any
+)
 
 async def get_premium_user(user_id: int) -> Optional[dict[str, Any]]:
     db = client.premium # type: ignore
@@ -32,7 +35,7 @@ async def take_premium(user_id: int) -> bool:
     await coll.delete_one({'user_id': str(user_id)})
     return True
 
-def get_premium_guilds(user_id: int) -> Optional[dict[str, Any]]:
+def get_premium_guilds(user_id: int):
     """
     Gets all servers, where the user gave premium.
 

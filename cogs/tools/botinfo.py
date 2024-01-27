@@ -1,7 +1,7 @@
 import discord
 import sys
-import datetime
 import distro
+import datetime
 
 from discord.ext import commands
 from discord import app_commands
@@ -20,10 +20,12 @@ class BotInfo(commands.Cog):
 
     async def cog_load(self):
         thanks_users = { # я теперь знаю, что ещё переписать на базу данных.
-            754719910256574646: "Второй разработчик бота и лучший бета-тестер. Написал некоторые команды развлечений "
+            754719910256574646: "Бывший второй разработчик бота и лучший бета-тестер. Написал некоторые команды развлечений "
             "и помог выявить более 20-ти багов. Один из спонсоров бота.",
             777140702747426817: "Помимо его работы саппортом, он часто апает бота, чем помогает в распространении его. "
-            "Один из первых спонсоров бота."
+            "Один из первых спонсоров бота.",
+            529302484901036043: "Третий (но в текущей команде - второй) разработчик бота, который помогает в переписи текущего кода. "
+            "Также он помогает с выбором текущего хода развития бота."
         }
         self.thanks_user = {}
         for tu in thanks_users:
@@ -49,7 +51,7 @@ class BotInfo(commands.Cog):
         embed.add_field(name="ID разработчика:", value=f"`{settings['owner_id']}`")
         embed.add_field(name="ID бота:", value=f"`{self.bot.user.id}`")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text=f"©️ 2021 - 2023 MadBot. Все права защищены.")
+        embed.set_footer(text=f"©️ 2021 - {datetime.datetime.now().year} MadBot. Все права защищены.")
 
         bot_stats = await db.get_bot_stats()
         stats = discord.Embed(title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange())

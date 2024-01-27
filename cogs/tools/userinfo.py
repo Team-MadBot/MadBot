@@ -6,7 +6,7 @@ from discord import app_commands
 from . import default_cooldown
 
 from classes import checks
-from classes.checks import isPremium
+from classes.checks import is_premium
 
 from config import settings
 from config import coders
@@ -37,14 +37,14 @@ class UserInfo(commands.Cog):
         else:
             try:
                 member = await interaction.guild.fetch_member(member.id)
-            except:
+            except:  # FIXME: bare except
                 embed = discord.Embed(title="Ошибка!", color=discord.Color.red(), description="Участник должен находиться на сервере для использования команды!")
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
         
         try:
             member = await interaction.guild.fetch_member(member.id)
-        except:
+        except:  # FIXME: bare except
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -66,7 +66,7 @@ class UserInfo(commands.Cog):
 
         if await checks.is_in_blacklist(member.id):
             badges += '<:ban:946031802634612826> '
-        if await isPremium(self.bot, member.id) != 'None':
+        if await is_premium(member.id) != 'None':
             badges += '<a:premium:988735181546475580> '
         if member.is_timed_out():
             badges += '<:timeout:950702768782458893> '

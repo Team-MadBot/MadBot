@@ -60,7 +60,7 @@ class UserAvatar(commands.Cog):
         if member is None: member = interaction.user
         try:
             member: discord.Member = await interaction.guild.fetch_member(member.id)
-        except:
+        except:  # FIXME: bare except
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),

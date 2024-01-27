@@ -9,7 +9,6 @@ from boticordpy import BoticordClient # type: ignore
 from discord.ext import commands, tasks
 from discord import utils as dutils
 from discord import ui
-from contextlib import suppress
 from asyncio import sleep
 
 from typing import Any
@@ -89,7 +88,7 @@ class SetReminderButton(ui.Button): # type: ignore
             ephemeral=True
         )
 
-class Boticord(commands.Cog):
+class BoticordCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
         self.bc_token = settings['bcv2_token']
@@ -110,12 +109,14 @@ class Boticord(commands.Cog):
         self.bc_ws.register_listener("comment_removed", self.comment_removed) # type: ignore
         self.bc_ws.register_closer(self.on_close) # type: ignore
         
-        self.stats_task = self.send_stats.start()
-        with suppress(Exception):
-            await self.bc_ws.connect()
+        if not settings['debug_mode']:
+            self.send_stats.start()
+
+        await self.bc_ws.connect()
     
     async def cog_unload(self):
-        self.stats_task.cancel()
+        if not settings['debug_mode']:
+            self.send_stats.cancel()
         if self.bc_ws.not_closed:
             await self.bc_ws.close()
     
@@ -279,7 +280,6 @@ class Boticord(commands.Cog):
     @send_stats.before_loop
     async def wait_before_loop(self):
         await self.bot.wait_until_ready()
-"""
+
 async def setup(bot: commands.AutoShardedBot):
-    await bot.add_cog(Boticord(bot))
-"""
+    await bot.add_cog(BoticordCog(bot))

@@ -14,7 +14,7 @@ from logging.handlers import RotatingFileHandler
 
 from classes import db
 from classes import checks
-from classes.checks import isPremiumServer
+from classes.checks import is_premium_server
 
 
 logging.getLogger("discord").addHandler(RotatingFileHandler(
@@ -41,7 +41,9 @@ class MadBot(commands.AutoShardedBot):
             for file in files:
                 if not file.endswith(".py"): continue
                 egg = os.path.join(path, file)
-                if egg in config.cogs_ignore: continue
+                if egg in config.cogs_ignore:
+                    logger.debug(f"Модуль {egg} находится в игнор-листе в config.py, поэтому он не был загружен.") 
+                    continue
                 try:
                     await self.load_extension(egg.replace(os.sep, '.')[:-3])
                 except commands.NoEntryPointError:
@@ -71,7 +73,7 @@ class MadBot(commands.AutoShardedBot):
         try:
             logger.info("Проверка работы базы данных...")
             await db.ping_db()
-        except Exception as e:
+        except Exception:
             logger.critical(traceback.format_exc())
             logger.critical(
                 "Невозможно \"достучаться\" до базы данных! Работа без неё НЕВОЗМОЖНА!!! Прерывание работы бота...\n"
@@ -120,14 +122,15 @@ class MadBot(commands.AutoShardedBot):
         )
         await logs.send(embed=embed)
     
-    async def is_owner(self, user: discord.User) -> bool:
+    async def is_owner(self, user: discord.abc.User) -> bool:
         return False if await checks.is_in_blacklist(user.id) else True if user.id in config.coders else await super().is_owner(user)
 
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
             return
         if isinstance(error, commands.NotOwner):
-            return await ctx.reply("https://http.cat/403")
+            await ctx.reply("https://http.cat/403")
+            return
         with suppress(Exception):
             await ctx.message.add_reaction("❌")
             await ctx.message.reply(content=f"```\n{error}```", delete_after=30)
@@ -173,15 +176,15 @@ class MadBot(commands.AutoShardedBot):
                 try:
                     async for entry in guild.audit_logs(limit=5, action=discord.AuditLogAction.bot_add):
                         if entry.target.id == self.user.id:
-                            adder = entry.user
+                            adder = entry.user;
                 except discord.Forbidden:
-                    embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.")
+                    embed.set_footer(text="Бот написал вам, так как не смог уточнить, кто его добавил.");
                 try:
-                    await adder.send(embed=embed)
-                except:
-                    if guild.system_channel != None:
+                    await adder.send(embed=embed);
+                except Exception: # FIXME: specify exception group or type 
+                    if guild.system_channel is not None:
                         with suppress(Exception):
-                            await guild.system_channel.send(embed=embed)
+                            await guild.system_channel.send(embed=embed);
             
             embed = discord.Embed(
                 title="Новый сервер!", 
@@ -216,7 +219,7 @@ class MadBot(commands.AutoShardedBot):
         log_channel = self.get_channel(config.settings['log_channel'])
         assert isinstance(log_channel, discord.TextChannel)
         await log_channel.send(embed=embed)
-        if await isPremiumServer(self, guild):
+        if await is_premium_server(guild):
             await db.take_guild_premium(guild.id)
 
     async def on_member_join(self, member: discord.Member):
@@ -246,6 +249,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config.settings['debug_mode'] = args.debug_mode
     logger.info("Подключение к Discord...")
+    boticord_logger = logging.getLogger("boticord.websocket")
+    boticord_logger.setLevel(logging.DEBUG if args.debug_mode else logging.INFO)
     bot = MadBot(migrate_db=args.migrate_db)
     bot.run(
         config.settings['token'],

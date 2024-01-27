@@ -7,6 +7,8 @@ from typing import TypedDict
 
 load_dotenv()
 
+__VERSION__ = "1.2.2"
+
 class __Settings(TypedDict):
     min_members: int
     debug_mode: bool
@@ -68,8 +70,9 @@ started_at = int( # Время запуска бота. Не изменять.
     time.time()
 )
 
-cogs_ignore = [ # список игнорируемых (?) cog'ов.
-   
+cogs_ignore: list[str] = [ # список игнорируемых cog'ов.
+    "cogs/risticks_api.py",
+    "cogs/bc_api.py"
 ]
 
 blacklist = [ # done

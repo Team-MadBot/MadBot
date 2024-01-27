@@ -78,7 +78,7 @@ class ErrorCog(commands.Cog):
             )
             try:
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            except:
+            except:  # FIXME: bare except
                 return await interaction.edit_original_response(embed=embed)
         if isinstance(error, OverflowError):
             embed = discord.Embed(

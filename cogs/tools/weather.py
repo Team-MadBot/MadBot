@@ -8,7 +8,7 @@ from discord import app_commands
 
 from . import default_cooldown
 from classes import checks
-from urllib.parse import quote_plus
+from urllib.parse import quote
 
 logger = logging.getLogger("discord")
 
@@ -25,9 +25,7 @@ class WeatherCog(commands.Cog):
         embed = discord.Embed(title="Поиск...", color=discord.Color.yellow(), description="Ищем ваш город...")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         response = await aiohttp.ClientSession().get(
-            quote_plus(
-                f"https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={config.settings['weather_key']}&units=metric&lang=ru"
-            )
+            f"https://api.openweathermap.org/data/2.5/weather?q={quote(city)}&APPID={config.settings['weather_key']}&units=metric&lang=ru"
         )
         json = await response.json()
         if response.status > 400:

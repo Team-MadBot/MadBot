@@ -6,4 +6,4 @@ class GuildActionsType(IntEnum):
     BUY = 3
     WARN = 4
     UNWARN = 5
-    OTHER = 999
+    OTHER = -1

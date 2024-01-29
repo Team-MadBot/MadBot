@@ -33,7 +33,7 @@ class Kick(commands.Cog):
                 description="Я не имею права на исключение участников, поэтому выполнение команды невозможно."
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        bot_member = await interaction.guild.fetch_member(self.bot.user.id) # type: ignore
+        bot_member = interaction.guild.me # type: ignore
         if bot_member.top_role <= user.top_role: # type: ignore
             embed = discord.Embed(
                 title="Ошибка!",
@@ -48,16 +48,28 @@ class Kick(commands.Cog):
                 description="Ваша самая высокая роль должна быть выше самой высокой роли пользователя."
             ).set_image(url="https://http.cat/403")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if user.id == interaction.guild.owner_id:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Нельзя исключить владельца сервера!"
+            ).set_image(url="https://http.cat/403")
         await interaction.response.defer(thinking=True)
         dm_embed = discord.Embed(
             title=f"Вы исключены из сервера {interaction.guild.name}!", # type: ignore
             color=discord.Color.red()
+        ).add_field(
+            name="Модератор", 
+            value=f"{interaction.user.mention} (`{interaction.user}`)"
+        ).add_field(
+            name="Причина", 
+            value=reason
         )
-        dm_embed.add_field(name="Модератор", value=f"{interaction.user.mention} (`{interaction.user}`)")
-        dm_embed.add_field(name="Причина", value=reason)
-        embed = dm_embed.copy()
+        embed = dm_embed.copy().add_field(
+            name="Пользователь", 
+            value=f"{user.mention} (`{user}`)"
+        )
         embed.title = "Пользователь исключён из сервера!"
-        embed.add_field(name="Пользователь", value=f"{user.mention} (`{user}`)")
         try:
             await user.send(embed=dm_embed)
         except (discord.Forbidden, discord.HTTPException):

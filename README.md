@@ -20,7 +20,7 @@
 
 ## Помощь в разработке
 
-~~См. [`CONTRIBUTING.rst`](https://github.com/MadCat9958/MadBotPublic/blob/main/CONTRIBUTING.rst).~~
+~~См. [`CONTRIBUTING.md`](https://github.com/MadCat9958/MadBotPublic/blob/main/CONTRIBUTING.md).~~
 Лучше не лезьте. Мы сами не знаем, что будем делать с ботом, а Ваш труд может оказаться напрасным. Зацените лучше ветку v2 и посоветуйте, как ее улучшить.
 
 ## Changelog

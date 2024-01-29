@@ -51,7 +51,7 @@ class Ban(commands.Cog):
                         description="Ваша самая высокая роль должна быть выше самой высокой роли пользователя."
                     ).set_image(url="https://http.cat/403")
                     return await interaction.response.send_message(embed=embed, ephemeral=True)
-                if interaction.user.id == interaction.guild.owner_id:
+                if user.id == interaction.guild.owner_id:
                     embed = discord.Embed(
                         title="Ошибка!",
                         color=discord.Color.red(),

@@ -71,7 +71,8 @@ class Ban(commands.Cog):
         embed = dm_embed.copy().add_field(
             name="Пользователь", 
             value=f"{user.mention} (`{user}`)"
-        ).title = "Пользователь забанен на сервере!"
+        )
+        embed.title = "Пользователь забанен на сервере!"
         try:
             await user.send(embed=dm_embed)
         except (discord.Forbidden, discord.HTTPException):

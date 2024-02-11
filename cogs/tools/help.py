@@ -62,12 +62,12 @@ class HelpCommand(commands.Cog):
             color=discord.Color.orange(),
             description=react_commands
         )
-        stats = discord.Embed(
+        marry = discord.Embed(
             title=f"{self.bot.user.name} - Свадьбы",
             color=discord.Color.orange(),
             description=stats_commands
         )
-        marry = discord.Embed(
+        stats = discord.Embed(
             title=f"{self.bot.user.name} - Статистика",
             color=discord.Color.orange(),
             description=marry_commands

@@ -65,12 +65,12 @@ class HelpCommand(commands.Cog):
         marry = discord.Embed(
             title=f"{self.bot.user.name} - Свадьбы",
             color=discord.Color.orange(),
-            description=stats_commands
+            description=marry_commands
         )
         stats = discord.Embed(
             title=f"{self.bot.user.name} - Статистика",
             color=discord.Color.orange(),
-            description=marry_commands
+            description=stats_commands
         )
         premium = discord.Embed(
             title=f"{self.bot.user.name} - Премиум",

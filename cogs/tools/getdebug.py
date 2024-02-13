@@ -68,7 +68,8 @@ class GetDebugCog(commands.Cog):
             name="Информация о сервере",
             value=(f"Имя канала:\n`{interaction.channel.name}`\nID канала:\n`{interaction.channel.id}`\n" +
                 f"Кол-во каналов:\n`{len(interaction.guild.channels)}/500`\n" + 
-                f"Название сервера:\n`{interaction.guild.name}`\nID сервера:\n`{interaction.guild.id}`"
+                f"Название сервера:\n`{interaction.guild.name}`\nID сервера:\n`{interaction.guild.id}`\n" +
+                f"Шард сервера:\n`{interaction.guild.shard_id}`"
             )
         ).add_field(
             name="Информация о пользователе",

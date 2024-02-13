@@ -26,6 +26,9 @@ class HelpCommand(commands.Cog):
         stats_commands = ""
         marry_commands = ""
         premium_commands = ""
+
+        commands.sort(key=lambda i: i.name)
+        
         for command in commands:
             if command.description.startswith("[Модерация]"):
                 mod_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Модерация]')}\n"

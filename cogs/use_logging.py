@@ -1,5 +1,6 @@
 import logging
 import discord
+import datetime
 
 from discord.ext import commands
 
@@ -15,7 +16,7 @@ class Logging(commands.Cog):
             return
         assert interaction.command is not None
         logger.info(
-            f"[SLASH USAGE] - '{interaction.user}' ({interaction.user.id}): '/{interaction.command.qualified_name}'"
+            f"{datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}: [SLASH USAGE] - '{interaction.user}' ({interaction.user.id}): '/{interaction.command.qualified_name}'"
         )
 
 async def setup(bot: commands.Bot):

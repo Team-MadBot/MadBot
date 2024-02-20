@@ -32,7 +32,7 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         try:
             member = await interaction.guild.fetch_member(member.id)
-        except:  # FIXME: bare except
+        except NotFound:
             embed = discord.Embed(
                 title="Ошибка!", 
                 color=discord.Color.red(), 
@@ -89,7 +89,7 @@ class Moderation(commands.Cog):
 
         try:
             message = await member.send(embed=embed)
-        except:  # FIXME: bare except
+        except Forbidden:
             embed.set_footer(text="Участник не получил сообщение о исключении!")
         
         try:
@@ -97,7 +97,7 @@ class Moderation(commands.Cog):
                 member, 
                 reason=f"{reason} // {interaction.user}"
             )
-        except:  # FIXME: bare except
+        except Forbidden:
             await message.delete()
             embed = discord.Embed(
                 title="Ошибка!",

@@ -203,8 +203,14 @@ class HelpCommand(commands.Cog):
 
             async def callback(self, viewinteract: discord.Interaction):
                 if await checks.is_in_blacklist(viewinteract.user.id):
-                    embed=discord.Embed(title="Вы занесены в чёрный список бота!", color=discord.Color.red(), description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", timestamp=datetime.datetime.now())
-                    embed.set_thumbnail(url=interaction.user.avatar.url)
+                    embed = discord.Embed(
+                        title="Вы занесены в чёрный список бота!", 
+                        color=discord.Color.red(), 
+                        description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite']}", 
+                        timestamp=datetime.datetime.now()
+                    ).set_thumbnail(
+                        url=interaction.user.avatar.url
+                    )
                     return await viewinteract.response.send_message(embed=embed, ephemeral=True)
                 modals = {
                     'bugreport': self.BugReport(),

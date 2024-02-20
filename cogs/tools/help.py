@@ -55,7 +55,7 @@ class HelpCommand(commands.Cog):
             color=discord.Color.orange(), 
             description=tools_commands
         )
-        entartaiment = discord.Embed(
+        entertainment = discord.Embed(
             title=f"{self.bot.user.name} - Развлечения",
             color=discord.Color.orange(), 
             description=ent_commands
@@ -105,7 +105,7 @@ class HelpCommand(commands.Cog):
                     discord.SelectOption(label="Главная", value="embed", description="Главное меню.", emoji="🐱"),
                     discord.SelectOption(label="Модерация", value="moderation", description="Команды модерации.", emoji="🛑"),
                     discord.SelectOption(label="Полезности", value="tools", description="Полезные команды.", emoji="⚒️"),
-                    discord.SelectOption(label="Развлечения", value="entartaiment", description="Развлекательные команды.", emoji="🎉"),
+                    discord.SelectOption(label="Развлечения", value="entertainment", description="Развлекательные команды.", emoji="🎉"),
                     discord.SelectOption(label="Реакции", value="reactions", description="Команды реакций.", emoji="🎭"),
                     discord.SelectOption(label="Статистика", value="stats", description="Настройка статистики сервера.", emoji="📊"),
                     discord.SelectOption(label="Свадьбы", value="marry", description="Женитесь и разводитесь.", emoji="❤️"),
@@ -114,39 +114,19 @@ class HelpCommand(commands.Cog):
                 super().__init__(placeholder="Команды", options=options)
             
             async def callback(self, viewinteract: discord.Interaction):
+                embeds_dict = {
+                    "embed": embed,
+                    "moderation": moderation,
+                    "tools": tools,
+                    "reactions": reactions,
+                    "entertainment": entertainment,
+                    "marry": marry,
+                    "premium": premium,
+                    "stats": stats
+                }
                 if interaction.user.id != viewinteract.user.id:
-                    if self.values[0] == "embed":
-                        return await viewinteract.response.send_message(embed=embed, ephemeral=True)
-                    elif self.values[0] == "moderation":
-                       return await viewinteract.response.send_message(embed=moderation, ephemeral=True)
-                    elif self.values[0] == "tools":
-                        return await viewinteract.response.send_message(embed=tools, ephemeral=True)
-                    elif self.values[0] == "reactions":
-                        return await viewinteract.response.send_message(embed=reactions, ephemeral=True)
-                    elif self.values[0] == "entartaiment":
-                        return await viewinteract.response.send_message(embed=entartaiment, ephemeral=True)
-                    elif self.values[0] == "marry":
-                        return await viewinteract.response.send_message(embed=marry, ephemeral=True)
-                    elif self.values[0] == "premium":
-                        return await viewinteract.response.send_message(embed=premium, ephemeral=True)
-                    else:
-                        return await viewinteract.response.send_message(embed=stats, ephemeral=True)
-                if self.values[0] == "embed":
-                    await viewinteract.response.edit_message(embed=embed)
-                elif self.values[0] == "moderation":
-                   await viewinteract.response.edit_message(embed=moderation)
-                elif self.values[0] == "tools":
-                    await viewinteract.response.edit_message(embed=tools)
-                elif self.values[0] == "reactions":
-                    return await viewinteract.response.edit_message(embed=reactions)
-                elif self.values[0] == "entartaiment":
-                    return await viewinteract.response.edit_message(embed=entartaiment)
-                elif self.values[0] == "marry":
-                    return await viewinteract.response.edit_message(embed=marry)
-                elif self.values[0] == "premium":
-                    return await viewinteract.response.edit_message(embed=premium)
-                else:
-                    return await viewinteract.response.edit_message(embed=stats)
+                    return await viewinteract.response.send_message(embed=embeds_dict[self.values[0]], ephemeral=True)
+                return await viewinteract.response.edit_message(embed=embeds_dict[self.values[0]])
 
         class DropDownHelp(discord.ui.Select):
             def __init__(self):

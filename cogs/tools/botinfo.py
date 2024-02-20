@@ -125,6 +125,7 @@ class BotInfo(commands.Cog):
             def __init__(self):
                 super().__init__(timeout=None)
                 self.add_item(discord.ui.Button(label="Поддержка", url=settings['support_invite']))
+                self.add_item(discord.ui.Button(label="Исходный код", url=settings['github_url']))
                 self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url=f"https://boticord.top/bot/{settings['app_id']}", emoji="<:bc:947181639384051732>"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url=f"https://bots.server-discord.com/{settings['app_id']}", emoji="<:favicon:981586173204000808>"))

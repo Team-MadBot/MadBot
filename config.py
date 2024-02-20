@@ -63,7 +63,8 @@ settings: __Settings = {
     'unbelieva_token': os.environ.get("UNBELIEVA_TOKEN"),
     'risticks_token': os.environ.get("RISTICKS_TOKEN"),
     'curr_version': os.environ.get("CURRENT_VERSION"),
-    'mongo_url': os.environ.get("MONGO_URL")
+    'mongo_url': os.environ.get("MONGO_URL"),
+    'github_url': os.environ.get("GITHUB_URL")
 }
 
 started_at = int( # Время запуска бота. Не изменять.

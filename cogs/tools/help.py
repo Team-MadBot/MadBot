@@ -91,12 +91,14 @@ class HelpCommand(commands.Cog):
 - **Модерировать**. Кто-то ведёт себя плохо и доставляет хлопот другим участникам? Накажите его, используя команды бота.
 - **Прочее**. Узнать погоду, подсчитать пример или получить аватар пользователя можно в одном боте!
             
-Выберите категорию команд для их просмотра.""")
+### Выберите категорию команд в меню ниже для их просмотра.""")
         embed.add_field(
             name="Поддержать разработку",
-            value=f"""Поддержка - не всегда означает необходимость платить. Если у Вас нету денег, просто оцените бота на Boticord и SDC Monitoring. Так Вы поможете продвинуть бота. Можете ещё написать свой отзыв - обязательно прочтем и учтем.
-            
-**СКОРО:** Если у Вас есть деньги, Вы можете связаться с разработчиком для покупки MadBot Premium. Так мы сможет продолжать разработку, а Вы получите уникальные функции."""
+            value=f"Поддержка - не всегда означает необходимость платить. "
+            "Если у Вас нет денег, просто оцените бота на Boticord и SDC Monitoring. "
+            "Так Вы поможете продвинуть бота. Можете ещё написать свой отзыв - обязательно прочтем и учтем Ваши пожелания! "
+            "Также проект является Open Source и создаётся на чистом энтузиазме. Если Вы хотите помочь в разработке - посмотрите Github бота. "
+            "Возможно, у Вас будет какое-то предложение по улучшению бота."
         )
 
         class DropDownCommands(discord.ui.Select):
@@ -216,6 +218,7 @@ class HelpCommand(commands.Cog):
                 self.add_item(DropDownCommands())
                 self.add_item(DropDownHelp())
                 self.add_item(discord.ui.Button(label="Поддержка", url=settings['support_invite']))
+                self.add_item(discord.ui.Button(label="Исходный код", url=settings['github_url']))
                 self.add_item(discord.ui.Button(label="Добавить бота", url=f"https://discord.com/oauth2/authorize?client_id={settings['app_id']}&permissions={settings['perm_scope']}&scope=bot%20applications.commands"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: BotiCord.top", url=f"https://boticord.top/bot/{settings['app_id']}", emoji="<:bc:947181639384051732>"))
                 self.add_item(discord.ui.Button(label="Апнуть бота: SDC Monitoring", url=f"https://bots.server-discord.com/{settings['app_id']}", emoji="<:favicon:981586173204000808>"))

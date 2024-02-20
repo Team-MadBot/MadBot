@@ -3,7 +3,6 @@ PyNaCl
 aiohttp
 boticordpy
 numexpr
-qrcode
 motor
 fluent.runtime
 jishaku

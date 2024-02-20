@@ -233,14 +233,14 @@ class MadBot(commands.AutoShardedBot):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--debug-mode",
+        "--debug-mode", "--debug", "-d",
         help="Should bot run with logging.DEBUG level?",
         action="store_true",
         default=False,
         dest="debug_mode"
     )
     parser.add_argument(
-        "--migrate-db",
+        "--migrate-db", "--migrate",
         help="Should bot migrate DB before startup?",
         action="store_true",
         default=False,

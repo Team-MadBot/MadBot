@@ -16,7 +16,7 @@ class Logging(commands.Cog):
             return
         assert interaction.command is not None
         logger.info(
-            f"{datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}: [SLASH USAGE] - '{interaction.user}' ({interaction.user.id}): '/{interaction.command.qualified_name}'"
+            f"[SLASH USAGE] - '{interaction.user}' ({interaction.user.id}): '/{interaction.command.qualified_name}'"
         )
 
 async def setup(bot: commands.Bot):

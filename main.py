@@ -19,12 +19,21 @@ from classes.checks import is_premium_server
 
 intents = discord.Intents.default()
 logger = logging.getLogger('discord')
-logger.addHandler(RotatingFileHandler(
+
+_handler = RotatingFileHandler(
     filename="discord.log",
     encoding="utf-8",
     maxBytes=32 * 1024 * 1024,
     backupCount=10,
-))
+)
+_handler.setFormatter(
+    logging.Formatter(
+        "[{asctime}] [{levelname:<8}] {name}: {message}", 
+        "%Y-%m-%d %H:%M:%S", 
+        style='{'
+    )
+)
+logger.addHandler(_handler)
 
 class MadBot(commands.AutoShardedBot):
     def __init__(self, migrate_db: bool = False):

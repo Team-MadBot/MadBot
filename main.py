@@ -17,15 +17,14 @@ from classes import checks
 from classes.checks import is_premium_server
 
 
-logging.getLogger("discord").addHandler(RotatingFileHandler(
+intents = discord.Intents.default()
+logger = logging.getLogger('discord')
+logger.addHandler(RotatingFileHandler(
     filename="discord.log",
     encoding="utf-8",
     maxBytes=32 * 1024 * 1024,
     backupCount=10,
 ))
-
-intents = discord.Intents.default()
-logger = logging.getLogger('discord')
 
 class MadBot(commands.AutoShardedBot):
     def __init__(self, migrate_db: bool = False):

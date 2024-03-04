@@ -3,11 +3,11 @@ import os
 
 from dotenv import load_dotenv
 
-from typing import TypedDict
+from typing import TypedDict, Final
 
 load_dotenv()
 
-__VERSION__ = "1.2.2"
+__VERSION__ = "1.3 Alpha"
 
 class __Settings(TypedDict):
     min_members: int
@@ -66,7 +66,7 @@ settings: __Settings = {
     'mongo_url': os.environ.get("MONGO_URL")
 }
 
-started_at = int( # Время запуска бота. Не изменять.
+started_at: Final = int( # Время запуска бота. Не изменять.
     time.time()
 )
 

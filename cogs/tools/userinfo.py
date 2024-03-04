@@ -18,6 +18,62 @@ from config import bug_hunters
 from config import bug_terminators
 from config import verified
 
+class UserInfoView(discord.ui.View):
+    def __init__(
+        self, 
+        init_user: discord.User | discord.Member, 
+        userinfo: discord.Member,
+        default_embed: discord.Embed
+    ):
+        super().__init__(timeout=300)
+        self.userinfo = userinfo
+        self.default_embed = default_embed
+        self.init_user = init_user
+    
+    @discord.ui.select(
+        cls=discord.ui.Select,
+        options=[
+            discord.SelectOption(
+                label="Главная",
+                emoji="🏠",
+                value="default"
+            ),
+            discord.SelectOption(
+                label="Разрешения",
+                emoji="👮",
+                value="permissions"
+            )
+        ]
+    )
+    async def option_select(self, interaction: discord.Interaction, select: discord.ui.Select):
+        value = select.values[0]
+        response_embed = self.default_embed
+
+        if value == "permissions":
+            response_embed = discord.Embed(
+                title=self.default_embed.title,
+                color=discord.Color.orange(),
+                description=None if not self.userinfo.is_timed_out() else "**Обратите внимание:** вы видите права пользователя при его тайм-ауте."
+            ).set_thumbnail(
+                url=self.default_embed.thumbnail.url
+            ).set_image(
+                url=self.default_embed.image.url
+            ).set_author(
+                name="Информация о пользователе - Разрешения BETA"
+            ).set_footer(
+                text=self.default_embed.footer.text
+            ).add_field(
+                name="Права на сервере",
+                value=self.userinfo.guild_permissions.value
+            ).add_field(
+                name="Права в канале",
+                value=interaction.channel.permissions_for(self.userinfo).value
+            )
+        
+        if interaction.user.id == self.init_user.id:
+            return await interaction.response.edit_message(embed=response_embed)
+        await interaction.response.send_message(embed=response_embed, ephemeral=True)
+
 class UserInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
@@ -29,6 +85,8 @@ class UserInfo(commands.Cog):
     @app_commands.describe(member='Участник')
     async def userinfo(self, interaction: discord.Interaction, member: discord.User | discord.Member = None):
         member = member or interaction.user
+        badges = []
+        view = None
 
         embed = discord.Embed(
             title=f"{escape_markdown(member.global_name or member.name)} ({escape_markdown(member.name)})",
@@ -37,8 +95,10 @@ class UserInfo(commands.Cog):
             text=f"ID: {member.id}"
         ).set_thumbnail(
             url=member.display_avatar.url
+        ).set_author(
+            name="Информация о пользователе - Главная"
         )
-        badges = []
+
         if await checks.is_in_blacklist(member.id):
             badges.append(enums.Badges.BANNED.value)
         if await checks.is_premium(member.id):
@@ -78,7 +138,7 @@ class UserInfo(commands.Cog):
         if isinstance(member, discord.Member):
             member = await interaction.guild.fetch_member(member.id)
             if member.nick is not None:
-                embed.title += f" | {escape_markdown(member.nick)}"
+                embed.title += f" `|` {escape_markdown(member.nick)}"
             embed.add_field(
                 name="Присоединился к серверу",
                 value=f"{dutils.format_dt(member.joined_at)} ({dutils.format_dt(member.joined_at, 'R')})",
@@ -86,7 +146,7 @@ class UserInfo(commands.Cog):
             )
             embed.add_field(
                 name="Цвет никнейма",
-                value=f"{str(member.color).capitalize() if member.color.value != 0 else 'Стандартный'}",
+                value=f"{str(member.color).upper() if member.color.value != 0 else 'Стандартный'}",
                 inline=False
             )
             if member.is_timed_out():
@@ -112,19 +172,37 @@ class UserInfo(commands.Cog):
                     value=status_value,
                     inline=False
                 )
-            member_roles = list(filter(
-                lambda x: x != interaction.guild.default_role, 
-                member.roles            
-            ))
-            member_roles.sort(key=lambda x: x.position, reverse=True)
+            member_roles = sorted(
+                list(
+                    filter(
+                        lambda x: x != interaction.guild.default_role, 
+                        member.roles            
+                    )
+                ),
+                key=lambda x: x.position, 
+                reverse=True
+            )[:15]
             member_roles_amount = len(member.roles) - 1 # 'cause @everyone role counts too
             embed.add_field(
                 name=f"Роли ({member_roles_amount})",
-                value=", ".join([i.mention for i in member_roles]) + "" if len(member_roles) == member_roles_amount else f" и ещё {member_roles_amount - 15} ролей...",
+                value=", ".join([i.mention for i in member_roles]) + ("" if len(member_roles) == member_roles_amount else f" и ещё {member_roles_amount - 15} ролей..."),
                 inline=False
             )
-        
-        await interaction.response.send_message(embed=embed)
+            view = UserInfoView(
+                init_user=interaction.user,
+                userinfo=member,
+                default_embed=embed
+            )
+ 
+        await interaction.response.send_message(
+            embed=embed, 
+            view=view
+        )
+
+        if not view:
+            return
+        await view.wait()
+        await interaction.edit_original_response(view=None)
 
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(UserInfo(bot))

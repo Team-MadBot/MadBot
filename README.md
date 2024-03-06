@@ -1,6 +1,6 @@
 # MadBot
 
-[![Discord invite link](https://discord.com/api/guilds/981247575451639888/embed.png)](https://discord.gg/DvYPRm939R)
+[![Discord invite link](https://discord.com/api/guilds/981247575451639888/embed.png)](https://discord.gg/xgMNczDSJv)
 
 Исходный код MadBot. Вы можете помогать созданию бота, используя Pull Requests.
 

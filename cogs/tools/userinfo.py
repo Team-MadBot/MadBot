@@ -123,6 +123,10 @@ class UserInfo(commands.Cog):
             value=" ".join(badges) if not interaction.guild or interaction.channel.permissions_for(
                 interaction.guild.me).use_external_emojis else "Отсутствуют права на использование сторонних эмодзи!",
             inline=False
+        ).add_field(
+            name="Упоминание",
+            value=member.mention,
+            inline=False
         )
 
         temp_user = await self.bot.fetch_user(member.id)

@@ -190,10 +190,12 @@ class Stats(commands.Cog):
 
     async def es_autocomplete(self, interaction: discord.Interaction, current: str):
         assert interaction.guild is not None
-        channels = await db.get_guild_stats(  # type: ignore
-            guild_id=interaction.guild.id,
-            channels=1, 
-            _id=0
+        channels = (
+            await db.get_guild_stats(  # type: ignore
+                guild_id=interaction.guild.id,
+                channels=1, 
+                _id=0
+            )
         )['channels']
         return [app_commands.Choice(name=channel['text'].replace("%count%", ''), value=str(channel['id'])) for channel  # type: ignore
                 in channels if current.lower() in channel['type']]
@@ -367,7 +369,7 @@ class Stats(commands.Cog):
             async def callback(self, viewinteract: discord.Interaction):  # type: ignore
                 await viewinteract.response.defer(thinking=True, ephemeral=True)
                 values = self.values
-                channels = await db.get_guild_stats(guild_id=viewinteract.guild.id)['channels']  # type: ignore
+                channels = (await db.get_guild_stats(guild_id=viewinteract.guild.id))['channels']  # type: ignore
                 for value in values:
                     message = "%count%"
                     stat = 0
@@ -430,10 +432,18 @@ class Stats(commands.Cog):
         class View(ui.View):
             def __init__(self, guild_channels: list):  # type: ignore
                 super().__init__(timeout=None)
-                self.add_item(Select(guild_channels))
+                self.select = Select(guild_channels)
+                self.add_item(self.select)
 
-        guild_channels = await db.get_guild_stats(guild_id=interaction.guild.id)['channels']  # type: ignore
-        await interaction.response.send_message(embed=embed, view=View(guild_channels), ephemeral=True)  # type: ignore
+        guild_channels = (await db.get_guild_stats(guild_id=interaction.guild.id))['channels']  # type: ignore
+        view = View(guild_channels)
+        is_options_empty = not len(view.select.options)
+        if is_options_empty:
+            embed.description = (
+                "Я бы предложил Вам добавить ещё каналы статистики, но больше вариантов статистики для Вас нет. Вы можете изменить/удалить существующие "
+                "каналы статистики, указав их для этой команды как аргумент. Если хотите удалить всю статистику полностью - пропишите `/stats-delete`."
+            )
+        await interaction.response.send_message(embed=embed, view=None if is_options_empty else View(guild_channels), ephemeral=True)  # type: ignore
 
     @app_commands.command(name="stats-delete", description="[Статистика] Удалить статистику")
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
@@ -467,7 +477,7 @@ class Stats(commands.Cog):
         for channel in doc['channels']:  # type: ignore
             ch = self.bot.get_channel(int(channel['id']))  # type: ignore
             if ch is None: continue
-            assert isinstance(ch, discord.TextChannel)
+            assert isinstance(ch, discord.abc.GuildChannel)
             try:
                 await ch.delete()
             except:  # FIXME: bare except
@@ -518,7 +528,7 @@ class Stats(commands.Cog):
         for channel in doc['channels']:  # type: ignore
             ch = self.bot.get_channel(int(channel['id']))  # type: ignore
             if ch is None: continue
-            assert isinstance(ch, discord.TextChannel)
+            assert isinstance(ch, discord.abc.GuildChannel)
             description += f"> `{count}.` {ch.name}.\n"
             count += 1
         embed = discord.Embed(

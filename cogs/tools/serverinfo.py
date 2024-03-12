@@ -11,7 +11,6 @@ from classes.checks import is_premium_server
 from tools import enums
 
 from config import verified
-from config import beta_testers
 
 class ServerInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):

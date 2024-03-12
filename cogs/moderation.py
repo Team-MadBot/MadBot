@@ -2,8 +2,10 @@ import discord
 import datetime
 import logging
 
-from discord import app_commands, Forbidden, NotFound
 from asyncio import sleep
+from typing import Optional
+
+from discord import app_commands, Forbidden, NotFound
 from discord.ext import commands
 from discord import utils as dutils
 
@@ -494,11 +496,16 @@ class Moderation(commands.Cog):
     @app_commands.command(name='clone', description="[Модерация] Клонирует чат.")
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
-    @app_commands.describe(delete_original="Удалять ли клонируемый канал?", reason="Причина клонирования")
+    @app_commands.describe(
+        delete_original="Удалять ли клонируемый канал?",
+        clone_channel="Канал для клонирования. По умолчанию - канал, в котором Вы пишите команду",
+        reason="Причина клонирования"
+    )
     async def clone(
         self, 
-        interaction: discord.Interaction, 
-        reason: app_commands.Range[str, None, 512], 
+        interaction: discord.Interaction,
+        clone_channel: Optional[discord.abc.GuildChannel],  
+        reason: app_commands.Range[str, None, 512] = "Не указана", 
         delete_original: bool = False
     ):
         if interaction.guild is None:
@@ -508,23 +515,25 @@ class Moderation(commands.Cog):
                 description="Извините, но данная команда недоступна в личных сообщениях!"
             ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if isinstance(interaction.channel, discord.Thread):
+        
+        clone_channel = clone_channel or interaction.channel
+        if isinstance(clone_channel, discord.Thread):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
-                description="Данная команда недоступна в ветках!"
+                description="Данная команда недоступна с ветками!"
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
                 title="Ошибка!", 
                 color=discord.Color.red(), 
-                description="У вас отсутствует право `управление каналами` для использования команды."
+                description="У вас отсутствует право `управление каналами` на сервере для использования команды."
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         try:
-            cloned = await interaction.channel.clone(reason=f"{reason} // {interaction.user}")
+            cloned = await clone_channel.clone(reason=f"{reason} // {interaction.user}")
         except Forbidden:
             embed = discord.Embed(
                 title="Ошибка!", 
@@ -535,7 +544,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
             await cloned.move(
-                after=discord.Object(id=interaction.channel.id), 
+                after=discord.Object(id=clone_channel.id), 
                 reason=f"Клонирование // {interaction.user}"
             )
             embed = discord.Embed(
@@ -546,7 +555,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             if delete_original:
                 await sleep(10)
-                await interaction.channel.delete(
+                await clone_channel.delete(
                     reason=f"Использование команды // {interaction.user}"
                 )
 

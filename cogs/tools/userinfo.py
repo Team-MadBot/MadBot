@@ -199,7 +199,9 @@ class UserInfo(commands.Cog):
                 userinfo=member,
                 default_embed=embed
             )
-            embed.author.name += " - Главная"
+            embed.set_author(
+                name="Информация о пользователе - Главная"
+            )
  
         await interaction.response.send_message(
             embed=embed, 

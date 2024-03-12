@@ -118,12 +118,14 @@ class UserInfo(commands.Cog):
         if member.bot:
             badges.append(enums.Badges.BOT.value)
 
+        if len(badges) != 0:
+            embed.add_field(
+                name="Значки",
+                value=" ".join(badges) if not interaction.guild or interaction.channel.permissions_for(
+                    interaction.guild.me).use_external_emojis else "Отсутствуют права на использование сторонних эмодзи!",
+                inline=False
+            )
         embed.add_field(
-            name="Значки",
-            value=" ".join(badges) if not interaction.guild or interaction.channel.permissions_for(
-                interaction.guild.me).use_external_emojis else "Отсутствуют права на использование сторонних эмодзи!",
-            inline=False
-        ).add_field(
             name="Упоминание",
             value=member.mention,
             inline=False

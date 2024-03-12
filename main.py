@@ -262,8 +262,6 @@ if __name__ == '__main__':
         dest="db_suffix"
     )
     args = parser.parse_args()
-    config.settings['debug_mode'] = args.debug_mode
-    config.settings['db_suffix'] = args.db_suffix
     logger.info("Подключение к Discord...")
     boticord_logger = logging.getLogger("boticord.websocket")
     boticord_logger.setLevel(logging.DEBUG if args.debug_mode else logging.INFO)

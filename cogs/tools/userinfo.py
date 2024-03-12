@@ -101,7 +101,7 @@ class UserInfo(commands.Cog):
 
         if await checks.is_in_blacklist(member.id):
             badges.append(enums.Badges.BANNED.value)
-        if await checks.is_premium(member.id):
+        if (await checks.is_premium(member.id)) != 'None':
             badges.append(enums.Badges.PREMIUM.value)
         if member.id == settings["owner_id"]:
             badges.append(enums.Badges.BOT_OWNER.value)

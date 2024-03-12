@@ -12,6 +12,7 @@ __VERSION__ = "1.2.2"
 class __Settings(TypedDict):
     min_members: int
     debug_mode: bool
+    db_suffix: str
     token: str
     app_id: int
     weather_key: str
@@ -40,6 +41,7 @@ class __Settings(TypedDict):
 settings: __Settings = {
     'min_members': 10,
     'debug_mode': False,
+    'db_suffix': "",
     'token': os.environ.get("TOKEN"),
     'app_id': int(os.environ.get("APP_ID")), # type: ignore
     'weather_key': os.environ.get("WEATHER_TOKEN"),

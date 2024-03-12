@@ -96,7 +96,7 @@ class UserInfo(commands.Cog):
         ).set_thumbnail(
             url=member.display_avatar.url
         ).set_author(
-            name="Информация о пользователе - Главная"
+            name="Информация о пользователе"
         )
 
         if await checks.is_in_blacklist(member.id):
@@ -199,6 +199,7 @@ class UserInfo(commands.Cog):
                 userinfo=member,
                 default_embed=embed
             )
+            embed.author.name += " - Главная"
  
         await interaction.response.send_message(
             embed=embed, 

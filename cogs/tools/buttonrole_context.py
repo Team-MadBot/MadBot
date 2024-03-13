@@ -32,6 +32,13 @@ class ButtonRoleContextCog(commands.Cog):
 
     @app_commands.guild_only()
     async def buttonrolecontext(self, interaction: discord.Interaction, message: discord.Message):
+        if not interaction.permissions.manage_roles:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Необходимо право на управление ролями для использования данной контекстной команды!"
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         if message.author.id != self.bot.user.id or message.components == []:
             embed = discord.Embed(
                 title="Ошибка!",

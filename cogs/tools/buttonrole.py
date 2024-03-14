@@ -1,5 +1,4 @@
 import discord
-import config
 
 from discord import app_commands
 from discord.ext import commands
@@ -260,12 +259,6 @@ class ButtonRole(commands.Cog):
                     )
                     return await viewinteract.response.edit_message(embed=embed, view=None)
                 
-                log_channel = self.bot.get_channel(config.settings['log_channel'])
-                await log_channel.send(
-                    content=f"`{interaction.user}` на сервере `{interaction.guild.name}` создал выдачу ролей! Созданный эмбед:", 
-                    embed=user_embed
-                )
-
                 embed = discord.Embed(
                     title="Успешно!",
                     color=discord.Color.green(),

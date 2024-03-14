@@ -44,7 +44,8 @@ class UserInfoView(discord.ui.View):
                 emoji="👮",
                 value="permissions"
             )
-        ]
+        ],
+        placeholder="Информация..."
     )
     async def option_select(self, interaction: discord.Interaction, select: discord.ui.Select):
         value = select.values[0]

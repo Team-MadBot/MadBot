@@ -63,14 +63,14 @@ class UserInfoView(discord.ui.View):
                 text=self.default_embed.footer.text
             ).add_field(
                 name="Права на сервере",
-                value="- " + "\n- ".join(
+                value="- " + "\n- ".join( # dangerous: 1024 symbols limit warning
                     perm for perm, value in PermissionsParser.parse_permissions(
                         self.userinfo.guild_permissions
                     ).items() if value
                 ).capitalize()[:1022]
             ).add_field(
                 name="Права в канале",
-                value="- " + "\n- ".join(
+                value="- " + "\n- ".join( # dangerous: 1024 symbols limit warning
                     perm for perm, value in PermissionsParser.parse_permissions(
                         interaction.channel.permissions_for(self.userinfo)
                     ).items() if value

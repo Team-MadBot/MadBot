@@ -22,7 +22,7 @@ class AutoroleCog(commands.Cog):
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def autorole(self, interaction: discord.Interaction, role: typing.Optional[discord.Role]):
         loader = FluentResourceLoader("locales/{locale}")
-        l10n = FluentLocalization(["ru"], ["main.ftl", "texts.ftl", "commands.ftl"], loader)
+        l10n = FluentLocalization(["ru"], ["main.ftl", "texts.ftl", "commands.ftl"], loader)  # FIXME: move it out to config?
         if interaction.guild is None:
             embed = discord.Embed(title=l10n.format_value("error_title"), color=discord.Color.red(), description=l10n.format_value("guild_only_error"))
             embed.set_thumbnail(url=interaction.user.display_avatar.url)

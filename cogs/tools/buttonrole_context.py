@@ -43,7 +43,7 @@ class ButtonRoleEditRolesView(ui.View):
         self.selected_roles: list[discord.Role] | None = None
         self.interaction: discord.Interaction | None = None
 
-    @ui.button(label="Пропустить")
+    @ui.button(label="Пропустить", row=1)
     async def skip_button(self, interaction: discord.Interaction, _: ui.Button):
         self.interaction = interaction
         self.stop()
@@ -78,7 +78,7 @@ class ButtonRoleEditEmbedView(ui.View):
         self.embed_title = embed_title
         self.embed_description = embed_description
         self.embed_color = embed_color
-        self.responded = False
+        self.interaction: discord.Interaction | None = None
 
     @ui.button(label="Изменить эмбед", style=discord.ButtonStyle.green)
     async def edit_embed_button(self, interaction: discord.Interaction, _: ui.Button):
@@ -90,11 +90,73 @@ class ButtonRoleEditEmbedView(ui.View):
         await modal.wait()
         if modal.interaction is None:
             return
-        self.responded = True
+        
+        if modal.embed_color.value is not None:
+            try:
+                discord.Color.from_str(modal.embed_color.value)
+            except ValueError:
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description="Введённое значение цвета некорректно!"
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        self.interaction = modal.interaction
         self.embed_title = modal.embed_title.value or self.embed_title
         self.embed_description = modal.embed_description.value or self.embed_description
         self.embed_color = modal.embed_color.value or self.embed_color
         self.stop()
+
+    @ui.button(label="Пропустить", row=1)
+    async def skip_button(self, interaction: discord.Interaction, _: ui.Button):
+        self.interaction = interaction
+        self.stop()
+
+class ConfirmView(ui.View):
+    def __init__(self):
+        super().__init__(timeout=180)
+        self.value: bool | None = None
+        self.interaction: discord.Interaction | None = None
+    
+    @ui.button(label="Да", style=discord.ButtonStyle.green)
+    async def accept(self, interaction: discord.Interaction, _: ui.Button):
+        self.value = True
+        self.interaction = interaction
+        self.stop()
+    
+    @ui.button(label="Нет", style=discord.ButtonStyle.red)
+    async def deny(self, interaction: discord.Interaction, _: ui.Button):
+        self.value = False
+        self.interaction = interaction
+        self.stop()
+
+class ButtonRoleEditedView(ui.View):
+    def __init__(self, guild_id: int, roles: list[discord.Role]):
+        super().__init__(timeout=None)
+        if len(roles) == 1:
+            self.add_item(
+                ui.Button(
+                    style=discord.ButtonStyle.green,
+                    custom_id=str(roles[0].id),
+                    label=roles[0].name
+                )
+            )
+        else:
+            self.add_item(
+                ui.Select(
+                    custom_id=str(guild_id),
+                    placeholder="Выберите роль...",
+                    max_values=len(roles),
+                    options=[
+                        discord.SelectOption(
+                            label=r.name,
+                            value=str(r.id),
+                            description="Выберите этот пункт, чтобы взять/убрать роль."
+                        ) for r in roles
+                    ]
+                )
+            )
 
 class ButtonRoleContextCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
@@ -150,7 +212,8 @@ class ButtonRoleContextCog(commands.Cog):
         if role_edit_view.interaction is None:
             return await interaction.delete_original_response()
 
-        selected_roles = role_edit_view.selected_roles or [interaction.guild.get_role(i) for i in roles if interaction.guild.get_role(i)]
+        selected_roles = role_edit_view.selected_roles or [interaction.guild.get_role(i.id) for i in roles if interaction.guild.get_role(i.id)]
+
         embed_title = message.embeds[0].title
         embed_description = message.embeds[0].description
         embed_color = str(message.embeds[0].color).upper()
@@ -160,15 +223,49 @@ class ButtonRoleContextCog(commands.Cog):
             embed_color=embed_color
         )
         embed = discord.Embed(
-            title="Изменение выдчи - Изменение эмбеда",
+            title="Изменение выдачи - Изменение эмбеда",
             color=discord.Color.orange(),
             description="Теперь Вам предстоит изменить сообщение, которое видят пользователи. Если Вы не заполните какое-то поле - это поле изменено не будет. "
             "Если Вы хотите пропустить этот этап - нажмите кнопку \"Пропустить\"."
         ).set_footer(text="Этап 2/3")
         await role_edit_view.interaction.response.edit_message(embed=embed, view=embed_edit_view)
         await embed_edit_view.wait()
-        if not embed_edit_view.responded:
+
+        if not embed_edit_view.interaction:
             return await role_edit_view.interaction.delete_original_response()
+
+        buttonrole_embed = discord.Embed(
+            title=embed_edit_view.embed_title,
+            color=discord.Color.from_str(embed_edit_view.embed_color),
+            description=embed_edit_view.embed_description
+        ).set_footer(text=f"Изменено: {str(interaction.user)}", icon_url=interaction.user.display_avatar.url)
+        embed = discord.Embed(
+            title="Изменение выдачи - Подтверждение",
+            color=discord.Color.orange(),
+            description="Финальный штрих! Подтвердите изменённые параметры. Предпросмотр находится выше."
+        ).set_footer(
+            text="Этап 3/3"
+        ).add_field(
+            name="Роли для выдачи",
+            value=", ".join(i.mention for i in selected_roles)
+        )
+        confirm_view = ConfirmView()
+        await embed_edit_view.interaction.response.edit_message(embeds=[buttonrole_embed, embed], view=confirm_view)
+        await confirm_view.wait()
+
+        if not confirm_view.value:
+            return await embed_edit_view.interaction.delete_original_response()
+
+        await message.edit(
+            embed=buttonrole_embed, 
+            view=ButtonRoleEditedView(interaction.guild.id, selected_roles)
+        )
+        embed = discord.Embed(
+            title="Успешно!",
+            color=discord.Color.green(),
+            description="Вы успешно изменили выдачу ролей!"
+        )
+        await confirm_view.interaction.response.edit_message(embed=embed, view=None)
 
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(ButtonRoleContextCog(bot))

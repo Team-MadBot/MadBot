@@ -75,8 +75,7 @@ started_at = int( # Время запуска бота. Не изменять.
 
 cogs_ignore: list[str] = [ # список игнорируемых cog'ов.
     "cogs/risticks_api.py",
-    "cogs/bc_api.py",
-    "cogs/buttonrole_context.py"
+    "cogs/bc_api.py"
 ]
 
 blacklist = [ # done

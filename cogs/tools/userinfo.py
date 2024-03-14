@@ -50,6 +50,12 @@ class UserInfoView(discord.ui.View):
         response_embed = self.default_embed
 
         if value == "permissions":
+            embed = discord.Embed(
+                title="В разработке",
+                color=discord.Color.red(),
+                description="Данное меню ещё не готово полностью, но будет скоро добавлено со следующей версией бота."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
             response_embed = discord.Embed(
                 title=self.default_embed.title,
                 color=discord.Color.orange(),

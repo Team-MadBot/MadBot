@@ -1,6 +1,6 @@
-from . import mongo_db as db
-
 from typing import Optional
+
+from . import mongo_db as db
 
 async def get_guild_autorole(guild_id: int) -> Optional[int]:
     """
@@ -14,7 +14,8 @@ async def get_guild_autorole(guild_id: int) -> Optional[int]:
     """
     coll = db.autorole
     autorole = await coll.find_one({'guild_id': str(guild_id)})
-    if autorole is not None: autorole = int(autorole['role_id'])
+    if autorole is not None:
+        autorole = int(autorole['role_id'])
     return autorole
 
 async def add_guild_autorole(guild_id: int, role_id: int) -> bool:

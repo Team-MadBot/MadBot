@@ -1,6 +1,6 @@
-from . import client as mongo_client  # type: ignore
+from . import client as mongo_client
 
-db = mongo_client.stats  # type: ignore
+db = mongo_client.stats
 
 async def add_guild_stats(
     guild_id: int,

@@ -1,6 +1,6 @@
-from . import mongo_db as db
-
 from typing import Optional
+
+from . import mongo_db as db
 
 def get_all_blacklist():
     coll = db.blacklist
@@ -11,7 +11,7 @@ async def get_blacklist(resource_id: int) -> Optional[dict]:
     return await coll.find_one({"resource_id": str(resource_id)})
 
 async def add_blacklist(
-    resource_id: int, 
+    resource_id: int,
     moderator_id: int,
     reason: Optional[str] = None,
     until: Optional[int] = None

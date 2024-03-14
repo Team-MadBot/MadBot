@@ -1,11 +1,9 @@
 import time
 
-from . import mongo_db as db
-
 from typing import (
     Optional,
-    List
 )
+from . import mongo_db as db
 
 async def get_marries(guild_id: int, user_id: int) -> Optional[dict]:
     """
@@ -16,7 +14,15 @@ async def get_marries(guild_id: int, user_id: int) -> Optional[dict]:
     - `user_id` - ID of the user.
     """
     coll = db.marries
-    return await coll.find_one({'guild_id': guild_id, "$or": [{'user_id': user_id}, {'married_id': user_id}]})
+    return await coll.find_one(
+        {
+            'guild_id': guild_id, 
+            "$or": [
+                {'user_id': user_id},
+                {'married_id': user_id}
+            ]
+        }
+    )
 
 def get_all_marries(guild_id: int):
     """
@@ -42,7 +48,14 @@ async def marry(guild_id: int, user_id: int, married_id: int) -> bool:
         {'guild_id': guild_id, "$or": [{'married_id': user_id}]}
     ) is not None:
         return False
-    await coll.insert_one({"guild_id": guild_id, "user_id": user_id, "married_id": married_id, 'dt': round(time.time())})
+    await coll.insert_one(
+        {
+            "guild_id": guild_id, 
+            "user_id": user_id, 
+            "married_id": married_id, 
+            "dt": round(time.time())
+        }
+    )
     return True
 
 async def divorce(guild_id: int, user_id: int) -> bool:
@@ -54,7 +67,24 @@ async def divorce(guild_id: int, user_id: int) -> bool:
     - `user_id` - ID of the user.
     """
     coll = db.marries
-    marries = await coll.find_one({'guild_id': guild_id, "$or": [{'user_id': user_id}, {'married_id': user_id}]})
-    if not marries: return False
-    await coll.delete_one({"guild_id": guild_id, "$or": [{"user_id": user_id}, {"married_id": user_id}]})
+    marries = await coll.find_one(
+        {
+            'guild_id': guild_id, 
+            "$or": [
+                {'user_id': user_id},
+                {'married_id': user_id}
+            ]
+        }
+    )
+    if not marries:
+        return False
+    await coll.delete_one(
+        {
+            "guild_id": guild_id, 
+            "$or": [
+                {"user_id": user_id},
+                {"married_id": user_id}
+            ]
+        }
+    )
     return True

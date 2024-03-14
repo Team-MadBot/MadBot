@@ -8,6 +8,7 @@ from discord.utils import escape_markdown
 from . import default_cooldown
 
 from tools import enums
+from tools.permissions_parser import PermissionsParser
 
 from classes import checks
 
@@ -50,30 +51,30 @@ class UserInfoView(discord.ui.View):
         response_embed = self.default_embed
 
         if value == "permissions":
-            embed = discord.Embed(
-                title="В разработке",
-                color=discord.Color.red(),
-                description="Данное меню ещё не готово полностью, но будет скоро добавлено со следующей версией бота."
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
             response_embed = discord.Embed(
                 title=self.default_embed.title,
                 color=discord.Color.orange(),
                 description=None if not self.userinfo.is_timed_out() else "**Обратите внимание:** вы видите права пользователя при его тайм-ауте."
             ).set_thumbnail(
                 url=self.default_embed.thumbnail.url
-            ).set_image(
-                url=self.default_embed.image.url
             ).set_author(
-                name="Информация о пользователе - Разрешения BETA"
+                name="Информация о пользователе - Разрешения"
             ).set_footer(
                 text=self.default_embed.footer.text
             ).add_field(
                 name="Права на сервере",
-                value=self.userinfo.guild_permissions.value
+                value="- " + "\n- ".join(
+                    perm for perm, value in PermissionsParser.parse_permissions(
+                        self.userinfo.guild_permissions
+                    ).items() if value
+                ).capitalize()[:1022]
             ).add_field(
                 name="Права в канале",
-                value=interaction.channel.permissions_for(self.userinfo).value
+                value="- " + "\n- ".join(
+                    perm for perm, value in PermissionsParser.parse_permissions(
+                        interaction.channel.permissions_for(self.userinfo)
+                    ).items() if value
+                ).capitalize()[:1022]
             )
         
         if interaction.user.id == self.init_user.id:

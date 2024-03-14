@@ -7,7 +7,7 @@ log = logging.getLogger("discord")
 
 class PermissionsParser:
     @staticmethod
-    async def parse_permissions(perms: discord.Permissions) -> tuple[str, bool]:
+    def parse_permissions(perms: discord.Permissions) -> dict[str, bool]:
         loader = FluentResourceLoader("locales/{locale}")
         l10n = FluentLocalization(["ru"], ["permissions.ftl"], loader)  # FIXME: move it out to config?
         parsed = {}

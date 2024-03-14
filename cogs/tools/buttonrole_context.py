@@ -15,6 +15,22 @@ class ButtonRoleEditRoles(ui.RoleSelect):
         )
 
     async def callback(self, interaction: discord.Interaction):
+        for i in self.values:
+            if i >= interaction.guild.me.top_role:
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description=f"Роль {i.mention} выше роли бота, поэтому бот не сможет выдать её кому-либо."
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+            if not i.is_assignable():
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description=f"Роль {i.mention} невозможно выдать. Возможно, это роль интеграции."
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+
         self.view.interaction = interaction
         self.view.selected_roles = self.values
         self.view.stop()

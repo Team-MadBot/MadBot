@@ -85,7 +85,7 @@ class ButtonRoleEditEmbedView(ui.View):
         modal = ButtonRoleEditEmbedModal()
         modal.embed_title.default = self.embed_title
         modal.embed_description.default = self.embed_description
-        modal.embed_color = self.embed_color
+        modal.embed_color.default = self.embed_color
         await interaction.response.send_modal(modal)
         await modal.wait()
         if modal.interaction is None:

@@ -71,9 +71,7 @@ settings: __Settings = {
     "github_url": os.environ.get("GITHUB_URL"),
 }
 
-started_at: Final = int( # Время запуска бота. Не изменять.
-    time.time()
-)
+started_at: Final = int(time.time())  # Время запуска бота. Не изменять.
 
 cogs_ignore: list[str] = [  # список игнорируемых cog'ов.
     "cogs/risticks_api.py",

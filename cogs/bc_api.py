@@ -13,11 +13,11 @@ from asyncio import sleep
 
 from typing import Any
 
-logger = logging.getLogger("discord")
-
 from classes.bc_websocket import BoticordWS
 from config import settings
 from classes import db
+
+logger = logging.getLogger("discord")
 
 
 class LinktoBoticord(ui.View):

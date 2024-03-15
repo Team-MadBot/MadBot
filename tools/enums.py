@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Badges(Enum):
     BANNED = "<:ban:946031802634612826>"
     PREMIUM = "<a:premium:988735181546475580>"

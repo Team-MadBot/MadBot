@@ -6,6 +6,6 @@ numexpr
 motor
 fluent.runtime
 jishaku
-python_dotenv
+python-dotenv
 distro
 asyncstdlib

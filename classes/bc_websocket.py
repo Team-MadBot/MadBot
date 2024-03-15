@@ -5,12 +5,13 @@ from contextlib import suppress
 from typing import Callable
 
 import aiohttp
-from boticordpy import BotiCordWebsocket # type: ignore
+from boticordpy import BotiCordWebsocket  # type: ignore
+
 
 class BoticordWS(BotiCordWebsocket):
     """Client for interacting with the Boticord API via websocket.
 
-    Handles connecting, sending requests, and receiving responses 
+    Handles connecting, sending requests, and receiving responses
     via the Boticord websocket API.
     """
 
@@ -33,7 +34,7 @@ class BoticordWS(BotiCordWebsocket):
 
     async def _handle_data(self, data):
         """Handles incoming data from the websocket.
-        
+
         Parses the data and dispatches events based on the event type.
         Logs any errors received.
 
@@ -43,8 +44,8 @@ class BoticordWS(BotiCordWebsocket):
         await super()._handle_data(data)
         data = json.loads(data)
 
-        if data['event'] == "error":
-            if data['data']['code'] == 6:
+        if data["event"] == "error":
+            if data["data"]["code"] == 6:
                 # Это - жирный костыль из-за офигенной системы вебсокетов Boticord.
                 # Когда система будет доработана, костыль я уберу.
                 self._logger.error("Token is invalid. Closing Websocket...")
@@ -77,7 +78,7 @@ class BoticordWS(BotiCordWebsocket):
 
     def remove_listener(self, notification_type: str):
         """Method to remove the listener
-        
+
         Args:
             notification_type (:obj:`str`)
                 Type of notification

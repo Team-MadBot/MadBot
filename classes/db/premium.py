@@ -1,14 +1,13 @@
-from . import client # type: ignore
+from . import client  # type: ignore
 
-from typing import (
-    Optional, 
-    Any
-)
+from typing import Optional, Any
+
 
 async def get_premium_user(user_id: int) -> Optional[dict[str, Any]]:
-    db = client.premium # type: ignore
-    coll = db.user # type: ignore
-    return await coll.find_one({'user_id': str(user_id)}) # type: ignore
+    db = client.premium  # type: ignore
+    coll = db.user  # type: ignore
+    return await coll.find_one({"user_id": str(user_id)})  # type: ignore
+
 
 async def give_premium(user_id: int, type: str) -> bool:
     """
@@ -20,8 +19,9 @@ async def give_premium(user_id: int, type: str) -> bool:
     """
     db = client.premium
     coll = db.user
-    await coll.insert_one({'user_id': str(user_id), 'type': type})
+    await coll.insert_one({"user_id": str(user_id), "type": type})
     return True
+
 
 async def take_premium(user_id: int) -> bool:
     """
@@ -30,10 +30,11 @@ async def take_premium(user_id: int) -> bool:
     Arguments:
     - `user_id` - ID of the user.
     """
-    db = client.premium # type: ignore
-    coll = db.user # type: ignore
-    await coll.delete_one({'user_id': str(user_id)})
+    db = client.premium  # type: ignore
+    coll = db.user  # type: ignore
+    await coll.delete_one({"user_id": str(user_id)})
     return True
+
 
 def get_premium_guilds(user_id: int):
     """
@@ -42,9 +43,10 @@ def get_premium_guilds(user_id: int):
     Arguments:
     - `user_id` - ID of the user.
     """
-    db = client.premium # type: ignore
-    coll = db.guild # type: ignore
-    return coll.find({'user_id': str(user_id)})
+    db = client.premium  # type: ignore
+    coll = db.guild  # type: ignore
+    return coll.find({"user_id": str(user_id)})
+
 
 async def get_premium_guild_info(guild_id: int) -> Optional[dict[str, Any]]:
     """
@@ -53,9 +55,10 @@ async def get_premium_guild_info(guild_id: int) -> Optional[dict[str, Any]]:
     Arguments:
     - `guild_id` - ID of the guild.
     """
-    db = client.premium # type: ignore
-    coll = db.guild # type: ignore
-    return await coll.find_one({'guild_id': str(guild_id)}) # type: ignore
+    db = client.premium  # type: ignore
+    coll = db.guild  # type: ignore
+    return await coll.find_one({"guild_id": str(guild_id)})  # type: ignore
+
 
 async def take_guild_premium(guild_id: int) -> bool:
     """
@@ -67,7 +70,7 @@ async def take_guild_premium(guild_id: int) -> bool:
     try:
         db = client.premium
         coll = db.guild
-        await coll.delete_one({'guild_id': str(guild_id)})
+        await coll.delete_one({"guild_id": str(guild_id)})
         return True
     except Exception as e:
         raise e

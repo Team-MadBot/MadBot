@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 
-from typing import TypedDict
+from typing import TypedDict, Final
 
 load_dotenv()
 
@@ -71,7 +71,9 @@ settings: __Settings = {
     "github_url": os.environ.get("GITHUB_URL"),
 }
 
-started_at = int(time.time())  # Время запуска бота. Не изменять.
+started_at: Final = int( # Время запуска бота. Не изменять.
+    time.time()
+)
 
 cogs_ignore: list[str] = [  # список игнорируемых cog'ов.
     "cogs/risticks_api.py",

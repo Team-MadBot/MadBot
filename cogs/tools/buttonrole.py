@@ -107,7 +107,7 @@ class ButtonRole(commands.Cog):
         assert isinstance(view.roles, list)
 
         selectinteract = view.interaction
-        roles = view.roles
+        roles = sorted(view.roles, key=lambda x: x.name)
 
         title = ""
         description = ""

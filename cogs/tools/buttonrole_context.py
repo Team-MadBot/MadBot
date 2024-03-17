@@ -205,7 +205,7 @@ class ButtonRoleContextCog(commands.Cog):
         component = message.components[0].children[0]
         if int(component.custom_id) not in [
             interaction.guild.id,
-            [r.id for r in interaction.guild.roles],
+            *[r.id for r in interaction.guild.roles],
         ]:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -232,11 +232,15 @@ class ButtonRoleContextCog(commands.Cog):
         if role_edit_view.interaction is None:
             return await interaction.delete_original_response()
 
-        selected_roles = role_edit_view.selected_roles or [
-            interaction.guild.get_role(i.id)
-            for i in roles
-            if interaction.guild.get_role(i.id)
-        ]
+        selected_roles = sorted(
+            role_edit_view.selected_roles
+            or [
+                interaction.guild.get_role(i.id)
+                for i in roles
+                if interaction.guild.get_role(i.id)
+            ],
+            key=lambda x: x.name,
+        )
 
         embed_title = message.embeds[0].title
         embed_description = message.embeds[0].description

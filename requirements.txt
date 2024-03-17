@@ -3,10 +3,9 @@ PyNaCl
 aiohttp
 boticordpy
 numexpr
-qrcode
 motor
 fluent.runtime
 jishaku
-python_dotenv
+python-dotenv
 distro
 asyncstdlib

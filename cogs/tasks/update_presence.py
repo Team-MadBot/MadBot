@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord.ext import tasks
 from contextlib import suppress
 
+
 class UpdatePresenceCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
@@ -24,15 +25,16 @@ class UpdatePresenceCog(commands.Cog):
                 await self.bot.change_presence(
                     activity=discord.CustomActivity(
                         name=f"Шард {shard} | "
-                        f"{rounded_count if irounded_count != rounded_count else irounded_count}k серверов"
+                        f"{f'{rounded_count if irounded_count != rounded_count else irounded_count}k' if guilds_count >= 1000 else str(guilds_count)} серверов"
                     ),
-                    status=discord.Status.dnd, 
-                    shard_id=shard
+                    status=discord.Status.dnd,
+                    shard_id=shard,
                 )
-    
+
     @update_presence.before_loop
     async def before_update_presence(self):
         await self.bot.wait_until_ready()
+
 
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(UpdatePresenceCog(bot))

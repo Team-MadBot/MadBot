@@ -1,16 +1,16 @@
 import discord
 import datetime
 
+
 class NoPerms(discord.Embed):
     def __init__(self, perm: str):
         super().__init__(
             color=discord.Color.red(),
             title="Ошибка!",
-            description=f"Вам необходимо право на `{perm}` для использования команды."
+            description=f"Вам необходимо право на `{perm}` для использования команды.",
         )
-        self.set_image(
-            url="https://http.cat/403"
-        )
+        self.set_image(url="https://http.cat/403")
+
 
 class UnknownError(discord.Embed):
     def __init__(self):
@@ -24,11 +24,9 @@ class UnknownError(discord.Embed):
                 "> `3.` Ссылка из команды `/debug`.\n"
                 "> `4.` Данный скриншот."
             ),
-            timestamp=datetime.datetime.now()
+            timestamp=datetime.datetime.now(),
         )
         self.add_field(
             name="Информация об ошибке (для понимания проблемы)",
-            value=f"Время ошибки (МСК): **{datetime.datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}**"
-        ).set_image(
-            url="https://http.cat/400"
-        )
+            value=f"Время ошибки (МСК): **{datetime.datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}**",
+        ).set_image(url="https://http.cat/400")

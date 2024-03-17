@@ -115,7 +115,7 @@ class MadBot(commands.AutoShardedBot):
     async def on_connect(self):
         await self.change_presence(
             status=discord.Status.idle,
-            activity=discord.CustomActivity(name="Перезагрузка..."),
+            activity=discord.CustomActivity(name="Перезагрузка..."[::-1]),
         )
         logger.info("Соединено! Авторизация...")
 

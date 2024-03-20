@@ -134,10 +134,12 @@ class MadBot(commands.AutoShardedBot):
         logger.info(f"Авторизация успешна! {self.user} готов к работе!")
 
         embed = discord.Embed(
-            title="Бот перезапущен!",
+            title="Бот перезапущен!"[::-1],
             color=discord.Color.red(),
-            description=f"Пинг: `{int(round(self.latency, 3) * 1000)}ms`\n"
-            f"Версия: `{config.settings['curr_version']}`",
+            description=(
+                f"Пинг: `{int(round(self.latency, 3) * 1000)}ms`\n"
+                f"Версия: `{config.settings['curr_version']}`"
+            )[::-1],
         )
         await logs.send(embed=embed)
 
@@ -168,12 +170,14 @@ class MadBot(commands.AutoShardedBot):
             guild.owner_id
         ):
             embed = discord.Embed(
-                title="Данный сервер либо владелец сервера занесен(-ы) в чёрный список бота!",
+                title="Данный сервер либо владелец сервера занесен(-ы) в чёрный список бота!"[::-1],
                 color=discord.Color.red(),
-                description="Владелец бота занёс этот сервер либо его владельца в чёрный список! "
-                f"Бот покинет этот сервер. Если вы считаете, что это ошибка, обратитесь в поддержку: "
-                f"{config.settings['support_invite']}, либо напишите владельцу лично на e-mail: "
-                "`madcat9958@gmail.com`.",
+                description=(
+                    "Владелец бота занёс этот сервер либо его владельца в чёрный список! "
+                    f"Бот покинет этот сервер. Если вы считаете, что это ошибка, обратитесь в поддержку: "
+                    f"{config.settings['support_invite']}, либо напишите владельцу лично на e-mail: "
+                    "`madcat9958@gmail.com`."
+                )[::-1],
                 timestamp=datetime.datetime.now(),
             ).set_thumbnail(url=guild.icon.url if guild.icon is not None else None)
             with suppress(Exception):

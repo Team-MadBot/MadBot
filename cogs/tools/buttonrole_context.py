@@ -203,9 +203,9 @@ class ButtonRoleContextCog(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         component = message.components[0].children[0]
-        if int(component.custom_id) not in [
-            interaction.guild.id,
-            *[r.id for r in interaction.guild.roles],
+        if component.custom_id not in [
+            str(interaction.guild.id),
+            *[str(r.id) for r in interaction.guild.roles],
         ]:
             embed = discord.Embed(
                 title="Ошибка!",

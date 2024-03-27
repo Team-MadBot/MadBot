@@ -195,7 +195,7 @@ class ButtonRoleContextCog(commands.Cog):
                 description="Бот не имеет права на управление ролями, чтобы выдача работала корректно!",
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-        if message.author.id != self.bot.user.id or message.components == []:
+        if message.author.id != self.bot.user.id or len(message.components) != 1:
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -203,9 +203,9 @@ class ButtonRoleContextCog(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         component = message.components[0].children[0]
-        if int(component.custom_id) not in [
-            interaction.guild.id,
-            *[r.id for r in interaction.guild.roles],
+        if component.custom_id not in [
+            str(interaction.guild.id),
+            *[str(r.id) for r in interaction.guild.roles],
         ]:
             embed = discord.Embed(
                 title="Ошибка!",

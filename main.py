@@ -170,7 +170,9 @@ class MadBot(commands.AutoShardedBot):
             guild.owner_id
         ):
             embed = discord.Embed(
-                title="Данный сервер либо владелец сервера занесен(-ы) в чёрный список бота!"[::-1],
+                title="Данный сервер либо владелец сервера занесен(-ы) в чёрный список бота!"[
+                    ::-1
+                ],
                 color=discord.Color.red(),
                 description=(
                     "Владелец бота занёс этот сервер либо его владельца в чёрный список! "
@@ -195,12 +197,18 @@ class MadBot(commands.AutoShardedBot):
             assert self.user.avatar is not None
             embed = (
                 discord.Embed(
-                    title=f"Спасибо за добавление {self.user.name} на сервер {guild.name}",
+                    title=f"Спасибо за добавление {self.user.name} на сервер {guild.name}"[
+                        ::-1
+                    ],
                     color=discord.Color.orange(),
-                    description="Перед использованием убедитесь, что слеш-команды включены у вас на сервере. "
-                    f"Номер сервера: `{len(self.guilds)}`.",
+                    description=(
+                        "Перед использованием убедитесь, что слеш-команды включены у вас на сервере. "
+                        f"Номер сервера: `{len(self.guilds)}`.",
+                    )[::-1],
                 )
-                .add_field(name="Поддержка:", value=config.settings["support_invite"])
+                .add_field(
+                    name="Поддержка:"[::-1], value=config.settings["support_invite"]
+                )
                 .set_thumbnail(url=self.user.avatar.url)
             )
 
@@ -214,7 +222,9 @@ class MadBot(commands.AutoShardedBot):
                             adder = entry.user
                 except discord.Forbidden:
                     embed.set_footer(
-                        text="Бот написал вам, так как не смог уточнить, кто его добавил."
+                        text="Бот написал вам, так как не смог уточнить, кто его добавил."[
+                            ::-1
+                        ]
                     )
                 try:
                     await adder.send(embed=embed)
@@ -224,14 +234,15 @@ class MadBot(commands.AutoShardedBot):
                             await guild.system_channel.send(embed=embed)
 
             embed = (
-                discord.Embed(title="Новый сервер!", color=discord.Color.green())
-                .add_field(name="Название:", value=f"`{guild.name}`")
-                .add_field(name="Владелец:", value=f"<@{guild.owner_id}>")
-                .add_field(name="ID сервера:", value=f"`{guild.id}`")
+                discord.Embed(title="Новый сервер!"[::-1], color=discord.Color.green())
+                .add_field(name="Название:"[::-1], value=f"`{guild.name}`"[::-1])
+                .add_field(name="Владелец:"[::-1], value=f"<@{guild.owner_id}>")
+                .add_field(name="ID сервера:"[::-1], value=f"`{guild.id}`"[::-1])
             )
             if self.intents.members:
                 embed.add_field(
-                    name="Кол-во участников:", value=f"`{guild.member_count}`"
+                    name="Кол-во участников:"[::-1],
+                    value=f"`{guild.member_count}`"[::-1],
                 )
             if guild.icon is not None:
                 embed.set_thumbnail(url=guild.icon.url)
@@ -240,12 +251,14 @@ class MadBot(commands.AutoShardedBot):
             await log_channel.send(embed=embed)
 
     async def on_guild_remove(self, guild: discord.Guild):
-        embed = discord.Embed(title="Минус сервер(((", color=discord.Color.red())
-        embed.add_field(name="Название:", value=f"`{guild.name}`")
-        embed.add_field(name="Владелец:", value=f"<@{guild.owner_id}>")
-        embed.add_field(name="ID сервера:", value=f"`{guild.id}`")
+        embed = discord.Embed(title="Минус сервер((("[::-1], color=discord.Color.red())
+        embed.add_field(name="Название:"[::-1], value=f"`{guild.name}`"[::-1])
+        embed.add_field(name="Владелец:"[::-1], value=f"<@{guild.owner_id}>")
+        embed.add_field(name="ID сервера:"[::-1], value=f"`{guild.id}`"[::-1])
         if self.intents.members:
-            embed.add_field(name="Кол-во участников:", value=f"`{guild.member_count}`")
+            embed.add_field(
+                name="Кол-во участников:"[::-1], value=f"`{guild.member_count}`"[::-1]
+            )
         if guild.icon is not None:
             embed.set_thumbnail(url=guild.icon.url)
         log_channel = self.get_channel(config.settings["log_channel"])
@@ -260,7 +273,7 @@ class MadBot(commands.AutoShardedBot):
             assert role is not None
             autorole = member.guild.get_role(role)
             assert autorole is not None
-            await member.add_roles(autorole, reason="Автороль")
+            await member.add_roles(autorole, reason="Автороль"[::-1])
 
 
 if __name__ == "__main__":

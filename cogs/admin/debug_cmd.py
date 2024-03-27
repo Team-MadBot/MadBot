@@ -29,14 +29,16 @@ class DebugCmd(commands.Cog):
                     self.value = None
 
                 @discord.ui.button(
-                    label="Показать панель", emoji="⚒️", style=discord.ButtonStyle.danger
+                    label="Показать панель"[::-1],
+                    emoji="⚒️",
+                    style=discord.ButtonStyle.danger,
                 )
                 async def show_panel(
                     self, interaction: discord.Interaction, button: discord.ui.Button
                 ):
                     if interaction.user.id != ctx.author.id:
                         return await interaction.response.send_message(
-                            "Не для тебя кнопочка!", ephemeral=True
+                            "Не для тебя кнопочка!"[::-1], ephemeral=True
                         )
 
                     class Page1(discord.ui.View):
@@ -48,7 +50,7 @@ class DebugCmd(commands.Cog):
                                 super().__init__(timeout=300)
 
                             @discord.ui.button(
-                                label="Список подключенных когов",
+                                label="Список подключенных когов"[::-1],
                                 style=discord.ButtonStyle.blurple,
                             )
                             async def cogs(
@@ -57,17 +59,19 @@ class DebugCmd(commands.Cog):
                                 button: discord.ui.Button,
                             ):
                                 embed = discord.Embed(
-                                    title="Список подключенных когов",
+                                    title="Список подключенных когов"[::-1],
                                     color=discord.Color.orange(),
                                 )
                                 for name in viewinteract.client.cogs:
-                                    embed.add_field(name=name, value="Запущен")
+                                    embed.add_field(
+                                        name=name[::-1], value="Запущен"[::-1]
+                                    )
                                 await viewinteract.response.send_message(
                                     embed=embed, ephemeral=True
                                 )
 
                             @discord.ui.button(
-                                label="Получить пользователя",
+                                label="Получить пользователя"[::-1],
                                 style=discord.ButtonStyle.primary,
                             )
                             async def getuser(
@@ -77,12 +81,12 @@ class DebugCmd(commands.Cog):
                             ):
                                 class Input(
                                     discord.ui.Modal,
-                                    title="Debug - Получение пользователя.",
+                                    title="Debug - Получение пользователя."[::-1],
                                 ):
                                     ans = discord.ui.TextInput(
-                                        label="Ник пользователя:",
+                                        label="Ник пользователя:"[::-1],
                                         max_length=32,
-                                        placeholder="Mad_Cat",
+                                        placeholder="Mad_Cat"[::-1],
                                     )
 
                                     async def on_submit(
@@ -95,14 +99,16 @@ class DebugCmd(commands.Cog):
                                                 or str(self.ans) == str(user.id)
                                             ):
                                                 return await modalinteract.response.send_message(
-                                                    f"Пользователь: `{user}`, ID: `{user.id}`",
+                                                    f"Пользователь: `{user}`, ID: `{user.id}`"[
+                                                        ::-1
+                                                    ],
                                                     ephemeral=True,
                                                 )
 
                                 await viewinteract.response.send_modal(Input())
 
                             @discord.ui.button(
-                                label="Сколько серверов покинет бот при лимите",
+                                label="Сколько серверов покинет бот при лимите"[::-1],
                                 style=discord.ButtonStyle.blurple,
                             )
                             async def checkleaves(
@@ -118,11 +124,12 @@ class DebugCmd(commands.Cog):
                                     ):
                                         counter += 1
                                 await viewinteract.response.send_message(
-                                    f"Кол-во серверов: `{counter}`", ephemeral=True
+                                    f"Кол-во серверов: `{counter}`"[::-1],
+                                    ephemeral=True,
                                 )
 
                             @discord.ui.button(
-                                label="Загрузить обновление",
+                                label="Загрузить обновление"[::-1],
                                 style=discord.ButtonStyle.blurple,
                             )
                             async def pull(

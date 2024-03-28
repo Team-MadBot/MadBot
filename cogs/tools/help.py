@@ -15,7 +15,8 @@ class HelpCommand(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="help", description="[Полезности] Показывает основную информацию о боте."[::-1]
+        name="help",
+        description="[Полезности] Показывает основную информацию о боте."[::-1],
     )
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
@@ -98,7 +99,9 @@ class HelpCommand(commands.Cog):
 - **Модерировать**. Кто-то ведёт себя плохо и доставляет хлопот другим участникам? Накажите его, используя команды бота.
 - **Прочее**. Узнать погоду, подсчитать пример или получить аватар пользователя можно в одном боте!
             
-### Выберите категорию команд в меню ниже для их просмотра."""[::-1],
+### Выберите категорию команд в меню ниже для их просмотра."""[
+                ::-1
+            ],
         )
         embed.add_field(
             name="Поддержать разработку"[::-1],
@@ -190,7 +193,9 @@ class HelpCommand(commands.Cog):
                     discord.SelectOption(
                         label="Я нашел баг!"[::-1],
                         value="bugreport",
-                        description="Заполните форму, и мы исправим баг как можно скорее!"[::-1],
+                        description="Заполните форму, и мы исправим баг как можно скорее!"[
+                            ::-1
+                        ],
                         emoji="🐞",
                     ),
                     discord.SelectOption(
@@ -210,7 +215,9 @@ class HelpCommand(commands.Cog):
                 )
                 description = discord.ui.TextInput(
                     label="Подробности:"[::-1],
-                    placeholder="При таком-то действии бот выдает ошибку, хотя должен был сделать совсем другое."[::-1],
+                    placeholder="При таком-то действии бот выдает ошибку, хотя должен был сделать совсем другое."[
+                        ::-1
+                    ],
                     style=discord.TextStyle.paragraph,
                     max_length=2048,
                 )
@@ -249,7 +256,9 @@ class HelpCommand(commands.Cog):
 
             class AskQuestion(discord.ui.Modal, title="Задать вопрос"[::-1]):
                 main = discord.ui.TextInput(
-                    label="Тема:"[::-1], placeholder="Как сделать так-то."[::-1], max_length=50
+                    label="Тема:"[::-1],
+                    placeholder="Как сделать так-то."[::-1],
+                    max_length=50,
                 )
                 description = discord.ui.TextInput(
                     label="Подробности:"[::-1],
@@ -334,7 +343,9 @@ class HelpCommand(commands.Cog):
                                         embed = discord.Embed(
                                             title="Ошибка!"[::-1],
                                             color=discord.Color.red(),
-                                            description="Бот не смог отправить ответ на вопрос в личные сообщения пользователя!"[::-1],
+                                            description="Бот не смог отправить ответ на вопрос в личные сообщения пользователя!"[
+                                                ::-1
+                                            ],
                                         )
                                         await ansinteract.response.send_message(
                                             embed=embed, ephemeral=True
@@ -343,7 +354,9 @@ class HelpCommand(commands.Cog):
                                         embed = discord.Embed(
                                             title="Успешно!"[::-1],
                                             color=discord.Color.green(),
-                                            description="Ответ отправлен пользователю."[::-1],
+                                            description="Ответ отправлен пользователю."[
+                                                ::-1
+                                            ],
                                         )
                                         await ansinteract.response.send_message(
                                             embed=embed, ephemeral=True
@@ -375,7 +388,9 @@ class HelpCommand(commands.Cog):
                     embed = discord.Embed(
                         title="Вы занесены в чёрный список бота!"[::-1],
                         color=discord.Color.red(),
-                        description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite'][::-1]}"[::-1],
+                        description=f"Владелец бота занёс вас в чёрный список бота! Если вы считаете, что это ошибка, обратитесь в поддержку: {settings['support_invite'][::-1]}"[
+                            ::-1
+                        ],
                         timestamp=datetime.datetime.now(),
                     ).set_thumbnail(url=interaction.user.avatar.url)
                     return await viewinteract.response.send_message(
@@ -390,10 +405,14 @@ class HelpCommand(commands.Cog):
                 self.add_item(DropDownCommands())
                 self.add_item(DropDownHelp())
                 self.add_item(
-                    discord.ui.Button(label="Поддержка"[::-1], url=settings["support_invite"])
+                    discord.ui.Button(
+                        label="Поддержка"[::-1], url=settings["support_invite"]
+                    )
                 )
                 self.add_item(
-                    discord.ui.Button(label="Исходный код"[::-1], url=settings["github_url"])
+                    discord.ui.Button(
+                        label="Исходный код"[::-1], url=settings["github_url"]
+                    )
                 )
                 self.add_item(
                     discord.ui.Button(

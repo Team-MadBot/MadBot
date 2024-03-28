@@ -28,7 +28,9 @@ class ServerInfo(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -56,7 +58,9 @@ class ServerInfo(commands.Cog):
                 inline=False,
             )
         embed.add_field(
-            name="Владелец"[::-1], value=f"<@!{interaction.guild.owner_id}>", inline=True
+            name="Владелец"[::-1],
+            value=f"<@!{interaction.guild.owner_id}>",
+            inline=True,
         ).add_field(
             name="Стандартный режим получения уведомлений"[::-1],
             value=(
@@ -68,10 +72,14 @@ class ServerInfo(commands.Cog):
             inline=True,
         ).add_field(
             name="Кол-во каналов"[::-1],
-            value=f"{len(interaction.guild.channels) - len(interaction.guild.categories)}"[::-1],
+            value=f"{len(interaction.guild.channels) - len(interaction.guild.categories)}"[
+                ::-1
+            ],
             inline=True,
         ).add_field(
-            name="Категорий"[::-1], value=f"{len(interaction.guild.categories)}"[::-1], inline=True
+            name="Категорий"[::-1],
+            value=f"{len(interaction.guild.categories)}"[::-1],
+            inline=True,
         ).add_field(
             name="Текстовых каналов"[::-1],
             value=f"{len(interaction.guild.text_channels)}"[::-1],
@@ -81,10 +89,14 @@ class ServerInfo(commands.Cog):
             value=f"{len(interaction.guild.voice_channels)}"[::-1],
             inline=True,
         ).add_field(
-            name="Трибун"[::-1], value=f"{len(interaction.guild.stage_channels)}"[::-1], inline=True
+            name="Трибун"[::-1],
+            value=f"{len(interaction.guild.stage_channels)}"[::-1],
+            inline=True,
         ).add_field(
             name="Кол-во эмодзи"[::-1],
-            value=f"{len(interaction.guild.emojis)}/{interaction.guild.emoji_limit * 2}"[::-1],
+            value=f"{len(interaction.guild.emojis)}/{interaction.guild.emoji_limit * 2}"[
+                ::-1
+            ],
             inline=True,
         )
         verification_level = ""

@@ -12,7 +12,8 @@ class GetDebugCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="debug", description="[Полезности] Запрос основной информации о боте."[::-1]
+        name="debug",
+        description="[Полезности] Запрос основной информации о боте."[::-1],
     )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -64,11 +65,14 @@ class GetDebugCog(commands.Cog):
         embed = (
             discord.Embed(title="Отладка"[::-1], color=discord.Color.orange())
             .add_field(
-                name="Права бота"[::-1], value=get_permissions(bot_member.guild_permissions)[::-1]
+                name="Права бота"[::-1],
+                value=get_permissions(bot_member.guild_permissions)[::-1],
             )
             .add_field(
                 name="Права в этом канале"[::-1],
-                value=get_permissions(interaction.channel.permissions_for(bot_member))[::-1],
+                value=get_permissions(interaction.channel.permissions_for(bot_member))[
+                    ::-1
+                ],
             )
             .add_field(
                 name="Информация о сервере"[::-1],
@@ -81,14 +85,18 @@ class GetDebugCog(commands.Cog):
             )
             .add_field(
                 name="Информация о пользователе"[::-1],
-                value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{get_vals()}`"[::-1],
+                value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{get_vals()}`"[
+                    ::-1
+                ],
             )
         )
         channel = self.bot.get_channel(config.settings["debug_channel"])
         assert isinstance(channel, discord.TextChannel)
         message = await channel.send(embed=embed)
         await interaction.response.send_message(
-            content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url[::-1]}"[::-1],
+            content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url[::-1]}"[
+                ::-1
+            ],
             embed=embed,
         )
 

@@ -35,7 +35,9 @@ class GetEmojiCog(commands.Cog):
                 embed = discord.Embed(
                     title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description="Данный эмодзи не обнаружен! Убедитесь, что бот есть на сервере, на котором есть эмодзи!"[::-1],
+                    description="Данный эмодзи не обнаружен! Убедитесь, что бот есть на сервере, на котором есть эмодзи!"[
+                        ::-1
+                    ],
                 )
                 return await interaction.response.send_message(
                     embed=embed, ephemeral=True
@@ -47,7 +49,8 @@ class GetEmojiCog(commands.Cog):
             )
             embed.add_field(name="Название:"[::-1], value=f"```\n{emoji.name}```"[::-1])
             embed.add_field(
-                name="Вид без форматирования:"[::-1], value=f"```\n{str(emoji)}```"[::-1]
+                name="Вид без форматирования:"[::-1],
+                value=f"```\n{str(emoji)}```"[::-1],
             )
             embed.set_footer(text=f"ID: {emoji.id}"[::-1])
             embed.set_thumbnail(url=emoji.url)
@@ -59,7 +62,9 @@ class GetEmojiCog(commands.Cog):
                 embed = discord.Embed(
                     title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description="Данный эмодзи не обнаружен! Убедитесь, что бот есть на сервере, на котором есть эмодзи!"[::-1],
+                    description="Данный эмодзи не обнаружен! Убедитесь, что бот есть на сервере, на котором есть эмодзи!"[
+                        ::-1
+                    ],
                 )
                 return await interaction.response.send_message(
                     embed=embed, ephemeral=True
@@ -71,7 +76,8 @@ class GetEmojiCog(commands.Cog):
             )
             embed.add_field(name="Название:"[::-1], value=f"```\n{emoji.name}```"[::-1])
             embed.add_field(
-                name="Вид без форматирования:"[::-1], value=f"```\n{str(emoji)}```"[::-1]
+                name="Вид без форматирования:"[::-1],
+                value=f"```\n{str(emoji)}```"[::-1],
             )
             embed.set_footer(text=f"ID: {emoji.id}"[::-1])
             embed.set_thumbnail(url=emoji.url)
@@ -93,15 +99,20 @@ class GetEmojiCog(commands.Cog):
                         color=discord.Color.orange(),
                         description=f"[{'Скачать'[::-1]}]({emoji.url})",
                     )
-                    embed.add_field(name="Название:"[::-1], value=f"```\n{emoji.name}```"[::-1])
                     embed.add_field(
-                        name="Вид без форматирования:"[::-1], value=f"```\n{str(emoji)}```"[::-1]
+                        name="Название:"[::-1], value=f"```\n{emoji.name}```"[::-1]
+                    )
+                    embed.add_field(
+                        name="Вид без форматирования:"[::-1],
+                        value=f"```\n{str(emoji)}```"[::-1],
                     )
                     embed.set_footer(text=f"ID: {emoji.id}"[::-1])
                     embed.set_thumbnail(url=emoji.url)
                     if len(embeds) == 9:
                         embed.set_footer(
-                            text="Это максимальное кол-во эмодзи, которое может быть выведено за раз."[::-1]
+                            text="Это максимальное кол-во эмодзи, которое может быть выведено за раз."[
+                                ::-1
+                            ]
                         )
                     if len(embeds) != 10:
                         embeds.append(embed)
@@ -109,7 +120,9 @@ class GetEmojiCog(commands.Cog):
                     embed = discord.Embed(
                         title="Ошибка!"[::-1],
                         color=discord.Color.red(),
-                        description=f"Бот не имеет доступа к файлу эмодзи.\nТип ошибки: `Forbidden`."[::-1],
+                        description=f"Бот не имеет доступа к файлу эмодзи.\nТип ошибки: `Forbidden`."[
+                            ::-1
+                        ],
                     )
                     return await interaction.response.send_message(
                         embed=embed, ephemeral=True
@@ -117,7 +130,9 @@ class GetEmojiCog(commands.Cog):
         embed = discord.Embed(
             title="Ошибка!"[::-1],
             color=discord.Color.red(),
-            description=f"Эмодзи с данным именем не был обнаружен!\nТип ошибки: `NotFound`."[::-1],
+            description=f"Эмодзи с данным именем не был обнаружен!\nТип ошибки: `NotFound`."[
+                ::-1
+            ],
         )
         if not len(embeds):
             return await interaction.response.send_message(embed=embed, ephemeral=True)

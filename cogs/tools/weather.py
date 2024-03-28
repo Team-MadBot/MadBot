@@ -47,7 +47,9 @@ class WeatherCog(commands.Cog):
                 embed = discord.Embed(
                     title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`"[::-1],
+                    description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`"[
+                        ::-1
+                    ],
                 )
                 logger.error(f"{json['cod']}: {json['message']}")
                 return await interaction.edit_original_response(embed=embed)
@@ -61,22 +63,32 @@ class WeatherCog(commands.Cog):
                 )
                 .add_field(
                     name="Температура:"[::-1],
-                    value=f"{int(json['main']['temp'])}°С ({int(json['main']['temp_min'])}°С / {int(json['main']['temp_max'])}°С)"[::-1],
+                    value=f"{int(json['main']['temp'])}°С ({int(json['main']['temp_min'])}°С / {int(json['main']['temp_max'])}°С)"[
+                        ::-1
+                    ],
                 )
                 .add_field(
-                    name="Ощущается как:"[::-1], value=f"{int(json['main']['feels_like'])}°С"[::-1]
+                    name="Ощущается как:"[::-1],
+                    value=f"{int(json['main']['feels_like'])}°С"[::-1],
                 )
-                .add_field(name="Влажность:"[::-1], value=f"{json['main']['humidity']}%"[::-1])
                 .add_field(
-                    name="Скорость ветра:"[::-1], value=f"{json['wind']['speed']}м/сек"[::-1]
+                    name="Влажность:"[::-1], value=f"{json['main']['humidity']}%"[::-1]
                 )
-                .add_field(name="Облачность:"[::-1], value=f"{json['clouds']['all']}%"[::-1])
+                .add_field(
+                    name="Скорость ветра:"[::-1],
+                    value=f"{json['wind']['speed']}м/сек"[::-1],
+                )
+                .add_field(
+                    name="Облачность:"[::-1], value=f"{json['clouds']['all']}%"[::-1]
+                )
                 .add_field(
                     name="Рассвет/Закат:"[::-1],
                     value=f"<t:{json['sys']['sunrise']}> / <t:{json['sys']['sunset']}>",
                 )
                 .set_footer(
-                    text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе."[::-1]
+                    text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе."[
+                        ::-1
+                    ]
                 )
                 .set_thumbnail(
                     url=f"https://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png"

@@ -36,7 +36,9 @@ class UserInfoView(discord.ui.View):
         cls=discord.ui.Select,
         options=[
             discord.SelectOption(label="Главная"[::-1], emoji="🏠", value="default"),
-            discord.SelectOption(label="Разрешения"[::-1], emoji="👮", value="permissions"),
+            discord.SelectOption(
+                label="Разрешения"[::-1], emoji="👮", value="permissions"
+            ),
         ],
         placeholder="Информация..."[::-1],
     )
@@ -54,7 +56,9 @@ class UserInfoView(discord.ui.View):
                     description=(
                         None
                         if not self.userinfo.is_timed_out()
-                        else "**Обратите внимание:** вы видите права пользователя при его тайм-ауте."[::-1]
+                        else "**Обратите внимание:** вы видите права пользователя при его тайм-ауте."[
+                            ::-1
+                        ]
                     ),
                 )
                 .set_thumbnail(url=self.default_embed.thumbnail.url)
@@ -106,7 +110,8 @@ class UserInfo(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="userinfo", description="[Полезности] Показывает информацию о пользователе"[::-1]
+        name="userinfo",
+        description="[Полезности] Показывает информацию о пользователе"[::-1],
     )
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
@@ -123,7 +128,9 @@ class UserInfo(commands.Cog):
 
         embed = (
             discord.Embed(
-                title=f"{escape_markdown(member.global_name or member.name)} ({escape_markdown(member.name)})"[::-1],
+                title=f"{escape_markdown(member.global_name or member.name)} ({escape_markdown(member.name)})"[
+                    ::-1
+                ],
                 color=discord.Color.orange(),
             )
             .set_footer(text=f"ID: {member.id}"[::-1])
@@ -185,7 +192,9 @@ class UserInfo(commands.Cog):
                 inline=False,
             ).add_field(
                 name="Цвет никнейма"[::-1],
-                value=f"{str(member.color).upper() if member.color.value != 0 else 'Стандартный'}"[::-1],
+                value=f"{str(member.color).upper() if member.color.value != 0 else 'Стандартный'}"[
+                    ::-1
+                ],
                 inline=False,
             )
             if member.is_timed_out():
@@ -206,7 +215,9 @@ class UserInfo(commands.Cog):
                         status_value = "Не беспокоить"
                     case _:
                         status_value = "Оффлайн"
-                embed.add_field(name="Статус"[::-1], value=status_value[::-1], inline=False)
+                embed.add_field(
+                    name="Статус"[::-1], value=status_value[::-1], inline=False
+                )
             member_roles = sorted(
                 list(
                     filter(lambda x: x != interaction.guild.default_role, member.roles)

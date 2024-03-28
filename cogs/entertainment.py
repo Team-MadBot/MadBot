@@ -40,7 +40,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -62,7 +64,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось совершить запрос на сервер!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -85,7 +89,9 @@ class Entertainment(commands.Cog):
                 super().__init__(timeout=15)
                 self.value = None
 
-            @discord.ui.button(label="Ответить"[::-1], style=discord.ButtonStyle.blurple)
+            @discord.ui.button(
+                label="Ответить"[::-1], style=discord.ButtonStyle.blurple
+            )
             async def solve(
                 self, viewinteract: discord.Interaction, button: discord.ui.Button
             ):
@@ -94,7 +100,9 @@ class Entertainment(commands.Cog):
                         "Не для тебя кнопочка!"[::-1], ephemeral=True
                     )
 
-                class InputText(discord.ui.Modal, title=f"Сколько будет {tosolve}?"[::-1]):
+                class InputText(
+                    discord.ui.Modal, title=f"Сколько будет {tosolve}?"[::-1]
+                ):
                     ans = discord.ui.TextInput(
                         label="Ответ"[::-1],
                         style=discord.TextStyle.short,
@@ -125,7 +133,9 @@ class Entertainment(commands.Cog):
                             embed1 = discord.Embed(
                                 title="Ответ некорректный!"[::-1],
                                 color=discord.Color.red(),
-                                description=f"Пример: `{tosolve}`.\nПравильный ответ: `{answer}`."[::-1],
+                                description=f"Пример: `{tosolve}`.\nПравильный ответ: `{answer}`."[
+                                    ::-1
+                                ],
                             )
                             await interaction.edit_original_response(
                                 embed=embed1, view=None
@@ -137,13 +147,17 @@ class Entertainment(commands.Cog):
                             embed = discord.Embed(
                                 title="Правильно!"[::-1],
                                 color=discord.Color.green(),
-                                description=f"Ответ: `{answer}`. Время ответа: `{wasted}s`."[::-1],
+                                description=f"Ответ: `{answer}`. Время ответа: `{wasted}s`."[
+                                    ::-1
+                                ],
                             )
                         else:
                             embed = discord.Embed(
                                 title="Неправильно!"[::-1],
                                 color=discord.Color.red(),
-                                description=f"Ваш ответ: `{self.ans}`\nПравильный ответ: `{answer}`."[::-1],
+                                description=f"Ваш ответ: `{self.ans}`\nПравильный ответ: `{answer}`."[
+                                    ::-1
+                                ],
                             )
                         embed.set_footer(
                             text=interaction.user,
@@ -197,7 +211,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title="Не угадал!"[::-1],
                         color=discord.Color.red(),
-                        description=f"Вы нажали на `Первую` дверь.\nПравильная дверь: `{rightans}`."[::-1],
+                        description=f"Вы нажали на `Первую` дверь.\nПравильная дверь: `{rightans}`."[
+                            ::-1
+                        ],
                     )
                 embed.set_footer(
                     text=viewinteract.user,
@@ -228,7 +244,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title="Не угадал!"[::-1],
                         color=discord.Color.red(),
-                        description=f"Вы нажали на `Вторую` дверь.\nПравильная дверь: `{rightans}`."[::-1],
+                        description=f"Вы нажали на `Вторую` дверь.\nПравильная дверь: `{rightans}`."[
+                            ::-1
+                        ],
                     )
                 embed.set_footer(
                     text=viewinteract.user,
@@ -259,7 +277,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title="Не угадал!"[::-1],
                         color=discord.Color.red(),
-                        description=f"Вы нажали на `Третью` дверь.\nПравильная дверь: `{rightans}`."[::-1],
+                        description=f"Вы нажали на `Третью` дверь.\nПравильная дверь: `{rightans}`."[
+                            ::-1
+                        ],
                     )
                 embed.set_footer(
                     text=viewinteract.user,
@@ -272,7 +292,9 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Выбери дверь:"[::-1],
             color=discord.Color.orange(),
-            description="Для выбора нажми на одну из кнопок ниже. Время ограничено (`15` секунд)."[::-1],
+            description="Для выбора нажми на одну из кнопок ниже. Время ограничено (`15` секунд)."[
+                ::-1
+            ],
         )
         embed.set_footer(
             text=interaction.user, icon_url=interaction.user.display_avatar.url
@@ -280,10 +302,14 @@ class Entertainment(commands.Cog):
         await interaction.response.send_message(embed=embed, view=view)
         await view.wait()
         if view.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             return await interaction.edit_original_response(embed=embed, view=None)
 
-    @app_commands.command(name="8ball", description="[Развлечения] Магический шар."[::-1])
+    @app_commands.command(
+        name="8ball", description="[Развлечения] Магический шар."[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(question="Вопрос, адресованный шару."[::-1])
@@ -321,9 +347,14 @@ class Entertainment(commands.Cog):
                 timestamp=datetime.datetime.now(),
             )
             .add_field(name="Ваш вопрос"[::-1], value=question[::-1], inline=False)
-            .add_field(name="Ответ шара"[::-1], value=random.choice(answers)[::-1], inline=False)
+            .add_field(
+                name="Ответ шара"[::-1],
+                value=random.choice(answers)[::-1],
+                inline=False,
+            )
             .set_author(
-                name=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+                name=str(interaction.user)[::-1],
+                icon_url=interaction.user.display_avatar.url,
             )
             .set_thumbnail(
                 url="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Magic_eight_ball.png/800px-Magic_eight_ball.png"
@@ -344,7 +375,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -414,10 +447,13 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Камень, ножницы, бумага - Ожидание"[::-1],
                 color=discord.Color.orange(),
-                description=f"Вы хотите сыграть с {member.mention[::-1]}. Необходимо получить его/её согласие. Время на ответ: `3 минуты`."[::-1],
+                description=f"Вы хотите сыграть с {member.mention[::-1]}. Необходимо получить его/её согласие. Время на ответ: `3 минуты`."[
+                    ::-1
+                ],
             )
             embed.set_footer(
-                text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+                text=str(interaction.user)[::-1],
+                icon_url=interaction.user.display_avatar.url,
             )
             appr = Approval()
             await interaction.response.send_message(embed=embed, view=appr)
@@ -550,7 +586,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Камень, ножницы, бумага - Игра"[::-1],
                 color=discord.Color.orange(),
-                description="Игра началась! Выберите камень, ножницы или бумагу. Время на выбор: `30 секунд`."[::-1],
+                description="Игра началась! Выберите камень, ножницы или бумагу. Время на выбор: `30 секунд`."[
+                    ::-1
+                ],
             )
             embed.set_footer(
                 text=f"{interaction.user} и {member}"[::-1],
@@ -576,7 +614,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title="Камень, ножницы, бумага - Ничья"[::-1],
                         color=discord.Color.yellow(),
-                        description=f"{interaction.user.mention[::-1]} и {member.mention[::-1]} использовали `{choices[view.choice_one]}`."[::-1],
+                        description=f"{interaction.user.mention[::-1]} и {member.mention[::-1]} использовали `{choices[view.choice_one]}`."[
+                            ::-1
+                        ],
                     )
                     embed.set_footer(text="Ничья!"[::-1])
                     return await interaction.edit_original_response(
@@ -585,9 +625,13 @@ class Entertainment(commands.Cog):
 
                 if view.choice_one == "paper" and view.choice_two == "stone":
                     embed = discord.Embed(
-                        title=f"Камень, ножницы, бумага - Победа {interaction.user}!"[::-1],
+                        title=f"Камень, ножницы, бумага - Победа {interaction.user}!"[
+                            ::-1
+                        ],
                         color=discord.Color.green(),
-                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[::-1],
+                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[
+                            ::-1
+                        ],
                     )
                     embed.set_footer(
                         text=str(interaction.user)[::-1],
@@ -598,7 +642,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title=f"Камень, ножницы, бумага - Победа {member}!"[::-1],
                         color=discord.Color.green(),
-                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[::-1],
+                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[
+                            ::-1
+                        ],
                     )
                     embed.set_footer(
                         text=str(member)[::-1], icon_url=member.display_avatar.url
@@ -606,9 +652,13 @@ class Entertainment(commands.Cog):
                     await interaction.edit_original_response(embed=embed, view=None)
                 if view.choice_one == "stone" and view.choice_two == "scissors":
                     embed = discord.Embed(
-                        title=f"Камень, ножницы, бумага - Победа {interaction.user}!"[::-1],
+                        title=f"Камень, ножницы, бумага - Победа {interaction.user}!"[
+                            ::-1
+                        ],
                         color=discord.Color.green(),
-                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[::-1],
+                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[
+                            ::-1
+                        ],
                     )
                     embed.set_footer(
                         text=str(interaction.user)[::-1],
@@ -620,7 +670,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title=f"Камень, ножницы, бумага - Победа {member}!"[::-1],
                         color=discord.Color.green(),
-                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[::-1],
+                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[
+                            ::-1
+                        ],
                     )
                     embed.set_footer(
                         text=str(member)[::-1], icon_url=member.display_avatar.url
@@ -628,9 +680,13 @@ class Entertainment(commands.Cog):
                     await interaction.edit_original_response(embed=embed, view=None)
                 if view.choice_one == "scissors" and view.choice_two == "paper":
                     embed = discord.Embed(
-                        title=f"Камень, ножницы, бумага - Победа {interaction.user}!"[::-1],
+                        title=f"Камень, ножницы, бумага - Победа {interaction.user}!"[
+                            ::-1
+                        ],
                         color=discord.Color.green(),
-                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[::-1],
+                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[
+                            ::-1
+                        ],
                     )
                     embed.set_footer(
                         text=str(interaction.user)[::-1],
@@ -641,7 +697,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title=f"Камень, ножницы, бумага - Победа {member}!"[::-1],
                         color=discord.Color.green(),
-                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[::-1],
+                        description=f"{interaction.user.mention[::-1]} выбрал(-а) `{choices[view.choice_one]}`.\n{member.mention[::-1]} выбрал(-а) `{choices[view.choice_two]}`."[
+                            ::-1
+                        ],
                     )
                     embed.set_footer(
                         text=str(member)[::-1], icon_url=member.display_avatar.url
@@ -659,7 +717,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -680,7 +740,9 @@ class Entertainment(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         emb = discord.Embed(
             title="Игра в крестики-нолики!"[::-1],
-            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет с вами поиграть"[::-1],
+            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет с вами поиграть"[
+                ::-1
+            ],
             color=discord.Color.green(),
         )
 
@@ -736,7 +798,9 @@ class Entertainment(commands.Cog):
             await acc.wait()
         if acc.value is None:
             await interaction.edit_original_response(
-                embed=discord.Embed(title="Время вышло!"[::-1], color=discord.Color.red()),
+                embed=discord.Embed(
+                    title="Время вышло!"[::-1], color=discord.Color.red()
+                ),
                 view=None,
             )
         elif acc.value == True:
@@ -806,7 +870,9 @@ class Entertainment(commands.Cog):
                             child.disabled = True
 
                         view.stop()
-                    await viewinteract.response.edit_message(content=content[::-1], view=view)
+                    await viewinteract.response.edit_message(
+                        content=content[::-1], view=view
+                    )
 
             class TicTacToe(discord.ui.View):
                 children: List[TicTacToeButton]
@@ -862,13 +928,17 @@ class Entertainment(commands.Cog):
             await interaction.edit_original_response(
                 embed=discord.Embed(
                     title=f"Крестики-нолики"[::-1],
-                    description=f"{interaction.user.mention[::-1]} (крестик) VS {member.mention[::-1]} (нолик)"[::-1],
+                    description=f"{interaction.user.mention[::-1]} (крестик) VS {member.mention[::-1]} (нолик)"[
+                        ::-1
+                    ],
                     color=discord.Color.green(),
                 ),
                 view=tictac,
             )
 
-    @app_commands.command(name="hangman", description="[Развлечения] Виселица (игра)"[::-1])
+    @app_commands.command(
+        name="hangman", description="[Развлечения] Виселица (игра)"[::-1]
+    )
     @app_commands.describe(member="Игрок, с кем вы хотите поиграть"[::-1])
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -877,7 +947,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -943,10 +1015,13 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Виселица - Ожидание"[::-1],
             color=discord.Color.orange(),
-            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет с вами поиграть!"[::-1],
+            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет с вами поиграть!"[
+                ::-1
+            ],
         )
         embed.set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
         await interaction.response.send_message(embed=embed, view=acc)
         await acc.wait()
@@ -972,7 +1047,9 @@ class Entertainment(commands.Cog):
             def __init__(self):
                 super().__init__(timeout=90)
 
-            @discord.ui.button(label="Задать слово"[::-1], style=discord.ButtonStyle.green)
+            @discord.ui.button(
+                label="Задать слово"[::-1], style=discord.ButtonStyle.green
+            )
             async def setword(
                 self, viewinteract: discord.Interaction, button: discord.ui.Button
             ):
@@ -1001,7 +1078,9 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(
                             title="Виселица - Игра"[::-1],
                             color=discord.Color.orange(),
-                            description=f"Слово загадано!\nСлово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}`"[::-1],
+                            description=f"Слово загадано!\nСлово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}`"[
+                                ::-1
+                            ],
                         )
 
                         man_lst = (
@@ -1021,7 +1100,8 @@ class Entertainment(commands.Cog):
                                 super().__init__(timeout=None)
 
                             @discord.ui.button(
-                                label="Угадать букву"[::-1], style=discord.ButtonStyle.primary
+                                label="Угадать букву"[::-1],
+                                style=discord.ButtonStyle.primary,
                             )
                             async def answer(
                                 self,
@@ -1048,7 +1128,8 @@ class Entertainment(commands.Cog):
                                         if kirillic.find(letter) == -1:
                                             return (
                                                 await modinteract.response.send_message(
-                                                    "Только кириллица!"[::-1], ephemeral=True
+                                                    "Только кириллица!"[::-1],
+                                                    ephemeral=True,
                                                 )
                                             )
                                         if letter in symbols:
@@ -1067,7 +1148,9 @@ class Entertainment(commands.Cog):
                                                 embed = discord.Embed(
                                                     title="Виселица - Поражение"[::-1],
                                                     color=discord.Color.red(),
-                                                    description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[::-1],
+                                                    description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[
+                                                        ::-1
+                                                    ],
                                                 )
                                                 return await modinteract.response.edit_message(
                                                     embed=embed, view=None
@@ -1075,7 +1158,9 @@ class Entertainment(commands.Cog):
                                             embed = discord.Embed(
                                                 title="Виселица - Игра"[::-1],
                                                 color=discord.Color.orange(),
-                                                description=f"Слово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[::-1],
+                                                description=f"Слово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[
+                                                    ::-1
+                                                ],
                                             )
                                             await modinteract.response.edit_message(
                                                 embed=embed
@@ -1095,7 +1180,9 @@ class Entertainment(commands.Cog):
                                                 embed = discord.Embed(
                                                     title="Виселица - Победа"[::-1],
                                                     color=discord.Color.green(),
-                                                    description=f"Слово: `{game}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[::-1],
+                                                    description=f"Слово: `{game}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[
+                                                        ::-1
+                                                    ],
                                                 )
                                                 return await modinteract.response.edit_message(
                                                     embed=embed, view=None
@@ -1103,7 +1190,9 @@ class Entertainment(commands.Cog):
                                             embed = discord.Embed(
                                                 title="Виселица - Игра"[::-1],
                                                 color=discord.Color.orange(),
-                                                description=f"Слово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[::-1],
+                                                description=f"Слово: `{game}` (`{len(game)}` букв).\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[
+                                                    ::-1
+                                                ],
                                             )
                                             await modinteract.response.edit_message(
                                                 embed=embed
@@ -1127,7 +1216,8 @@ class Entertainment(commands.Cog):
                                     )
 
                                 class EnterWord(
-                                    discord.ui.Modal, title="Виселица - ввод слова"[::-1]
+                                    discord.ui.Modal,
+                                    title="Виселица - ввод слова"[::-1],
                                 ):
                                     ans = discord.ui.TextInput(
                                         label="Слово:"[::-1],
@@ -1141,14 +1231,18 @@ class Entertainment(commands.Cog):
                                         nonlocal word, hangman, game, tryes, symbols, fails
                                         tryes += 1
                                         answer = str(self.ans)
-                                        letters = f"\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[::-1]
+                                        letters = f"\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."[
+                                            ::-1
+                                        ]
                                         if symbols == []:
                                             letters = ""
                                         if answer.lower() != word:
                                             embed = discord.Embed(
                                                 title="Виселица - Поражение"[::-1],
                                                 color=discord.Color.red(),
-                                                description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"[::-1],
+                                                description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"[
+                                                    ::-1
+                                                ],
                                             )
                                             await modinteract.response.edit_message(
                                                 embed=embed, view=None
@@ -1157,7 +1251,9 @@ class Entertainment(commands.Cog):
                                             embed = discord.Embed(
                                                 title="Виселица - Победа"[::-1],
                                                 color=discord.Color.green(),
-                                                description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"[::-1],
+                                                description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"[
+                                                    ::-1
+                                                ],
                                             )
                                             await modinteract.response.edit_message(
                                                 embed=embed, view=None
@@ -1193,7 +1289,8 @@ class Entertainment(commands.Cog):
                                         nonlocal word, hangman, tryes, symbols
                                         if buttinteract.user.id != member.id:
                                             return await buttinteract.response.send_message(
-                                                "Не для тебя кнопочка!"[::-1], ephemeral=True
+                                                "Не для тебя кнопочка!"[::-1],
+                                                ephemeral=True,
                                             )
                                         letters = f"\nБуквы: `{str(symbols).removeprefix('[').removesuffix(']')}`."
                                         if symbols == []:
@@ -1201,7 +1298,9 @@ class Entertainment(commands.Cog):
                                         embed = discord.Embed(
                                             title="Виселица - Поражение"[::-1],
                                             color=discord.Color.red(),
-                                            description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"[::-1],
+                                            description=f"Слово: `{word}`.\nВиселица: `{hangman}` (`{fails} / 8` ошибок).\nПопыток: `{tryes}`.{letters}"[
+                                                ::-1
+                                            ],
                                         )
                                         await viewinteract.edit_original_response(
                                             embed=embed, view=None
@@ -1241,11 +1340,15 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Виселица - Задать слово"[::-1],
             color=discord.Color.orange(),
-            description=f"{interaction.user.mention} должен задать слово, нажав на кнопку."[::-1],
+            description=f"{interaction.user.mention} должен задать слово, нажав на кнопку."[
+                ::-1
+            ],
         )
         await interaction.edit_original_response(embed=embed, view=Button())
 
-    @app_commands.command(name="coin", description="[Развлечения] Бросить монетку."[::-1])
+    @app_commands.command(
+        name="coin", description="[Развлечения] Бросить монетку."[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def coin(self, interaction: discord.Interaction):
@@ -1257,7 +1360,8 @@ class Entertainment(commands.Cog):
             description=f"Вам выпал{sel}: `{ans}`."[::-1],
         )
         embed.set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
         await interaction.response.send_message(embed=embed)
 
@@ -1278,20 +1382,26 @@ class Entertainment(commands.Cog):
                 description="В голову прилетела пуля... И зачем это надо было?"[::-1],
             )
             embed.set_footer(
-                text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+                text=str(interaction.user)[::-1],
+                icon_url=interaction.user.display_avatar.url,
             )
         else:
             embed = discord.Embed(
                 title="Русская рулетка - Победа"[::-1],
                 color=discord.Color.green(),
-                description="Пули не было. В следующий раз, стоит задуматься перед этой затеей."[::-1],
+                description="Пули не было. В следующий раз, стоит задуматься перед этой затеей."[
+                    ::-1
+                ],
             )
             embed.set_footer(
-                text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+                text=str(interaction.user)[::-1],
+                icon_url=interaction.user.display_avatar.url,
             )
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="duel", description="[Развлечения] Дуэль с участником."[::-1])
+    @app_commands.command(
+        name="duel", description="[Развлечения] Дуэль с участником."[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, с которым вы хотите поиграть."[::-1])
@@ -1300,7 +1410,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1360,15 +1472,20 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Дуэль - Ожидание"[::-1],
             color=discord.Color.orange(),
-            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} вызывает вас на дуэль!"[::-1],
+            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} вызывает вас на дуэль!"[
+                ::-1
+            ],
         )
         embed.set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
         await interaction.response.send_message(embed=embed, view=acc)
         await acc.wait()
         if acc.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             return await interaction.edit_original_response(embed=embed, view=None)
         if acc.clicker is not None:
             if acc.clicker.id == member.id:
@@ -1412,7 +1529,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title="Дуэль - Ничья"[::-1],
                         color=discord.Color.yellow(),
-                        description=f"{self.player.mention[::-1]} выстрелил, но не попал! Все остались живы и здоровы!"[::-1],
+                        description=f"{self.player.mention[::-1]} выстрелил, но не попал! Все остались живы и здоровы!"[
+                            ::-1
+                        ],
                     )
                     embed.add_field(
                         name=f"Выстрелов за игру:"[::-1], value=f"`{self.tryes}`."[::-1]
@@ -1426,16 +1545,21 @@ class Entertainment(commands.Cog):
                 embed = discord.Embed(
                     title="Дуэль - Игра"[::-1],
                     color=discord.Color.orange(),
-                    description=f"{self.player.mention[::-1]} выстрелил, но не попал. Очередь {next_player.mention[::-1]}."[::-1],
+                    description=f"{self.player.mention[::-1]} выстрелил, но не попал. Очередь {next_player.mention[::-1]}."[
+                        ::-1
+                    ],
                 )
                 embed.add_field(
-                    name=f"Выстрелов (в том числе в воздух):"[::-1], value=f"`{self.tryes}`."[::-1]
+                    name=f"Выстрелов (в том числе в воздух):"[::-1],
+                    value=f"`{self.tryes}`."[::-1],
                 )
                 self.player = next_player
                 await viewinteract.response.edit_message(embed=embed)
 
             @discord.ui.button(
-                label="Выстрел в воздух"[::-1], style=discord.ButtonStyle.blurple, emoji="🌫️"
+                label="Выстрел в воздух"[::-1],
+                style=discord.ButtonStyle.blurple,
+                emoji="🌫️",
             )
             async def tothamoon(
                 self, viewinteract: discord.Interaction, button: discord.ui.Button
@@ -1449,7 +1573,9 @@ class Entertainment(commands.Cog):
                     embed = discord.Embed(
                         title="Дуэль - Ничья"[::-1],
                         color=discord.Color.yellow(),
-                        description=f"{self.player.mention[::-1]} выстрелил, но не попал! Все остались живы и здоровы!"[::-1],
+                        description=f"{self.player.mention[::-1]} выстрелил, но не попал! Все остались живы и здоровы!"[
+                            ::-1
+                        ],
                     )
                     embed.add_field(
                         name=f"Выстрелов за игру:"[::-1], value=f"`{self.tryes}`."[::-1]
@@ -1463,10 +1589,13 @@ class Entertainment(commands.Cog):
                 embed = discord.Embed(
                     title="Дуэль - Игра"[::-1],
                     color=discord.Color.orange(),
-                    description=f"{self.player.mention[::-1]} выстрелил в воздух. Очередь {next_player.mention[::-1]}."[::-1],
+                    description=f"{self.player.mention[::-1]} выстрелил в воздух. Очередь {next_player.mention[::-1]}."[
+                        ::-1
+                    ],
                 )
                 embed.add_field(
-                    name=f"Выстрелов (в том числе в воздух):"[::-1], value=f"`{self.tryes}`."[::-1]
+                    name=f"Выстрелов (в том числе в воздух):"[::-1],
+                    value=f"`{self.tryes}`."[::-1],
                 )
                 self.player = next_player
                 await viewinteract.response.edit_message(embed=embed)
@@ -1541,7 +1670,9 @@ class Entertainment(commands.Cog):
         await interaction.edit_original_response(embed=embed, view=game)
         await game.wait()
         if game.winner is None and game.tryes != 15:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             return await interaction.edit_original_response(embed=embed, view=None)
         if game.tryes != 15:
             embed = discord.Embed(
@@ -1555,7 +1686,9 @@ class Entertainment(commands.Cog):
             )
             await interaction.edit_original_response(embed=embed, view=None)
 
-    @app_commands.command(name="number", description="[Развлечения] Угадать число"[::-1])
+    @app_commands.command(
+        name="number", description="[Развлечения] Угадать число"[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def whatsnumber(
@@ -1565,7 +1698,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1576,7 +1711,9 @@ class Entertainment(commands.Cog):
                 embed = discord.Embed(
                     title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description="Участник должен находиться на сервере для использования команды!"[::-1],
+                    description="Участник должен находиться на сервере для использования команды!"[
+                        ::-1
+                    ],
                 )
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(
@@ -1644,15 +1781,20 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Угадывание числа - Ожидание"[::-1],
                 color=discord.Color.orange(),
-                description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет поиграть с Вами!"[::-1],
+                description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет поиграть с Вами!"[
+                    ::-1
+                ],
             )
             embed.set_footer(
-                text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+                text=str(interaction.user)[::-1],
+                icon_url=interaction.user.display_avatar.url,
             )
             await interaction.response.send_message(embed=embed, view=acc)
             await acc.wait()
             if acc.value is None:
-                embed = discord.Embed(title="Время истекло"[::-1], color=discord.Color.red())
+                embed = discord.Embed(
+                    title="Время истекло"[::-1], color=discord.Color.red()
+                )
                 return await interaction.edit_original_response(embed=embed, view=None)
             if acc.value == False:
                 if acc.clicker.id == interaction.user.id:
@@ -1688,7 +1830,8 @@ class Entertainment(commands.Cog):
                         )
 
                     class InputNumber(
-                        discord.ui.Modal, title="Угадывание числа - Загадывание числа"[::-1]
+                        discord.ui.Modal,
+                        title="Угадывание числа - Загадывание числа"[::-1],
                     ):
                         value = None
                         ans = discord.ui.TextInput(label="Число:", max_length=2)
@@ -1704,7 +1847,9 @@ class Entertainment(commands.Cog):
                             if self.value < 1 or self.value > 10:
                                 self.value = None
                                 return await modalinteract.response.send_message(
-                                    "Число должно быть в диапазоне от одного до десяти!"[::-1],
+                                    "Число должно быть в диапазоне от одного до десяти!"[
+                                        ::-1
+                                    ],
                                     ephemeral=True,
                                 )
                             await modalinteract.response.defer()
@@ -1720,15 +1865,20 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Угадывание числа - Задать число"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} должен задать число от одного до десяти."[::-1],
+                description=f"{interaction.user.mention[::-1]} должен задать число от одного до десяти."[
+                    ::-1
+                ],
             )
             embed.set_footer(
-                text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+                text=str(interaction.user)[::-1],
+                icon_url=interaction.user.display_avatar.url,
             )
             await interaction.edit_original_response(embed=embed, view=button)
             await button.wait()
             if button.value is None:
-                embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+                embed = discord.Embed(
+                    title="Время истекло!"[::-1], color=discord.Color.red()
+                )
                 return await interaction.edit_original_response(embed=embed, view=None)
             number = button.value
         tryes = 0
@@ -1758,11 +1908,14 @@ class Entertainment(commands.Cog):
                             answer = int(str(self.ans))
                         except:  # FIXME: bare except
                             return await modalinteract.response.send_message(
-                                "Введённая строка не является числом!"[::-1], ephemeral=True
+                                "Введённая строка не является числом!"[::-1],
+                                ephemeral=True,
                             )
                         if answer < 1 or answer > 10:
                             return await modalinteract.response.send_message(
-                                "Введённое число меньше единицы или больше десяти!"[::-1],
+                                "Введённое число меньше единицы или больше десяти!"[
+                                    ::-1
+                                ],
                                 ephemeral=True,
                             )
                         tryes += 1
@@ -1770,10 +1923,13 @@ class Entertainment(commands.Cog):
                             embed = discord.Embed(
                                 title="Угадывание числа - Поражение"[::-1],
                                 color=discord.Color.red(),
-                                description=f"**Ваш ответ:** `{answer}`.\n**Правильный ответ:** `{number}`.\n**Число попыток:** `{tryes} / 4`."[::-1],
+                                description=f"**Ваш ответ:** `{answer}`.\n**Правильный ответ:** `{number}`.\n**Число попыток:** `{tryes} / 4`."[
+                                    ::-1
+                                ],
                             )
                             embed.set_footer(
-                                text=str(player)[::-1], icon_url=player.display_avatar.url
+                                text=str(player)[::-1],
+                                icon_url=player.display_avatar.url,
                             )
                             return await modalinteract.response.edit_message(
                                 embed=embed, view=None
@@ -1782,30 +1938,39 @@ class Entertainment(commands.Cog):
                             embed = discord.Embed(
                                 title="Угадывание числа - Игра"[::-1],
                                 color=discord.Color.orange(),
-                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `больше` загаданного числа.\n**Число попыток:** `{tryes} / 4`."[::-1],
+                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `больше` загаданного числа.\n**Число попыток:** `{tryes} / 4`."[
+                                    ::-1
+                                ],
                             )
                             embed.set_footer(
-                                text=str(player)[::-1], icon_url=player.display_avatar.url
+                                text=str(player)[::-1],
+                                icon_url=player.display_avatar.url,
                             )
                             await modalinteract.response.edit_message(embed=embed)
                         if answer < number:
                             embed = discord.Embed(
                                 title="Угадывание числа - Игра"[::-1],
                                 color=discord.Color.orange(),
-                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `меньше` загаданного числа.\n**Число попыток:** `{tryes} / 4`."[::-1],
+                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `меньше` загаданного числа.\n**Число попыток:** `{tryes} / 4`."[
+                                    ::-1
+                                ],
                             )
                             embed.set_footer(
-                                text=str(player)[::-1], icon_url=player.display_avatar.url
+                                text=str(player)[::-1],
+                                icon_url=player.display_avatar.url,
                             )
                             await modalinteract.response.edit_message(embed=embed)
                         if answer == number:
                             embed = discord.Embed(
                                 title="Угадывание числа - Победа"[::-1],
                                 color=discord.Color.green(),
-                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `равен` загаданному числа.\n**Число попыток:** `{tryes} / 4`."[::-1],
+                                description=f"**Ваш ответ:** `{answer}`.\nВаш ответ `равен` загаданному числа.\n**Число попыток:** `{tryes} / 4`."[
+                                    ::-1
+                                ],
                             )
                             embed.set_footer(
-                                text=str(player)[::-1], icon_url=player.display_avatar.url
+                                text=str(player)[::-1],
+                                icon_url=player.display_avatar.url,
                             )
                             return await modalinteract.response.edit_message(
                                 embed=embed, view=None
@@ -1816,7 +1981,9 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Угадывание числа - Игра"[::-1],
             color=discord.Color.orange(),
-            description=f"**Введите число**, нажав на кнопку.\nЧисло загадано в диапазоне от `одного до десяти` включительно.\n**Число попыток:** `{tryes} / 4`."[::-1],
+            description=f"**Введите число**, нажав на кнопку.\nЧисло загадано в диапазоне от `одного до десяти` включительно.\n**Число попыток:** `{tryes} / 4`."[
+                ::-1
+            ],
         )
         embed.set_footer(text=str(player)[::-1], icon_url=player.display_avatar.url)
         (
@@ -1836,7 +2003,9 @@ class Entertainment(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1847,7 +2016,9 @@ class Entertainment(commands.Cog):
                 embed = discord.Embed(
                     title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description="Участник должен находиться на сервере для использования команды!"[::-1],
+                    description="Участник должен находиться на сервере для использования команды!"[
+                        ::-1
+                    ],
                 )
                 embed.set_thumbnail(url=interaction.user.display_avatar.url)
                 return await interaction.response.send_message(
@@ -1910,15 +2081,20 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Кости - Ожидание"[::-1],
             color=discord.Color.orange(),
-            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет поиграть с вами!"[::-1],
+            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет поиграть с вами!"[
+                ::-1
+            ],
         )
         embed.set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
         await interaction.response.send_message(embed=embed, view=acc)
         await acc.wait()
         if acc.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             return await interaction.edit_original_response(embed=embed, view=None)
         if acc.clicker is not None:
             if acc.clicker.id == member.id:
@@ -1943,7 +2119,9 @@ class Entertainment(commands.Cog):
             player2 = random.randint(1, 6)
             embed.add_field(
                 name=f"Раунд {i+1}:"[::-1],
-                value=f"{interaction.user.mention[::-1]}: {player1} - {member.mention[::-1]}: {player2}"[::-1],
+                value=f"{interaction.user.mention[::-1]}: {player1} - {member.mention[::-1]}: {player2}"[
+                    ::-1
+                ],
             )
             if player1 > player2:
                 score1 += 1
@@ -1959,7 +2137,9 @@ class Entertainment(commands.Cog):
         )
         await interaction.edit_original_response(embed=embed, view=None)
 
-    @app_commands.command(name="tol", description="[Развлечения] Правда или ложь."[::-1])
+    @app_commands.command(
+        name="tol", description="[Развлечения] Правда или ложь."[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, с которым Вы хотите поиграть."[::-1])
@@ -2020,15 +2200,20 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Правда или ложь - Ожидание"[::-1],
             color=discord.Color.orange(),
-            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет поиграть с вами!"[::-1],
+            description=f"{member.mention[::-1]}, {interaction.user.mention[::-1]} хочет поиграть с вами!"[
+                ::-1
+            ],
         )
         embed.set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
         await interaction.response.send_message(embed=embed, view=acc)
         await acc.wait()
         if acc.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             return await interaction.edit_original_response(embed=embed, view=None)
         if acc.clicker is not None:
             if acc.clicker.id == member.id:
@@ -2065,9 +2250,13 @@ class Entertainment(commands.Cog):
                         "Не для тебя кнопочка!"[::-1], ephemeral=True
                     )
 
-                class Input(discord.ui.Modal, title="Правда или ложь - Задать историю"[::-1]):
+                class Input(
+                    discord.ui.Modal, title="Правда или ложь - Задать историю"[::-1]
+                ):
                     ans = discord.ui.TextInput(
-                        label="История:"[::-1], max_length=1020, style=discord.TextStyle.long
+                        label="История:"[::-1],
+                        max_length=1020,
+                        style=discord.TextStyle.long,
                     )
 
                     async def on_submit(self, modalinteract: discord.Interaction):
@@ -2076,7 +2265,9 @@ class Entertainment(commands.Cog):
                         embed = discord.Embed(
                             title="Правда или ложь - Заполнение"[::-1],
                             color=discord.Color.green(),
-                            description="История записана. Если Вы уже указали, правда ли это или ложь, то игра начнётся."[::-1],
+                            description="История записана. Если Вы уже указали, правда ли это или ложь, то игра начнётся."[
+                                ::-1
+                            ],
                         )
                         await modalinteract.response.send_message(
                             embed=embed, ephemeral=True
@@ -2087,7 +2278,9 @@ class Entertainment(commands.Cog):
 
                 await viewinteract.response.send_modal(Input())
 
-            @discord.ui.button(label="Это правда"[::-1], style=discord.ButtonStyle.green)
+            @discord.ui.button(
+                label="Это правда"[::-1], style=discord.ButtonStyle.green
+            )
             async def true(
                 self, viewinteract: discord.Interaction, button: discord.ui.Button
             ):
@@ -2100,7 +2293,9 @@ class Entertainment(commands.Cog):
                 embed = discord.Embed(
                     title="Правда или ложь - Заполнение"[::-1],
                     color=discord.Color.green(),
-                    description="История является правдой. Если Вы уже указали историю, то игра начнётся."[::-1],
+                    description="История является правдой. Если Вы уже указали историю, то игра начнётся."[
+                        ::-1
+                    ],
                 )
                 await viewinteract.response.send_message(embed=embed, ephemeral=True)
                 if history != "":
@@ -2120,7 +2315,9 @@ class Entertainment(commands.Cog):
                 embed = discord.Embed(
                     title="Правда или ложь - Заполнение"[::-1],
                     color=discord.Color.green(),
-                    description="История является ложью. Если Вы уже указали историю, то игра начнётся."[::-1],
+                    description="История является ложью. Если Вы уже указали историю, то игра начнётся."[
+                        ::-1
+                    ],
                 )
                 await viewinteract.response.send_message(embed=embed, ephemeral=True)
                 if history != "":
@@ -2131,15 +2328,20 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Правда или ложь - Заполнение"[::-1],
             color=discord.Color.orange(),
-            description=f"{interaction.user.mention[::-1]} должен написать историю и указать, является ли она правдой или ложью."[::-1],
+            description=f"{interaction.user.mention[::-1]} должен написать историю и указать, является ли она правдой или ложью."[
+                ::-1
+            ],
         )
         embed.set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
         await interaction.edit_original_response(embed=embed, view=game_setup)
         await game_setup.wait()
         if game_setup.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             return await interaction.edit_original_response(embed=embed, view=None)
 
         class Guessing(discord.ui.View):
@@ -2147,7 +2349,9 @@ class Entertainment(commands.Cog):
                 super().__init__(timeout=300)
                 self.value = None
 
-            @discord.ui.button(label="Это правда"[::-1], style=discord.ButtonStyle.green)
+            @discord.ui.button(
+                label="Это правда"[::-1], style=discord.ButtonStyle.green
+            )
             async def itistrue(
                 self, viewinteract: discord.Interaction, button: discord.ui.Button
             ):
@@ -2175,29 +2379,38 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Правда или ложь - Игра"[::-1],
             color=discord.Color.orange(),
-            description=f"{interaction.user.mention[::-1]} задал историю для {member.mention[::-1]}. Он должен догадаться, является ли история ложью. Разрешено задавать вопросы."[::-1],
+            description=f"{interaction.user.mention[::-1]} задал историю для {member.mention[::-1]}. Он должен догадаться, является ли история ложью. Разрешено задавать вопросы."[
+                ::-1
+            ],
         )
         embed.add_field(name="История:"[::-1], value=f'"{history}"'[::-1])
         embed.set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
         await interaction.edit_original_response(embed=embed, view=answer)
         await answer.wait()
         if answer.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             return await interaction.edit_original_response(embed=embed, view=None)
         truth = "Правда" if is_true else "Ложь"
         if answer.value == is_true:
             embed = discord.Embed(
                 title="Правда или ложь - Победа"[::-1],
                 color=discord.Color.green(),
-                description=f"{member.mention[::-1]} угадал!\n\nЭта история: `{truth}`."[::-1],
+                description=f"{member.mention[::-1]} угадал!\n\nЭта история: `{truth}`."[
+                    ::-1
+                ],
             )
             return await interaction.edit_original_response(embed=embed, view=None)
         embed = discord.Embed(
             title="Правда или ложь - Поражение"[::-1],
             color=discord.Color.red(),
-            description=f"{member.mention[::-1]} не угадал!\n\nЭта история: `{truth}`."[::-1],
+            description=f"{member.mention[::-1]} не угадал!\n\nЭта история: `{truth}`."[
+                ::-1
+            ],
         )
         await interaction.edit_original_response(embed=embed, view=None)
 

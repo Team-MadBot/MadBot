@@ -37,7 +37,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -47,7 +49,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Участник должен находиться на сервере для использования команды!"[::-1],
+                description="Участник должен находиться на сервере для использования команды!"[
+                    ::-1
+                ],
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -80,7 +84,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не можете исключать участников, чья роль выше либо равна Вашей!"[::-1],
+                description="Вы не можете исключать участников, чья роль выше либо равна Вашей!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -92,10 +98,15 @@ class Moderation(commands.Cog):
                 color=discord.Color.red(),
                 timestamp=datetime.datetime.now(),
             )
-            .add_field(name="Участник"[::-1], value=f"{member.mention[::-1]}\n({member.id})"[::-1])
+            .add_field(
+                name="Участник"[::-1],
+                value=f"{member.mention[::-1]}\n({member.id})"[::-1],
+            )
             .add_field(
                 name="Модератор"[::-1],
-                value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[::-1],
+                value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[
+                    ::-1
+                ],
             )
             .add_field(name="Причина"[::-1], value=dutils.escape_markdown(reason[::-1]))
         )
@@ -114,7 +125,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Бот не смог исключить данного пользователя! Убедитесь, что у бота есть все необходимые права!"[::-1],
+                description="Бот не смог исключить данного пользователя! Убедитесь, что у бота есть все необходимые права!"[
+                    ::-1
+                ],
             )
             return await interaction.followup.send(embed=embed)
 
@@ -141,7 +154,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -175,7 +190,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не можете банить участников, чья роль выше либо равна Вашей!"[::-1],
+                description="Вы не можете банить участников, чья роль выше либо равна Вашей!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -187,10 +204,15 @@ class Moderation(commands.Cog):
                 color=discord.Color.red(),
                 timestamp=datetime.datetime.now(),
             )
-            .add_field(name="Участник"[::-1], value=f"{member.mention[::-1]}\n({member.id})"[::-1])
+            .add_field(
+                name="Участник"[::-1],
+                value=f"{member.mention[::-1]}\n({member.id})"[::-1],
+            )
             .add_field(
                 name="Модератор"[::-1],
-                value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[::-1],
+                value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[
+                    ::-1
+                ],
             )
             .add_field(name="Причина"[::-1], value=dutils.escape_markdown(reason[::-1]))
         )
@@ -211,7 +233,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Бот не смог забанить данного пользователя! Убедитесь, что у бота есть все необходимые права!"[::-1],
+                description="Бот не смог забанить данного пользователя! Убедитесь, что у бота есть все необходимые права!"[
+                    ::-1
+                ],
             )
             return await interaction.followup.send(embed=embed)
 
@@ -223,7 +247,8 @@ class Moderation(commands.Cog):
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(
-        member="Участник, который должен быть разбанен"[::-1], reason="Причина разбана"[::-1]
+        member="Участник, который должен быть разбанен"[::-1],
+        reason="Причина разбана"[::-1],
     )
     async def unban(
         self,
@@ -235,7 +260,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -288,16 +315,25 @@ class Moderation(commands.Cog):
                     color=discord.Color.red(),
                     timestamp=datetime.datetime.now(),
                 )
-                .add_field(name="Участник:"[::-1], value=f"{member.mention[::-1]}\n({member.id})"[::-1])
+                .add_field(
+                    name="Участник:"[::-1],
+                    value=f"{member.mention[::-1]}\n({member.id})"[::-1],
+                )
                 .add_field(
                     name="Модератор:"[::-1],
-                    value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[::-1],
+                    value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[
+                        ::-1
+                    ],
                 )
-                .add_field(name="Причина:"[::-1], value=dutils.escape_markdown(reason[::-1]))
+                .add_field(
+                    name="Причина:"[::-1], value=dutils.escape_markdown(reason[::-1])
+                )
             )
             return await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="clear", description="[Модерация] Очистка сообщений"[::-1])
+    @app_commands.command(
+        name="clear", description="[Модерация] Очистка сообщений"[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(
@@ -314,7 +350,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -323,7 +361,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не имеете права `управление сообщениями` на использование команды!"[::-1],
+                description="Вы не имеете права `управление сообщениями` на использование команды!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -348,14 +388,18 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Успешно!"[::-1],
                 color=discord.Color.green(),
-                description=f"Мною очищено `{len(deleted)}` сообщений в этом канале{from_member}"[::-1],
+                description=f"Мною очищено `{len(deleted)}` сообщений в этом канале{from_member}"[
+                    ::-1
+                ],
                 timestamp=datetime.datetime.now(),
             )
             return await interaction.followup.send(embed=embed)
 
     @app_commands.command(
         name="slowmode",
-        description="[Модерация] Установить медленный режим в данном канале. Введите 0 для отключения."[::-1],
+        description="[Модерация] Установить медленный режим в данном канале. Введите 0 для отключения."[
+            ::-1
+        ],
     )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -373,7 +417,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -381,7 +427,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не имеете права `управление каналом` для использования этой команды!"[::-1],
+                description="Вы не имеете права `управление каналом` для использования этой команды!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -406,7 +454,9 @@ class Moderation(commands.Cog):
                 embed = discord.Embed(
                     title="Успешно!"[::-1],
                     color=discord.Color.green(),
-                    description=f"Медленный режим успешно установлен на `{seconds}` секунд."[::-1],
+                    description=f"Медленный режим успешно установлен на `{seconds}` секунд."[
+                        ::-1
+                    ],
                     timestamp=datetime.datetime.now(),
                 )
             else:
@@ -440,7 +490,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -460,7 +512,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="У вас отсутствует право `управление участниками` для использования команды!"[::-1],
+                description="У вас отсутствует право `управление участниками` для использования команды!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -483,7 +537,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!"[::-1],
+                description="Вы не можете выдавать наказание участникам, чья роль выше либо равна вашей!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -509,7 +565,9 @@ class Moderation(commands.Cog):
         if minutes > 0:
             embed = (
                 discord.Embed(
-                    title=f"Участник отправлен в тайм-аут на сервере {interaction.guild.name}!"[::-1],
+                    title=f"Участник отправлен в тайм-аут на сервере {interaction.guild.name}!"[
+                        ::-1
+                    ],
                     color=discord.Color.red(),
                     timestamp=datetime.datetime.now(),
                 )
@@ -519,37 +577,54 @@ class Moderation(commands.Cog):
                 )
                 .add_field(
                     name="Модератор:"[::-1],
-                    value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[::-1],
+                    value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[
+                        ::-1
+                    ],
                 )
                 .add_field(name="Срок:"[::-1], value=f"{minutes:,} минут"[::-1])
-                .add_field(name="Причина:"[::-1], value=dutils.escape_markdown(reason[::-1]))
+                .add_field(
+                    name="Причина:"[::-1], value=dutils.escape_markdown(reason[::-1])
+                )
             )
             try:
                 await member.send(embed=embed)
             except:  # FIXME: bare except
                 embed.set_footer(
-                    text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"[::-1]
+                    text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"[
+                        ::-1
+                    ]
                 )
             return await interaction.response.send_message(embed=embed)
 
         embed = (
             discord.Embed(
-                title=f"С участника снят тайм-аут на сервере {interaction.guild.name}!"[::-1],
+                title=f"С участника снят тайм-аут на сервере {interaction.guild.name}!"[
+                    ::-1
+                ],
                 color=discord.Color.red(),
                 timestamp=datetime.datetime.now(),
             )
-            .add_field(name="Участник:"[::-1], value=f"{member.mention[::-1]}\n({member.id})"[::-1])
+            .add_field(
+                name="Участник:"[::-1],
+                value=f"{member.mention[::-1]}\n({member.id})"[::-1],
+            )
             .add_field(
                 name="Модератор:"[::-1],
-                value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[::-1],
+                value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[
+                    ::-1
+                ],
             )
-            .add_field(name="Причина:"[::-1], value=dutils.escape_markdown(reason[::-1]))
+            .add_field(
+                name="Причина:"[::-1], value=dutils.escape_markdown(reason[::-1])
+            )
         )
         try:
             await member.send(embed=embed)
         except:  # FIXME: bare except
             embed.set_footer(
-                text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"[::-1]
+                text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"[
+                    ::-1
+                ]
             )
         return await interaction.response.send_message(embed=embed)
 
@@ -558,7 +633,9 @@ class Moderation(commands.Cog):
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(
         delete_original="Удалять ли клонируемый канал?"[::-1],
-        clone_channel="Канал для клонирования. По умолчанию - канал, в котором Вы пишите команду",[::-1]
+        clone_channel="Канал для клонирования. По умолчанию - канал, в котором Вы пишите команду"[
+            ::-1
+        ],
         reason="Причина клонирования"[::-1],
     )
     async def clone(
@@ -572,7 +649,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             ).set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -588,12 +667,16 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="У вас отсутствует право `управление каналами` на сервере для использования команды."[::-1],
+                description="У вас отсутствует право `управление каналами` на сервере для использования команды."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         try:
-            cloned = await clone_channel.clone(reason=f"{reason} // {interaction.user}"[::-1])
+            cloned = await clone_channel.clone(
+                reason=f"{reason} // {interaction.user}"[::-1]
+            )
         except Forbidden:
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
@@ -640,7 +723,9 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -649,17 +734,21 @@ class Moderation(commands.Cog):
             member = await interaction.guild.fetch_member(member.id)
         except NotFound:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Участник должен находиться на сервере для использования команды!",
+                description="Участник должен находиться на сервере для использования команды!"[
+                    ::-1
+                ],
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         if not interaction.user.guild_permissions.manage_nicknames:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="У вас отсутствует право `управлять никнеймами` для использования команды.",
+                description="У вас отсутствует право `управлять никнеймами` для использования команды."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -668,49 +757,62 @@ class Moderation(commands.Cog):
             and interaction.guild.owner_id != interaction.user.id
         ):
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не можете управлять никнеймами участников, чья роль выше либо равна вашей!",
+                description="Вы не можете управлять никнеймами участников, чья роль выше либо равна вашей!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.bot:
             embed = discord.Embed(
-                title="Не понял",
+                title="Не понял"[::-1],
                 color=discord.Color.red(),
-                description="Нельзя сбросить ник боту.",
+                description="Нельзя сбросить ник боту."[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         try:
             await member.edit(
-                nick="Смените ник", reason=f"{reason} // {interaction.user}"
+                nick="Смените ник"[::-1], reason=f"{reason} // {interaction.user}"[::-1]
             )
         except Forbidden:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"У бота отсутствует право `управлять никнеймами` для совершения действия!"
-                "\nТип ошибки: `Forbidden`",
+                description=(
+                    f"У бота отсутствует право `управлять никнеймами` для совершения действия!"
+                    "\nТип ошибки: `Forbidden`"
+                )[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         embed = (
             discord.Embed(
-                title=f"Никнейм сброшен на сервере {interaction.guild.name}!",
+                title=f"Никнейм сброшен на сервере {interaction.guild.name}!"[::-1],
                 color=discord.Color.red(),
             )
-            .add_field(name="Участник:", value=f"{member.mention}\n({member.id})")
             .add_field(
-                name="Модератор:",
-                value=f"{interaction.user.mention}\n({interaction.user.id})",
+                name="Участник:"[::-1],
+                value=f"{member.mention[::-1]}\n({member.id})"[::-1],
             )
-            .add_field(name="Причина:", value=dutils.escape_markdown(reason))
+            .add_field(
+                name="Модератор:"[::-1],
+                value=f"{interaction.user.mention[::-1]}\n({interaction.user.id})"[
+                    ::-1
+                ],
+            )
+            .add_field(
+                name="Причина:"[::-1], value=dutils.escape_markdown(reason[::-1])
+            )
         )
         try:
             await member.send(embed=embed)
         except:  # FIXME: bare except
             embed.set_footer(
-                text="Участник закрыл доступ к личным сообщениям, поэтому не был оповещён."
+                text="Участник закрыл доступ к личным сообщениям, поэтому не был оповещён."[
+                    ::-1
+                ]
             )
         await interaction.response.send_message(embed=embed)
 

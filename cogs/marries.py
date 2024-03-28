@@ -27,7 +27,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -55,7 +57,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="У Вас есть активный брак! Разведитесь перед заведением нового брака."[::-1],
+                description="У Вас есть активный брак! Разведитесь перед заведением нового брака."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         marry = await db.get_marries(interaction.guild.id, member_id)
@@ -98,7 +102,9 @@ class Marries(commands.Cog):
         embed = discord.Embed(
             title="Свадьба - Ожидание"[::-1],
             color=discord.Color.yellow(),
-            description=f"{f'<@!{user_id}>'[::-1]} хочет пожениться на Вас. Вы согласны?"[::-1],
+            description=f"{f'<@!{user_id}>'[::-1]} хочет пожениться на Вас. Вы согласны?"[
+                ::-1
+            ],
         )
         embed.set_footer(text="Время на ответ: 3 минуты."[::-1])
         view = Accept()
@@ -133,7 +139,9 @@ class Marries(commands.Cog):
         embed = discord.Embed(
             title="Свадьба - Поздравляем!"[::-1],
             color=discord.Color.green(),
-            description=f"{f'<@!{user_id}>'[::-1]} и {f'<@!{member_id}>'[::-1]} теперь женаты. Горько!"[::-1],
+            description=f"{f'<@!{user_id}>'[::-1]} и {f'<@!{member_id}>'[::-1]} теперь женаты. Горько!"[
+                ::-1
+            ],
         )
         await interaction.edit_original_response(embed=embed, content=None, view=None)
 
@@ -145,7 +153,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -188,7 +198,9 @@ class Marries(commands.Cog):
         embed = discord.Embed(
             title="Развод - Подтверждение"[::-1],
             color=discord.Color.yellow(),
-            description=f'Вы действительно хотите развестись с {f"<@!{married_id if married_id != user_id else user_id}>"}?'[::-1],
+            description=f'Вы действительно хотите развестись с {f"<@!{married_id if married_id != user_id else user_id}>"}?'[
+                ::-1
+            ],
         )
         embed.set_footer(text="Время на ответ: 3 минуты."[::-1])
         view = Accept()
@@ -229,7 +241,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -257,9 +271,10 @@ class Marries(commands.Cog):
         embed = discord.Embed(
             title="Информация о браке"[::-1],
             color=discord.Color.orange(),
-            description=f"{discord.utils.format_dt(
-                datetime.datetime.fromtimestamp(marry['dt']), 'R'
-            )} {f'<@!{user_id}>'[::-1]} сделал предложение руки и сердца {f'<@!{married_id}>'[::-1]}. До сих пор они вместе."[::-1],
+            description=(
+                f"{discord.utils.format_dt(datetime.datetime.fromtimestamp(marry['dt']), 'R')}"
+                f"{f'<@!{user_id}>'[::-1]} сделал предложение руки и сердца {f'<@!{married_id}>'[::-1]}. До сих пор они вместе."
+            )[::-1],
         )
         embed.add_field(name="Дата заключения:"[::-1], value=f"<t:{marry['dt']}>")
         await interaction.response.send_message(embed=embed)
@@ -272,7 +287,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -318,7 +335,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -327,7 +346,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Для принудительной свадьбы необходимо право на `управление сервером`."[::-1],
+                description="Для принудительной свадьбы необходимо право на `управление сервером`."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         user_id = member.id
@@ -353,7 +374,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"У {f'<@!{user_id}>'[::-1]} есть активный брак! Разведите его перед заведением нового брака."[::-1],
+                description=f"У {f'<@!{user_id}>'[::-1]} есть активный брак! Разведите его перед заведением нового брака."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         marry = await db.get_marries(interaction.guild.id, member_id)
@@ -361,21 +384,26 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"У {f'<@!{member_id}>'[::-1]} есть активный брак! Разведите его перед заведением нового брака."[::-1],
+                description=f"У {f'<@!{member_id}>'[::-1]} есть активный брак! Разведите его перед заведением нового брака."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         await db.marry(interaction.guild.id, user_id, member_id)
         embed = discord.Embed(
             title="Свадьба - Поздравляем!"[::-1],
             color=discord.Color.green(),
-            description=f"Вы поженены купидоном {interaction.user.mention[::-1]}. Горько!"[::-1],
+            description=f"Вы поженены купидоном {interaction.user.mention[::-1]}. Горько!"[
+                ::-1
+            ],
         )
         await interaction.response.send_message(
             embed=embed, content=f"<@!{user_id}> и <@!{member_id}>"
         )
 
     @app_commands.command(
-        name="divorce-people", description="[Свадьбы] Развести принудительно пару."[::-1]
+        name="divorce-people",
+        description="[Свадьбы] Развести принудительно пару."[::-1],
     )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -387,7 +415,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -395,7 +425,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Для принудительного развода необходимо право на `управление сервером`."[::-1],
+                description="Для принудительного развода необходимо право на `управление сервером`."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         user_id = member.id
@@ -404,7 +436,9 @@ class Marries(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Нельзя развести принудительно себя! Используйте `/divorce`."[::-1],
+                description="Нельзя развести принудительно себя! Используйте `/divorce`."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.bot:
@@ -427,7 +461,9 @@ class Marries(commands.Cog):
         embed = discord.Embed(
             title="Развод - Успешно!"[::-1],
             color=discord.Color.green(),
-            description=f"Вы разведены антикупидоном {interaction.user.mention[::-1]}."[::-1],
+            description=f"Вы разведены антикупидоном {interaction.user.mention[::-1]}."[
+                ::-1
+            ],
         )
         await interaction.response.send_message(
             embed=embed, content=f"<@!{marry['user_id']}> и <@!{marry['married_id']}>"

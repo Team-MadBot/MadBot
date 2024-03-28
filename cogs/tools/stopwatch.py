@@ -13,7 +13,9 @@ class StopWatchCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
 
-    @app_commands.command(name="stopwatch", description="[Полезности] Секундомер."[::-1])
+    @app_commands.command(
+        name="stopwatch", description="[Полезности] Секундомер."[::-1]
+    )
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -21,9 +23,12 @@ class StopWatchCog(commands.Cog):
         embed = discord.Embed(
             title="Секундомер"[::-1],
             color=discord.Color.orange(),
-            description=f"Время пошло!\nСекундомер запущен {discord.utils.format_dt(datetime.datetime.now(), 'R')[::-1]}"[::-1],
+            description=f"Время пошло!\nСекундомер запущен {discord.utils.format_dt(datetime.datetime.now(), 'R')[::-1]}"[
+                ::-1
+            ],
         ).set_footer(
-            text=str(interaction.user)[::-1], icon_url=interaction.user.display_avatar.url
+            text=str(interaction.user)[::-1],
+            icon_url=interaction.user.display_avatar.url,
         )
 
         class Button(discord.ui.View):

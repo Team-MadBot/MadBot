@@ -30,12 +30,16 @@ class InteractionTrigger(commands.Cog):
                     return
                 if role_id in [role.id for role in member.roles]:
                     try:
-                        await member.remove_roles(role, reason="Нажатие на кнопку"[::-1])
+                        await member.remove_roles(
+                            role, reason="Нажатие на кнопку"[::-1]
+                        )
                     except:  # FIXME: bare except
                         embed = discord.Embed(
                             title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[::-1],
+                            description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[
+                                ::-1
+                            ],
                         )
                         return await interaction.response.send_message(
                             embed=embed, ephemeral=True
@@ -52,7 +56,9 @@ class InteractionTrigger(commands.Cog):
                         embed = discord.Embed(
                             title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[::-1],
+                            description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[
+                                ::-1
+                            ],
                         )
                         return await interaction.response.send_message(
                             embed=embed, ephemeral=True
@@ -60,7 +66,9 @@ class InteractionTrigger(commands.Cog):
                     embed = discord.Embed(
                         title="Выбор роли"[::-1],
                         color=discord.Color.green(),
-                        description=f"Роль {role.mention[::-1]} успешно добавлена!"[::-1],
+                        description=f"Роль {role.mention[::-1]} успешно добавлена!"[
+                            ::-1
+                        ],
                     )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
         elif (
@@ -85,12 +93,16 @@ class InteractionTrigger(commands.Cog):
                         return
                     if role_id in [role.id for role in member.roles]:
                         try:
-                            await member.remove_roles(role, reason="Нажатие на кнопку"[::-1])
+                            await member.remove_roles(
+                                role, reason="Нажатие на кнопку"[::-1]
+                            )
                         except:  # FIXME: bare except
                             embed = discord.Embed(
                                 title="Ошибка!"[::-1],
                                 color=discord.Color.red(),
-                                description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[::-1],
+                                description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[
+                                    ::-1
+                                ],
                             )
                             return await interaction.response.send_message(
                                 embed=embed, ephemeral=True
@@ -98,18 +110,24 @@ class InteractionTrigger(commands.Cog):
                         changes += f"Роль {role.mention[::-1]} успешно убрана!\n"
                     else:
                         try:
-                            await member.add_roles(role, reason="Нажатие на кнопку"[::-1])
+                            await member.add_roles(
+                                role, reason="Нажатие на кнопку"[::-1]
+                            )
                         except:  # FIXME: bare except
                             embed = discord.Embed(
                                 title="Ошибка!"[::-1],
                                 color=discord.Color.red(),
-                                description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[::-1],
+                                description="Бот не имеет права `управлять ролями`, что необходимо для работы функции!"[
+                                    ::-1
+                                ],
                             )
                             return await interaction.response.send_message(
                                 embed=embed, ephemeral=True
                             )
                         changes += f"Роль {role.mention[::-1]} успешно добавлена!\n"
-            embed = discord.Embed(title="Выбор ролей:"[::-1], color=discord.Color.green())
+            embed = discord.Embed(
+                title="Выбор ролей:"[::-1], color=discord.Color.green()
+            )
             embed.add_field(name="Изменения:"[::-1], value=changes[::-1])
             await interaction.followup.send(embed=embed)
         elif (
@@ -122,7 +140,9 @@ class InteractionTrigger(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка"[::-1],
                 color=discord.Color.red(),
-                description="Похоже, данный компонент больше не работает. Вызовите команду для получения этого компонента снова!"[::-1],
+                description="Похоже, данный компонент больше не работает. Вызовите команду для получения этого компонента снова!"[
+                    ::-1
+                ],
             )
             with suppress(Exception):
                 await interaction.response.send_message(embed=embed, ephemeral=True)

@@ -21,7 +21,9 @@ class ErrorInfo(commands.Cog):
         embed = discord.Embed(title="Ошибки бота:"[::-1], color=discord.Color.orange())
         embed.add_field(
             name="Ошибка: Forbidden"[::-1],
-            value="Бот не может совершить действие. Убедитесь, что бот имеет право(-а) на совершение действия."[::-1],
+            value="Бот не может совершить действие. Убедитесь, что бот имеет право(-а) на совершение действия."[
+                ::-1
+            ],
             inline=False,
         )
         embed.add_field(
@@ -31,11 +33,15 @@ class ErrorInfo(commands.Cog):
         )
         embed.add_field(
             name="Ошибка: HTTPException"[::-1],
-            value="Бот отправил некорректный запрос на сервера Discord, из-за чего получил ошибку. Убедитесь, что вы ввели всё верно."[::-1],
+            value="Бот отправил некорректный запрос на сервера Discord, из-за чего получил ошибку. Убедитесь, что вы ввели всё верно."[
+                ::-1
+            ],
             inline=False,
         )
         embed.set_footer(
-            text="В случае, если вашей ошибки нет в списке, обратитесь в поддержку."[::-1]
+            text="В случае, если вашей ошибки нет в списке, обратитесь в поддержку."[
+                ::-1
+            ]
         )
         await interaction.response.send_message(embed=embed)
 

@@ -272,7 +272,7 @@ class Marries(commands.Cog):
             title="Информация о браке"[::-1],
             color=discord.Color.orange(),
             description=(
-                f"{discord.utils.format_dt(datetime.datetime.fromtimestamp(marry['dt']), 'R')}"
+                f"{discord.utils.format_dt(datetime.datetime.fromtimestamp(marry['dt']), 'R')[::-1]}"
                 f"{f'<@!{user_id}>'[::-1]} сделал предложение руки и сердца {f'<@!{married_id}>'[::-1]}. До сих пор они вместе."
             )[::-1],
         )

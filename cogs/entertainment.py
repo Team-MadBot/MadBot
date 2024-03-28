@@ -851,18 +851,18 @@ class Entertainment(commands.Cog):
                             "Не для тебя кнопочка!"[::-1], ephemeral=True
                         )
                     if view.current_player == view.X:
-                        content = f"Теперь очередь {self.X.mention}"
+                        content = f"Теперь очередь {self.X.mention[::-1]}"
                     elif view.current_player == view.O:
-                        content = f"Теперь очередь {self.O.mention}"
+                        content = f"Теперь очередь {self.O.mention[::-1]}"
                     else:
-                        content = f"Первый ход за {self.X.mention}"
+                        content = f"Первый ход за {self.X.mention[::-1]}"
 
                     winner = view.check_board_winner()
                     if winner is not None:
                         if winner == view.X:
-                            content = f"{self.X.mention} победил!"
+                            content = f"{self.X.mention[::-1]} победил!"
                         elif winner == view.O:
-                            content = f"{self.O.mention} победил!"
+                            content = f"{self.O.mention[::-1]} победил!"
                         else:
                             content = "Ничья!"
 
@@ -1340,7 +1340,7 @@ class Entertainment(commands.Cog):
         embed = discord.Embed(
             title="Виселица - Задать слово"[::-1],
             color=discord.Color.orange(),
-            description=f"{interaction.user.mention} должен задать слово, нажав на кнопку."[
+            description=f"{interaction.user.mention[::-1]} должен задать слово, нажав на кнопку."[
                 ::-1
             ],
         )

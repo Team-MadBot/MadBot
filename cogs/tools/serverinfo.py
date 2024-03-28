@@ -42,7 +42,7 @@ class ServerInfo(commands.Cog):
         if await is_premium_server(interaction.guild):
             badges.append(enums.Badges.PREMIUM.value)
         embed = discord.Embed(
-            title=discord.utils.escape_markdown(interaction.guild.name),
+            title=discord.utils.escape_markdown(interaction.guild.name[::-1]),
             color=discord.Color.orange(),
         )
         if len(badges) != 0:

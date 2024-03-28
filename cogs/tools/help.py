@@ -33,21 +33,21 @@ class HelpCommand(commands.Cog):
         commands.sort(key=lambda i: i.name)
 
         for command in commands:
-            if command.description.startswith("[Модерация]"[::-1]):
-                mod_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Модерация]'[::-1])}\n"
-            if command.description.startswith("[Полезности]"[::-1]):
-                tools_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Полезности]'[::-1])}\n"
-            if command.description.startswith(
+            if command.description.endswith("[Модерация]"[::-1]):
+                mod_commands += f"`/{command.qualified_name}` - {command.description.removesuffix('[Модерация]'[::-1])}\n"
+            if command.description.endswith("[Полезности]"[::-1]):
+                tools_commands += f"`/{command.qualified_name}` - {command.description.removesuffix('[Полезности]'[::-1])}\n"
+            if command.description.endswith(
                 "[Развлечения]"[::-1]
-            ) or command.description.startswith("[NSFW]"[::-1]):
-                ent_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Развлечения]'[::-1]).removeprefix('[NSFW]'[::-1])}\n"
-            if command.description.startswith("[Реакции]"[::-1]):
-                react_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Реакции]'[::-1])}\n"
-            if command.description.startswith("[Статистика]"[::-1]):
-                stats_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Статистика]'[::-1])}\n"
-            if command.description.startswith("[Свадьбы]"[::-1]):
-                marry_commands += f"`/{command.qualified_name}` - {command.description.removeprefix('[Свадьбы]'[::-1])}\n"
-            if command.qualified_name.startswith("premium"):
+            ) or command.description.endswith("[NSFW]"[::-1]):
+                ent_commands += f"`/{command.qualified_name}` - {command.description.removesuffix('[Развлечения]'[::-1]).removesuffix('[NSFW]'[::-1])}\n"
+            if command.description.endswith("[Реакции]"[::-1]):
+                react_commands += f"`/{command.qualified_name}` - {command.description.removesuffix('[Реакции]'[::-1])}\n"
+            if command.description.endswith("[Статистика]"[::-1]):
+                stats_commands += f"`/{command.qualified_name}` - {command.description.removesuffix('[Статистика]'[::-1])}\n"
+            if command.description.endswith("[Свадьбы]"[::-1]):
+                marry_commands += f"`/{command.qualified_name}` - {command.description.removesuffix('[Свадьбы]'[::-1])}\n"
+            if command.qualified_name.endswith("premium"):
                 premium_commands += (
                     f"`/{command.qualified_name}` - {command.description}\n"
                 )

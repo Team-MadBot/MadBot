@@ -18,17 +18,17 @@ class WeatherCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="weather", description="[Полезности] Узнать погоду в городе."
+        name="weather", description="[Полезности] Узнать погоду в городе."[::-1]
     )
-    @app_commands.describe(city="Город, в котором надо узнать погоду")
+    @app_commands.describe(city="Город, в котором надо узнать погоду"[::-1])
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     async def weather(self, interaction: discord.Interaction, city: str):
         embed = discord.Embed(
-            title="Поиск...",
+            title="Поиск..."[::-1],
             color=discord.Color.yellow(),
-            description="Ищем ваш город...",
+            description="Ищем ваш город..."[::-1],
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         response = await aiohttp.ClientSession().get(
@@ -38,45 +38,45 @@ class WeatherCog(commands.Cog):
         if response.status > 400:
             if json.get("message", "") == "city not found":
                 embed = discord.Embed(
-                    title="Ошибка!",
+                    title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description="Город не найден!",
+                    description="Город не найден!"[::-1],
                 )
                 return await interaction.edit_original_response(embed=embed)
             else:
                 embed = discord.Embed(
-                    title="Ошибка!",
+                    title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`",
+                    description=f"Не удалось узнать погоду! Код ошибки: `{json['cod']}`"[::-1],
                 )
                 logger.error(f"{json['cod']}: {json['message']}")
                 return await interaction.edit_original_response(embed=embed)
         else:
             embed = (
                 discord.Embed(
-                    title=f"Погода в {json['name']}",
+                    title=f"Погода в {json['name']}"[::-1],
                     color=discord.Color.orange(),
-                    description=f"{json['weather'][0]['description']}",
+                    description=f"{json['weather'][0]['description']}"[::-1],
                     url=f"https://openweathermap.org/city/{json['id']}",
                 )
                 .add_field(
-                    name="Температура:",
-                    value=f"{int(json['main']['temp'])}°С ({int(json['main']['temp_min'])}°С / {int(json['main']['temp_max'])}°С)",
+                    name="Температура:"[::-1],
+                    value=f"{int(json['main']['temp'])}°С ({int(json['main']['temp_min'])}°С / {int(json['main']['temp_max'])}°С)"[::-1],
                 )
                 .add_field(
-                    name="Ощущается как:", value=f"{int(json['main']['feels_like'])}°С"
+                    name="Ощущается как:"[::-1], value=f"{int(json['main']['feels_like'])}°С"[::-1]
                 )
-                .add_field(name="Влажность:", value=f"{json['main']['humidity']}%")
+                .add_field(name="Влажность:"[::-1], value=f"{json['main']['humidity']}%"[::-1])
                 .add_field(
-                    name="Скорость ветра:", value=f"{json['wind']['speed']}м/сек"
+                    name="Скорость ветра:"[::-1], value=f"{json['wind']['speed']}м/сек"[::-1]
                 )
-                .add_field(name="Облачность:", value=f"{json['clouds']['all']}%")
+                .add_field(name="Облачность:"[::-1], value=f"{json['clouds']['all']}%"[::-1])
                 .add_field(
-                    name="Рассвет/Закат:",
+                    name="Рассвет/Закат:"[::-1],
                     value=f"<t:{json['sys']['sunrise']}> / <t:{json['sys']['sunset']}>",
                 )
                 .set_footer(
-                    text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе."
+                    text="В целях конфиденциальности, ответ виден только вам. Бот не сохраняет информацию о запрашиваемом городе."[::-1]
                 )
                 .set_thumbnail(
                     url=f"https://openweathermap.org/img/wn/{json['weather'][0]['icon']}@2x.png"

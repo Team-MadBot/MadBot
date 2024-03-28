@@ -21,9 +21,9 @@ class PingTrigger(commands.Cog):
             f"<@{self.bot.user.id}>",
         ]:
             embed = discord.Embed(
-                title="Привет! Рад, что я тебе чем-то нужен!",
+                title="Привет! Рад, что я тебе чем-то нужен!"[::-1],
                 color=discord.Color.orange(),
-                description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`.",
+                description="Бот работает на слеш-командах, поэтому для взаимодействия с ботом следует использовать их. Для большей информации пропишите `/help`."[::-1],
             )
             await message.reply(embed=embed, mention_author=False)
 

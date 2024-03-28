@@ -13,27 +13,27 @@ class NickCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
 
-    @app_commands.command(name="nick", description="[Полезности] Изменяет ваш ник.")
+    @app_commands.command(name="nick", description="[Полезности] Изменяет ваш ник."[::-1])
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(
-        argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника"
+        argument="Ник, на который вы хотите поменять. Оставьте пустым для сброса ника"[::-1]
     )
     async def nick(self, interaction: discord.Interaction, argument: str | None = None):
         if interaction.guild is None:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!",
+                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
             )
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if not self.bot.intents.members:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="На данный момент, команда недоступна.",
+                description="На данный момент, команда недоступна."[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         assert self.bot.user is not None
@@ -44,37 +44,37 @@ class NickCog(commands.Cog):
             or bot_member.top_role < interaction.user.top_role
         ):
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Бот не может изменить Вам никнейм!",
+                description="Бот не может изменить Вам никнейм!"[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if argument is not None and len(argument) > 32:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Длина ника не должна превышать `32 символа`!",
+                description="Длина ника не должна превышать `32 символа`!"[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if interaction.user.guild_permissions.change_nickname:
             if interaction.user.id == interaction.guild.owner_id:
                 embed = discord.Embed(
-                    title="Ошибка!",
+                    title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description="Бот не может изменять никнейм владельцу сервера!",
+                    description="Бот не может изменять никнейм владельцу сервера!"[::-1],
                 )
                 return await interaction.response.send_message(
                     embed=embed, ephemeral=True
                 )
             try:
                 await interaction.user.edit(
-                    nick=argument, reason="Самостоятельная смена ника"
+                    nick=argument, reason="Самостоятельная смена ника"[::-1]
                 )
             except Forbidden:
                 embed = discord.Embed(
-                    title="Ошибка!",
+                    title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description=f"Бот не смог изменить вам никнейм!\nТип ошибки: `Forbidden`",
+                    description=f"Бот не смог изменить вам никнейм!\nТип ошибки: `Forbidden`"[::-1],
                 )
                 return await interaction.response.send_message(
                     embed=embed, ephemeral=True
@@ -82,16 +82,16 @@ class NickCog(commands.Cog):
             else:
                 if argument is not None:
                     embed = discord.Embed(
-                        title="Успешно!",
+                        title="Успешно!"[::-1],
                         color=discord.Color.green(),
-                        description=f"Ваш ник успешно изменён на `{argument}`!",
+                        description=f"Ваш ник успешно изменён на `{argument}`!"[::-1],
                         timestamp=datetime.datetime.now(),
                     )
                 else:
                     embed = discord.Embed(
-                        title="Успешно!",
+                        title="Успешно!"[::-1],
                         color=discord.Color.green(),
-                        description="Ваш ник успешно сброшен!",
+                        description="Ваш ник успешно сброшен!"[::-1],
                         timestamp=datetime.datetime.now(),
                     )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -102,11 +102,11 @@ class NickCog(commands.Cog):
                 else f"Ваш желаемый ник: `{argument}`."
             )
             embed = discord.Embed(
-                title="Запрос разрешения",
+                title="Запрос разрешения"[::-1],
                 color=discord.Color.orange(),
-                description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\n{string}",
+                description=f"Вы не имеете права на `изменение никнейма`. Попросите участника с правом на `управление никнеймами` разрешить смену ника.\n{string}"[::-1],
             )
-            embed.set_footer(text="Время ожидания: 5 минут.")
+            embed.set_footer(text="Время ожидания: 5 минут."[::-1])
 
             class NickButtons(discord.ui.View):
                 def __init__(self):
@@ -120,9 +120,9 @@ class NickCog(commands.Cog):
 
                     if not viewinteract.user.guild_permissions.manage_nicknames:
                         embed = discord.Embed(
-                            title="Ошибка!",
+                            title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description="Вы не имеете права `управлять никнеймами` для использования кнопки!",
+                            description="Вы не имеете права `управлять никнеймами` для использования кнопки!"[::-1],
                         )
                         return await viewinteract.response.send_message(
                             embed=embed, ephemeral=True
@@ -131,13 +131,13 @@ class NickCog(commands.Cog):
                     self.value = True
                     try:
                         await interaction.user.edit(
-                            nick=argument, reason=f"Одобрено // {viewinteract.user}"
+                            nick=argument, reason=f"Одобрено // {viewinteract.user}"[::-1]
                         )
                     except Forbidden:
                         embed = discord.Embed(
-                            title="Ошибка!",
+                            title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`.",
+                            description=f"Бот не имеет права `управление никнеймами`.\nКод ошибки: `Forbidden`."[::-1],
                         )
                         return await interaction.edit_original_response(
                             embed=embed, view=None
@@ -146,9 +146,9 @@ class NickCog(commands.Cog):
                         embed = None
                         if argument is not None:
                             embed = discord.Embed(
-                                title="Успешно!",
+                                title="Успешно!"[::-1],
                                 color=discord.Color.green(),
-                                description=f"Ваш ник успешно изменён на `{argument}`!",
+                                description=f"Ваш ник успешно изменён на `{argument}`!"[::-1],
                                 timestamp=datetime.datetime.now(),
                             )
                             embed.set_author(
@@ -157,9 +157,9 @@ class NickCog(commands.Cog):
                             )
                         else:
                             embed = discord.Embed(
-                                title="Успешно!",
+                                title="Успешно!"[::-1],
                                 color=discord.Color.green(),
-                                description="Ваш ник успешно сброшен!",
+                                description="Ваш ник успешно сброшен!"[::-1],
                                 timestamp=datetime.datetime.now(),
                             )
                             embed.set_author(
@@ -176,9 +176,9 @@ class NickCog(commands.Cog):
                     if viewinteract.user.guild_permissions.manage_nicknames:
                         self.value = False
                         embed = discord.Embed(
-                            title="Отказ",
+                            title="Отказ"[::-1],
                             color=discord.Color.red(),
-                            description="Вам отказано в смене ника!",
+                            description="Вам отказано в смене ника!"[::-1],
                         )
                         embed.set_author(
                             name=viewinteract.user,
@@ -189,9 +189,9 @@ class NickCog(commands.Cog):
                         )
                     else:
                         embed = discord.Embed(
-                            title="Ошибка!",
+                            title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description="Вы не имеете права `управлять никнеймами` для использования кнопки!",
+                            description="Вы не имеете права `управлять никнеймами` для использования кнопки!"[::-1],
                         )
                         return await viewinteract.response.send_message(
                             embed=embed, ephemeral=True
@@ -200,7 +200,7 @@ class NickCog(commands.Cog):
             await interaction.response.send_message(embed=embed, view=NickButtons())
             await NickButtons().wait()
             if NickButtons().value is None:
-                embed = discord.Embed(title="Время истекло!", color=discord.Color.red())
+                embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
                 await interaction.edit_original_response(embed=embed, view=None)
 
 

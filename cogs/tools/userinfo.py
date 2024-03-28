@@ -35,10 +35,10 @@ class UserInfoView(discord.ui.View):
     @discord.ui.select(
         cls=discord.ui.Select,
         options=[
-            discord.SelectOption(label="Главная", emoji="🏠", value="default"),
-            discord.SelectOption(label="Разрешения", emoji="👮", value="permissions"),
+            discord.SelectOption(label="Главная"[::-1], emoji="🏠", value="default"),
+            discord.SelectOption(label="Разрешения"[::-1], emoji="👮", value="permissions"),
         ],
-        placeholder="Информация...",
+        placeholder="Информация..."[::-1],
     )
     async def option_select(
         self, interaction: discord.Interaction, select: discord.ui.Select
@@ -54,14 +54,14 @@ class UserInfoView(discord.ui.View):
                     description=(
                         None
                         if not self.userinfo.is_timed_out()
-                        else "**Обратите внимание:** вы видите права пользователя при его тайм-ауте."
+                        else "**Обратите внимание:** вы видите права пользователя при его тайм-ауте."[::-1]
                     ),
                 )
                 .set_thumbnail(url=self.default_embed.thumbnail.url)
-                .set_author(name="Информация о пользователе - Разрешения")
+                .set_author(name="Информация о пользователе - Разрешения"[::-1])
                 .set_footer(text=self.default_embed.footer.text)
                 .add_field(
-                    name="Права на сервере",
+                    name="Права на сервере"[::-1],
                     value=(
                         (
                             "- "
@@ -75,10 +75,10 @@ class UserInfoView(discord.ui.View):
                         )
                         if bool(self.userinfo.guild_permissions)
                         else "Отсутствуют"
-                    ),
+                    )[::-1],
                 )
                 .add_field(
-                    name="Права в канале",
+                    name="Права в канале"[::-1],
                     value=(
                         (
                             "- "
@@ -92,7 +92,7 @@ class UserInfoView(discord.ui.View):
                         )
                         if bool(interaction.channel.permissions_for(self.userinfo))
                         else "Отсутствуют"
-                    ),
+                    )[::-1],
                 )
             )
 
@@ -106,12 +106,12 @@ class UserInfo(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="userinfo", description="[Полезности] Показывает информацию о пользователе"
+        name="userinfo", description="[Полезности] Показывает информацию о пользователе"[::-1]
     )
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
-    @app_commands.describe(member="Участник")
+    @app_commands.describe(member="Участник"[::-1])
     async def userinfo(
         self,
         interaction: discord.Interaction,
@@ -123,12 +123,12 @@ class UserInfo(commands.Cog):
 
         embed = (
             discord.Embed(
-                title=f"{escape_markdown(member.global_name or member.name)} ({escape_markdown(member.name)})",
+                title=f"{escape_markdown(member.global_name or member.name)} ({escape_markdown(member.name)})"[::-1],
                 color=discord.Color.orange(),
             )
-            .set_footer(text=f"ID: {member.id}")
+            .set_footer(text=f"ID: {member.id}"[::-1])
             .set_thumbnail(url=member.display_avatar.url)
-            .set_author(name="Информация о пользователе")
+            .set_author(name="Информация о пользователе"[::-1])
         )
 
         if await checks.is_in_blacklist(member.id):
@@ -152,25 +152,25 @@ class UserInfo(commands.Cog):
 
         if len(badges) != 0:
             embed.add_field(
-                name="Значки",
+                name="Значки"[::-1],
                 value=(
                     " ".join(badges)
                     if not interaction.guild
                     or interaction.channel.permissions_for(
                         interaction.guild.me
                     ).use_external_emojis
-                    else "Отсутствуют права на использование сторонних эмодзи!"
+                    else "Отсутствуют права на использование сторонних эмодзи!"[::-1]
                 ),
                 inline=False,
             )
-        embed.add_field(name="Упоминание", value=member.mention, inline=False)
+        embed.add_field(name="Упоминание"[::-1], value=member.mention, inline=False)
 
         temp_user = await self.bot.fetch_user(member.id)
         if temp_user.banner is not None:
             embed.set_image(url=temp_user.banner.url)
 
         embed.add_field(
-            name="Зарегистрирован в Discord",
+            name="Зарегистрирован в Discord"[::-1],
             value=f"{dutils.format_dt(member.created_at)} ({dutils.format_dt(member.created_at, 'R')})",
             inline=False,
         )
@@ -178,20 +178,20 @@ class UserInfo(commands.Cog):
         if isinstance(member, discord.Member):
             member = await interaction.guild.fetch_member(member.id)
             if member.nick is not None:
-                embed.title += f" `|` {escape_markdown(member.nick)}"
+                embed.title = f" `|` {escape_markdown(member.nick)}"[::-1] + embed.title
             embed.add_field(
-                name="Присоединился к серверу",
+                name="Присоединился к серверу"[::-1],
                 value=f"{dutils.format_dt(member.joined_at)} ({dutils.format_dt(member.joined_at, 'R')})",
                 inline=False,
             ).add_field(
-                name="Цвет никнейма",
-                value=f"{str(member.color).upper() if member.color.value != 0 else 'Стандартный'}",
+                name="Цвет никнейма"[::-1],
+                value=f"{str(member.color).upper() if member.color.value != 0 else 'Стандартный'}"[::-1],
                 inline=False,
             )
             if member.is_timed_out():
                 timeout_until = member.timed_out_until
                 embed.add_field(
-                    name="Время размута",
+                    name="Время размута"[::-1],
                     value=f"{dutils.format_dt(timeout_until)} ({dutils.format_dt(timeout_until, 'R')})",
                     inline=False,
                 )
@@ -206,7 +206,7 @@ class UserInfo(commands.Cog):
                         status_value = "Не беспокоить"
                     case _:
                         status_value = "Оффлайн"
-                embed.add_field(name="Статус", value=status_value, inline=False)
+                embed.add_field(name="Статус"[::-1], value=status_value[::-1], inline=False)
             member_roles = sorted(
                 list(
                     filter(lambda x: x != interaction.guild.default_role, member.roles)
@@ -218,19 +218,19 @@ class UserInfo(commands.Cog):
                 len(member.roles) - 1
             )  # 'cause @everyone role counts too
             embed.add_field(
-                name=f"Роли ({member_roles_amount})",
+                name=f"Роли ({member_roles_amount})"[::-1],
                 value=", ".join([i.mention for i in member_roles])
                 + (
                     ""
                     if len(member_roles) == member_roles_amount
-                    else f" и ещё {member_roles_amount - 15} ролей..."
+                    else f" и ещё {member_roles_amount - 15} ролей..."[::-1]
                 ),
                 inline=False,
             )
             view = UserInfoView(
                 init_user=interaction.user, userinfo=member, default_embed=embed
             )
-            embed.set_author(name="Информация о пользователе - Главная")
+            embed.set_author(name="Информация о пользователе - Главная"[::-1])
 
         await interaction.response.send_message(embed=embed, view=view)
 

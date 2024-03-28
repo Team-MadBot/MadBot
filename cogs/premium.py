@@ -54,7 +54,9 @@ class Premium(commands.Cog):
                     embed = discord.Embed(
                         title="Ошибка!"[::-1],
                         color=discord.Color.red(),
-                        description="Вы не можете дать подписку более, чем `5-ти` серверам!"[::-1],
+                        description="Вы не можете дать подписку более, чем `5-ти` серверам!"[
+                            ::-1
+                        ],
                     )
                     return await interaction.response.send_message(
                         embed=embed, ephemeral=True
@@ -63,7 +65,9 @@ class Premium(commands.Cog):
                     embed = discord.Embed(
                         title="Ошибка!"[::-1],
                         color=discord.Color.red(),
-                        description="Вы не можете дать подписку более, чем `2-м` серверам!"[::-1],
+                        description="Вы не можете дать подписку более, чем `2-м` серверам!"[
+                            ::-1
+                        ],
                     )
                     return await interaction.response.send_message(
                         embed=embed, ephemeral=True
@@ -77,11 +81,15 @@ class Premium(commands.Cog):
                 embed = discord.Embed(
                     title="Успешно!"[::-1],
                     color=discord.Color.green(),
-                    description=f"Вы дали премиум-подписку серверу `{interaction.guild.name}`"[::-1],
+                    description=f"Вы дали премиум-подписку серверу `{interaction.guild.name}`"[
+                        ::-1
+                    ],
                 )
                 await interaction.response.send_message(embed=embed)
 
-            @app_commands.command(name="take", description="Забрать премиум с сервера"[::-1])
+            @app_commands.command(
+                name="take", description="Забрать премиум с сервера"[::-1]
+            )
             @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_not_shutted_down)
             async def take(self, interaction: discord.Interaction):
@@ -98,7 +106,9 @@ class Premium(commands.Cog):
                     embed = discord.Embed(
                         title="Ошибка!"[::-1],
                         color=discord.Color.red(),
-                        description="Данный сервер и так не имеет премиум подписку!"[::-1],
+                        description="Данный сервер и так не имеет премиум подписку!"[
+                            ::-1
+                        ],
                     )
                     return await interaction.response.send_message(
                         embed=embed, ephemeral=True
@@ -117,12 +127,15 @@ class Premium(commands.Cog):
                 embed = discord.Embed(
                     title="Успешно!"[::-1],
                     color=discord.Color.green(),
-                    description=f"Вы забрали премиум-подписку с сервера `{interaction.guild.name}`!"[::-1],
+                    description=f"Вы забрали премиум-подписку с сервера `{interaction.guild.name}`!"[
+                        ::-1
+                    ],
                 )
                 await interaction.response.send_message(embed=embed)
 
             @app_commands.command(
-                name="list", description="Список серверов, на которые Вы дали премиум"[::-1]
+                name="list",
+                description="Список серверов, на которые Вы дали премиум"[::-1],
             )
             @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -136,7 +149,9 @@ class Premium(commands.Cog):
                 prem_embed = discord.Embed(
                     title="MadBot Premium - сервера"[::-1],
                     color=discord.Color.orange(),
-                    description="Здесь Вы можете узнать, на какие сервера Вы дали подписку. Также Вы можете снять с них подписку."[::-1],
+                    description="Здесь Вы можете узнать, на какие сервера Вы дали подписку. Также Вы можете снять с них подписку."[
+                        ::-1
+                    ],
                 )
                 options = []
                 async for count, prem in aenumerate(
@@ -145,7 +160,9 @@ class Premium(commands.Cog):
                     guild = interaction.client.get_guild(int(prem["guild_id"]))
                     prem_embed.add_field(
                         name=f"Сервер №{count}"[::-1],
-                        value=f"`{'Название неизвестно' if guild is None else guild.name}`"[::-1],
+                        value=f"`{'Название неизвестно' if guild is None else guild.name}`"[
+                            ::-1
+                        ],
                     )
                     options.append(
                         discord.SelectOption(

@@ -46,7 +46,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -70,7 +72,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: обнятие"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} обнял(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} обнял(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -78,7 +82,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -89,7 +95,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -113,7 +121,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: обнятие"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} обнял(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} обнял(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -121,7 +131,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -134,7 +146,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -158,7 +172,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: погладить"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} погладил(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} погладил(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -166,7 +182,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -177,7 +195,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -201,7 +221,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: погладить"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} погладил(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} погладил(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -209,7 +231,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -224,7 +248,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -254,9 +280,7 @@ class Reactions(commands.Cog):
             if member is None:
                 description = f"{interaction.user.mention[::-1]} подмигнул(-а)."
             else:
-                description = (
-                    f"{interaction.user.mention[::-1]} подмигнул(-а) {member.mention[::-1]}."
-                )
+                description = f"{interaction.user.mention[::-1]} подмигнул(-а) {member.mention[::-1]}."
             embed = discord.Embed(
                 title="Реакция: подмигивание"[::-1],
                 color=discord.Color.orange(),
@@ -268,7 +292,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -281,7 +307,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -310,7 +338,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: подмигивание"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} подмигнул(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} подмигнул(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -318,11 +348,15 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="slap", description="[Реакции] Лупит пользователя."[::-1])
+    @app_commands.command(
+        name="slap", description="[Реакции] Лупит пользователя."[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите отлупить."[::-1])
@@ -331,7 +365,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -355,7 +391,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: шлепок"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} отлупил(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} отлупил(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -363,11 +401,15 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="kiss", description="[Реакции] Поцеловать участника"[::-1])
+    @app_commands.command(
+        name="kiss", description="[Реакции] Поцеловать участника"[::-1]
+    )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
     @app_commands.describe(member="Участник, которого вы хотите поцеловать."[::-1])
@@ -376,7 +418,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -405,9 +449,7 @@ class Reactions(commands.Cog):
                 self, viewinteract: discord.Interaction, button: discord.ui.Button
             ):
                 if viewinteract.user == member:
-                    description = (
-                        f"{interaction.user.mention[::-1]} поцеловал(-а) {member.mention[::-1]}."
-                    )
+                    description = f"{interaction.user.mention[::-1]} поцеловал(-а) {member.mention[::-1]}."
                     marry = await db.get_marries(
                         viewinteract.guild.id, viewinteract.user.id
                     )
@@ -449,7 +491,9 @@ class Reactions(commands.Cog):
                         embed = discord.Embed(
                             title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                            description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                                ::-1
+                            ],
                         )
                     self.value = True
                     return await interaction.edit_original_response(
@@ -495,12 +539,16 @@ class Reactions(commands.Cog):
         embed = discord.Embed(
             title="Ожидание..."[::-1],
             color=discord.Color.orange(),
-            description=f"{interaction.user.mention[::-1]}, необходимо получить согласие на поцелуй от {member.mention[::-1]}\nВремя ограничено!"[::-1],
+            description=f"{interaction.user.mention[::-1]}, необходимо получить согласие на поцелуй от {member.mention[::-1]}\nВремя ограничено!"[
+                ::-1
+            ],
         )
         await interaction.response.send_message(embed=embed, view=view)
         await view.wait()
         if view.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             await interaction.edit_original_response(embed=embed, view=None)
 
     @app_commands.check(checks.interaction_is_not_in_blacklist)
@@ -512,7 +560,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -541,9 +591,7 @@ class Reactions(commands.Cog):
                 self, viewinteract: discord.Interaction, button: discord.ui.Button
             ):
                 if viewinteract.user == member:
-                    description = (
-                        f"{interaction.user.mention[::-1]} поцеловал(-а) {member.mention[::-1]}."
-                    )
+                    description = f"{interaction.user.mention[::-1]} поцеловал(-а) {member.mention[::-1]}."
                     marry = await db.get_marries(
                         viewinteract.guild.id, viewinteract.user.id
                     )
@@ -585,7 +633,9 @@ class Reactions(commands.Cog):
                         embed = discord.Embed(
                             title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                            description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                                ::-1
+                            ],
                         )
                     self.value = True
                     return await interaction.edit_original_response(
@@ -631,12 +681,16 @@ class Reactions(commands.Cog):
         embed = discord.Embed(
             title="Ожидание..."[::-1],
             color=discord.Color.orange(),
-            description=f"{interaction.user.mention[::-1]}, необходимо получить согласие на поцелуй от {member.mention[::-1]}\nВремя ограничено!"[::-1],
+            description=f"{interaction.user.mention[::-1]}, необходимо получить согласие на поцелуй от {member.mention[::-1]}\nВремя ограничено!"[
+                ::-1
+            ],
         )
         await interaction.response.send_message(embed=embed, view=view)
         await view.wait()
         if view.value is None:
-            embed = discord.Embed(title="Время истекло!"[::-1], color=discord.Color.red())
+            embed = discord.Embed(
+                title="Время истекло!"[::-1], color=discord.Color.red()
+            )
             await interaction.edit_original_response(embed=embed, view=None)
 
     @app_commands.command(name="hit", description="[Реакции] Ударить участника"[::-1])
@@ -648,7 +702,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -672,7 +728,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: удар"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} ударил(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} ударил(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -680,7 +738,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -691,7 +751,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -715,7 +777,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Реакция: удар"[::-1],
                 color=discord.Color.orange(),
-                description=f"{interaction.user.mention[::-1]} ударил(-а) {member.mention[::-1]}."[::-1],
+                description=f"{interaction.user.mention[::-1]} ударил(-а) {member.mention[::-1]}."[
+                    ::-1
+                ],
             )
             embed.set_image(url=json["url"])
             await interaction.response.send_message(embed=embed)
@@ -723,7 +787,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -735,7 +801,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -753,7 +821,9 @@ class Reactions(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[::-1],
+                description=f"Не удалось получить картинку!\nКод ошибки: `{resp.status_code}`"[
+                    ::-1
+                ],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 

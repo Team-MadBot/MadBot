@@ -52,7 +52,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -61,7 +63,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="У Вас отсутствует право `управление каналами` для использования этой команды!"[::-1],
+                description="У Вас отсутствует право `управление каналами` для использования этой команды!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         """if not is_premium_server(interaction.guild):
@@ -76,13 +80,17 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Статистика уже создана! Используйте `/stats-edit` или `/stats-delete` для редактирования или удаления статистики."[::-1],
+                description="Статистика уже создана! Используйте `/stats-edit` или `/stats-delete` для редактирования или удаления статистики."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         embed = discord.Embed(
             title="Выбор статистики"[::-1],
             color=discord.Color.orange(),
-            description="Пожалуйста, выберите, какую статистику Вы хотите видеть."[::-1],
+            description="Пожалуйста, выберите, какую статистику Вы хотите видеть."[
+                ::-1
+            ],
         )
 
         class Select(ui.Select):  # type: ignore
@@ -208,7 +216,9 @@ class Stats(commands.Cog):
                         embed = discord.Embed(
                             title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description="Бот не имеет права на `управление каналами`, которое нужно для бота."[::-1],
+                            description="Бот не имеет права на `управление каналами`, которое нужно для бота."[
+                                ::-1
+                            ],
                         )
                         return await viewinteract.followup.send(embed=embed)
                     channels.append(
@@ -222,7 +232,9 @@ class Stats(commands.Cog):
                 embed = discord.Embed(
                     title="Успешно!"[::-1],
                     color=discord.Color.green(),
-                    description="Статистика создана!\n\n**Инструкция по дальнейшему использованию:**\n- Вы можете передвигать созданные каналы или перемещать их в категории, но Вы не можете переименовать их через Discord. Используйте для этого команду `/stats-edit`.\n- При удалении канала, он будет также удалён из обновления статистики.\n- При завершении премиум подписки у человека, давшего её Вам, бот перестанет обновлять статистику. Как только сервер снова получит премиум подписку, бот продолжить обновлять статистику."[::-1],
+                    description="Статистика создана!\n\n**Инструкция по дальнейшему использованию:**\n- Вы можете передвигать созданные каналы или перемещать их в категории, но Вы не можете переименовать их через Discord. Используйте для этого команду `/stats-edit`.\n- При удалении канала, он будет также удалён из обновления статистики.\n- При завершении премиум подписки у человека, давшего её Вам, бот перестанет обновлять статистику. Как только сервер снова получит премиум подписку, бот продолжить обновлять статистику."[
+                        ::-1
+                    ],
                 )
                 await viewinteract.followup.send(embed=embed)
                 await interaction.edit_original_response(view=None)
@@ -245,7 +257,8 @@ class Stats(commands.Cog):
         )["channels"]
         return [
             app_commands.Choice(
-                name=channel["text"].replace("%count%", "")[::-1], value=str(channel["id"])
+                name=channel["text"].replace("%count%", "")[::-1],
+                value=str(channel["id"]),
             )
             for channel in channels  # type: ignore
             if current.lower() in channel["type"]
@@ -253,13 +266,17 @@ class Stats(commands.Cog):
 
     @app_commands.command(
         name="stats-edit",
-        description="[Статистика] Изменение названия канала, добавление или удаление одного из каналов"[::-1],
+        description="[Статистика] Изменение названия канала, добавление или удаление одного из каналов"[
+            ::-1
+        ],
     )
     @app_commands.autocomplete(channel=es_autocomplete)
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
-    @app_commands.describe(channel="Канал, который Вы хотите изменить или удалить."[::-1])
+    @app_commands.describe(
+        channel="Канал, который Вы хотите изменить или удалить."[::-1]
+    )
     async def edit_stats(
         self, interaction: discord.Interaction, channel: Optional[str]
     ):
@@ -267,7 +284,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         assert isinstance(interaction.user, discord.Member)
@@ -275,7 +294,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не имеете права на `управление каналами`, чтобы использовать эту команду!"[::-1],
+                description="Вы не имеете права на `управление каналами`, чтобы использовать эту команду!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         """if not await is_premium_server(interaction.guild):
@@ -290,7 +311,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Статистика отсутствует! Используйте `/stats-setup` для создания статистики."[::-1],
+                description="Статистика отсутствует! Используйте `/stats-setup` для создания статистики."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if channel is not None:
@@ -306,7 +329,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Изменение канала"[::-1],
                 color=discord.Color.orange(),
-                description="Пожалуйста, выберите действие с каналом.\n\n**Инструкция по переименованию:**\n- Необходимо указать `%count%`. Данный аргумент указывает боту, где должно стоять число статистики.\n- Запрещено ставить названия, нарушающие правила Discord. В случае попытки установки такого имени, Вам может быть выдан ЧС бота."[::-1],
+                description="Пожалуйста, выберите действие с каналом.\n\n**Инструкция по переименованию:**\n- Необходимо указать `%count%`. Данный аргумент указывает боту, где должно стоять число статистики.\n- Запрещено ставить названия, нарушающие правила Discord. В случае попытки установки такого имени, Вам может быть выдан ЧС бота."[
+                    ::-1
+                ],
             )
 
             class Buttons(ui.View):
@@ -323,7 +348,9 @@ class Stats(commands.Cog):
                                 embed = discord.Embed(
                                     title="Ошибка!"[::-1],
                                     color=discord.Color.red(),
-                                    description="Необходимо указать `%count%`, которое будет показывать боту, куда ставить число со статистикой."[::-1],
+                                    description="Необходимо указать `%count%`, которое будет показывать боту, куда ставить число со статистикой."[
+                                        ::-1
+                                    ],
                                 )
                                 return await minteract.response.send_message(
                                     embed=embed, ephemeral=True
@@ -516,7 +543,9 @@ class Stats(commands.Cog):
                         embed = discord.Embed(
                             title="Ошибка!"[::-1],
                             color=discord.Color.red(),
-                            description="Бот не имеет права на `управление каналами`, которое нужно для бота."[::-1],
+                            description="Бот не имеет права на `управление каналами`, которое нужно для бота."[
+                                ::-1
+                            ],
                         )
                         return await viewinteract.followup.send(embed=embed)
                     channels.append({"type": value, "id": str(channel.id), "text": message})  # type: ignore
@@ -556,7 +585,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         assert isinstance(interaction.user, discord.Member)
@@ -564,7 +595,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"[::-1],
+                description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         doc = await db.get_guild_stats(guild_id=interaction.guild.id)  # type: ignore
@@ -572,7 +605,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="У Вас нету статистики! Для её создания пропишите `/stats-setup`."[::-1],
+                description="У Вас нету статистики! Для её создания пропишите `/stats-setup`."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.response.defer(thinking=True)
@@ -587,7 +622,9 @@ class Stats(commands.Cog):
                 embed = discord.Embed(
                     title="Ошибка!"[::-1],
                     color=discord.Color.red(),
-                    description="Бот не имеет права на `управление каналами`, которое нужно для бота."[::-1],
+                    description="Бот не имеет права на `управление каналами`, которое нужно для бота."[
+                        ::-1
+                    ],
                 )
                 return await interaction.followup.send(embed=embed)
         await db.delete_guild_stats(guild_id=interaction.guild.id)
@@ -610,7 +647,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         assert isinstance(interaction.user, discord.Member)
@@ -618,7 +657,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"[::-1],
+                description="Вы не имеете права `управлять каналами`, которое необходимо для использования команды!"[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         doc = await db.get_guild_stats(guild_id=interaction.guild.id)  # type: ignore
@@ -626,7 +667,9 @@ class Stats(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="У Вас нету статистики! Для её создания пропишите `/stats-setup`."[::-1],
+                description="У Вас нету статистики! Для её создания пропишите `/stats-setup`."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         description = "Здесь Вы можете увидеть все каналы статистики, а также узнать, когда бот обновит статистику.\n\n**__Статистика:__**\n"

@@ -12,7 +12,7 @@ class GetDebugCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="debug", description="[Полезности] Запрос основной информации о боте."
+        name="debug", description="[Полезности] Запрос основной информации о боте."[::-1]
     )
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -62,33 +62,33 @@ class GetDebugCog(commands.Cog):
         bot_member = await interaction.guild.fetch_member(self.bot.user.id)
         user = await interaction.guild.fetch_member(interaction.user.id)
         embed = (
-            discord.Embed(title="Отладка", color=discord.Color.orange())
+            discord.Embed(title="Отладка"[::-1], color=discord.Color.orange())
             .add_field(
-                name="Права бота", value=get_permissions(bot_member.guild_permissions)
+                name="Права бота"[::-1], value=get_permissions(bot_member.guild_permissions)[::-1]
             )
             .add_field(
-                name="Права в этом канале",
-                value=get_permissions(interaction.channel.permissions_for(bot_member)),
+                name="Права в этом канале"[::-1],
+                value=get_permissions(interaction.channel.permissions_for(bot_member))[::-1],
             )
             .add_field(
-                name="Информация о сервере",
+                name="Информация о сервере"[::-1],
                 value=(
                     f"Имя канала:\n`{interaction.channel.name}`\nID канала:\n`{interaction.channel.id}`\n"
                     + f"Кол-во каналов:\n`{len(interaction.guild.channels)}/500`\n"
                     + f"Название сервера:\n`{interaction.guild.name}`\nID сервера:\n`{interaction.guild.id}`\n"
                     + f"Шард сервера:\n`{interaction.guild.shard_id}`"
-                ),
+                )[::-1],
             )
             .add_field(
-                name="Информация о пользователе",
-                value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{get_vals()}`",
+                name="Информация о пользователе"[::-1],
+                value=f"Пользователь:\n`{interaction.user}`\nID пользователя:\n`{interaction.user.id}`\nПрава:\n`{get_vals()}`"[::-1],
             )
         )
         channel = self.bot.get_channel(config.settings["debug_channel"])
         assert isinstance(channel, discord.TextChannel)
         message = await channel.send(embed=embed)
         await interaction.response.send_message(
-            content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url}",
+            content=f"Если поддержка запросила ссылку с команды, отправьте ей это: {message.jump_url[::-1]}"[::-1],
             embed=embed,
         )
 

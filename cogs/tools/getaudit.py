@@ -13,18 +13,18 @@ class GetAuditCog(commands.Cog):
 
     @app_commands.command(
         name="getaudit",
-        description="[Полезности] Получает информацию о кол-ве модерационных действий пользователя.",
+        description="[Полезности] Получает информацию о кол-ве модерационных действий пользователя."[::-1],
     )
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
-    @app_commands.describe(member="Участник, чьё кол-во действий вы хотите увидить")
+    @app_commands.describe(member="Участник, чьё кол-во действий вы хотите увидить"[::-1])
     async def getaudit(self, interaction: discord.Interaction, member: discord.User):
         if interaction.guild is None:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!",
+                description="Извините, но данная команда недоступна в личных сообщениях!"[::-1],
             )
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -32,9 +32,9 @@ class GetAuditCog(commands.Cog):
 
         if not interaction.user.guild_permissions.view_audit_log:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Вы не имеете права `просмотр журнала аудита` для выполнения этой команды!",
+                description="Вы не имеете права `просмотр журнала аудита` для выполнения этой команды!"[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -42,15 +42,15 @@ class GetAuditCog(commands.Cog):
         member_bot = await interaction.guild.fetch_member(self.bot.user.id)
         if not member_bot.guild_permissions.view_audit_log:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Бот не имеет доступа к журналу аудита!\nТип ошибки: `Forbidden`.",
+                description=f"Бот не имеет доступа к журналу аудита!\nТип ошибки: `Forbidden`."[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         embed = discord.Embed(
-            title="В процессе...",
+            title="В процессе..."[::-1],
             color=discord.Color.yellow(),
-            description=f"Собираем действия участника {member.mention}...",
+            description=f"Собираем действия участника {member.mention[::-1]}..."[::-1],
         )
         await interaction.response.send_message(embed=embed)
         entries = [
@@ -58,9 +58,9 @@ class GetAuditCog(commands.Cog):
             async for entry in interaction.guild.audit_logs(limit=None, user=member)
         ]
         embed = discord.Embed(
-            title="Готово!",
+            title="Готово!"[::-1],
             color=discord.Color.green(),
-            description=f"Бот смог насчитать `{len(entries)}` действий от участника {member.mention}.",
+            description=f"Бот смог насчитать `{len(entries)}` действий от участника {member.mention[::-1]}."[::-1],
         )
         await interaction.edit_original_response(embed=embed)
 

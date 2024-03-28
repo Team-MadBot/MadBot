@@ -21,9 +21,9 @@ class Premium(commands.Cog):
         self.bot = bot
 
         class Premium(app_commands.Group):
-            "Управление премиум-подпиской"
+            "Управление премиум-подпиской"[::-1]
 
-            @app_commands.command(name="give", description="Дать премиум серверу")
+            @app_commands.command(name="give", description="Дать премиум серверу"[::-1])
             @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_not_shutted_down)
             async def give(self, interaction: discord.Interaction):

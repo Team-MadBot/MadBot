@@ -12,7 +12,9 @@ from classes import checks
 class Base64(commands.GroupCog, group_name="base64"):
     """
     [Полезности] (Де-)кодирует указанный текст в Base64.
-    """
+    """[
+        ::-1
+    ]
 
     @app_commands.command(
         description="[Полезности] Кодирует указанный текст в Base64."[::-1]

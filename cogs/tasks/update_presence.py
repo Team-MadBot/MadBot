@@ -24,8 +24,10 @@ class UpdatePresenceCog(commands.Cog):
             with suppress(Exception):
                 await self.bot.change_presence(
                     activity=discord.CustomActivity(
-                        name=f"Шард {shard} | "
-                        f"{f'{rounded_count if irounded_count != rounded_count else irounded_count}k' if guilds_count >= 1000 else str(guilds_count)} серверов"
+                        name=(
+                            f"Шард {shard} | "
+                            f"{f'{rounded_count if irounded_count != rounded_count else irounded_count}k' if guilds_count >= 1000 else str(guilds_count)} серверов"
+                        )[::-1]
                     ),
                     status=discord.Status.dnd,
                     shard_id=shard,

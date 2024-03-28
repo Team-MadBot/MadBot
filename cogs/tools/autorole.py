@@ -17,9 +17,10 @@ class AutoroleCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="autorole", description="Настроить выдачу одной роли при входе на сервер"
+        name="autorole",
+        description="Настроить выдачу одной роли при входе на сервер"[::-1],
     )
-    @app_commands.describe(role="Роль для выдачи. Не указывайте её для удаления.")
+    @app_commands.describe(role="Роль для выдачи. Не указывайте её для удаления."[::-1])
     @app_commands.checks.dynamic_cooldown(hard_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
@@ -32,17 +33,17 @@ class AutoroleCog(commands.Cog):
         )  # FIXME: move it out to config?
         if interaction.guild is None:
             embed = discord.Embed(
-                title=l10n.format_value("error_title"),
+                title=l10n.format_value("error_title")[::-1],
                 color=discord.Color.red(),
-                description=l10n.format_value("guild_only_error"),
+                description=l10n.format_value("guild_only_error")[::-1],
             )
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if not self.bot.intents.members:
             embed = discord.Embed(
-                title=l10n.format_value("error_title"),
+                title=l10n.format_value("error_title")[::-1],
                 color=discord.Color.red(),
-                description=l10n.format_value("intents_are_not_enabled"),
+                description=l10n.format_value("intents_are_not_enabled")[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         assert isinstance(interaction.user, discord.Member)
@@ -51,9 +52,9 @@ class AutoroleCog(commands.Cog):
             if role is None:
                 if role_info is None:
                     embed = discord.Embed(
-                        title=l10n.format_value("error_title"),
+                        title=l10n.format_value("error_title")[::-1],
                         color=discord.Color.red(),
-                        description=l10n.format_value("autorole_no_active_role"),
+                        description=l10n.format_value("autorole_no_active_role")[::-1],
                     )
                     return await interaction.response.send_message(
                         embed=embed, ephemeral=True
@@ -67,35 +68,37 @@ class AutoroleCog(commands.Cog):
                         self.value = None
 
                     @ui.button(
-                        label=l10n.format_value("yes"), style=discord.ButtonStyle.green
+                        label=l10n.format_value("yes")[::-1],
+                        style=discord.ButtonStyle.green,
                     )
                     async def yes(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                         if viewinteract.user.id != interaction.user.id:
                             return await interaction.response.send_message(
-                                l10n.format_value("button_click_forbidden")
+                                l10n.format_value("button_click_forbidden")[::-1]
                             )
                         await viewinteract.response.defer()
                         self.value = True
                         self.stop()
 
                     @ui.button(
-                        label=l10n.format_value("no"), style=discord.ButtonStyle.red
+                        label=l10n.format_value("no")[::-1],
+                        style=discord.ButtonStyle.red,
                     )
                     async def no(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                         if viewinteract.user.id != interaction.user.id:
                             return await interaction.response.send_message(
-                                l10n.format_value("button_click_forbidden")
+                                l10n.format_value("button_click_forbidden")[::-1]
                             )
                         await viewinteract.response.defer()
                         self.value = True
                         self.stop()
 
                 embed = discord.Embed(
-                    title=l10n.format_value("autorole_confirm_title"),
+                    title=l10n.format_value("autorole_confirm_title")[::-1],
                     color=discord.Color.orange(),
                     description=l10n.format_value(
-                        "autorole_confirm_deletion", {"role": f"<@&{role_info}>"}
-                    ),
+                        "autorole_confirm_deletion", {"role": f"<@&{role_info}>"[::-1]}
+                    )[::-1],
                 )
                 view = Buttons1()
                 await interaction.response.send_message(
@@ -104,7 +107,7 @@ class AutoroleCog(commands.Cog):
                 await view.wait()
                 if view.value is None:
                     embed = discord.Embed(
-                        title=l10n.format_value("time_exceeded"),
+                        title=l10n.format_value("time_exceeded")[::-1],
                         color=discord.Color.red(),
                     )
                     return await interaction.edit_original_response(
@@ -114,21 +117,21 @@ class AutoroleCog(commands.Cog):
                     return await interaction.delete_original_response()
                 await db.delete_guild_autorole(interaction.guild.id)
                 embed = discord.Embed(
-                    title=l10n.format_value("success"),
+                    title=l10n.format_value("success")[::-1],
                     color=discord.Color.green(),
                     description=l10n.format_value(
-                        "autorole_deletion_success", {"role": f"<@&{role_info}>"}
-                    ),
+                        "autorole_deletion_success", {"role": f"<@&{role_info}>"[::-1]}
+                    )[::-1],
                 )
                 return await interaction.edit_original_response(embed=embed, view=None)
             if role_info is None:
                 await db.add_guild_autorole(interaction.guild.id, role.id)
                 embed = discord.Embed(
-                    title=l10n.format_value("success"),
+                    title=l10n.format_value("success")[::-1],
                     color=discord.Color.green(),
                     description=l10n.format_value(
-                        "autorole_add_success", {"role": f"<@&{role.id}>"}
-                    ),
+                        "autorole_add_success", {"role": f"<@&{role.id}>"[::-1]}
+                    )[::-1],
                 )
                 return await interaction.response.send_message(embed=embed)
 
@@ -138,63 +141,73 @@ class AutoroleCog(commands.Cog):
                     self.value = None
 
                 @ui.button(
-                    label=l10n.format_value("yes"), style=discord.ButtonStyle.green
+                    label=l10n.format_value("yes")[::-1],
+                    style=discord.ButtonStyle.green,
                 )
                 async def yes(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                     if viewinteract.user.id != interaction.user.id:
                         return await interaction.response.send_message(
-                            l10n.format_value("button_click_forbidden")
+                            l10n.format_value("button_click_forbidden")[::-1]
                         )
                     await viewinteract.response.defer()
                     self.value = True
                     self.stop()
 
-                @ui.button(label=l10n.format_value("no"), style=discord.ButtonStyle.red)
+                @ui.button(
+                    label=l10n.format_value("no")[::-1], style=discord.ButtonStyle.red
+                )
                 async def no(self, viewinteract: discord.Interaction, button: ui.Button):  # type: ignore
                     if viewinteract.user.id != interaction.user.id:
                         return await interaction.response.send_message(
-                            l10n.format_value("button_click_forbidden")
+                            l10n.format_value("button_click_forbidden")[::-1]
                         )
                     await viewinteract.response.defer()
                     self.value = True
                     self.stop()
 
             embed = discord.Embed(
-                title=l10n.format_value("autorole_confirm_title"),
+                title=l10n.format_value("autorole_confirm_title")[::-1],
                 color=discord.Color.orange(),
                 description=l10n.format_value(
                     "autorole_confirm_update",
-                    {"role1": f"<@&{role_info}>", "role2": f"<@&{role.id}>"},
-                ),
+                    {
+                        "role1": f"<@&{role_info}>"[::-1],
+                        "role2": f"<@&{role.id}>"[::-1],
+                    },
+                )[::-1],
             )
             view = Buttons()
             await interaction.response.send_message(embed=embed, view=view)
             await view.wait()
             if view.value is None:
                 embed = discord.Embed(
-                    title=l10n.format_value("time_exceeded"), color=discord.Color.red()
+                    title=l10n.format_value("time_exceeded")[::-1],
+                    color=discord.Color.red(),
                 )
                 return await interaction.edit_original_response(embed=embed, view=None)
             if not view.value:
                 return await interaction.delete_original_response()
             await db.update_guild_autorole(interaction.guild.id, role.id)
             embed = discord.Embed(
-                title=l10n.format_value("success"),
+                title=l10n.format_value("success")[::-1],
                 color=discord.Color.green(),
                 description=l10n.format_value(
                     "autorole_update_success",
-                    {"role1": f"<@&{role_info}>", "role2": f"<@&{role.id}>"},
+                    {
+                        "role1": f"<@&{role_info}>"[::-1],
+                        "role2": f"<@&{role.id}>"[::-1],
+                    },
                 ),
             )
             return await interaction.edit_original_response(embed=embed, view=None)
         else:
             embed = discord.Embed(
-                title=l10n.format_value("error_title"),
+                title=l10n.format_value("error_title")[::-1],
                 color=discord.Color.red(),
                 description=l10n.format_value(
                     "perms_required_error",
                     {"perm": l10n.format_value("perms_manage_server").lower()},
-                ),
+                )[::-1],
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 

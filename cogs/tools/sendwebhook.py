@@ -13,12 +13,12 @@ class SendWebhookCog(commands.Cog):
 
     @app_commands.command(
         name="sendwebhook",
-        description="[Полезности] Отправляет сообщение в канал от имени вебхука",
+        description="[Полезности] Отправляет сообщение в канал от имени вебхука"[::-1],
     )
     @app_commands.checks.dynamic_cooldown(default_cooldown)
     @app_commands.check(checks.interaction_is_not_in_blacklist)
     @app_commands.check(checks.interaction_is_not_shutted_down)
-    @app_commands.describe(message="Сообщение, которое будет отправлено")
+    @app_commands.describe(message="Сообщение, которое будет отправлено"[::-1])
     async def send(
         self,
         interaction: discord.Interaction,
@@ -26,26 +26,30 @@ class SendWebhookCog(commands.Cog):
     ):
         if interaction.guild is None:
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Извините, но данная команда недоступна в личных сообщениях!",
+                description="Извините, но данная команда недоступна в личных сообщениях!"[
+                    ::-1
+                ],
             )
             embed.set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if isinstance(interaction.channel, discord.Thread):
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description="Данная команда недоступна в ветках!",
+                description="Данная команда недоступна в ветках!"[::-1],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         assert interaction.channel is not None
         assert self.bot.user is not None
         if not interaction.channel.permissions_for(interaction.guild.get_member(self.bot.user.id)).manage_webhooks:  # type: ignore
             embed = discord.Embed(
-                title="Ошибка!",
+                title="Ошибка!"[::-1],
                 color=discord.Color.red(),
-                description=f"Бот не имеет права на управление вебхуками!\nТип ошибки: `Forbidden`.",
+                description=f"Бот не имеет права на управление вебхуками!\nТип ошибки: `Forbidden`."[
+                    ::-1
+                ],
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         webhook = None
@@ -64,9 +68,9 @@ class SendWebhookCog(commands.Cog):
             allowed_mentions=discord.AllowedMentions.none(),
         )
         embed = discord.Embed(
-            title="Успешно!",
+            title="Успешно!"[::-1],
             color=discord.Color.green(),
-            description="Сообщение успешно отправлено!",
+            description="Сообщение успешно отправлено!"[::-1],
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
 

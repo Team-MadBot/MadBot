@@ -152,7 +152,8 @@ class DebugCmd(commands.Cog):
                                 button: discord.ui.Button,
                             ):
                                 class Input(
-                                    discord.ui.Modal, title="Debug - Выдача премиума"[::-1]
+                                    discord.ui.Modal,
+                                    title="Debug - Выдача премиума"[::-1],
                                 ):
                                     user_id = discord.ui.TextInput(
                                         label="ID пользователя",
@@ -170,7 +171,9 @@ class DebugCmd(commands.Cog):
                                             != "None"
                                         ):
                                             return await modalinteract.response.send_message(
-                                                "У пользователя уже есть премиум!"[::-1],
+                                                "У пользователя уже есть премиум!"[
+                                                    ::-1
+                                                ],
                                                 ephemeral=True,
                                             )
                                         await db.give_premium(
@@ -189,7 +192,8 @@ class DebugCmd(commands.Cog):
                                 button: discord.ui.Button,
                             ):
                                 class Input(
-                                    discord.ui.Modal, title="Debug - Выдача премиума"[::-1]
+                                    discord.ui.Modal,
+                                    title="Debug - Выдача премиума"[::-1],
                                 ):
                                     user_id = discord.ui.TextInput(
                                         label="ID пользователя"[::-1],
@@ -207,7 +211,9 @@ class DebugCmd(commands.Cog):
                                             != "None"
                                         ):
                                             return await modalinteract.response.send_message(
-                                                "У пользователя уже есть премиум!"[::-1],
+                                                "У пользователя уже есть премиум!"[
+                                                    ::-1
+                                                ],
                                                 ephemeral=True,
                                             )
                                         await db.give_premium(
@@ -226,7 +232,8 @@ class DebugCmd(commands.Cog):
                                 button: discord.ui.Button,
                             ):
                                 class Input(
-                                    discord.ui.Modal, title="Debug - Выдача премиума"[::-1]
+                                    discord.ui.Modal,
+                                    title="Debug - Выдача премиума"[::-1],
                                 ):
                                     user_id = discord.ui.TextInput(
                                         label="ID пользователя"[::-1],
@@ -283,7 +290,8 @@ class DebugCmd(commands.Cog):
                             )
 
                         @discord.ui.button(
-                            label="Получить сервер"[::-1], style=discord.ButtonStyle.primary
+                            label="Получить сервер"[::-1],
+                            style=discord.ButtonStyle.primary,
                         )
                         async def getserver(
                             self,
@@ -291,7 +299,8 @@ class DebugCmd(commands.Cog):
                             button: discord.ui.Button,
                         ):
                             class Input(
-                                discord.ui.Modal, title="Debug - получение сервера"[::-1]
+                                discord.ui.Modal,
+                                title="Debug - получение сервера"[::-1],
                             ):
                                 ans = discord.ui.TextInput(
                                     label="Название/ID сервера:"[::-1],
@@ -305,13 +314,17 @@ class DebugCmd(commands.Cog):
                                     for guild in modalinteract.client.guilds:
                                         if str(self.ans) == guild.name:
                                             return await modalinteract.response.send_message(
-                                                f"Название: {guild.name}, владелец: <@{guild.owner_id}>, ID: {guild.id}, участников: {guild.member_count}"[::-1],
+                                                f"Название: {guild.name}, владелец: <@{guild.owner_id}>, ID: {guild.id}, участников: {guild.member_count}"[
+                                                    ::-1
+                                                ],
                                                 ephemeral=True,
                                             )
                                         try:
                                             if int(str(self.ans)) == guild.id:
                                                 return await modalinteract.response.send_message(
-                                                    f"Название: {guild.name}, владелец: <@{guild.owner_id}>, ID: {guild.id}, участников: {guild.member_count}"[::-1],
+                                                    f"Название: {guild.name}, владелец: <@{guild.owner_id}>, ID: {guild.id}, участников: {guild.member_count}"[
+                                                        ::-1
+                                                    ],
                                                     ephemeral=True,
                                                 )
                                         except:  # FIXME: bare except
@@ -320,7 +333,8 @@ class DebugCmd(commands.Cog):
                             await viewinteract.response.send_modal(Input())
 
                         @discord.ui.button(
-                            label="Выгрузка кога"[::-1], style=discord.ButtonStyle.blurple
+                            label="Выгрузка кога"[::-1],
+                            style=discord.ButtonStyle.blurple,
                         )
                         async def unloadcog(
                             self,
@@ -351,13 +365,15 @@ class DebugCmd(commands.Cog):
                                         )
                                     await modalinteract.client.tree.sync()
                                     await modalinteract.response.send_message(
-                                        f"Ког {str(self.ans)} выгружен!"[::-1], ephemeral=True
+                                        f"Ког {str(self.ans)} выгружен!"[::-1],
+                                        ephemeral=True,
                                     )
 
                             await viewinteract.response.send_modal(Input())
 
                         @discord.ui.button(
-                            label="В черный список"[::-1], style=discord.ButtonStyle.primary
+                            label="В черный список"[::-1],
+                            style=discord.ButtonStyle.primary,
                         )
                         async def addblacklist(
                             self,
@@ -407,7 +423,9 @@ class DebugCmd(commands.Cog):
                                         reason=reason_input,
                                     ):
                                         return await modalinteract.response.send_message(
-                                            f"Ресурс с ID `{int(str(self.resource_id))}` уже занесён в ЧС!"[::-1],
+                                            f"Ресурс с ID `{int(str(self.resource_id))}` уже занесён в ЧС!"[
+                                                ::-1
+                                            ],
                                             ephemeral=True,
                                         )
                                     guild = modalinteract.client.get_guild(
@@ -415,9 +433,13 @@ class DebugCmd(commands.Cog):
                                     )
                                     if guild is not None:
                                         embed = discord.Embed(
-                                            title="Ваш сервер занесён в чёрный список бота!"[::-1],
+                                            title="Ваш сервер занесён в чёрный список бота!"[
+                                                ::-1
+                                            ],
                                             color=discord.Color.red(),
-                                            description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {config.settings['support_invite']}"[::-1],
+                                            description=f"Владелец бота занёс ваш сервер в чёрный список! Бот покинет этот сервер. Если вы считаете, что это ошибка: обратитесь в поддержку: {config.settings['support_invite']}"[
+                                                ::-1
+                                            ],
                                             timestamp=datetime.datetime.now(),
                                         )
                                         embed.set_thumbnail(url=guild.icon_url)
@@ -441,7 +463,9 @@ class DebugCmd(commands.Cog):
                                             pass
                                         await guild.leave()
                                     await modalinteract.response.send_message(
-                                        f"`{str(self.resource_id)}` занесен в черный список!"[::-1],
+                                        f"`{str(self.resource_id)}` занесен в черный список!"[
+                                            ::-1
+                                        ],
                                         ephemeral=True,
                                     )
                                     await sleep(30)
@@ -456,14 +480,17 @@ class DebugCmd(commands.Cog):
                             await viewinteract.response.send_modal(Input())
 
                         @discord.ui.button(
-                            label="Верифицировать"[::-1], style=discord.ButtonStyle.primary
+                            label="Верифицировать"[::-1],
+                            style=discord.ButtonStyle.primary,
                         )
                         async def verify(
                             self,
                             viewinteract: discord.Interaction,
                             button: discord.ui.Button,
                         ):
-                            class Input(discord.ui.Modal, title="Debug - верификация"[::-1]):
+                            class Input(
+                                discord.ui.Modal, title="Debug - верификация"[::-1]
+                            ):
                                 ans = discord.ui.TextInput(
                                     label="ID участника/сервера:"[::-1],
                                     min_length=18,
@@ -490,9 +517,13 @@ class DebugCmd(commands.Cog):
                             viewinteract: discord.Interaction,
                             button: discord.ui.Button,
                         ):
-                            class Input(discord.ui.Modal, title="Debug - в саппорты"[::-1]):
+                            class Input(
+                                discord.ui.Modal, title="Debug - в саппорты"[::-1]
+                            ):
                                 ans = discord.ui.TextInput(
-                                    label="ID участника:"[::-1], min_length=18, max_length=19
+                                    label="ID участника:"[::-1],
+                                    min_length=18,
+                                    max_length=19,
                                 )
 
                                 async def on_submit(
@@ -515,9 +546,13 @@ class DebugCmd(commands.Cog):
                             viewinteract: discord.Interaction,
                             button: discord.ui.Button,
                         ):
-                            class Input(discord.ui.Modal, title="Debug - в кодеры"[::-1]):
+                            class Input(
+                                discord.ui.Modal, title="Debug - в кодеры"[::-1]
+                            ):
                                 ans = discord.ui.TextInput(
-                                    label="ID участника:"[::-1], min_length=18, max_length=19
+                                    label="ID участника:"[::-1],
+                                    min_length=18,
+                                    max_length=19,
                                 )
 
                                 async def on_submit(
@@ -538,7 +573,9 @@ class DebugCmd(commands.Cog):
                             button: discord.ui.Button,
                         ):
                             await viewinteract.response.send_message(
-                                f"Забаненные: {[', '.join(i['resource_id'] async for i in db.get_all_blacklist())]}"[::-1],
+                                f"Забаненные: {[', '.join(i['resource_id'] async for i in db.get_all_blacklist())]}"[
+                                    ::-1
+                                ],
                                 ephemeral=True,
                             )
 
@@ -548,7 +585,9 @@ class DebugCmd(commands.Cog):
                             viewinteract: discord.Interaction,
                             button: discord.ui.Button,
                         ):
-                            class Input(discord.ui.Modal, title="Debug - убрать из ЧС"[::-1]):
+                            class Input(
+                                discord.ui.Modal, title="Debug - убрать из ЧС"[::-1]
+                            ):
                                 ans = discord.ui.TextInput(
                                     label="ID участника/сервера:"[::-1],
                                     min_length=18,
@@ -579,7 +618,9 @@ class DebugCmd(commands.Cog):
                                 discord.ui.Modal, title="Debug - выход из сервера"[::-1]
                             ):
                                 ans = discord.ui.TextInput(
-                                    label="ID сервера:"[::-1], max_length=19, min_length=18
+                                    label="ID сервера:"[::-1],
+                                    max_length=19,
+                                    min_length=18,
                                 )
 
                                 async def on_submit(
@@ -591,12 +632,14 @@ class DebugCmd(commands.Cog):
                                     if guild is None:
                                         return (
                                             await modalinteract.response.send_message(
-                                                "Сервер не обнаружен!"[::-1], ephemeral=True
+                                                "Сервер не обнаружен!"[::-1],
+                                                ephemeral=True,
                                             )
                                         )
                                     await guild.leave()
                                     await modalinteract.response.send_message(
-                                        f"Бот вышел с {guild.name}!"[::-1], ephemeral=True
+                                        f"Бот вышел с {guild.name}!"[::-1],
+                                        ephemeral=True,
                                     )
 
                             await viewinteract.response.send_modal(Input())
@@ -628,7 +671,9 @@ class DebugCmd(commands.Cog):
                             viewinteract: discord.Interaction,
                             button: discord.ui.Button,
                         ):
-                            class Input(discord.ui.Modal, title="Debug - смена ника"[::-1]):
+                            class Input(
+                                discord.ui.Modal, title="Debug - смена ника"[::-1]
+                            ):
                                 ans = discord.ui.TextInput(
                                     label="Новый ник:", min_length=2, max_length=32
                                 )
@@ -652,14 +697,17 @@ class DebugCmd(commands.Cog):
                             await viewinteract.response.send_modal(Input())
 
                         @discord.ui.button(
-                            label="Начать печатать"[::-1], style=discord.ButtonStyle.green
+                            label="Начать печатать"[::-1],
+                            style=discord.ButtonStyle.green,
                         )
                         async def starttyping(
                             self,
                             viewinteract: discord.Interaction,
                             button: discord.ui.Button,
                         ):
-                            class Input(discord.ui.Modal, title="Debug - печатание"[::-1]):
+                            class Input(
+                                discord.ui.Modal, title="Debug - печатание"[::-1]
+                            ):
                                 ans = discord.ui.TextInput(
                                     label="Кол-во секунд"[::-1], max_length=4
                                 )
@@ -668,7 +716,9 @@ class DebugCmd(commands.Cog):
                                     self, modalinteract: discord.Interaction
                                 ):
                                     await modalinteract.response.send_message(
-                                        f"Начинаем печатать {str(self.ans)} секунд..."[::-1],
+                                        f"Начинаем печатать {str(self.ans)} секунд..."[
+                                            ::-1
+                                        ],
                                         ephemeral=True,
                                     )
                                     async with modalinteract.channel.typing():
@@ -687,7 +737,8 @@ class DebugCmd(commands.Cog):
                             button: discord.ui.Button,
                         ):
                             class Input(
-                                discord.ui.Modal, title="Debug - выполнение команды"[::-1]
+                                discord.ui.Modal,
+                                title="Debug - выполнение команды"[::-1],
                             ):
                                 ans = discord.ui.TextInput(
                                     label="Команда:"[::-1], style=discord.TextStyle.long
@@ -724,7 +775,9 @@ class DebugCmd(commands.Cog):
                             print(f"{viewinteract.user} инициировал перезагрузку!")
                             await viewinteract.client.change_presence(
                                 status=discord.Status.idle,
-                                activity=discord.Game(name="Перезагрузка..."[::-1]), # FIXME: use CustomActivity instead of discord.Game
+                                activity=discord.Game(
+                                    name="Перезагрузка..."[::-1]
+                                ),  # FIXME: use CustomActivity instead of discord.Game
                             )
                             await sleep(2)
                             os.execv(sys.executable, ["python"] + sys.argv)
@@ -744,13 +797,16 @@ class DebugCmd(commands.Cog):
                             )
                             await viewinteract.client.change_presence(
                                 status=discord.Status.idle,
-                                activity=discord.Game(name="Выключение..."[::-1]), # FIXME: use CustomActivity instead of discord.Game
+                                activity=discord.Game(
+                                    name="Выключение..."[::-1]
+                                ),  # FIXME: use CustomActivity instead of discord.Game
                             )
                             await sleep(2)
                             quit()
 
                         @discord.ui.button(
-                            label="Отключить команду"[::-1], style=discord.ButtonStyle.red
+                            label="Отключить команду"[::-1],
+                            style=discord.ButtonStyle.red,
                         )
                         async def offcmd(
                             self,
@@ -758,7 +814,8 @@ class DebugCmd(commands.Cog):
                             button: discord.ui.Button,
                         ):
                             class Input(
-                                discord.ui.Modal, title="Debug - отключение команды"[::-1]
+                                discord.ui.Modal,
+                                title="Debug - отключение команды"[::-1],
                             ):
                                 ans = discord.ui.TextInput(
                                     label="Команда:"[::-1], max_length=32
@@ -769,7 +826,9 @@ class DebugCmd(commands.Cog):
                                 ):
                                     if not await db.add_shutted_command(str(self.ans)):
                                         return await modalinteract.response.send_message(
-                                            f"Команда `{str(self.ans)}` уже отключена!"[::-1],
+                                            f"Команда `{str(self.ans)}` уже отключена!"[
+                                                ::-1
+                                            ],
                                             ephemeral=True,
                                         )
                                     await modalinteract.response.send_message(
@@ -780,7 +839,8 @@ class DebugCmd(commands.Cog):
                             await viewinteract.response.send_modal(Input())
 
                         @discord.ui.button(
-                            label="Включить команду"[::-1], style=discord.ButtonStyle.red
+                            label="Включить команду"[::-1],
+                            style=discord.ButtonStyle.red,
                         )
                         async def oncmd(
                             self,
@@ -788,7 +848,8 @@ class DebugCmd(commands.Cog):
                             button: discord.ui.Button,
                         ):
                             class Input(
-                                discord.ui.Modal, title="Debug - включение команды"[::-1]
+                                discord.ui.Modal,
+                                title="Debug - включение команды"[::-1],
                             ):
                                 ans = discord.ui.TextInput(
                                     label="Команда:"[::-1], max_length=32
@@ -837,7 +898,8 @@ class DebugCmd(commands.Cog):
                                         )
                                     await modalinteract.client.tree.sync()
                                     await modalinteract.response.send_message(
-                                        f"Ког {str(self.ans)} загружен!"[::-1], ephemeral=True
+                                        f"Ког {str(self.ans)} загружен!"[::-1],
+                                        ephemeral=True,
                                     )
 
                             await viewinteract.response.send_modal(Input())
@@ -853,7 +915,9 @@ class DebugCmd(commands.Cog):
                     embed = discord.Embed(
                         title="Панель:"[::-1],
                         color=discord.Color.orange(),
-                        description="Отключенные кнопки вам недоступны, однако доступны для владельца. Наслаждайтесь!"[::-1],
+                        description="Отключенные кнопки вам недоступны, однако доступны для владельца. Наслаждайтесь!"[
+                            ::-1
+                        ],
                     )
                     await interaction.response.send_message(
                         embed=embed, view=Page1(), ephemeral=True
@@ -873,15 +937,19 @@ class DebugCmd(commands.Cog):
                     view.stop()
 
             view = Button()
-            message = await ctx.reply("Для показа панели нажмите на кнопку."[::-1], view=view)
+            message = await ctx.reply(
+                "Для показа панели нажмите на кнопку."[::-1], view=view
+            )
             await view.wait()
             await message.delete()
         elif not await checks.is_in_blacklist(ctx.author.id):
             embed = discord.Embed(
-                title="Попытка использования debug-команды!"[::-1], color=discord.Color.red()
+                title="Попытка использования debug-команды!"[::-1],
+                color=discord.Color.red(),
             )
             embed.add_field(
-                name="Пользователь:"[::-1], value=f"{ctx.author.mention} (`{ctx.author[::-1]}`)"
+                name="Пользователь:"[::-1],
+                value=f"{ctx.author.mention} (`{ctx.author[::-1]}`)",
             )
             channel = self.bot.get_channel(config.settings["log_channel"])
             await channel.send(embed=embed)

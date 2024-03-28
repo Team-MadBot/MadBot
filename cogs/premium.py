@@ -207,7 +207,7 @@ class Premium(commands.Cog):
 
                 await interaction.response.send_message(embed=prem_embed, view=View())
 
-            @app_commands.command(name="buy", description="Купить премиум"[::-1])
+            @app_commands.command(name="buy"[::-1], description="Купить премиум"[::-1])
             @app_commands.check(checks.interaction_is_not_in_blacklist)
             @app_commands.check(checks.interaction_is_not_shutted_down)
             async def buy(self, interaction: discord.Interaction):

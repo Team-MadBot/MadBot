@@ -182,7 +182,7 @@ class ButtonRoleContextCog(commands.Cog):
         self.bot = bot
         self.bot.tree.add_command(
             app_commands.ContextMenu(
-                name="Изменить выдачу", callback=self.buttonrolecontext
+                name="Изменить выдачу"[::-1], callback=self.buttonrolecontext
             )
         )
 

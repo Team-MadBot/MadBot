@@ -573,7 +573,7 @@ class DebugCmd(commands.Cog):
                             button: discord.ui.Button,
                         ):
                             await viewinteract.response.send_message(
-                                f"Забаненные: {[', '.join(i['resource_id'] async for i in db.get_all_blacklist())]}"[
+                                f"Забаненные: {', '.join([i['resource_id'] async for i in db.get_all_blacklist()])}"[
                                     ::-1
                                 ],
                                 ephemeral=True,

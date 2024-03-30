@@ -5,6 +5,7 @@ from discord.ext import tasks
 
 from classes import db
 
+
 class CheckBlacklistCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
@@ -18,8 +19,9 @@ class CheckBlacklistCog(commands.Cog):
     @tasks.loop(seconds=1)
     async def check_blacklist(self):  # fucking scary
         async for resource in db.get_all_blacklist():
-            if resource['until'] < int(time.time()):
-                await db.remove_blacklist(resource['resource_id'])
+            if resource["until"] < int(time.time()):
+                await db.remove_blacklist(resource["resource_id"])
+
 
 async def setup(bot: commands.AutoShardedBot):
     await bot.add_cog(CheckBlacklistCog(bot))

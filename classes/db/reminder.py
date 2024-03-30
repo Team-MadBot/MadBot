@@ -7,7 +7,7 @@ async def add_user(
     enabled: bool = False,
     next_bump: int = 0,
     reminded: bool = False,
-    up_count: int = 0
+    up_count: int = 0,
 ):
     await mongo_db.reminder.insert_one(
         {

@@ -19,7 +19,7 @@ class CheckBlacklistCog(commands.Cog):
     @tasks.loop(seconds=1)
     async def check_blacklist(self):  # fucking scary
         async for resource in db.get_all_blacklist():
-            if resource["until"] < int(time.time()):
+            if resource["until"] and resource["until"] < int(time.time()):
                 await db.remove_blacklist(resource["resource_id"])
 
 

@@ -110,7 +110,7 @@ class BoticordBotUp(commands.Cog):
         self.bc_client = BoticordClient(settings["bcv2_token"])
 
     async def cog_unload(self):
-        self.bc_client.session.close()
+        await self.bc_client.session.close()
         self.bc_client = None
 
     @app_commands.command(

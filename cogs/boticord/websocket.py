@@ -113,6 +113,7 @@ class BoticordCog(commands.Cog):
         if data["id"] != str(self.bot.user.id) and not settings["debug_mode"]:
             return
 
+        bc_ws = self.bc_ws
         user = await self.bot.fetch_user(int(data["user"]))
         next_up = round(time.time()) + 3600 * 6
         view = LinktoBoticord(bot_id=self.bot.user.id)
@@ -155,6 +156,10 @@ class BoticordCog(commands.Cog):
                 name="Кол-во апов теперь:", value=f"**{data['payload']['upCount']:,}**"
             )
             .add_field(name="Следующий бамп:", value=f"<t:{next_up}> (<t:{next_up}:R>)")
+        )
+        await bc_ws.send(
+            embed=embed,
+            view=LinktoBoticord(self.bot.user.id)
         )
         with suppress(Exception):
             msg = await user.send(

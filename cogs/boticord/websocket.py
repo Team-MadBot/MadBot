@@ -148,6 +148,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
+                url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
@@ -189,6 +190,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
+                url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
@@ -214,6 +216,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
+                url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
@@ -239,6 +242,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
+                url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"

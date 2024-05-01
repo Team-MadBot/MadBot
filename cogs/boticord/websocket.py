@@ -82,7 +82,7 @@ class BoticordCog(commands.Cog):
         self.bot = bot
         self.bc_token = settings["bcv2_token"]
         self.session = aiohttp.ClientSession()
-        self.bc_client = BoticordClient(self.bc_token, session=self.session)
+        self.bc_client = BoticordClient(self.bc_token)
         self.bc_wh = discord.Webhook.from_url(
             settings["bc_hook_url"],
             session=self.session,
@@ -104,12 +104,13 @@ class BoticordCog(commands.Cog):
 
         if self.bc_client.ws.not_closed:
             await self.bc_client.ws.close()
+            await self.bc_client.session.close()
 
     async def new_bot_bump(self, data: dict[str, Any]):
         assert self.bot.user is not None
         assert isinstance(data["user"], str)
 
-        if data["id"] != str(self.bot.user.id):
+        if data["id"] != str(self.bot.user.id) and not settings["debug_mode"]:
             return
 
         user = await self.bot.fetch_user(int(data["user"]))
@@ -167,7 +168,7 @@ class BoticordCog(commands.Cog):
 
     async def comment_added(self, data: dict[str, Any]):
         assert self.bot.user is not None
-        if data["id"] != str(self.bot.user.id):
+        if data["id"] != str(self.bot.user.id) and not settings["debug_mode"]:
             return
 
         bc_wh = self.bc_wh
@@ -192,7 +193,7 @@ class BoticordCog(commands.Cog):
 
     async def comment_removed(self, data: dict[str, Any]):
         assert self.bot.user is not None
-        if data["id"] != str(self.bot.user.id):
+        if data["id"] != str(self.bot.user.id) and not settings["debug_mode"]:
             return
 
         bc_wh = self.bc_wh
@@ -217,7 +218,7 @@ class BoticordCog(commands.Cog):
 
     async def comment_edited(self, data: dict[str, Any]):
         assert self.bot.user is not None
-        if data["id"] != str(self.bot.user.id):
+        if data["id"] != str(self.bot.user.id) and not settings["debug_mode"]:
             return
 
         bc_wh = self.bc_wh

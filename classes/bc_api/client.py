@@ -4,6 +4,7 @@ import aiohttp
 from .http import HttpClient
 from .websocket import BoticordWebsocket
 
+
 class BoticordClient:
     def __init__(self, token: str):
         self.session = aiohttp.ClientSession()

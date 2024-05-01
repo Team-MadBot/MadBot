@@ -78,4 +78,3 @@ class HttpClient:
         ) as resp:
             json = await resp.json()
             return [resp, json]
-        

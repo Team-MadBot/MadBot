@@ -5,7 +5,6 @@ import datetime
 import time
 import logging
 
-from boticordpy import BoticordClient  # type: ignore
 from discord.ext import commands, tasks
 from discord import utils as dutils
 from discord import ui
@@ -13,7 +12,6 @@ from asyncio import sleep
 
 from typing import Any
 
-from classes.bc_websocket import BoticordWS
 from config import settings
 from classes import db
 

@@ -151,7 +151,7 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://boticord.top/favicon.png"
+                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
             .add_field(
                 name="Кол-во апов теперь:", value=f"**{data['payload']['upCount']:,}**"
@@ -193,7 +193,7 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://boticord.top/favicon.png"
+                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
         )
         await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=data["id"]))
@@ -219,7 +219,7 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://boticord.top/favicon.png"
+                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
         )
         await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=data["id"]))
@@ -245,7 +245,7 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://boticord.top/favicon.png"
+                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
         )
         await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=data["id"]))

@@ -1,19 +1,19 @@
 import aiohttp
 import discord
-import traceback
 import datetime
 import time
 import logging
 
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord import utils as dutils
 from discord import ui
-from asyncio import sleep
 
 from typing import Any
 
 from config import settings
 from classes import db
+from classes.bc_api import BoticordClient
+from contextlib import suppress
 
 logger = logging.getLogger("discord")
 
@@ -70,9 +70,9 @@ class SetReminderButton(ui.Button):  # type: ignore
         embed = discord.Embed(
             title="Напоминание о повышении",
             color=discord.Color.orange(),
-            description="Напоминание о повышении бота на мониторинге включено. Вы будете упомянуты в этом канале, "
-            "когда настанет время. Для отключения используйте `/remind disable`",
-        )
+            description="Напоминание о повышении бота на мониторинге включено. Бот напишет Вам в личные сообщения, "
+            "когда настанет время. **Убедитесь, что бот сможет это сделать!**",
+        ).set_footer(text="Для отключения используйте `/remind disable`")
         self.view.stop()  # type: ignore
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -81,9 +81,8 @@ class BoticordCog(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
         self.bc_token = settings["bcv2_token"]
-        self.bc_ws = BoticordWS(self.bc_token)
-        self.bc_client = BoticordClient(self.bc_token)
         self.session = aiohttp.ClientSession()
+        self.bc_client = BoticordClient(self.bc_token, session=self.session)
         self.bc_wh = discord.Webhook.from_url(
             settings["bc_hook_url"],
             session=self.session,
@@ -92,33 +91,27 @@ class BoticordCog(commands.Cog):
         )
 
     async def cog_load(self):
-        self.bc_ws.register_listener("up_added", self.new_bot_bump)  # type: ignore
-        self.bc_ws.register_listener("comment_added", self.comment_added)  # type: ignore
-        self.bc_ws.register_listener("comment_edited", self.comment_edited)  # type: ignore
-        self.bc_ws.register_listener("comment_removed", self.comment_removed)  # type: ignore
-        self.bc_ws.register_closer(self.on_close)  # type: ignore
+        self.bc_client.ws.register_listener("up_added", self.new_bot_bump)  # type: ignore
+        self.bc_client.ws.register_listener("comment_added", self.comment_added)  # type: ignore
+        self.bc_client.ws.register_listener("comment_edited", self.comment_edited)  # type: ignore
+        self.bc_client.ws.register_listener("comment_removed", self.comment_removed)  # type: ignore
 
-        if not settings["debug_mode"]:
-            self.send_stats.start()
-
-        await self.bc_ws.connect()
+        await self.bc_client.ws.connect()
 
     async def cog_unload(self):
         if not settings["debug_mode"]:
             self.send_stats.cancel()
-        if self.bc_ws.not_closed:
-            await self.bc_ws.close()
 
-    async def on_close(self, code: int):
-        await sleep(15)
-        await self.bot.reload_extension("cogs.bc_api")
+        if self.bc_client.ws.not_closed:
+            await self.bc_client.ws.close()
 
     async def new_bot_bump(self, data: dict[str, Any]):
         assert self.bot.user is not None
         assert isinstance(data["user"], str)
+
         if data["id"] != str(self.bot.user.id):
             return
-        bc_wh = self.bc_wh
+
         user = await self.bot.fetch_user(int(data["user"]))
         next_up = round(time.time()) + 3600 * 6
         view = LinktoBoticord(bot_id=self.bot.user.id)
@@ -144,10 +137,9 @@ class BoticordCog(commands.Cog):
             discord.Embed(
                 title="Спасибо за ап бота!",
                 color=discord.Color.orange(),
-                description=f"В награду, Вам выдано **1,500 серверных монет**. Если Вы не получили монет - "
-                "напишите в <#981547296275705927>.\n\n"
-                "Вы также можете апнуть бота на SDC (кнопка ниже), но для получения награды необходимо прислать скриншот "
-                "в <#1128223151264911360>.",
+                description=f"В награду, с Вас сняты задержки на команды на 6 часов! Если задержки всё ещё присутствуют - "
+                "напишите в <#1214210929844027402> на сервере поддержки.\n\n"
+                "Вы также можете апнуть бота на SDC (кнопка ниже), однако никакой награды выдано не будет.",
                 timestamp=datetime.datetime.now(),
             )
             .set_footer(text=f"ID пользователя: {user.id}")
@@ -163,24 +155,21 @@ class BoticordCog(commands.Cog):
             )
             .add_field(name="Следующий бамп:", value=f"<t:{next_up}> (<t:{next_up}:R>)")
         )
-        msg = await bc_wh.send(content=user.mention, embed=embed, view=view, wait=True)
-        headers = {"Authorization": settings["unbelieva_token"]}
-        body = {"cash": 1500, "reason": "Ап бота"}
-        await self.session.patch(
-            f"https://unbelievaboat.com/api/v1/guilds/{settings['comm_guild']}/users/{user.id}",
-            headers=headers,
-            json=body,
-        )
-        await view.wait()
-        for item in view.children:
-            if item.url is None:  # type: ignore
-                item.disabled = True  # type: ignore
-        await msg.edit(view=view)
+        with suppress(Exception):
+            msg = await user.send(
+                content=user.mention, embed=embed, view=view, wait=True
+            )
+            await view.wait()
+            for item in view.children:
+                if item.url is None:  # type: ignore
+                    item.disabled = True  # type: ignore
+            await msg.edit(view=view)
 
     async def comment_added(self, data: dict[str, Any]):
         assert self.bot.user is not None
         if data["id"] != str(self.bot.user.id):
             return
+
         bc_wh = self.bc_wh
         user = await self.bot.fetch_user(int(data["user"]))
         embed = (
@@ -205,6 +194,7 @@ class BoticordCog(commands.Cog):
         assert self.bot.user is not None
         if data["id"] != str(self.bot.user.id):
             return
+
         bc_wh = self.bc_wh
         user = await self.bot.fetch_user(int(data["user"]))
         embed = (
@@ -229,6 +219,7 @@ class BoticordCog(commands.Cog):
         assert self.bot.user is not None
         if data["id"] != str(self.bot.user.id):
             return
+
         bc_wh = self.bc_wh
         user = await self.bot.fetch_user(int(data["user"]))
         embed = (
@@ -248,27 +239,6 @@ class BoticordCog(commands.Cog):
             )
         )
         await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=self.bot.user.id))
-
-    @tasks.loop(seconds=300)
-    async def send_stats(self):
-        assert self.bot.user is not None
-        try:
-            await self.bc_client.post_bot_stats(
-                self.bot.user.id,
-                servers=len(self.bot.guilds),
-                shards=self.bot.shard_count,
-                users=len(self.bot.users),
-            )
-        except Exception:
-            logger.error("Статистика на Boticord НЕ ОБНОВЛЕНА!!! (V2)")
-            logger.error(traceback.format_exc())
-            logger.error("============ AutoPost ============")
-        else:
-            logger.info("Статистика на Boticord обновлена! (V2)")
-
-    @send_stats.before_loop
-    async def wait_before_loop(self):
-        await self.bot.wait_until_ready()
 
 
 async def setup(bot: commands.AutoShardedBot):

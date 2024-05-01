@@ -116,7 +116,7 @@ class BoticordCog(commands.Cog):
         bc_ws = self.bc_ws
         user = await self.bot.fetch_user(int(data["user"]))
         next_up = round(time.time()) + 3600 * 6
-        view = LinktoBoticord(bot_id=self.bot.user.id)
+        view = LinktoBoticord(bot_id=data["id"])
 
         db_user = await db.get_user(user_id=user.id)  # type: ignore
         view.add_item(SetReminderButton(user.id, disabled=db_user is not None))
@@ -151,7 +151,7 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
+                url="https://boticord.top/favicon.png"
             )
             .add_field(
                 name="Кол-во апов теперь:", value=f"**{data['payload']['upCount']:,}**"
@@ -160,7 +160,7 @@ class BoticordCog(commands.Cog):
         )
         await bc_ws.send(
             embed=embed,
-            view=LinktoBoticord(self.bot.user.id)
+            view=LinktoBoticord(data["id"])
         )
         with suppress(Exception):
             msg = await user.send(
@@ -193,10 +193,10 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
+                url="https://boticord.top/favicon.png"
             )
         )
-        await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=self.bot.user.id))
+        await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=data["id"]))
 
     async def comment_removed(self, data: dict[str, Any]):
         assert self.bot.user is not None
@@ -219,10 +219,10 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
+                url="https://boticord.top/favicon.png"
             )
         )
-        await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=self.bot.user.id))
+        await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=data["id"]))
 
     async def comment_edited(self, data: dict[str, Any]):
         assert self.bot.user is not None
@@ -245,10 +245,10 @@ class BoticordCog(commands.Cog):
                 url=f"https://discord.com/users/{user.id}"
             )
             .set_thumbnail(
-                url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
+                url="https://boticord.top/favicon.png"
             )
         )
-        await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=self.bot.user.id))
+        await bc_wh.send(embed=embed, view=LinktoBoticord(bot_id=data["id"]))
 
 
 async def setup(bot: commands.AutoShardedBot):

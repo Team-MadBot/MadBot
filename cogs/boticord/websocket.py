@@ -95,16 +95,26 @@ class BoticordCog(commands.Cog):
         self.bc_client.ws.register_listener("comment_added", self.comment_added)  # type: ignore
         self.bc_client.ws.register_listener("comment_edited", self.comment_edited)  # type: ignore
         self.bc_client.ws.register_listener("comment_removed", self.comment_removed)  # type: ignore
+        if settings["debug_mode"]:
+            self.bc_client.ws.register_listener("global_listener", self.global_listener)
 
         await self.bc_client.ws.connect()
 
     async def cog_unload(self):
-        if not settings["debug_mode"]:
-            self.send_stats.cancel()
-
         if self.bc_client.ws.not_closed:
             await self.bc_client.ws.close()
             await self.bc_client.session.close()
+
+    async def global_listener(self, data: dict[str, Any]):
+        bc_wh = self.bc_wh
+        embed = discord.Embed(
+            title="[Отладка] Уведомление от Boticord",
+            color=discord.Color.orange(),
+            description=f"Данные уведомления:\n```\n{data}\n```"
+        )
+        await bc_wh.send(
+            embed=embed
+        )
 
     async def new_bot_bump(self, data: dict[str, Any]):
         assert self.bot.user is not None
@@ -113,7 +123,7 @@ class BoticordCog(commands.Cog):
         if data["id"] != str(self.bot.user.id) and not settings["debug_mode"]:
             return
 
-        bc_ws = self.bc_ws
+        bc_wh = self.bc_wh
         user = await self.bot.fetch_user(int(data["user"]))
         next_up = round(time.time()) + 3600 * 6
         view = LinktoBoticord(bot_id=data["id"])
@@ -158,7 +168,7 @@ class BoticordCog(commands.Cog):
             )
             .add_field(name="Следующий бамп:", value=f"<t:{next_up}> (<t:{next_up}:R>)")
         )
-        await bc_ws.send(
+        await bc_wh.send(
             embed=embed,
             view=LinktoBoticord(data["id"])
         )

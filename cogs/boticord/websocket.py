@@ -110,11 +110,9 @@ class BoticordCog(commands.Cog):
         embed = discord.Embed(
             title="[Отладка] Уведомление от Boticord",
             color=discord.Color.orange(),
-            description=f"Данные уведомления:\n```\n{data}\n```"
+            description=f"Данные уведомления:\n```\n{data}\n```",
         )
-        await bc_wh.send(
-            embed=embed
-        )
+        await bc_wh.send(embed=embed)
 
     async def new_bot_bump(self, data: dict[str, Any]):
         assert self.bot.user is not None
@@ -158,7 +156,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
-                url=f"https://discord.com/users/{user.id}"
+                url=f"https://discord.com/users/{user.id}",
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
@@ -168,14 +166,9 @@ class BoticordCog(commands.Cog):
             )
             .add_field(name="Следующий бамп:", value=f"<t:{next_up}> (<t:{next_up}:R>)")
         )
-        await bc_wh.send(
-            embed=embed,
-            view=LinktoBoticord(data["id"])
-        )
+        await bc_wh.send(embed=embed, view=LinktoBoticord(data["id"]))
         with suppress(Exception):
-            msg = await user.send(
-                content=user.mention, embed=embed, view=view
-            )
+            msg = await user.send(content=user.mention, embed=embed, view=view)
             await view.wait()
             for item in view.children:
                 if item.url is None:  # type: ignore
@@ -200,7 +193,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
-                url=f"https://discord.com/users/{user.id}"
+                url=f"https://discord.com/users/{user.id}",
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
@@ -226,7 +219,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
-                url=f"https://discord.com/users/{user.id}"
+                url=f"https://discord.com/users/{user.id}",
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
@@ -252,7 +245,7 @@ class BoticordCog(commands.Cog):
             .set_author(
                 name=f"{user.display_name} ({user.name})",
                 icon_url=user.display_avatar.url,
-                url=f"https://discord.com/users/{user.id}"
+                url=f"https://discord.com/users/{user.id}",
             )
             .set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"

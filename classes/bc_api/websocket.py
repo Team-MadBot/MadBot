@@ -126,10 +126,10 @@ class BoticordWebsocket:
             self.loop.create_task(self._send_ping())
         elif data["event"] == "notify":
             listener = self._listeners.get(data["data"]["type"])
+            if global_listener := self._listeners.get("global_listener", None):
+                self.loop.create_task(global_listener(data))
             if listener:
                 self.loop.create_task(listener(data["data"]))
-            elif global_listener := self._listeners.get("global_listener", None):
-                self.loop.create_task(global_listener(data))
         elif data["event"] == "pong":
             logger.info("BCWS: Received pong-response.")
             self.loop.create_task(self._send_ping())

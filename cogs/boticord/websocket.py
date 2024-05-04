@@ -174,7 +174,7 @@ class BoticordCog(commands.Cog):
         )
         with suppress(Exception):
             msg = await user.send(
-                content=user.mention, embed=embed, view=view, wait=True
+                content=user.mention, embed=embed, view=view
             )
             await view.wait()
             for item in view.children:

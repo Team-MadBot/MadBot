@@ -532,9 +532,7 @@ class Moderation(commands.Cog):
                     text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"
                 )
             except HTTPException:
-                embed.set_footer(
-                    text="Участник сервера является ботом."
-                )
+                embed.set_footer(text="Участник сервера является ботом.")
             return await interaction.response.send_message(embed=embed)
 
         embed = (

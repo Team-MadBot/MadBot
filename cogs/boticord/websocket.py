@@ -165,7 +165,8 @@ class BoticordCog(commands.Cog):
                 name="Кол-во апов теперь:", value=f"**{data['payload']['upCount']:,}**"
             )
             .add_field(
-                name="Кол-во апов от пользователя:", value=f"**{db_user["up_count"] + 1}**"
+                name="Кол-во апов от пользователя:",
+                value=f"**{db_user['up_count'] + 1}**",
             )
             .add_field(name="Следующий бамп:", value=f"<t:{next_up}> (<t:{next_up}:R>)")
         )

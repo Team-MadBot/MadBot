@@ -39,12 +39,13 @@ class RemindUpCog(commands.Cog):
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
             await db.update_user(user_id=user["user_id"], reminded=True)
-            user = await self.bot.fetch_user(user["user_id"])
-            await user.send(
-                f"<@{user['user_id']}>, время апнуть MadBot на Boticord!",
-                embed=embed,
-                view=view,
-            )
+            with suppress(Exception):
+                user = await self.bot.fetch_user(user["user_id"])
+                await user.send(
+                    f"<@{user['user_id']}>, время апнуть MadBot на Boticord!",
+                    embed=embed,
+                    view=view,
+                )
 
     @remind_up.before_loop
     async def remind_up_before(self):

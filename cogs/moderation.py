@@ -133,7 +133,7 @@ class Moderation(commands.Cog):
     async def ban(
         self,
         interaction: discord.Interaction,
-        member: discord.User,
+        member: discord.User | discord.Member,
         reason: app_commands.Range[str, None, 512],
         delete_message_days: app_commands.Range[int, 0, 7] = 0,
     ):
@@ -156,36 +156,33 @@ class Moderation(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        try:
-            guild_member = await interaction.guild.fetch_member(member.id)
-        except NotFound:
-            guild_member = None
-
-        if guild_member is not None and (
-            guild_member.top_role.position >= member_bot.top_role.position
-            or interaction.guild.owner_id == member.id
-            or not member_bot.guild_permissions.ban_members
-        ):
-            embed = discord.Embed(
-                title="Ошибка!",
-                color=discord.Color.red(),
-                description="Бот не может забанить данного пользователя!",
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-
-        if (
-            guild_member is not None
-            and (
-                guild_member.top_role.position >= interaction.user.top_role.position
+        if isinstance(member, discord.Member):
+            if (
+                member.top_role.position >= member_bot.top_role.position
                 or interaction.guild.owner_id == member.id
-            )
-        ) and interaction.user.id != interaction.guild.owner_id:
-            embed = discord.Embed(
-                title="Ошибка!",
-                color=discord.Color.red(),
-                description="Вы не можете банить участников, чья роль выше либо равна Вашей!",
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+                or not member_bot.guild_permissions.ban_members
+            ):
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description="Бот не может забанить данного пользователя!",
+                )
+                return await interaction.response.send_message(
+                    embed=embed, ephemeral=True
+                )
+
+            if (
+                member.top_role.position >= interaction.user.top_role.position
+                or interaction.guild.owner_id == member.id
+            ) and interaction.user.id != interaction.guild.owner_id:
+                embed = discord.Embed(
+                    title="Ошибка!",
+                    color=discord.Color.red(),
+                    description="Вы не можете банить участников, чья роль выше либо равна Вашей!",
+                )
+                return await interaction.response.send_message(
+                    embed=embed, ephemeral=True
+                )
 
         await interaction.response.defer(thinking=True)
 
@@ -207,6 +204,7 @@ class Moderation(commands.Cog):
             message = await member.send(embed=embed)
         except:  # FIXME: bare except
             embed.set_footer(text="Участник не получил сообщение о блокировке!")
+            message = None
 
         try:
             await interaction.guild.ban(
@@ -215,7 +213,8 @@ class Moderation(commands.Cog):
                 delete_message_days=delete_message_days,
             )
         except:  # FIXME: bare except
-            await message.delete()
+            if message is not None:
+                await message.delete()
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -236,7 +235,7 @@ class Moderation(commands.Cog):
     async def unban(
         self,
         interaction: discord.Interaction,
-        member: app_commands.Range[str, 18, 19],
+        member: discord.User,
         reason: app_commands.Range[str, None, 512],
     ):
         if interaction.guild is None:
@@ -283,21 +282,21 @@ class Moderation(commands.Cog):
                 description="По какой-то неизвестной причине, разбан участника не был завершён. "
                 "Убедитесь в наличии прав у бота и корректности указанного участника и повторите попытку",
             )
-        else:
-            embed = (
-                discord.Embed(
-                    title="Участник разбанен!",
-                    color=discord.Color.red(),
-                    timestamp=datetime.datetime.now(),
-                )
-                .add_field(name="Участник:", value=f"{member.mention}\n({member.id})")
-                .add_field(
-                    name="Модератор:",
-                    value=f"{interaction.user.mention}\n({interaction.user.id})",
-                )
-                .add_field(name="Причина:", value=dutils.escape_markdown(reason))
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        embed = (
+            discord.Embed(
+                title="Участник разбанен!",
+                color=discord.Color.red(),
+                timestamp=datetime.datetime.now(),
             )
-            return await interaction.response.send_message(embed=embed)
+            .add_field(name="Участник:", value=f"{member.mention}\n({member.id})")
+            .add_field(
+                name="Модератор:",
+                value=f"{interaction.user.mention}\n({interaction.user.id})",
+            )
+            .add_field(name="Причина:", value=dutils.escape_markdown(reason))
+        )
+        return await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="clear", description="[Модерация] Очистка сообщений")
     @app_commands.check(checks.interaction_is_not_in_blacklist)

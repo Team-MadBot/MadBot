@@ -5,7 +5,7 @@ import logging
 from asyncio import sleep
 from typing import Optional
 
-from discord import app_commands, Forbidden, NotFound
+from discord import app_commands, Forbidden, NotFound, HTTPException
 from discord.ext import commands
 from discord import utils as dutils
 
@@ -100,17 +100,21 @@ class Moderation(commands.Cog):
             .add_field(name="Причина", value=dutils.escape_markdown(reason))
         )
 
+        message = None
         try:
             message = await member.send(embed=embed)
         except Forbidden:
             embed.set_footer(text="Участник не получил сообщение о исключении!")
+        except HTTPException:
+            embed.set_footer(text="Участник сервера является ботом.")
 
         try:
             await interaction.guild.kick(
                 member, reason=f"{reason} // {interaction.user}"
             )
         except Forbidden:
-            await message.delete()
+            if message is not None:
+                await message.delete()
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
@@ -200,11 +204,13 @@ class Moderation(commands.Cog):
             .add_field(name="Причина", value=dutils.escape_markdown(reason))
         )
 
+        message = None
         try:
             message = await member.send(embed=embed)
-        except:  # FIXME: bare except
+        except Forbidden:
             embed.set_footer(text="Участник не получил сообщение о блокировке!")
-            message = None
+        except HTTPException:
+            embed.set_footer(text="Участник сервера является ботом.")
 
         try:
             await interaction.guild.ban(
@@ -521,9 +527,13 @@ class Moderation(commands.Cog):
             )
             try:
                 await member.send(embed=embed)
-            except:  # FIXME: bare except
+            except Forbidden:
                 embed.set_footer(
                     text="Личные сообщения участника закрыты, поэтому бот не смог оповестить участника о выдаче наказания!"
+                )
+            except HTTPException:
+                embed.set_footer(
+                    text="Участник сервера является ботом."
                 )
             return await interaction.response.send_message(embed=embed)
 

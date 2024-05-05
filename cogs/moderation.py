@@ -156,8 +156,13 @@ class Moderation(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        if (
-            member.top_role.position >= member_bot.top_role.position
+        try:
+            guild_member = await interaction.guild.fetch_member(member.id)
+        except NotFound:
+            guild_member = None
+
+        if guild_member is not None and (
+            guild_member.top_role.position >= member_bot.top_role.position
             or interaction.guild.owner_id == member.id
             or not member_bot.guild_permissions.ban_members
         ):
@@ -169,8 +174,11 @@ class Moderation(commands.Cog):
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         if (
-            member.top_role.position >= interaction.user.top_role.position
-            or interaction.guild.owner_id == member.id
+            guild_member is not None
+            and (
+                guild_member.top_role.position >= interaction.user.top_role.position
+                or interaction.guild.owner_id == member.id
+            )
         ) and interaction.user.id != interaction.guild.owner_id:
             embed = discord.Embed(
                 title="Ошибка!",

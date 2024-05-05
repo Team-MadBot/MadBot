@@ -40,9 +40,9 @@ class RemindUpCog(commands.Cog):
             )
             await db.update_user(user_id=user["user_id"], reminded=True)
             with suppress(Exception):
-                user = await self.bot.fetch_user(user["user_id"])
-                await user.send(
-                    f"<@{user['user_id']}>, время апнуть MadBot на Boticord!",
+                discord_user = await self.bot.fetch_user(user["user_id"])
+                await discord_user.send(
+                    f"<@{discord_user.id}>, время апнуть MadBot на Boticord!",
                     embed=embed,
                     view=view,
                 )

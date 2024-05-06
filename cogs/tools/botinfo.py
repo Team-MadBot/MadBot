@@ -43,6 +43,7 @@ class BotInfo(commands.Cog):
         stats.set_footer(
             text=str(requested_user.user), icon_url=requested_user.display_avatar.url
         )
+        return stats
 
     async def cog_load(self):
         thanks_users = {  # я теперь знаю, что ещё переписать на базу данных.

@@ -10,13 +10,15 @@ class BoticordStatisticsCog(commands.Cog):
         self.bc_client: BoticordClient | None = None
 
     async def cog_load(self):
-        self.bc_client = BoticordClient(settings["bcv2_token"])
-        self.send_bot_stats.start()
+        if not settings["debug_mode"]:
+            self.bc_client = BoticordClient(settings["bcv2_token"])
+            self.send_bot_stats.start()
 
     async def cog_unload(self):
-        self.send_bot_stats.cancel()
-        await self.bc_client.session.close()
-        self.bc_client = None
+        if not settings["debug_mode"]
+            self.send_bot_stats.cancel()
+            await self.bc_client.session.close()
+            self.bc_client = None
 
     @tasks.loop(minutes=10)
     async def send_bot_stats(self):

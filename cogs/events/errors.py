@@ -9,6 +9,7 @@ from discord.ext import commands
 from discord import app_commands
 from discord import Forbidden
 
+from cogs.boticord.websocket import LinktoBoticord
 from classes import checks
 from classes import db
 
@@ -37,8 +38,14 @@ class ErrorCog(commands.Cog):
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description=f"Задержка на команду `/{interaction.command.qualified_name}`! Попробуйте <t:{round(time.time() + error.retry_after)}:R>!",
+            ).add_field(
+                name="Подсказка:",
+                value="Вы можете убрать себе задержку бесплатно на 6 часов, подняв бота на мониторинге Boticord. Нажмите на кнопку ниже, "
+                "чтобы перейти на сайт мониторинга и нажать \"Поднять\", после чего Вы будете освобождены на 6 часов от задержек.\n\n"
+                "Вы также можете поднять бота на SDC, но никаких наград за это не будет."
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            view = LinktoBoticord(self.bot.user.id)
+            return await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
         if isinstance(error, app_commands.CheckFailure):
             if await checks.is_in_blacklist(interaction.user.id):
                 blacklist_info = await db.get_blacklist(interaction.user.id)

@@ -321,7 +321,7 @@ class ButtonRoleContextCog(commands.Cog):
 
         await message.edit(
             embed=buttonrole_embed,
-            view=ButtonRoleEditedView(interaction.guild.id, selected_roles),
+            view=ButtonRoleEditedView(interaction.guild.id, selected_roles, embed_edit_view.select_placeholder),
         )
         embed = discord.Embed(
             title="Успешно!",

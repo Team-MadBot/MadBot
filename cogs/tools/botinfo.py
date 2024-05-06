@@ -69,7 +69,7 @@ class DropDown(discord.ui.Select):
         )
         stats.set_thumbnail(url=self.bot.user.display_avatar.url)
         stats.set_footer(
-            text=str(requested_user.user), icon_url=requested_user.display_avatar.url
+            text=str(requested_user), icon_url=requested_user.display_avatar.url
         )
         return stats
 

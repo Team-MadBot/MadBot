@@ -130,7 +130,8 @@ class ButtonRoleEditEmbedView(ui.View):
         self.embed_title = modal.embed_title.value or self.embed_title
         self.embed_description = modal.embed_description.value or self.embed_description
         self.embed_color = modal.embed_color.value or self.embed_color
-        self.select_placeholder = modal.select_placeholder.value or self.select_placeholder
+        if modal.select_placeholder is not None:
+            self.select_placeholder = modal.select_placeholder.value or self.select_placeholder
         self.stop()
 
     @ui.button(label="Пропустить", row=1)

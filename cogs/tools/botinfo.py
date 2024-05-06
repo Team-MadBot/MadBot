@@ -19,6 +19,31 @@ class BotInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
 
+    async def get_bot_stats_embed(self, requested_user: discord.User | discord.Member):
+        bot_stats = await db.get_bot_stats()
+        stats = discord.Embed(
+            title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange()
+        )
+        stats.add_field(name="Пинг", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
+        stats.add_field(name="Запущен", value=f"<t:{started_at}:R>")
+        stats.add_field(name="Кол-во серверов", value=f"{len(self.bot.guilds):,}")
+        stats.add_field(name="Кол-во участников", value=f"{len(self.bot.users):,}")
+        stats.add_field(
+            name="Последняя использованная команда",
+            value=bot_stats["last_command"] or "Ещё ни разу команды не использовались",
+        )
+        stats.add_field(
+            name="Кол-во команд/контекстных меню",
+            value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)):,}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message)):,}",
+        )
+        stats.add_field(
+            name="Обработано команд", value=f"{bot_stats['used_commands']:,}"
+        )
+        stats.set_thumbnail(url=self.bot.user.display_avatar.url)
+        stats.set_footer(
+            text=str(requested_user.user), icon_url=requested_user.display_avatar.url
+        )
+
     async def cog_load(self):
         thanks_users = {  # я теперь знаю, что ещё переписать на базу данных.
             754719910256574646: "Бывший второй разработчик бота и лучший бета-тестер. Написал некоторые команды развлечений "
@@ -56,30 +81,6 @@ class BotInfo(commands.Cog):
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_footer(
             text=f"©️ 2021 - {datetime.datetime.now().year} MadBot. Все права защищены."
-        )
-
-        bot_stats = await db.get_bot_stats()
-        stats = discord.Embed(
-            title=f"{self.bot.user.name} - Статистика", color=discord.Color.orange()
-        )
-        stats.add_field(name="Пинг", value=f"{int(round(self.bot.latency, 3)*1000)}ms")
-        stats.add_field(name="Запущен", value=f"<t:{started_at}:R>")
-        stats.add_field(name="Кол-во серверов", value=f"{len(self.bot.guilds):,}")
-        stats.add_field(name="Кол-во участников", value=f"{len(self.bot.users):,}")
-        stats.add_field(
-            name="Последняя использованная команда",
-            value=bot_stats["last_command"] or "Ещё ни разу команды не использовались",
-        )
-        stats.add_field(
-            name="Кол-во команд/контекстных меню",
-            value=f"{len(self.bot.tree.get_commands(type=discord.AppCommandType.chat_input)):,}/{len(self.bot.tree.get_commands(type=discord.AppCommandType.user)) + len(self.bot.tree.get_commands(type=discord.AppCommandType.message)):,}",
-        )
-        stats.add_field(
-            name="Обработано команд", value=f"{bot_stats['used_commands']:,}"
-        )
-        stats.set_thumbnail(url=self.bot.user.display_avatar.url)
-        stats.set_footer(
-            text=str(interaction.user), icon_url=interaction.user.display_avatar.url
         )
 
         versions = discord.Embed(
@@ -122,13 +123,6 @@ class BotInfo(commands.Cog):
         for tu in self.thanks_user:
             thanks.add_field(name=tu, value=self.thanks_user[tu], inline=False)
 
-        embeds = {
-            "embed": embed,
-            "stats": stats,
-            "versions": versions,
-            "thanks": thanks,
-        }
-
         class DropDown(discord.ui.Select):
             def __init__(self):
                 options = [
@@ -160,6 +154,13 @@ class BotInfo(commands.Cog):
                 super().__init__(placeholder="Выбор...", options=options, row=1)
 
             async def callback(self, viewinteract: discord.Interaction):
+                embeds = {
+                    "embed": embed,
+                    "stats": await self.get_bot_stats_embed(viewinteract.user),
+                    "versions": versions,
+                    "thanks": thanks,
+                }
+
                 if interaction.user != viewinteract.user:
                     return await viewinteract.response.send_message(
                         embed=embeds[self.values[0]], ephemeral=True

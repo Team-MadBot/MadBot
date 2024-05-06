@@ -83,7 +83,7 @@ class ButtonRoleEditEmbedModal(ui.Modal, title="Выдача ролей - Изм
 
 
 class ButtonRoleEditEmbedView(ui.View):
-    def __init__(self, embed_title: str, embed_description: str, embed_color: str, select_placeholder: str | discord.utils.MISSING = discord.utils.MISSING):
+    def __init__(self, embed_title: str, embed_description: str, embed_color: str, select_placeholder: str | None = discord.utils.MISSING):
         super().__init__(timeout=300)
         self.embed_title = embed_title
         self.embed_description = embed_description
@@ -97,7 +97,7 @@ class ButtonRoleEditEmbedView(ui.View):
         modal.embed_title.default = self.embed_title
         modal.embed_description.default = self.embed_description
         modal.embed_color.default = self.embed_color
-        if isinstance(self.select_placeholder, discord.utils.MISSING):
+        if self.select_placeholder is discord.utils.MISSING:
             modal.select_placeholder = None
         else:
             modal.select_placeholder.default = self.select_placeholder

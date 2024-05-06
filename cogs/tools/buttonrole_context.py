@@ -75,7 +75,7 @@ class ButtonRoleEditEmbedModal(ui.Modal, title="Выдача ролей - Изм
         label="Заполнитель меню выбора:",
         placeholder="Выберите свою роль!",
         max_length=150,
-        required=False
+        required=False,
     )
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -83,7 +83,13 @@ class ButtonRoleEditEmbedModal(ui.Modal, title="Выдача ролей - Изм
 
 
 class ButtonRoleEditEmbedView(ui.View):
-    def __init__(self, embed_title: str, embed_description: str, embed_color: str, select_placeholder: str | None = discord.utils.MISSING):
+    def __init__(
+        self,
+        embed_title: str,
+        embed_description: str,
+        embed_color: str,
+        select_placeholder: str | None = discord.utils.MISSING,
+    ):
         super().__init__(timeout=300)
         self.embed_title = embed_title
         self.embed_description = embed_description
@@ -152,7 +158,9 @@ class ConfirmView(ui.View):
 
 
 class ButtonRoleEditedView(ui.View):
-    def __init__(self, guild_id: int, roles: list[discord.Role], select_placeholder: str | None):
+    def __init__(
+        self, guild_id: int, roles: list[discord.Role], select_placeholder: str | None
+    ):
         super().__init__(timeout=None)
         if len(roles) == 1:
             self.add_item(
@@ -257,12 +265,16 @@ class ButtonRoleContextCog(commands.Cog):
         embed_title = message.embeds[0].title
         embed_description = message.embeds[0].description
         embed_color = str(message.embeds[0].color).upper()
-        select_placeholder = discord.utils.MISSING if len(roles) < 2 or len(selected_roles) < 2 else component.placeholder
+        select_placeholder = (
+            discord.utils.MISSING
+            if len(roles) < 2 or len(selected_roles) < 2
+            else component.placeholder
+        )
         embed_edit_view = ButtonRoleEditEmbedView(
             embed_title=embed_title,
             embed_description=embed_description,
             embed_color=embed_color,
-            select_placeholder=select_placeholder
+            select_placeholder=select_placeholder,
         )
         embed = discord.Embed(
             title="Изменение выдачи - Изменение эмбеда",

@@ -114,7 +114,6 @@ class ButtonRole(commands.Cog):
         color = discord.Color.orange()
         select_placeholder = None
 
-
         class Input(discord.ui.Modal, title="Кастомизация эмбеда"):
             main = discord.ui.TextInput(
                 label="Заголовок эмбеда:",
@@ -138,12 +137,16 @@ class ButtonRole(commands.Cog):
                 required=False,
                 placeholder="#FFFFFF",
             )
-            select_placeholder = discord.ui.TextInput(
-                label="Заполнитель меню выбора:",
-                max_length=150,
-                required=False,
-                placeholder="Выберите свою роль!"
-            ) if len(roles) > 1 else None
+            select_placeholder = (
+                discord.ui.TextInput(
+                    label="Заполнитель меню выбора:",
+                    max_length=150,
+                    required=False,
+                    placeholder="Выберите свою роль!",
+                )
+                if len(roles) > 1
+                else None
+            )
 
             async def on_submit(self, viewinteract: discord.Interaction) -> None:
                 nonlocal title, description, color, select_placeholder
@@ -155,7 +158,10 @@ class ButtonRole(commands.Cog):
 
                 if str(self.color) != "":
                     color = str(self.color)
-                if self.select_placeholder is not None and str(self.select_placeholder) != "":
+                if (
+                    self.select_placeholder is not None
+                    and str(self.select_placeholder) != ""
+                ):
                     select_placeholder = str(self.select_placeholder)
 
         class KostylView(discord.ui.View):
@@ -233,7 +239,7 @@ class ButtonRole(commands.Cog):
                     options=options,
                 )
             )
-        
+
         user_embed = discord.Embed(
             title=title, color=color, description=description
         ).set_footer(

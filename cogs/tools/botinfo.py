@@ -14,8 +14,14 @@ from classes import db
 from config import settings
 from config import started_at
 
+
 class DropDown(discord.ui.Select):
-    def __init__(self, bot: commands.AutoShardedBot, init_user: discord.User | discord.Member, **kwargs):
+    def __init__(
+        self,
+        bot: commands.AutoShardedBot,
+        init_user: discord.User | discord.Member,
+        **kwargs,
+    ):
         options = [
             discord.SelectOption(
                 label="Главная",
@@ -86,9 +92,8 @@ class DropDown(discord.ui.Select):
                 embed=embeds[self.values[0]], ephemeral=True
             )
 
-        await viewinteract.response.edit_message(
-            embed=embeds[self.values[0]]
-        )
+        await viewinteract.response.edit_message(embed=embeds[self.values[0]])
+
 
 class BotInfo(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
@@ -173,7 +178,10 @@ class BotInfo(commands.Cog):
         for tu in self.thanks_user:
             thanks.add_field(name=tu, value=self.thanks_user[tu], inline=False)
 
-        dropdown = DropDown(self.bot, interaction.user, embed=embed, versions=versions, thanks=thanks)
+        dropdown = DropDown(
+            self.bot, interaction.user, embed=embed, versions=versions, thanks=thanks
+        )
+
         class View(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)

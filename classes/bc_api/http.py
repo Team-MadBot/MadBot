@@ -37,13 +37,13 @@ class HttpClient:
             )
 
     async def get_bot_info(self, bot_id: str | int):
-        return self.make_request("GET", f"/bots/{bot_id}")
+        return await self.make_request("GET", f"/bots/{bot_id}")
 
     async def get_guild_info(self, guild_id: str | int):
-        return self.make_request("GET", f"/servers/{guild_id}")
+        return await self.make_request("GET", f"/servers/{guild_id}")
 
     async def post_bot_stats(self, bot_id: str | int, stats: dict):
-        return self.make_request("POST", f"/bots/{bot_id}/stats", json=stats)
+        return await self.make_request("POST", f"/bots/{bot_id}/stats", json=stats)
 
     async def get_captcha(
         self, resource_id: int, user_id: int

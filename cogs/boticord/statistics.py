@@ -15,7 +15,7 @@ class BoticordStatisticsCog(commands.Cog):
             self.send_bot_stats.start()
 
     async def cog_unload(self):
-        if not settings["debug_mode"]
+        if not settings["debug_mode"]:
             self.send_bot_stats.cancel()
             await self.bc_client.session.close()
             self.bc_client = None

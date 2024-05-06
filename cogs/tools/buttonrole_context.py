@@ -131,7 +131,9 @@ class ButtonRoleEditEmbedView(ui.View):
         self.embed_description = modal.embed_description.value or self.embed_description
         self.embed_color = modal.embed_color.value or self.embed_color
         if modal.select_placeholder is not None:
-            self.select_placeholder = modal.select_placeholder.value or self.select_placeholder
+            self.select_placeholder = (
+                modal.select_placeholder.value or self.select_placeholder
+            )
         self.stop()
 
     @ui.button(label="Пропустить", row=1)
@@ -323,7 +325,9 @@ class ButtonRoleContextCog(commands.Cog):
 
         await message.edit(
             embed=buttonrole_embed,
-            view=ButtonRoleEditedView(interaction.guild.id, selected_roles, embed_edit_view.select_placeholder),
+            view=ButtonRoleEditedView(
+                interaction.guild.id, selected_roles, embed_edit_view.select_placeholder
+            ),
         )
         embed = discord.Embed(
             title="Успешно!",

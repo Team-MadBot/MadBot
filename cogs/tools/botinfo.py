@@ -125,6 +125,7 @@ class BotInfo(commands.Cog):
             thanks.add_field(name=tu, value=self.thanks_user[tu], inline=False)
 
         class DropDown(discord.ui.Select):
+            get_bot_stats_embed = self.get_bot_stats_embed
             def __init__(self):
                 options = [
                     discord.SelectOption(

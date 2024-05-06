@@ -270,7 +270,7 @@ class ButtonRoleContextCog(commands.Cog):
         select_placeholder = (
             discord.utils.MISSING
             if len(selected_roles) < 2
-            else component.placeholder
+            else component.placeholder if len(roles) > 1 else None
         )
         embed_edit_view = ButtonRoleEditEmbedView(
             embed_title=embed_title,

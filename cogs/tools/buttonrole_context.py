@@ -269,7 +269,7 @@ class ButtonRoleContextCog(commands.Cog):
         embed_color = str(message.embeds[0].color).upper()
         select_placeholder = (
             discord.utils.MISSING
-            if len(roles) < 2 or len(selected_roles) < 2
+            if len(selected_roles) < 2
             else component.placeholder
         )
         embed_edit_view = ButtonRoleEditEmbedView(

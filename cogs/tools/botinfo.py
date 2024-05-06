@@ -14,10 +14,38 @@ from classes import db
 from config import settings
 from config import started_at
 
-
-class BotInfo(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot):
+class DropDown(discord.ui.Select):
+    def __init__(self, bot: commands.AutoShardedBot, init_user: discord.User | discord.Member, **kwargs):
+        options = [
+            discord.SelectOption(
+                label="Главная",
+                value="embed",
+                description="Главное меню.",
+                emoji="🐱",
+            ),
+            discord.SelectOption(
+                label="Статистика",
+                value="stats",
+                description="Статистика бота.",
+                emoji="📊",
+            ),
+            discord.SelectOption(
+                label="Версии",
+                value="versions",
+                description="Версии библиотек и Python.",
+                emoji="⚒️",
+            ),
+            discord.SelectOption(
+                label="Благодарности",
+                value="thanks",
+                description="Эти люди сделали многое для бота.",
+                emoji="❤️",
+            ),
+        ]
+        super().__init__(placeholder="Выбор...", options=options, row=1)
         self.bot = bot
+        self.init_user = init_user
+        self.kwargs = kwargs
 
     async def get_bot_stats_embed(self, requested_user: discord.User | discord.Member):
         bot_stats = await db.get_bot_stats()
@@ -44,6 +72,27 @@ class BotInfo(commands.Cog):
             text=str(requested_user.user), icon_url=requested_user.display_avatar.url
         )
         return stats
+
+    async def callback(self, viewinteract: discord.Interaction):
+        embeds = {
+            "embed": self.kwargs.get("embed"),
+            "stats": await self.get_bot_stats_embed(viewinteract.user),
+            "versions": self.kwargs.get("versions"),
+            "thanks": self.kwargs.get("thanks"),
+        }
+
+        if self.init_user.id != viewinteract.user.id:
+            return await viewinteract.response.send_message(
+                embed=embeds[self.values[0]], ephemeral=True
+            )
+
+        await viewinteract.response.edit_message(
+            embed=embeds[self.values[0]]
+        )
+
+class BotInfo(commands.Cog):
+    def __init__(self, bot: commands.AutoShardedBot):
+        self.bot = bot
 
     async def cog_load(self):
         thanks_users = {  # я теперь знаю, что ещё переписать на базу данных.
@@ -124,55 +173,7 @@ class BotInfo(commands.Cog):
         for tu in self.thanks_user:
             thanks.add_field(name=tu, value=self.thanks_user[tu], inline=False)
 
-        class DropDown(discord.ui.Select):
-            get_bot_stats_embed = self.get_bot_stats_embed
-            def __init__(self):
-                options = [
-                    discord.SelectOption(
-                        label="Главная",
-                        value="embed",
-                        description="Главное меню.",
-                        emoji="🐱",
-                    ),
-                    discord.SelectOption(
-                        label="Статистика",
-                        value="stats",
-                        description="Статистика бота.",
-                        emoji="📊",
-                    ),
-                    discord.SelectOption(
-                        label="Версии",
-                        value="versions",
-                        description="Версии библиотек и Python.",
-                        emoji="⚒️",
-                    ),
-                    discord.SelectOption(
-                        label="Благодарности",
-                        value="thanks",
-                        description="Эти люди сделали многое для бота.",
-                        emoji="❤️",
-                    ),
-                ]
-                super().__init__(placeholder="Выбор...", options=options, row=1)
-
-            async def callback(self, viewinteract: discord.Interaction):
-                embeds = {
-                    "embed": embed,
-                    "stats": await self.get_bot_stats_embed(viewinteract.user),
-                    "versions": versions,
-                    "thanks": thanks,
-                }
-
-                if interaction.user != viewinteract.user:
-                    return await viewinteract.response.send_message(
-                        embed=embeds[self.values[0]], ephemeral=True
-                    )
-                else:
-                    await interaction.edit_original_response(
-                        embed=embeds[self.values[0]]
-                    )
-                    await viewinteract.response.defer()
-
+        dropdown = DropDown(self.bot, interaction.user, embed=embed, versions=versions, thanks=thanks)
         class View(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)
@@ -202,7 +203,7 @@ class BotInfo(commands.Cog):
                         emoji="<:favicon:981586173204000808>",
                     )
                 )
-                self.add_item(DropDown())
+                self.add_item(dropdown)
 
         await interaction.response.send_message(embed=embed, view=View())
 

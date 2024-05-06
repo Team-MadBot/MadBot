@@ -112,38 +112,7 @@ class ButtonRole(commands.Cog):
         title = ""
         description = ""
         color = discord.Color.orange()
-
-        class View(discord.ui.View):
-            def __init__(self):
-                super().__init__(timeout=None)
-
-        view = View()
-        options = []
-        for role in roles:
-            options.append(
-                discord.SelectOption(
-                    label=f"{role.name}",
-                    value=str(role.id),
-                    description="Выберите это пункт, чтобы взять/убрать роль.",
-                )
-            )
-        if len(options) == 1:
-            view.add_item(
-                discord.ui.Button(
-                    style=discord.ButtonStyle.green,
-                    label=roles[0].name,
-                    custom_id=str(roles[0].id),
-                )
-            )
-        else:
-            view.add_item(
-                discord.ui.Select(
-                    custom_id=str(interaction.guild.id),
-                    placeholder="Выберите роли",
-                    max_values=len(options),
-                    options=options,
-                )
-            )
+        select_placeholder = None
 
         class Input(discord.ui.Modal, title="Кастомизация эмбеда"):
             main = discord.ui.TextInput(
@@ -168,9 +137,19 @@ class ButtonRole(commands.Cog):
                 required=False,
                 placeholder="#FFFFFF",
             )
+            select_placeholder = (
+                discord.ui.TextInput(
+                    label="Заполнитель меню выбора:",
+                    max_length=150,
+                    required=False,
+                    placeholder="Выберите свою роль!",
+                )
+                if len(roles) > 1
+                else None
+            )
 
             async def on_submit(self, viewinteract: discord.Interaction) -> None:
-                nonlocal title, description, color
+                nonlocal title, description, color, select_placeholder
 
                 await viewinteract.response.defer()
 
@@ -179,6 +158,11 @@ class ButtonRole(commands.Cog):
 
                 if str(self.color) != "":
                     color = str(self.color)
+                if (
+                    self.select_placeholder is not None
+                    and str(self.select_placeholder) != ""
+                ):
+                    select_placeholder = str(self.select_placeholder)
 
         class KostylView(discord.ui.View):
             def __init__(self):
@@ -223,6 +207,38 @@ class ButtonRole(commands.Cog):
                     description="Цвет введён неверно!",
                 )
                 return await interaction.followup.send(embed=embed, ephemeral=True)
+
+        class View(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=None)
+
+        view = View()
+        options = []
+        for role in roles:
+            options.append(
+                discord.SelectOption(
+                    label=f"{role.name}",
+                    value=str(role.id),
+                    description="Выберите это пункт, чтобы взять/убрать роль.",
+                )
+            )
+        if len(options) == 1:
+            view.add_item(
+                discord.ui.Button(
+                    style=discord.ButtonStyle.green,
+                    label=roles[0].name,
+                    custom_id=str(roles[0].id),
+                )
+            )
+        else:
+            view.add_item(
+                discord.ui.Select(
+                    custom_id=str(interaction.guild.id),
+                    placeholder=select_placeholder or "Выберите роли",
+                    max_values=len(options),
+                    options=options,
+                )
+            )
 
         user_embed = discord.Embed(
             title=title, color=color, description=description

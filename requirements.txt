@@ -1,7 +1,6 @@
 discord.py
 PyNaCl
 aiohttp
-boticordpy
 numexpr
 motor
 fluent.runtime

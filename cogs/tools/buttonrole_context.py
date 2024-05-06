@@ -71,17 +71,30 @@ class ButtonRoleEditEmbedModal(ui.Modal, title="Выдача ролей - Изм
         min_length=7,
         required=False,
     )
+    select_placeholder = ui.TextInput(
+        label="Заполнитель меню выбора:",
+        placeholder="Выберите свою роль!",
+        max_length=150,
+        required=False,
+    )
 
     async def on_submit(self, interaction: discord.Interaction):
         self.interaction = interaction
 
 
 class ButtonRoleEditEmbedView(ui.View):
-    def __init__(self, embed_title: str, embed_description: str, embed_color: str):
+    def __init__(
+        self,
+        embed_title: str,
+        embed_description: str,
+        embed_color: str,
+        select_placeholder: str | None = discord.utils.MISSING,
+    ):
         super().__init__(timeout=300)
         self.embed_title = embed_title
         self.embed_description = embed_description
         self.embed_color = embed_color
+        self.select_placeholder = select_placeholder
         self.interaction: discord.Interaction | None = None
 
     @ui.button(label="Изменить эмбед", style=discord.ButtonStyle.green)
@@ -90,6 +103,11 @@ class ButtonRoleEditEmbedView(ui.View):
         modal.embed_title.default = self.embed_title
         modal.embed_description.default = self.embed_description
         modal.embed_color.default = self.embed_color
+        if self.select_placeholder is discord.utils.MISSING:
+            modal.select_placeholder = None
+        else:
+            modal.select_placeholder.default = self.select_placeholder
+
         await interaction.response.send_modal(modal)
         await modal.wait()
         if modal.interaction is None:
@@ -112,6 +130,10 @@ class ButtonRoleEditEmbedView(ui.View):
         self.embed_title = modal.embed_title.value or self.embed_title
         self.embed_description = modal.embed_description.value or self.embed_description
         self.embed_color = modal.embed_color.value or self.embed_color
+        if modal.select_placeholder is not None:
+            self.select_placeholder = (
+                modal.select_placeholder.value or self.select_placeholder
+            )
         self.stop()
 
     @ui.button(label="Пропустить", row=1)
@@ -140,7 +162,9 @@ class ConfirmView(ui.View):
 
 
 class ButtonRoleEditedView(ui.View):
-    def __init__(self, guild_id: int, roles: list[discord.Role]):
+    def __init__(
+        self, guild_id: int, roles: list[discord.Role], select_placeholder: str | None
+    ):
         super().__init__(timeout=None)
         if len(roles) == 1:
             self.add_item(
@@ -154,7 +178,7 @@ class ButtonRoleEditedView(ui.View):
             self.add_item(
                 ui.Select(
                     custom_id=str(guild_id),
-                    placeholder="Выберите роль",
+                    placeholder=select_placeholder or "Выберите роль",
                     max_values=len(roles),
                     options=[
                         discord.SelectOption(
@@ -245,10 +269,16 @@ class ButtonRoleContextCog(commands.Cog):
         embed_title = message.embeds[0].title
         embed_description = message.embeds[0].description
         embed_color = str(message.embeds[0].color).upper()
+        select_placeholder = (
+            discord.utils.MISSING
+            if len(selected_roles) < 2
+            else component.placeholder if len(roles) > 1 else None
+        )
         embed_edit_view = ButtonRoleEditEmbedView(
             embed_title=embed_title,
             embed_description=embed_description,
             embed_color=embed_color,
+            select_placeholder=select_placeholder,
         )
         embed = discord.Embed(
             title="Изменение выдачи - Изменение эмбеда",
@@ -295,7 +325,9 @@ class ButtonRoleContextCog(commands.Cog):
 
         await message.edit(
             embed=buttonrole_embed,
-            view=ButtonRoleEditedView(interaction.guild.id, selected_roles),
+            view=ButtonRoleEditedView(
+                interaction.guild.id, selected_roles, embed_edit_view.select_placeholder
+            ),
         )
         embed = discord.Embed(
             title="Успешно!",

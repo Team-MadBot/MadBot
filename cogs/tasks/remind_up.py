@@ -1,13 +1,13 @@
 import discord
-import aiohttp
 import time
 
 from discord.ext import commands
 from discord.ext import tasks
 
-from cogs.bc_api import LinktoBoticord
-from config import settings
+from cogs.boticord.websocket import LinktoBoticord
 from classes import db
+
+from contextlib import suppress
 
 
 class RemindUpCog(commands.Cog):
@@ -27,12 +27,6 @@ class RemindUpCog(commands.Cog):
                 continue
             if user["reminded"] or not user["enabled"]:
                 continue
-            bc_wh = discord.Webhook.from_url(
-                settings["bc_hook_url"],
-                session=aiohttp.ClientSession(),
-                client=self.bot,
-                bot_token=settings["token"],
-            )
             assert self.bot.user is not None
             view = LinktoBoticord(self.bot.user.id)
             embed = discord.Embed(
@@ -45,11 +39,13 @@ class RemindUpCog(commands.Cog):
                 url="https://cdn.discordapp.com/attachments/1058728870540476506/1125117851578142822/favicon.png"
             )
             await db.update_user(user_id=user["user_id"], reminded=True)
-            await bc_wh.send(
-                f"<@{user['user_id']}>, время апнуть MadBot на Boticord!",
-                embed=embed,
-                view=view,
-            )
+            with suppress(Exception):
+                discord_user = await self.bot.fetch_user(user["user_id"])
+                await discord_user.send(
+                    f"<@{discord_user.id}>, время апнуть MadBot на Boticord!",
+                    embed=embed,
+                    view=view,
+                )
 
     @remind_up.before_loop
     async def remind_up_before(self):

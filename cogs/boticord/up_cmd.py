@@ -4,15 +4,16 @@ import base64
 import datetime
 import time
 
+from contextlib import suppress
 from discord.ext import commands
 from discord import app_commands
 from discord import ui
-from typing import List, Union
 from io import BytesIO
 
 from config import *
 from classes import checks
 from classes import db
+from classes.bc_api import BoticordClient
 
 
 class LinktoBoticord(ui.View):
@@ -66,9 +67,9 @@ class SetReminderButton(ui.Button):
         embed = discord.Embed(
             title="Напоминание о повышении",
             color=discord.Color.orange(),
-            description="Напоминание о повышении бота на мониторинге включено. Вы будете упомянуты в этом канале, "
-            "когда настанет время. Для отключения используйте `/remind disable`",
-        )
+            description="Напоминание о повышении бота на мониторинге включено. Бот напишет Вам в личные сообщения, "
+            "когда настанет время. **Убедитесь, что бот сможет это сделать!**",
+        ).set_footer(text="Для отключения используйте `/remind disable`.")
         self.view.stop()
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -103,53 +104,14 @@ class CaptchaButtonsView(ui.View):
 class BoticordBotUp(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
-        self.token = settings["bcv2_token"]
+        self.bc_client: BoticordClient | None = None
 
     async def cog_load(self):
-        self.session = aiohttp.ClientSession(
-            base_url="https://api.boticord.top",
-            headers={
-                "Authorization": self.token,
-                "User-Agent": f"MadBot v.{settings['curr_version']} (aiohttp v.{aiohttp.__version__})",
-                "Content-Type": "application/json",
-            },
-        )
+        self.bc_client = BoticordClient(settings["bcv2_token"])
 
     async def cog_unload(self):
-        await self.session.close()
-
-    async def get_captcha(
-        self, user_id: int
-    ) -> List[Union[aiohttp.ClientResponse, dict]]:
-        async with self.session.post(
-            "/v3/resources/ups/service/prepare",
-            json={
-                "token": self.token,
-                "resource": str(self.bot.user.id),
-                "user": str(user_id),
-            },
-        ) as resp:
-            if resp.content_type.lower() != "application/json":
-                data = await resp.read()
-                return [resp, {"error": data}]
-            json = await resp.json()
-            return [resp, json]
-
-    async def submit_captcha(
-        self, captcha_id: str, user_id: int, answer: int
-    ) -> List[Union[aiohttp.ClientResponse, dict]]:
-        async with self.session.post(
-            "/v3/resources/ups/service/proceed",
-            json={
-                "token": self.token,
-                "resource": str(self.bot.user.id),
-                "user": str(user_id),
-                "captchaId": captcha_id,
-                "captchaAnswer": answer,
-            },
-        ) as resp:
-            json = await resp.json()
-            return [resp, json]
+        await self.bc_client.session.close()
+        self.bc_client = None
 
     @app_commands.command(
         name="up", description="[Boticord] Апнуть бота на мониторинге"
@@ -160,7 +122,9 @@ class BoticordBotUp(commands.Cog):
     async def bump_bot(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
 
-        resp, resp_json = await self.get_captcha(interaction.user.id)
+        resp, resp_json = await self.bc_client.http.get_captcha(
+            resource_id=self.bot.user.id, user_id=interaction.user.id
+        )
 
         if resp.status == 403:
             embed = discord.Embed(
@@ -265,8 +229,11 @@ class BoticordBotUp(commands.Cog):
                 ),
             )
 
-        resp, resp_json = await self.submit_captcha(
-            captcha_id=captcha_id, user_id=interaction.user.id, answer=view.value
+        resp, resp_json = await self.bc_client.http.submit_captcha(
+            resource_id=self.bot.user.id,
+            captcha_id=captcha_id,
+            user_id=interaction.user.id,
+            answer=view.value,
         )
 
         if not resp.ok:
@@ -304,12 +271,6 @@ class BoticordBotUp(commands.Cog):
         )
 
         # Выдача награды (убрать, когда мирдук сделает фиксика)
-        bc_wh = discord.Webhook.from_url(
-            settings["bc_hook_url"],
-            session=aiohttp.ClientSession(),
-            client=self.bot,
-            bot_token=settings["token"],
-        )
         user = interaction.user
 
         next_up = round(time.time()) + 3600 * 6
@@ -328,10 +289,9 @@ class BoticordBotUp(commands.Cog):
             discord.Embed(
                 title="Спасибо за ап бота!",
                 color=discord.Color.orange(),
-                description=f"В награду, Вам выдано **1,500 серверных монет**. Если Вы не получили монет - "
-                "напишите в <#981547296275705927>.\n\n"
-                "Вы также можете апнуть бота на SDC (кнопка ниже), но для получения награды необходимо прислать скриншот "
-                "в <#1128223151264911360>.",
+                description=f"В награду, с Вас сняты задержки на команды на 6 часов! Если задержки всё ещё присутствуют - "
+                "напишите в <#1214210929844027402> на сервере поддержки.\n\n"
+                "Вы также можете апнуть бота на SDC (кнопка ниже), однако никакой награды выдано не будет.",
                 timestamp=datetime.datetime.now(),
             )
             .set_footer(text=f"ID пользователя: {user.id}")
@@ -348,7 +308,6 @@ class BoticordBotUp(commands.Cog):
             )
             .add_field(name="Следующий бамп:", value=f"<t:{next_up}> (<t:{next_up}:R>)")
         )
-        msg = await bc_wh.send(content=user.mention, embed=embed, view=view, wait=True)
         headers = {"Authorization": settings["unbelieva_token"]}
         body = {"cash": 1500, "reason": "Ап бота"}
         session = aiohttp.ClientSession()
@@ -357,11 +316,13 @@ class BoticordBotUp(commands.Cog):
             headers=headers,
             json=body,
         )
-        await view.wait()
-        for item in view.children:
-            if item.url is None:
-                item.disabled = True
-        await msg.edit(view=view)
+        with suppress(Exception):
+            msg = await user.send(content=user.mention, embed=embed, view=view)
+            await view.wait()
+            for item in view.children:
+                if item.url is None:
+                    item.disabled = True
+            await msg.edit(view=view)
 
 
 async def setup(bot: commands.AutoShardedBot):

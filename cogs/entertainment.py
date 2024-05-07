@@ -770,7 +770,7 @@ class Entertainment(commands.Cog):
                         viewinteract.user.id != self.X.id
                         and view.current_player == view.X
                     ):
-                        await viewinteract.response.send_message(
+                        return await viewinteract.response.send_message(
                             "Не для тебя кнопочка!", ephemeral=True
                         )
                     elif (
@@ -783,7 +783,7 @@ class Entertainment(commands.Cog):
                         view.board[self.y][self.x] = view.O
                         view.current_player = view.X
                     elif viewinteract.user.id != self.O.id:
-                        await viewinteract.response.send_message(
+                        return await viewinteract.response.send_message(
                             "Не для тебя кнопочка!", ephemeral=True
                         )
                     if view.current_player == view.X:

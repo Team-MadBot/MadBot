@@ -142,6 +142,10 @@ class BoticordCog(commands.Cog):
                 enabled=False,
                 up_count=1,
             )
+            db_user = {
+                "next_bump": next_up,
+                "up_count": 1
+            }
 
         embed = (
             discord.Embed(

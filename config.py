@@ -7,7 +7,7 @@ from typing import TypedDict, Final
 
 load_dotenv()
 
-__VERSION__ = "1.4"
+__VERSION__ = "1.4.1"
 
 
 class __Settings(TypedDict):

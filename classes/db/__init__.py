@@ -22,6 +22,14 @@ parser.add_argument(
     dest="migrate_db",
 )
 parser.add_argument(
+    "--sync-commands",
+    "--sync",
+    help="Should bot sync application commands after launch?",
+    action="store_true",
+    default=False,
+    dest="sync_commands",
+)
+parser.add_argument(
     "--db-suffix",
     "--db",
     help="Adds suffix for DB name in MongoDB.",

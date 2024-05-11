@@ -35,13 +35,14 @@ logger.addHandler(_handler)
 
 
 class MadBot(commands.AutoShardedBot):
-    def __init__(self, migrate_db: bool = False):
+    def __init__(self, migrate_db: bool = False, sync_commands: bool = False):
         super().__init__(
             command_prefix=commands.when_mentioned_or("mad."),
             intents=intents,
             application_id=config.settings["app_id"],
         )
         self.migrate_db = migrate_db
+        self.sync_commands = sync_commands
 
     async def load_cogs(self):
         for path, _, files in os.walk("cogs"):
@@ -120,6 +121,10 @@ class MadBot(commands.AutoShardedBot):
         logger.info("Соединено! Авторизация...")
 
     async def on_ready(self):
+        if self.sync_commands:
+            logger.info("Синхронизация слеш-команд...")
+            await self.tree.sync()
+
         logs = self.get_channel(config.settings["log_channel"])  # Канал логов.
         assert isinstance(logs, discord.TextChannel)
 
@@ -279,6 +284,14 @@ if __name__ == "__main__":
         dest="migrate_db",
     )
     parser.add_argument(
+        "--sync-commands",
+        "--sync",
+        help="Should bot sync application commands after launch?",
+        action="store_true",
+        default=False,
+        dest="sync_commands",
+    )
+    parser.add_argument(
         "--db-suffix",
         "--db",
         help="Adds suffix for DB name in MongoDB.",
@@ -290,7 +303,7 @@ if __name__ == "__main__":
     logger.info("Подключение к Discord...")
     boticord_logger = logging.getLogger("boticord.websocket")
     boticord_logger.setLevel(logging.DEBUG if args.debug_mode else logging.INFO)
-    bot = MadBot(migrate_db=args.migrate_db)
+    bot = MadBot(migrate_db=args.migrate_db, sync_commands=args.sync_commands)
     bot.run(
         config.settings["token"],
         log_level=logging.DEBUG if args.debug_mode else logging.INFO,

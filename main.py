@@ -304,7 +304,15 @@ if __name__ == "__main__":
     boticord_logger = logging.getLogger("boticord.websocket")
     boticord_logger.setLevel(logging.DEBUG if args.debug_mode else logging.INFO)
     bot = MadBot(migrate_db=args.migrate_db, sync_commands=args.sync_commands)
-    bot.run(
-        config.settings["token"],
-        log_level=logging.DEBUG if args.debug_mode else logging.INFO,
-    )
+    while True:
+        try:
+            bot.run(
+                config.settings["token"],
+                log_level=logging.DEBUG if args.debug_mode else logging.INFO,
+            )
+        except Exception:
+            traceback.print_exc()
+            logger.warn("Произошло падение. Перезагрузка...")
+            bot = MadBot()
+        else:
+            exit()

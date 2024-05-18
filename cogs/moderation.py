@@ -656,22 +656,23 @@ class Moderation(commands.Cog):
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        bot_member = interaction.guild.me
-        
+        await interaction.response.defer(thinking=True)
+
+        bot_member = interaction.guild.me        
         if not interaction.user.guild_permissions.manage_nicknames:
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="У вас отсутствует право `управлять никнеймами` для использования команды.",
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.followup.send(embed=embed)
         if not bot_member.guild_permissions.manage_nicknames:
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Бот не имеет право `управлять никнеймами` для использования команды."
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.followup.send(embed=embed)
 
         if member.top_role <= interaction.user.top_role:
             embed = discord.Embed(
@@ -679,14 +680,14 @@ class Moderation(commands.Cog):
                 color=discord.Color.red(),
                 description="Вы не можете управлять никнеймами участников, чья роль выше либо равна вашей!",
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.followup.send(embed=embed)
         if bot_member.top_role <= member.top_role:
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Роль бота ниже роли участника сервера, ник которого Вы хотите сбросить."
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.followup.send(embed=embed)
 
         if interaction.guild.owner_id == interaction.user.id:
             embed = discord.Embed(
@@ -694,14 +695,14 @@ class Moderation(commands.Cog):
                 color=discord.Color.red(),
                 description="Бот не может изменить никнейм владельцу сервера.",
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.followup.send(embed=embed)
         if member.bot:
             embed = discord.Embed(
                 title="Не понял",
                 color=discord.Color.red(),
                 description="Нельзя сбросить ник боту.",
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.followup.send(embed=embed)
 
         try:
             await member.edit(
@@ -714,7 +715,7 @@ class Moderation(commands.Cog):
                 description=f"У бота отсутствует право `управлять никнеймами` для совершения действия!"
                 "\nТип ошибки: `Forbidden`",
             )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            return await interaction.followup.send(embed=embed)
 
         embed = (
             discord.Embed(
@@ -734,7 +735,7 @@ class Moderation(commands.Cog):
             embed.set_footer(
                 text="Участник закрыл доступ к личным сообщениям, поэтому не был оповещён."
             )
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
 
 async def setup(bot: commands.Bot):

@@ -656,6 +656,8 @@ class Moderation(commands.Cog):
             ).set_thumbnail(url=interaction.user.display_avatar.url)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
+        bot_member = interaction.guild.me
+        
         if not interaction.user.guild_permissions.manage_nicknames:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -663,15 +665,34 @@ class Moderation(commands.Cog):
                 description="У вас отсутствует право `управлять никнеймами` для использования команды.",
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if not bot_member.guild_permissions.manage_nicknames:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Бот не имеет право `управлять никнеймами` для использования команды."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        if (
-            member.top_role.position >= interaction.user.top_role.position
-            and interaction.guild.owner_id != interaction.user.id
-        ):
+        if member.top_role <= interaction.user.top_role:
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
                 description="Вы не можете управлять никнеймами участников, чья роль выше либо равна вашей!",
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        if bot_member.top_role <= member.top_role:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Роль бота ниже роли участника сервера, ник которого Вы хотите сбросить."
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        if interaction.guild.owner_id == interaction.user.id:
+            embed = discord.Embed(
+                title="Ошибка!",
+                color=discord.Color.red(),
+                description="Бот не может изменить никнейм владельцу сервера.",
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         if member.bot:

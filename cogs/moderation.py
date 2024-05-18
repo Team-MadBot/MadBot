@@ -658,7 +658,7 @@ class Moderation(commands.Cog):
 
         await interaction.response.defer(thinking=True)
 
-        bot_member = interaction.guild.me        
+        bot_member = interaction.guild.me
         if not interaction.user.guild_permissions.manage_nicknames:
             embed = discord.Embed(
                 title="Ошибка!",
@@ -670,7 +670,7 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
-                description="Бот не имеет право `управлять никнеймами` для использования команды."
+                description="Бот не имеет право `управлять никнеймами` для использования команды.",
             )
             return await interaction.followup.send(embed=embed)
 
@@ -685,7 +685,7 @@ class Moderation(commands.Cog):
             embed = discord.Embed(
                 title="Ошибка!",
                 color=discord.Color.red(),
-                description="Роль бота ниже роли участника сервера, ник которого Вы хотите сбросить."
+                description="Роль бота ниже роли участника сервера, ник которого Вы хотите сбросить.",
             )
             return await interaction.followup.send(embed=embed)
 
